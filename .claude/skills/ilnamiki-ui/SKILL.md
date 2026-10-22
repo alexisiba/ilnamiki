@@ -1,6 +1,6 @@
 ---
 name: ilnamiki-ui
-description: Global principles for building anything user-facing in Ilnamiki — a console-style emulator frontend for the living room, designed for big screens and gamepad navigation, with full keyboard and mouse support. Describes the mindset and project-wide rules to keep in mind (product vision, input, focus, readability at a distance, visual consistency, i18n, code boundaries), not fixed designs. Use before creating or changing any screen, feature, component, style, translation or interaction in this project.
+description: Global principles for building anything user-facing in Ilnamiki — a console-style emulator frontend for the living room, designed for big screens and gamepad navigation, with full keyboard and mouse support. Describes the mindset and project-wide rules to keep in mind (product vision, input, focus, readability at a distance, visual consistency and icons, i18n, code boundaries), not fixed designs. Use before creating or changing any screen, feature, component, style, translation or interaction in this project.
 ---
 
 # Ilnamiki UI
@@ -81,6 +81,10 @@ When a request would push the UI toward "web" or "streaming", say so before impl
   token (and update `DESIGN.md` if it is a design decision) instead of inlining it.
 - **Color has meaning.** Accent colors signal focus, actions and state; status colors are for
   feedback, not decoration.
+- **Icons come from Lucide** (`lucide-react`). Do not mix in other icon libraries or ad-hoc
+  SVG icons for things Lucide covers. Icons must stay legible from the couch: size them and
+  pick their stroke width for distance, and color them through the theme tokens like any
+  other element. Controller and keyboard button glyphs are a separate concern, not Lucide.
 - **Motion supports navigation**, it doesn't decorate it: short, smooth, and respectful of
   reduced-motion preferences.
 - Specific fonts, colors, sizes and effects are defined in `DESIGN.md` and the tokens, and may
