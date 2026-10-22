@@ -2,38 +2,34 @@
   display: grid;
   place-content: center;
   justify-items: center;
-  gap: 1.5rem;
+  gap: var(--space-md);
   height: 100%;
 }
 
 .title {
-  font-family: var(--font-headline);
-  font-size: 72px;
-  font-weight: 700;
-  line-height: 80px;
-  letter-spacing: -0.03em;
   color: var(--color-primary);
-  text-shadow: 0 0 30px rgba(0, 210, 255, 0.45);
+  text-shadow: 0 0 30px var(--color-primary-glow);
 }
 
 .label {
   font-family: var(--font-label);
-  font-size: 20px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
+  font-size: var(--label-md-size);
+  font-weight: var(--label-md-weight);
+  line-height: var(--label-md-line-height);
+  letter-spacing: var(--label-md-tracking);
   text-transform: uppercase;
-  color: var(--color-on-surface-variant);
+  color: var(--color-text-muted);
 }
 
 .swatches {
   display: flex;
-  gap: 1rem;
+  gap: var(--space-sm);
 }
 
 .swatch {
   width: 16px;
   height: 16px;
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
   background: var(--swatch-color);
   box-shadow: 0 0 16px var(--swatch-color);
 }

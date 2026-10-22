@@ -1,8 +1,8 @@
 ---
 name: Obsidian Cyberpunk 10-Foot Interface
 colors:
-  surface: '#0b0d14'
-  surface-dim: '#0b0d14'
+  surface: '#11131a'
+  surface-dim: '#11131a'
   surface-bright: '#353948'
   surface-container-lowest: '#07090e'
   surface-container-low: '#0f1321'
@@ -57,7 +57,7 @@ colors:
   tertiary-fixed-dim: '#00e290'
   on-tertiary-fixed: '#002111'
   on-tertiary-fixed-variant: '#005231'
-  background: '#0b0d14'
+  background: '#11131a'
   on-background: '#e2e2ec'
   surface-variant: '#252938'
 typography:
@@ -137,7 +137,7 @@ Targeted at discerning emulation enthusiasts and hardware collectors, the system
 
 ## Colors
 
-The palette is anchored in an uncompromising deep obsidian navy base (`#0B0D14`), engineered to blend seamlessly into OLED bezels and dark living room surroundings. Pure white (`#FFFFFF`) is reserved strictly for focused text, high-priority system glyphs, and primary actionable identifiers.
+The palette is anchored in an uncompromising deep obsidian navy base (`#11131A`), engineered to blend seamlessly into OLED bezels and dark living room surroundings. Pure white (`#FFFFFF`) is reserved strictly for focused text, high-priority system glyphs, and primary actionable identifiers.
 
 - **Primary Accent (`#00D2FF` - Electric Cyan):** The primary navigational axis and focal point. Used exclusively for controller focus targets, active indicator pills, primary confirmation strokes, and electric halos. Unfocused states should avoid pure cyan to maintain absolute navigational clarity.
 - **Secondary Accent (`#A855F7` - Neon Purple):** Structural categorization, secondary platform badges, metadata highlights, and ambient glow accents on game artwork.
@@ -175,7 +175,7 @@ The layout is locked to a strict 1920x1080 fixed-frame standard, utilizing a TV-
 
 Elevation is rendered through luminous radiance, spatial transformation, and layered translucency rather than soft drop shadows:
 
-1. **Resting Layer (Surface 0):** Background plate `#0B0D14` with a subtle, dynamic 80px radial gradient behind the active game hero artwork, tinted at 15% opacity with the active game's dominant palette.
+1. **Resting Layer (Surface 0):** Background plate `#11131A` with a subtle, dynamic 80px radial gradient behind the active game hero artwork, tinted at 15% opacity with the active game's dominant palette.
 2. **Sub-Surface (Surface 1):** Translucent frosted glass containers (`#121624` at 65% alpha with 32px backdrop-filter blur). Edges are defined by a crisp 1px stroke (`#FFFFFF` at 10% opacity).
 3. **Elevated Layer (Surface 2 - Active Selection):** The focused element instantly scales to `1.05x` with an accelerated cubic-bezier curve (`cubic-bezier(0.16, 1, 0.3, 1)` over 180ms). The border stroke snaps to `#00D2FF` at 100% opacity, casting an electric cyan halo: `box-shadow: 0 0 0 2px #00D2FF, 0 0 30px rgba(0, 210, 255, 0.45)`.
 4. **Dimming Filter:** Any item sharing a horizontal or vertical container with the active item that does not currently possess focus has its **imagery** (box art, console renders, screenshots) muted to 60% (`filter: brightness(0.6) saturate(0.8)`), amplifying the focal depth and eliminating peripheral distraction. The dimming filter is applied to the image layer only — never to a container that holds text. Text in unfocused items is de-emphasized exclusively through the Text Contrast System colors (Slate Muted / Slate Dim), so it never drops below its minimum contrast.
