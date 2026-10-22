@@ -1,0 +1,34 @@
+:root {
+  --color-background: #0b0d14;
+  --color-on-surface: #e2e2ec;
+  --color-on-surface-variant: #94a3b8;
+  --color-primary: #00d2ff;
+  --color-secondary: #a855f7;
+  --color-tertiary: #00ffa3;
+
+  --font-headline: 'Outfit', 'Segoe UI', 'Noto Sans', sans-serif;
+  --font-body: 'Plus Jakarta Sans', 'Segoe UI', 'Noto Sans', sans-serif;
+  --font-label: 'JetBrains Mono', 'Consolas', 'DejaVu Sans Mono', monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-on-surface);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  user-select: none;
+}

@@ -1,34 +1,23 @@
-import Versions from './components/Versions'
-import electronLogo from './assets/electron.svg'
+import type { CSSProperties } from 'react'
+import styles from './App.module.css'
+
+const SWATCHES = ['--color-primary', '--color-secondary', '--color-tertiary']
 
 function App(): React.JSX.Element {
-  const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
-
   return (
-    <>
-      <img alt="logo" className="logo" src={electronLogo} />
-      <div className="creator">Powered by electron-vite</div>
-      <div className="text">
-        Build an Electron app with <span className="react">React</span>
-        &nbsp;and <span className="ts">TypeScript</span>
+    <main className={styles.screen}>
+      <h1 className={styles.title}>Hola</h1>
+      <p className={styles.label}>Ilnamiki</p>
+      <div className={styles.swatches}>
+        {SWATCHES.map((token) => (
+          <span
+            key={token}
+            className={styles.swatch}
+            style={{ '--swatch-color': `var(${token})` } as CSSProperties}
+          />
+        ))}
       </div>
-      <p className="tip">
-        Please try pressing <code>F12</code> to open the devTool
-      </p>
-      <div className="actions">
-        <div className="action">
-          <a href="https://electron-vite.org/" target="_blank" rel="noreferrer">
-            Documentation
-          </a>
-        </div>
-        <div className="action">
-          <a target="_blank" rel="noreferrer" onClick={ipcHandle}>
-            Send IPC
-          </a>
-        </div>
-      </div>
-      <Versions></Versions>
-    </>
+    </main>
   )
 }
 
