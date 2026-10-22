@@ -127,6 +127,7 @@ spacing:
   space-md: 1.5rem
   space-lg: 2rem
   space-xl: 3rem
+  space-2xl: 4rem
 ---
 
 ## Brand & Style

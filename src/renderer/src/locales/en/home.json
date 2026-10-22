@@ -1,1 +1,10 @@
-{}
+{
+  "emulatorSetup": {
+    "title": "Set up your first emulator",
+    "description": "Ilnamiki needs an emulator to play your games. We recommend RetroArch to get started: a single download that supports multiple consoles.",
+    "actions": {
+      "download": "Download RetroArch",
+      "alreadyInstalled": "I already have an emulator installed"
+    }
+  }
+}

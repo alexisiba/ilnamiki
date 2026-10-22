@@ -8,35 +8,5 @@
 .screen {
   display: grid;
   place-content: center;
-  justify-items: center;
-  gap: var(--space-md);
   min-height: 0;
-}
-
-.title {
-  color: var(--color-primary);
-  text-shadow: 0 0 30px var(--color-primary-glow);
-}
-
-.label {
-  font-family: var(--font-label);
-  font-size: var(--label-md-size);
-  font-weight: var(--label-md-weight);
-  line-height: var(--label-md-line-height);
-  letter-spacing: var(--label-md-tracking);
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-}
-
-.swatches {
-  display: flex;
-  gap: var(--space-sm);
-}
-
-.swatch {
-  width: 16px;
-  height: 16px;
-  border-radius: var(--radius-full);
-  background: var(--swatch-color);
-  box-shadow: 0 0 16px var(--swatch-color);
 }
