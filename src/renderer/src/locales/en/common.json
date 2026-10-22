@@ -1,1 +1,8 @@
-{}
+{
+  "appName": "Ilnamiki",
+  "navigation": {
+    "home": "Home",
+    "library": "Library",
+    "settings": "Settings"
+  }
+}

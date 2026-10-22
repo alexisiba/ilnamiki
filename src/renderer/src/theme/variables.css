@@ -110,9 +110,14 @@
 
   /* Layout */
   --layout-margin: 4rem;
+  --layout-margin-top: 2rem;
   --layout-gutter: 2rem;
   --layout-top-bar-height: 96px;
   --layout-bottom-bar-height: 80px;
+
+  /* Icons */
+  --icon-size-md: 28px;
+  --icon-stroke: 2.25;
 
   /* Effects */
   --blur-glass: 32px;

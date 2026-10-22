@@ -164,7 +164,7 @@ All uppercase labels require expanded letter tracking (+0.05em to +0.1em) to com
 ## Layout & Spacing
 
 The layout is locked to a strict 1920x1080 fixed-frame standard, utilizing a TV-safe canvas boundary:
-- **Overscan Margins:** 64px (`4rem` / 6%) outer margins on all sides. Interactive content never enters this perimeter to prevent clipping on diverse consumer display panels.
+- **Overscan Margins:** 64px (`4rem` / 6%) outer margins on the left, right and bottom, and a reduced 32px (`2rem`) margin at the top so the Top Command Bar sits closer to the edge. Interactive content never enters this perimeter to prevent clipping on diverse consumer display panels.
 - **Grid Architecture:** A dynamic horizontal-rail layout. Primary content uses a 12-column grid structure with 32px (`2rem`) gutters, but primary navigation occurs across continuous horizontal scroll channels (shelves) that preserve visual alignment on the Y-axis.
 - **Rhythm & Safe Areas:** The screen is divided vertically into 3 distinct functional zones:
   1. Top Command Bar (Height: 96px): Clock, network status, active profile, global controller prompts.

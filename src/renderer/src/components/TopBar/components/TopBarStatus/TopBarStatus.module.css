@@ -1,0 +1,24 @@
+.status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  color: var(--color-text-muted);
+}
+
+.icon {
+  flex-shrink: 0;
+  width: var(--icon-size-md);
+  height: var(--icon-size-md);
+  stroke-width: var(--icon-stroke);
+}
+
+.clock {
+  font-family: var(--font-label);
+  font-size: var(--label-lg-size);
+  font-weight: var(--label-lg-weight);
+  line-height: var(--label-lg-line-height);
+  letter-spacing: var(--label-lg-tracking);
+  font-variant-ligatures: none;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
