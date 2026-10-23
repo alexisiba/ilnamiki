@@ -4,6 +4,7 @@ import { cleanup } from '@testing-library/react'
 import { afterEach, beforeAll } from 'vitest'
 
 import i18n, { DEFAULT_LANGUAGE } from '@renderer/core/i18n'
+import { DEFAULT_INPUT_DEVICE, setActiveInputDevice } from '@renderer/core/input/activeDevice'
 
 import { disconnectAllGamepads, getFakeGamepads } from './gamepad'
 import { getMockedRect } from './layout'
@@ -32,4 +33,6 @@ beforeAll(async () => {
 afterEach(() => {
   cleanup()
   disconnectAllGamepads()
+  // The active device is app-wide state; each test starts from the default.
+  setActiveInputDevice(DEFAULT_INPUT_DEVICE)
 })

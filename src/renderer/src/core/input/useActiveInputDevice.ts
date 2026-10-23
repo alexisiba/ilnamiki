@@ -1,11 +1,9 @@
+import { useSyncExternalStore } from 'react'
+
+import { getActiveInputDevice, subscribeToActiveInputDevice } from './activeDevice'
 import type { InputDevice } from './input'
 
-const DEFAULT_INPUT_DEVICE: InputDevice = 'xbox'
-
-/**
- * The last-used input device, used to pick button hints.
- * Fixed to the default until device detection exists.
- */
+/** The last-used input device, used to pick button hints. Updates as soon as it changes. */
 export function useActiveInputDevice(): InputDevice {
-  return DEFAULT_INPUT_DEVICE
+  return useSyncExternalStore(subscribeToActiveInputDevice, getActiveInputDevice)
 }

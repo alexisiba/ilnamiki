@@ -1,6 +1,9 @@
-import { render, screen, within } from '@testing-library/react'
+import { act, render, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+
+import { connectGamepad, PLAYSTATION_GAMEPAD_ID } from '@renderer/test/gamepad'
 
 import { ButtonGuide } from './ButtonGuide'
 
@@ -36,6 +39,32 @@ describe('ButtonGuide', () => {
 
     const hints = within(guide).getAllByRole('listitem')
     expect(hints[2]).toHaveTextContent('BBack')
+  })
+
+  it('switches to keyboard keys once the keyboard is used', async () => {
+    const guide = renderGuideAt('/')
+
+    await userEvent.setup().keyboard('{ArrowDown}')
+
+    const hints = within(guide).getAllByRole('listitem')
+    expect(hints[0]).toHaveTextContent('↑↓←→Navigate')
+    expect(hints[1]).toHaveTextContent('EnterSelect')
+    expect(hints[3]).toHaveTextContent('QESwitch tab')
+  })
+
+  it('switches to PlayStation buttons once a PlayStation controller is used', () => {
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame'] })
+    vi.spyOn(document, 'hasFocus').mockReturnValue(true)
+    const gamepad = connectGamepad(PLAYSTATION_GAMEPAD_ID)
+    const guide = renderGuideAt('/')
+
+    gamepad.press(0)
+    act(() => vi.advanceTimersToNextFrame())
+    vi.useRealTimers()
+
+    const hints = within(guide).getAllByRole('listitem')
+    expect(within(hints[1]).getByRole('img', { name: 'Cross' })).toBeInTheDocument()
+    expect(hints[3]).toHaveTextContent('L1R1Switch tab')
   })
 
   it('is informative only, with nothing to focus or click', () => {
