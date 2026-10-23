@@ -16,16 +16,15 @@ function renderGuideAt(path: string): HTMLElement {
 }
 
 describe('ButtonGuide', () => {
-  it('explains navigating, select, search and switching tabs', () => {
+  it('explains navigating, select, search and switching tabs with keyboard keys at first', () => {
     const guide = renderGuideAt('/')
 
     const hints = within(guide).getAllByRole('listitem')
     expect(hints).toHaveLength(4)
-    expect(within(hints[0]).getByRole('img', { name: 'D-pad' })).toBeInTheDocument()
-    expect(hints[0]).toHaveTextContent('Navigate')
-    expect(hints[1]).toHaveTextContent('ASelect')
+    expect(hints[0]).toHaveTextContent('↑↓←→Navigate')
+    expect(hints[1]).toHaveTextContent('EnterSelect')
     expect(hints[2]).toHaveTextContent('YSearch')
-    expect(hints[3]).toHaveTextContent('LBRBSwitch tab')
+    expect(hints[3]).toHaveTextContent('QESwitch tab')
   })
 
   it('hides back at the root of a section', () => {
@@ -38,18 +37,27 @@ describe('ButtonGuide', () => {
     const guide = renderGuideAt('/games/mgs-ps1')
 
     const hints = within(guide).getAllByRole('listitem')
-    expect(hints[2]).toHaveTextContent('BBack')
+    expect(hints[2]).toHaveTextContent('EscBack')
   })
 
-  it('switches to keyboard keys once the keyboard is used', async () => {
+  it('switches to Xbox buttons once an Xbox controller is used, and back with the keyboard', async () => {
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame'] })
+    vi.spyOn(document, 'hasFocus').mockReturnValue(true)
+    const gamepad = connectGamepad()
     const guide = renderGuideAt('/')
+
+    gamepad.press(0)
+    act(() => vi.advanceTimersToNextFrame())
+    vi.useRealTimers()
+
+    const hints = within(guide).getAllByRole('listitem')
+    expect(within(hints[0]).getByRole('img', { name: 'D-pad' })).toBeInTheDocument()
+    expect(hints[1]).toHaveTextContent('ASelect')
+    expect(hints[3]).toHaveTextContent('LBRBSwitch tab')
 
     await userEvent.setup().keyboard('{ArrowDown}')
 
-    const hints = within(guide).getAllByRole('listitem')
-    expect(hints[0]).toHaveTextContent('↑↓←→Navigate')
     expect(hints[1]).toHaveTextContent('EnterSelect')
-    expect(hints[3]).toHaveTextContent('QESwitch tab')
   })
 
   it('switches to PlayStation buttons once a PlayStation controller is used', () => {

@@ -19,12 +19,12 @@ export function TopBarStatus(): React.JSX.Element {
   return (
     <div className={styles.status}>
       <Wifi className={styles.icon} aria-hidden />
-      <span className={styles.group}>
-        {gamepadConnected && (
+      {gamepadConnected && (
+        <span className={styles.group}>
           <Gamepad2 className={styles.icon} role="img" aria-label={t('status.gamepadConnected')} />
-        )}
-        <BatteryFull className={styles.icon} aria-hidden />
-      </span>
+          <BatteryFull className={styles.icon} aria-hidden />
+        </span>
+      )}
       <time className={styles.clock} dateTime={now.toISOString()}>
         {time}
       </time>

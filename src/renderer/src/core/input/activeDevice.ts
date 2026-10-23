@@ -1,8 +1,11 @@
 import type { InputDevice } from './input'
 import { subscribeToInput } from './inputBus'
 
-/** The device assumed until the first input arrives. */
-export const DEFAULT_INPUT_DEVICE: InputDevice = 'xbox'
+/**
+ * The device assumed until the first input arrives. The keyboard, because browsers hide
+ * gamepads until one of their buttons is pressed, so a gamepad can't be detected at launch.
+ */
+export const DEFAULT_INPUT_DEVICE: InputDevice = 'keyboard'
 
 let activeDevice: InputDevice = DEFAULT_INPUT_DEVICE
 const listeners = new Set<() => void>()

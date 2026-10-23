@@ -86,10 +86,11 @@ describe('App', () => {
     renderApp()
     const user = userEvent.setup()
 
-    await user.click(screen.getByRole('button', { name: 'RB' }))
+    // The hints show keyboard keys until a gamepad is used.
+    await user.click(screen.getByRole('button', { name: 'E' }))
     expect(currentSection()).toHaveTextContent('Library')
 
-    await user.click(screen.getByRole('button', { name: 'LB' }))
+    await user.click(screen.getByRole('button', { name: 'Q' }))
     expect(currentSection()).toHaveTextContent('Home')
   })
 

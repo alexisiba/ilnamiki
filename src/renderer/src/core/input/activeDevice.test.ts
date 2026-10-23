@@ -15,17 +15,18 @@ describe('activeDevice', () => {
     unsubscribers.splice(0).forEach((unsubscribe) => unsubscribe())
   })
 
-  it('starts as an Xbox controller', () => {
-    expect(getActiveInputDevice()).toBe('xbox')
+  it('starts as the keyboard', () => {
+    expect(getActiveInputDevice()).toBe('keyboard')
   })
 
-  it('switches to the keyboard when a mapped key is pressed', async () => {
+  it('switches back to the keyboard when a mapped key is pressed', async () => {
     const listener = watch()
+    emitInput('confirm', 'xbox')
 
     await userEvent.setup().keyboard('{ArrowDown}')
 
     expect(getActiveInputDevice()).toBe('keyboard')
-    expect(listener).toHaveBeenCalledOnce()
+    expect(listener).toHaveBeenCalledTimes(2)
   })
 
   it('switches to the gamepad kind that produced an action', () => {
@@ -40,8 +41,8 @@ describe('activeDevice', () => {
     const listener = watch()
 
     emitInput('down', 'xbox')
-    emitInput('confirm', 'keyboard')
-    emitInput('up', 'keyboard')
+    emitInput('confirm', 'xbox')
+    emitInput('up', 'xbox')
 
     expect(listener).toHaveBeenCalledOnce()
   })
@@ -54,6 +55,6 @@ describe('activeDevice', () => {
 
     emitInput('confirm', 'playstation')
 
-    expect(getActiveInputDevice()).toBe('xbox')
+    expect(getActiveInputDevice()).toBe('keyboard')
   })
 })
