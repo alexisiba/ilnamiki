@@ -1,0 +1,26 @@
+.button {
+  padding: var(--space-sm) var(--space-lg);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-headline);
+  font-size: var(--body-lg-size);
+  font-weight: var(--headline-sm-weight);
+  line-height: var(--body-lg-line-height);
+  color: var(--color-text);
+  transition:
+    background-color var(--duration-focus) var(--ease-focus),
+    color var(--duration-focus) var(--ease-focus),
+    box-shadow var(--duration-focus) var(--ease-focus);
+}
+
+/* The focused style below is the focus indicator. */
+.button:focus-visible {
+  outline: none;
+}
+
+.focused {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-on-accent);
+  box-shadow: 0 0 30px var(--color-primary-glow);
+}

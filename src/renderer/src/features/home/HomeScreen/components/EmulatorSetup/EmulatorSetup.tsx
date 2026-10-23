@@ -2,6 +2,7 @@ import { Gamepad2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { Button } from '@renderer/components/Button'
 import { useInputAction } from '@renderer/core/input'
 
 import { EMULATOR_SETUP_ACTIONS } from './EmulatorSetup.constants'
@@ -25,17 +26,14 @@ export function EmulatorSetup(): React.JSX.Element {
       <p className={styles.description}>{t('emulatorSetup.description')}</p>
       <div className={styles.actions}>
         {EMULATOR_SETUP_ACTIONS.map((setupAction, index) => (
-          <button
+          <Button
             key={setupAction.id}
-            type="button"
-            className={
-              index === selectedIndex ? `${styles.action} ${styles.actionFocused}` : styles.action
-            }
+            focused={index === selectedIndex}
             onMouseEnter={() => setSelectedIndex(index)}
-            onClick={() => setSelectedIndex(index)}
+            onFocus={() => setSelectedIndex(index)}
           >
             {t(setupAction.labelKey)}
-          </button>
+          </Button>
         ))}
       </div>
     </section>
