@@ -1,8 +1,9 @@
 .app {
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto 1fr auto;
   height: 100%;
-  padding: var(--layout-margin-top) var(--layout-margin) var(--layout-margin);
+  /* No bottom padding: the button guide bar sits at the bottom edge with its own height. */
+  padding: var(--layout-margin-top) var(--layout-margin) 0;
 }
 
 .screen {

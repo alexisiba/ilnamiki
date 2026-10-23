@@ -1,0 +1,19 @@
+.guide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--layout-bottom-bar-height);
+}
+
+.hints {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+/* Two buttons sharing one label, e.g. LB RB for switching tabs. */
+.pair {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}

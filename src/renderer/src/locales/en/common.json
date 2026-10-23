@@ -28,5 +28,12 @@
     "arrowDown": "Down arrow",
     "arrowLeft": "Left arrow",
     "arrowRight": "Right arrow"
+  },
+  "buttonGuide": {
+    "label": "Controls",
+    "select": "Select",
+    "back": "Back",
+    "search": "Search",
+    "switchTab": "Switch tab"
   }
 }

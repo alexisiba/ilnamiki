@@ -1,5 +1,6 @@
 import { Outlet, useLocation } from 'react-router'
 
+import { ButtonGuide } from '@renderer/components/ButtonGuide'
 import { TopBar } from '@renderer/components/TopBar'
 import { NavigationProvider } from '@renderer/core/navigation'
 import styles from './App.module.css'
@@ -14,6 +15,7 @@ function App(): React.JSX.Element {
         <main className={styles.screen}>
           <Outlet />
         </main>
+        <ButtonGuide />
       </div>
     </NavigationProvider>
   )

@@ -28,5 +28,12 @@
     "arrowDown": "Flecha abajo",
     "arrowLeft": "Flecha izquierda",
     "arrowRight": "Flecha derecha"
+  },
+  "buttonGuide": {
+    "label": "Controles",
+    "select": "Seleccionar",
+    "back": "Atrás",
+    "search": "Buscar",
+    "switchTab": "Cambiar pestaña"
   }
 }
