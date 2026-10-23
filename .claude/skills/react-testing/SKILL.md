@@ -115,6 +115,12 @@ such a check exists.
 Use Vitest fake timers (`vi.useFakeTimers()`, `vi.setSystemTime()`) for anything that
 depends on the clock or on delays. Never wait for real time in a test.
 
+Exception to "interact like a user": `user-event` hangs while `setTimeout` is faked (after
+each interaction Testing Library waits on a `setTimeout(0)` and can only advance Jest's fake
+timers, not Vitest's). When a test needs faked `setTimeout` (e.g. key repeat timing), drive
+the input with `fireEvent` and say why in a comment. Faking only `requestAnimationFrame`
+(gamepad polling) does not affect `user-event`, which keeps working.
+
 ### Preload bridge and system access
 
 The renderer only talks to the system through `window.api`. Mock it with a shared helper
