@@ -17,5 +17,8 @@
       "hours": "{{hours}} h",
       "minutes": "{{minutes}} min"
     }
+  },
+  "recentlyPlayed": {
+    "title": "Volver a jugar"
   }
 }

@@ -1,0 +1,19 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.title {
+  font-size: var(--headline-sm-size);
+  font-weight: var(--headline-sm-weight);
+  line-height: var(--headline-sm-line-height);
+  letter-spacing: var(--headline-sm-tracking);
+  color: var(--color-text-focus);
+}
+
+.rail {
+  display: flex;
+  gap: var(--layout-gutter);
+  overflow-x: auto;
+}
