@@ -121,6 +121,8 @@
   --layout-top-bar-height: 96px;
   --layout-bottom-bar-height: 80px;
   --layout-panel-width: 960px;
+  /* Widest content of a screen, so it stays centered on ultrawide displays. */
+  --layout-content-max-width: 2400px;
   --layout-hero-height: 600px;
   --layout-hero-content-width: 800px;
   --layout-scroll-fade: 64px;

@@ -1,8 +1,12 @@
+/* Centered and capped in width, so the columns do not keep growing on ultrawide displays. */
 .screen {
   display: grid;
   grid-template-rows: auto 1fr;
   gap: var(--space-lg);
+  width: 100%;
+  max-width: var(--layout-content-max-width);
   min-height: 0;
+  justify-self: center;
   padding-top: var(--space-md);
 }
 
@@ -29,7 +33,8 @@
 
 .columns {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* The carousel takes the room; the details panel stays narrow enough to read. */
+  grid-template-columns: 2fr 1fr;
   align-items: center;
   gap: var(--layout-gutter);
   min-height: 0;

@@ -20,9 +20,11 @@
   gap: var(--space-sm);
 }
 
+/* The value sits at the bottom, so both cards line up when a label wraps. */
 .stat {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   gap: var(--space-xs);
   padding: var(--space-md);
   background: var(--color-surface-highest);
