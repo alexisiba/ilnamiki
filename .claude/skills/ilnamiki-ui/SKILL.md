@@ -14,6 +14,8 @@ Related sources of truth:
 - **`DESIGN.md`** (repo root): the current visual design system.
 - **`src/renderer/src/theme/variables.css`**: the design tokens implemented as CSS variables.
 - **`component-structure` skill**: folder and file conventions for components.
+- **`a11y` skill**: accessibility rules every user-facing component must follow from its first
+  version; **`a11y-review` skill** to audit them.
 
 If these sources and the code disagree, stop and ask the user which one is right.
 
@@ -113,4 +115,5 @@ When a request would push the UI toward "web" or "streaming", say so before impl
 - [ ] Readable and usable from a distance on a big screen.
 - [ ] The user can tell where they are and what actions are available.
 - [ ] No hard-coded design values or user-facing strings; new strings exist in every language.
+- [ ] It meets the `a11y` checklist.
 - [ ] It feels like a console, not a website or a streaming app.
