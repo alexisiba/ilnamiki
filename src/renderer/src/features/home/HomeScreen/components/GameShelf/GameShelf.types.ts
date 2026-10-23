@@ -8,6 +8,8 @@ export interface ShelfGame {
 }
 
 export interface GameShelfProps {
+  /** Focus group id, unique across the app. */
+  id: string
   title: string
   games: ShelfGame[]
 }

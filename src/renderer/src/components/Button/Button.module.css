@@ -13,12 +13,9 @@
     box-shadow var(--duration-focus) var(--ease-focus);
 }
 
-/* The focused style below is the focus indicator. */
-.button:focus-visible {
+/* This style is the focus indicator. */
+.button:focus {
   outline: none;
-}
-
-.focused {
   background: var(--color-primary);
   border-color: var(--color-primary);
   color: var(--color-on-accent);

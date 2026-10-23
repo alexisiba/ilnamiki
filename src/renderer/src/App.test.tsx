@@ -79,4 +79,16 @@ describe('App', () => {
 
     expect(currentSection()).toHaveTextContent('Settings')
   })
+
+  it('restores the focused game when coming back to home', async () => {
+    renderApp()
+    const user = userEvent.setup()
+    const card = screen.getByRole('button', { name: 'Donkey Kong 64' })
+
+    await user.pointer({ target: card, coords: { x: 100, y: 500 } })
+    await user.keyboard('ee')
+    await user.keyboard('e')
+
+    expect(screen.getByRole('button', { name: 'Donkey Kong 64' })).toHaveFocus()
+  })
 })

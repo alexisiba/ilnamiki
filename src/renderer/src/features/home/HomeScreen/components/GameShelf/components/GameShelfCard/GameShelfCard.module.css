@@ -5,9 +5,22 @@
   justify-content: flex-end;
   width: var(--card-sm-width);
   aspect-ratio: var(--card-sm-aspect-ratio);
+  padding: 0;
   overflow: hidden;
   background: var(--color-background);
   border-radius: var(--radius-lg);
+  text-align: start;
+  transition:
+    transform var(--duration-focus) var(--ease-focus),
+    box-shadow var(--duration-focus) var(--ease-focus);
+}
+
+/* This style is the focus indicator. */
+.card:focus {
+  z-index: 1;
+  outline: none;
+  box-shadow: var(--shadow-focus);
+  transform: scale(var(--scale-focus));
 }
 
 .artwork {
@@ -19,6 +32,12 @@
   /* Fades the bottom of the artwork into the card background so the text stays readable.
      A mask (instead of an overlay) leaves no artwork under the rounded bottom corners. */
   mask-image: linear-gradient(to bottom, black 15%, transparent 90%);
+  transition: filter var(--duration-focus) var(--ease-focus);
+}
+
+/* Dims the artwork of the other cards in the shelf while one of them holds focus. */
+ul:has(.card:focus) .card:not(:focus) .artwork {
+  filter: var(--filter-dim);
 }
 
 .platform {

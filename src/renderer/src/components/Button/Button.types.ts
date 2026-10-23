@@ -4,7 +4,7 @@ export interface ButtonProps extends Omit<
   ComponentPropsWithoutRef<'button'>,
   'className' | 'style' | 'type' | 'onClick'
 > {
-  /** Whether this button holds focus. Moves DOM focus to it. */
-  focused?: boolean
+  /** Unique within its focus group; lets focus be remembered and restored. */
+  focusId: string
   onPress?: () => void
 }

@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { renderWithNavigation } from '@renderer/test/renderWithNavigation'
+
 import { HomeHero } from './HomeHero'
 import type { LastPlayedGame } from './HomeHero.types'
 
@@ -42,7 +44,7 @@ describe('HomeHero', () => {
   })
 
   it('focuses the continue playing action', () => {
-    render(<HomeHero game={GAME} />)
+    renderWithNavigation(<HomeHero game={GAME} />)
 
     expect(screen.getByRole('button', { name: 'Continue playing' })).toHaveFocus()
   })

@@ -150,6 +150,8 @@ ol {
 
 * {
   scrollbar-width: none;
+  /* Scroll containers glide to the focused element. */
+  scroll-behavior: smooth;
 }
 
 ::-webkit-scrollbar {
@@ -159,5 +161,9 @@ ol {
 @media (prefers-reduced-motion: reduce) {
   :root {
     --duration-focus: 0ms;
+  }
+
+  * {
+    scroll-behavior: auto;
   }
 }

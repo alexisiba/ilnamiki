@@ -32,8 +32,12 @@ export function HomeScreen(): React.JSX.Element {
   return (
     <div className={styles.content}>
       <HomeHero game={lastPlayedGame} />
-      <GameShelf title={t('recentlyPlayed.title')} games={recentGames} />
-      <GameShelf title={t('recentlyAdded.title')} games={SAMPLE_RECENTLY_ADDED_GAMES} />
+      <GameShelf id="home-recently-played" title={t('recentlyPlayed.title')} games={recentGames} />
+      <GameShelf
+        id="home-recently-added"
+        title={t('recentlyAdded.title')}
+        games={SAMPLE_RECENTLY_ADDED_GAMES}
+      />
     </div>
   )
 }

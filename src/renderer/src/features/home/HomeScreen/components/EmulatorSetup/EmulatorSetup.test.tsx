@@ -1,6 +1,9 @@
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
+
+import { setRect } from '@renderer/test/layout'
+import { renderWithNavigation } from '@renderer/test/renderWithNavigation'
 
 import { EmulatorSetup } from './EmulatorSetup'
 
@@ -8,16 +11,23 @@ const download = (): HTMLElement => screen.getByRole('button', { name: 'Download
 const alreadyInstalled = (): HTMLElement =>
   screen.getByRole('button', { name: 'I already have an emulator installed' })
 
+/** Renders the panel with its actions stacked vertically, as on screen. */
+function renderEmulatorSetup(): void {
+  renderWithNavigation(<EmulatorSetup />)
+  setRect(download(), { left: 0, top: 0, width: 400, height: 60 })
+  setRect(alreadyInstalled(), { left: 0, top: 80, width: 400, height: 60 })
+}
+
 describe('EmulatorSetup', () => {
   it('focuses the download action first', () => {
-    render(<EmulatorSetup />)
+    renderEmulatorSetup()
 
     expect(download()).toHaveFocus()
   })
 
   it('moves focus down and up with the keyboard', async () => {
     const user = userEvent.setup()
-    render(<EmulatorSetup />)
+    renderEmulatorSetup()
 
     await user.keyboard('{ArrowDown}')
     expect(alreadyInstalled()).toHaveFocus()
@@ -28,7 +38,7 @@ describe('EmulatorSetup', () => {
 
   it('stays on the edges instead of wrapping', async () => {
     const user = userEvent.setup()
-    render(<EmulatorSetup />)
+    renderEmulatorSetup()
 
     await user.keyboard('{ArrowUp}')
     expect(download()).toHaveFocus()
@@ -38,7 +48,7 @@ describe('EmulatorSetup', () => {
   })
 
   it('focuses the action the mouse points at', async () => {
-    render(<EmulatorSetup />)
+    renderEmulatorSetup()
 
     await userEvent.setup().hover(alreadyInstalled())
 

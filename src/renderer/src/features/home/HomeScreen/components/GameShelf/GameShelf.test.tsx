@@ -1,5 +1,9 @@
 import { render, screen, within } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import userEvent from '@testing-library/user-event'
+import { describe, expect, it, vi } from 'vitest'
+
+import { setRect } from '@renderer/test/layout'
+import { renderWithNavigation } from '@renderer/test/renderWithNavigation'
 
 import { GameShelf } from './GameShelf'
 import type { ShelfGame } from './GameShelf.types'
@@ -22,26 +26,53 @@ const GAMES: ShelfGame[] = [
 
 describe('GameShelf', () => {
   it('shows the section heading', () => {
-    render(<GameShelf title="Play again" games={GAMES} />)
+    render(<GameShelf id="recent" title="Play again" games={GAMES} />)
 
     expect(screen.getByRole('heading', { level: 2, name: 'Play again' })).toBeInTheDocument()
   })
 
-  it('shows one card per game, in order, with title and platform', () => {
-    render(<GameShelf title="Play again" games={GAMES} />)
+  it('shows one card per game, in order, named by title and described by platform', () => {
+    render(<GameShelf id="recent" title="Play again" games={GAMES} />)
 
     const [first, second] = screen.getAllByRole('listitem')
-    expect(within(first).getByRole('heading', { name: 'Donkey Kong 64' })).toBeInTheDocument()
-    expect(within(first).getByText('Nintendo 64')).toBeInTheDocument()
-    expect(within(second).getByRole('heading', { name: 'Metal Gear Solid' })).toBeInTheDocument()
-    expect(within(second).getByText('PlayStation')).toBeInTheDocument()
+    expect(within(first).getByRole('button')).toHaveAccessibleName('Donkey Kong 64')
+    expect(within(first).getByRole('button')).toHaveAccessibleDescription('Nintendo 64 Yesterday')
+    expect(within(second).getByRole('button')).toHaveAccessibleName('Metal Gear Solid')
+    expect(within(second).getByRole('button')).toHaveAccessibleDescription('PlayStation')
+  })
+
+  it('focuses the next card on right', async () => {
+    renderWithNavigation(<GameShelf id="recent" title="Play again" games={GAMES} />)
+    const [first, second] = screen.getAllByRole('button')
+    setRect(first, { left: 0, top: 0, width: 320, height: 240 })
+    setRect(second, { left: 352, top: 0, width: 320, height: 240 })
+
+    await userEvent.setup().keyboard('{ArrowRight}')
+
+    expect(second).toHaveFocus()
+  })
+
+  it('keeps the focused card pinned to the start of the shelf', async () => {
+    renderWithNavigation(<GameShelf id="recent" title="Play again" games={GAMES} />)
+    const rail = screen.getByRole('list')
+    const [first, second] = screen.getAllByRole('button')
+    Object.defineProperty(rail, 'scrollWidth', { value: 704 })
+    Object.defineProperty(rail, 'clientWidth', { value: 500 })
+    setRect(rail, { left: 0, top: 0, width: 500, height: 240 })
+    setRect(first, { left: 0, top: 0, width: 320, height: 240 })
+    setRect(second, { left: 352, top: 0, width: 320, height: 240 })
+    const scrollTo = vi.spyOn(rail, 'scrollTo')
+
+    await userEvent.setup().keyboard('{ArrowRight}')
+
+    expect(scrollTo).toHaveBeenLastCalledWith(expect.objectContaining({ left: 352 }))
   })
 
   it('shows the caption only for games that have one', () => {
-    render(<GameShelf title="Play again" games={GAMES} />)
+    render(<GameShelf id="recent" title="Play again" games={GAMES} />)
 
     const [first, second] = screen.getAllByRole('listitem')
     expect(within(first).getByText('Yesterday')).toBeInTheDocument()
-    expect(within(second).queryByRole('paragraph')).not.toBeInTheDocument()
+    expect(within(second).queryByText('Yesterday')).not.toBeInTheDocument()
   })
 })

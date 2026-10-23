@@ -2,29 +2,50 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
+import { renderWithNavigation } from '@renderer/test/renderWithNavigation'
+
 import { Button } from './Button'
 
 describe('Button', () => {
   it('is named by its label', () => {
-    render(<Button>Download</Button>)
+    render(<Button focusId="download">Download</Button>)
 
     expect(screen.getByRole('button', { name: 'Download' })).toBeInTheDocument()
   })
 
-  it('moves DOM focus to itself when focused', () => {
-    render(
+  it('takes focus when auto-focused', () => {
+    renderWithNavigation(
       <>
-        <Button>First</Button>
-        <Button focused>Second</Button>
+        <Button focusId="first">First</Button>
+        <Button focusId="second" autoFocus>
+          Second
+        </Button>
       </>
     )
 
     expect(screen.getByRole('button', { name: 'Second' })).toHaveFocus()
   })
 
+  it('calls onPress on confirm while focused', async () => {
+    const onPress = vi.fn()
+    renderWithNavigation(
+      <Button focusId="download" onPress={onPress}>
+        Download
+      </Button>
+    )
+
+    await userEvent.setup().keyboard('{Enter}')
+
+    expect(onPress).toHaveBeenCalledOnce()
+  })
+
   it('calls onPress when clicked', async () => {
     const onPress = vi.fn()
-    render(<Button onPress={onPress}>Download</Button>)
+    render(
+      <Button focusId="download" onPress={onPress}>
+        Download
+      </Button>
+    )
 
     await userEvent.setup().click(screen.getByRole('button', { name: 'Download' }))
 

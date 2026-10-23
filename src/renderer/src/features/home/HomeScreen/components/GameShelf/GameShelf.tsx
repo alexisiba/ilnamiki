@@ -1,11 +1,13 @@
+import { FocusGroup } from '@renderer/core/navigation'
+
 import { GameShelfCard } from './components/GameShelfCard'
 import type { GameShelfProps } from './GameShelf.types'
 import styles from './GameShelf.module.css'
 
-/** A titled, horizontally scrolling row of game cards. */
-export function GameShelf({ title, games }: GameShelfProps): React.JSX.Element {
+/** A titled, horizontally scrolling row of game cards; the focused card stays at the start. */
+export function GameShelf({ id, title, games }: GameShelfProps): React.JSX.Element {
   return (
-    <section className={styles.section}>
+    <FocusGroup id={id} as="section" scrollAlign="start" className={styles.section}>
       <h2 className={styles.title}>{title}</h2>
       <ul className={styles.rail}>
         {games.map((game) => (
@@ -14,6 +16,6 @@ export function GameShelf({ title, games }: GameShelfProps): React.JSX.Element {
           </li>
         ))}
       </ul>
-    </section>
+    </FocusGroup>
   )
 }

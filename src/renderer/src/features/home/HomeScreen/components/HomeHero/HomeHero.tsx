@@ -2,6 +2,7 @@ import { Clock, Play } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@renderer/components/Button'
+import { FocusGroup } from '@renderer/core/navigation'
 
 import type { HomeHeroProps } from './HomeHero.types'
 import { formatPlaytime, formatTimeSince } from './HomeHero.utils'
@@ -11,7 +12,7 @@ export function HomeHero({ game }: HomeHeroProps): React.JSX.Element {
   const { t, i18n } = useTranslation('home')
 
   return (
-    <section className={styles.hero}>
+    <FocusGroup id="home-hero" as="section" className={styles.hero}>
       <img className={styles.artwork} src={game.imageUrl} alt="" />
       <div className={styles.content}>
         <span className={styles.platform}>{game.platform}</span>
@@ -34,9 +35,11 @@ export function HomeHero({ game }: HomeHeroProps): React.JSX.Element {
           </li>
         </ul>
         <div className={styles.continue}>
-          <Button focused>{t('hero.continue')}</Button>
+          <Button focusId="continue" autoFocus>
+            {t('hero.continue')}
+          </Button>
         </div>
       </div>
-    </section>
+    </FocusGroup>
   )
 }
