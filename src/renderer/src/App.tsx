@@ -1,13 +1,14 @@
+import { Outlet } from 'react-router'
+
 import { TopBar } from '@renderer/components/TopBar'
-import { HomeScreen } from '@renderer/features/home'
 import styles from './App.module.css'
 
 function App(): React.JSX.Element {
   return (
     <div className={styles.app}>
-      <TopBar defaultTab="home" />
+      <TopBar />
       <main className={styles.screen}>
-        <HomeScreen />
+        <Outlet />
       </main>
     </div>
   )
