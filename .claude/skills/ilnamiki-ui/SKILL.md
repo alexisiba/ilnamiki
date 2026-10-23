@@ -50,6 +50,15 @@ When a request would push the UI toward "web" or "streaming", say so before impl
 - **Think in actions, not devices.** Features react to semantic actions (navigate, confirm,
   back, …) provided by the app's input layer, not to raw device events. If a new action is
   needed, add it to the input layer rather than listening to devices in a feature.
+- **Fixed and contextual actions.** Some actions mean the same everywhere and must never be
+  repurposed: directions, confirm, back, switching top-level sections and opening the system
+  menu. Others are contextual and generically named (secondary, tertiary, previous/next
+  group): each screen decides what they do and labels them in its hints. Prefer an existing
+  contextual action over inventing a new one; the bindings live in the input layer.
+- **Hints name actions, not buttons.** Screens show a hint by action (and, for contextual
+  actions, a label of what it does here); the input layer resolves which button glyph to
+  draw for the device in use. Draw a specific button directly only when the button itself
+  is the subject (e.g. a tutorial).
 - **Every button action has an on-screen equivalent** that can be focused or clicked.
 - **Hints match the device in use.** Button and key hints reflect the last-used input device
   and the actions available in the current context.

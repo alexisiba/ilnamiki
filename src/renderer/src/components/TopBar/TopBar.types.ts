@@ -1,3 +1,5 @@
+import type { InputAction } from '@renderer/core/input'
+
 import type { TOP_BAR_TABS } from './TopBar.constants'
 
 export type TopBarTabId = (typeof TOP_BAR_TABS)[number]['id']
@@ -13,6 +15,6 @@ export interface TopBarTabProps {
 }
 
 export interface ShoulderHintProps {
-  label: string
+  action: InputAction
   onPress: () => void
 }

@@ -1,0 +1,15 @@
+.glyph {
+  flex-shrink: 0;
+  width: var(--glyph-size);
+  height: var(--glyph-size);
+}
+
+.arm {
+  fill: var(--color-surface-highest);
+  stroke: var(--color-border-strong);
+  stroke-width: 0.5;
+}
+
+.armActive {
+  fill: var(--color-text);
+}

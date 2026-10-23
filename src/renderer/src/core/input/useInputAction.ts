@@ -1,6 +1,6 @@
 import { useEffect, useEffectEvent } from 'react'
 
-import { KEYBOARD_BINDINGS, type InputAction } from './input'
+import { getKeyboardAction, type InputAction } from './input'
 
 /** Calls `onAction` with the semantic action of every mapped input while mounted. */
 export function useInputAction(onAction: (action: InputAction) => void): void {
@@ -8,7 +8,7 @@ export function useInputAction(onAction: (action: InputAction) => void): void {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent): void => {
-      const action = KEYBOARD_BINDINGS[event.key]
+      const action = getKeyboardAction(event.key)
       if (!action) return
 
       event.preventDefault()

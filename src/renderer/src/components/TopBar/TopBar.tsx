@@ -23,7 +23,7 @@ export function TopBar({ defaultTab }: TopBarProps): React.JSX.Element {
     <header className={styles.topBar}>
       <TopBarBrand />
       <div className={styles.navigation}>
-        <ShoulderHint label="LB" onPress={() => selectAdjacentTab(-1)} />
+        <ShoulderHint action="prevSection" onPress={() => selectAdjacentTab(-1)} />
         <nav className={styles.tabs}>
           {TOP_BAR_TABS.map((tab) => (
             <TopBarTab
@@ -34,7 +34,7 @@ export function TopBar({ defaultTab }: TopBarProps): React.JSX.Element {
             />
           ))}
         </nav>
-        <ShoulderHint label="RB" onPress={() => selectAdjacentTab(1)} />
+        <ShoulderHint action="nextSection" onPress={() => selectAdjacentTab(1)} />
       </div>
       <TopBarStatus />
     </header>

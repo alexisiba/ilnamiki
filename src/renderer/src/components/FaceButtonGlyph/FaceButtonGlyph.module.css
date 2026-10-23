@@ -1,0 +1,17 @@
+.glyph {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: var(--glyph-size);
+  height: var(--glyph-size);
+  background: var(--color-surface-highest);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  font-family: var(--font-label);
+  font-size: var(--label-sm-size);
+  font-weight: var(--label-sm-weight);
+  line-height: var(--label-sm-line-height);
+  letter-spacing: var(--label-sm-tracking);
+  font-variant-ligatures: none;
+  color: var(--color-text);
+}

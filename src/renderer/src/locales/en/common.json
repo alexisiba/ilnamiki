@@ -4,5 +4,29 @@
     "home": "Home",
     "library": "Library",
     "settings": "Settings"
+  },
+  "glyphs": {
+    "menu": "Menu",
+    "options": "Options",
+    "cross": "Cross",
+    "circle": "Circle",
+    "square": "Square",
+    "triangle": "Triangle",
+    "dpad": {
+      "up": "D-pad up",
+      "down": "D-pad down",
+      "left": "D-pad left",
+      "right": "D-pad right"
+    }
+  },
+  "keys": {
+    "enter": "Enter",
+    "escape": "Esc",
+    "pageUp": "PgUp",
+    "pageDown": "PgDn",
+    "arrowUp": "Up arrow",
+    "arrowDown": "Down arrow",
+    "arrowLeft": "Left arrow",
+    "arrowRight": "Right arrow"
   }
 }

@@ -4,5 +4,29 @@
     "home": "Inicio",
     "library": "Librería",
     "settings": "Ajustes"
+  },
+  "glyphs": {
+    "menu": "Menú",
+    "options": "Opciones",
+    "cross": "Cruz",
+    "circle": "Círculo",
+    "square": "Cuadrado",
+    "triangle": "Triángulo",
+    "dpad": {
+      "up": "Cruceta arriba",
+      "down": "Cruceta abajo",
+      "left": "Cruceta izquierda",
+      "right": "Cruceta derecha"
+    }
+  },
+  "keys": {
+    "enter": "Intro",
+    "escape": "Esc",
+    "pageUp": "RePág",
+    "pageDown": "AvPág",
+    "arrowUp": "Flecha arriba",
+    "arrowDown": "Flecha abajo",
+    "arrowLeft": "Flecha izquierda",
+    "arrowRight": "Flecha derecha"
   }
 }
