@@ -1,3 +1,4 @@
+import { Gamepad2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -19,6 +20,7 @@ export function EmulatorSetup(): React.JSX.Element {
 
   return (
     <section className={styles.panel}>
+      <Gamepad2 className={styles.icon} aria-hidden />
       <h2 className={styles.title}>{t('emulatorSetup.title')}</h2>
       <p className={styles.description}>{t('emulatorSetup.description')}</p>
       <div className={styles.actions}>
