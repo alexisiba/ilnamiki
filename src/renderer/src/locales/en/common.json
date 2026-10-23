@@ -31,6 +31,9 @@
     "arrowRight": "Right arrow",
     "arrows": "Arrow keys"
   },
+  "status": {
+    "gamepadConnected": "Controller connected"
+  },
   "buttonGuide": {
     "label": "Controls",
     "navigate": "Navigate",

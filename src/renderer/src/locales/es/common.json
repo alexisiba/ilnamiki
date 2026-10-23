@@ -31,6 +31,9 @@
     "arrowRight": "Flecha derecha",
     "arrows": "Flechas"
   },
+  "status": {
+    "gamepadConnected": "Mando conectado"
+  },
   "buttonGuide": {
     "label": "Controles",
     "navigate": "Navegar",

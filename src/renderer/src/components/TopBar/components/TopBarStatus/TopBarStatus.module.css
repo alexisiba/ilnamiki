@@ -5,6 +5,13 @@
   color: var(--color-text-muted);
 }
 
+/* Icons that belong together (the controller and its battery), closer than the rest. */
+.group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
 .icon {
   flex-shrink: 0;
   width: var(--icon-size-md);

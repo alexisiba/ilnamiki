@@ -1,12 +1,15 @@
-import { BatteryFull, Wifi } from 'lucide-react'
+import { BatteryFull, Gamepad2, Wifi } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+
+import { useGamepadConnected } from '@renderer/core/input'
 
 import { useCurrentTime } from './TopBarStatus.hooks'
 import styles from './TopBarStatus.module.css'
 
 export function TopBarStatus(): React.JSX.Element {
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation()
   const now = useCurrentTime()
+  const gamepadConnected = useGamepadConnected()
 
   const time = new Intl.DateTimeFormat(i18n.language, {
     hour: 'numeric',
@@ -16,7 +19,12 @@ export function TopBarStatus(): React.JSX.Element {
   return (
     <div className={styles.status}>
       <Wifi className={styles.icon} aria-hidden />
-      <BatteryFull className={styles.icon} aria-hidden />
+      <span className={styles.group}>
+        {gamepadConnected && (
+          <Gamepad2 className={styles.icon} role="img" aria-label={t('status.gamepadConnected')} />
+        )}
+        <BatteryFull className={styles.icon} aria-hidden />
+      </span>
       <time className={styles.clock} dateTime={now.toISOString()}>
         {time}
       </time>

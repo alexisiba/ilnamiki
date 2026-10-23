@@ -31,6 +31,8 @@ export function connectGamepad(id = XBOX_GAMEPAD_ID): FakeGamepad {
     timestamp: 0
   } as unknown as Gamepad
   gamepads.push(gamepad)
+  // jsdom has no GamepadEvent; listeners only need the event type.
+  window.dispatchEvent(new Event('gamepadconnected'))
 
   return {
     press: (index) => {
@@ -45,6 +47,7 @@ export function connectGamepad(id = XBOX_GAMEPAD_ID): FakeGamepad {
     },
     disconnect: () => {
       gamepads.splice(gamepads.indexOf(gamepad), 1)
+      window.dispatchEvent(new Event('gamepaddisconnected'))
     }
   }
 }
