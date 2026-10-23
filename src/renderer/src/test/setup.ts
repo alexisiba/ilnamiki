@@ -5,6 +5,7 @@ import { afterEach, beforeAll } from 'vitest'
 
 import i18n, { DEFAULT_LANGUAGE } from '@renderer/core/i18n'
 
+import { disconnectAllGamepads, getFakeGamepads } from './gamepad'
 import { getMockedRect } from './layout'
 
 // jsdom has no layout: rects come from `setRect` and scrolling does nothing.
@@ -18,10 +19,17 @@ Element.prototype.scrollTo = function (): void {
   // No layout to scroll.
 }
 
+// jsdom has no Gamepad API: gamepads come from `connectGamepad`.
+Object.defineProperty(navigator, 'getGamepads', {
+  configurable: true,
+  value: getFakeGamepads
+})
+
 beforeAll(async () => {
   await i18n.changeLanguage(DEFAULT_LANGUAGE)
 })
 
 afterEach(() => {
   cleanup()
+  disconnectAllGamepads()
 })

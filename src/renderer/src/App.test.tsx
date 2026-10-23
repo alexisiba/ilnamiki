@@ -1,7 +1,9 @@
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+
+import { connectGamepad } from '@renderer/test/gamepad'
 
 import { APP_ROUTES } from './App.routes'
 
@@ -16,6 +18,28 @@ function currentSection(): HTMLElement {
 }
 
 describe('App', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('switches sections with the gamepad shoulder buttons', () => {
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame'] })
+    vi.spyOn(document, 'hasFocus').mockReturnValue(true)
+    const gamepad = connectGamepad()
+    const LB = 4
+    const RB = 5
+    renderApp()
+
+    gamepad.press(RB)
+    act(() => vi.advanceTimersToNextFrame())
+    expect(currentSection()).toHaveTextContent('Library')
+
+    gamepad.release(RB)
+    gamepad.press(LB)
+    act(() => vi.advanceTimersToNextFrame())
+    expect(currentSection()).toHaveTextContent('Home')
+  })
+
   it('starts on the home section', () => {
     renderApp()
 
