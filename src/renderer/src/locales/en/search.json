@@ -1,0 +1,6 @@
+{
+  "dialog": "Search",
+  "field": "Search games",
+  "placeholder": "Type a game title",
+  "submit": "Search"
+}

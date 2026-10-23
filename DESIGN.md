@@ -225,6 +225,16 @@ The interface balances sharp technological edges with modern living-room ergonom
 - **Panel:** `#1B1F2D` with a 1px border and 16px radius, holding the description, two stat cards on `#252938` with 12px radius (playtime and last played: uppercase `label-sm` label with an icon, `headline-sm` value) and a full-width Play now button.
 - **Input:** focus stays on Play now; left/right switch games without moving it, a click on a neighbor selects it, and the selection change is announced to screen readers.
 
+### Search
+- Opens over any screen with the search action. There is no dialog box: the whole app blurs behind it (`#121624` at 65% with 40px backdrop blur) and fades in over 180ms.
+- **Field:** a 48px Slate Muted search icon and the text in `headline-lg` `#FFFFFF` with a cyan caret, over a 2px underline that turns `#00D2FF` while focused (the focus indicator). Placeholder in Slate Dim. 960px wide at most, near the top of the screen to leave room for results.
+- Modal: the screen behind is inert and gets no input; back closes search and returns focus where it was.
+- The on-screen keyboard is docked at the bottom, leaving the room between it and the field for results.
+
+### On-Screen Keyboard
+- QWERTY in ten columns of 88×72px keys with 8px gaps, so it matches the 960px panel width: digits, `qwertyuiop`, `asdfghjklñ`, `zxcvbnm-'` and Delete, then Shift (2 columns), Space (5) and the action key (3), e.g. Search.
+- Keys on the strong glass surface (`#121624` at 85%) with a 1px strong border and 12px radius, characters in `headline-sm`. Focused keys fill with `#00D2FF`, black text and the cyan glow, like every action button. The action key is outlined and labelled in `#00D2FF` at rest.
+
 ### Metric Chips & Status Badges
 - Rendered with background `#121624` (85% opacity) and 1px border.
 - Active states (e.g., "ONLINE", "60 FPS", "CORE LOADED") display a 8px pulsing dot in `#00FFA3` accompanied by monospace text.

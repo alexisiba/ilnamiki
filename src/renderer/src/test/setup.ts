@@ -20,6 +20,16 @@ Element.prototype.scrollTo = function (): void {
   // No layout to scroll.
 }
 
+// jsdom has no modal dialogs: opening toggles `open` and focuses the first control, as browsers
+// do, and closing toggles `open` back (no top layer or inertness).
+HTMLDialogElement.prototype.showModal = function (this: HTMLDialogElement): void {
+  this.setAttribute('open', '')
+  this.querySelector<HTMLElement>('input, select, textarea, button, [tabindex]')?.focus()
+}
+HTMLDialogElement.prototype.close = function (this: HTMLDialogElement): void {
+  this.removeAttribute('open')
+}
+
 // jsdom has no Gamepad API: gamepads come from `connectGamepad`.
 Object.defineProperty(navigator, 'getGamepads', {
   configurable: true,

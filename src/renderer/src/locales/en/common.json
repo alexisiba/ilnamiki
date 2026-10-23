@@ -43,6 +43,12 @@
     "hours": "{{hours}} h",
     "minutes": "{{minutes}} min"
   },
+  "keyboard": {
+    "label": "Keyboard",
+    "shift": "Shift",
+    "backspace": "Delete",
+    "space": "Space"
+  },
   "carousel": {
     "position": "{{position}} / {{total}}"
   },

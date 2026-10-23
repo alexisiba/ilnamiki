@@ -137,6 +137,9 @@
   --game-frame-height: 330px;
   /* Distance between the centers of neighboring games in the game carousel. */
   --game-spacing: 320px;
+  /* On-screen keyboard: ten keys and their gaps match the panel width. */
+  --key-width: 88px;
+  --key-height: 72px;
   --indicator-dot-size: 8px;
   --indicator-line-width: 32px;
 
@@ -144,6 +147,7 @@
   --icon-size-xs: 14px;
   --icon-size-sm: 20px;
   --icon-size-md: 28px;
+  --icon-size-lg: 48px;
   --icon-size-xl: 96px;
   --icon-stroke: 2.25;
   --icon-stroke-thin: 1.5;

@@ -4,6 +4,7 @@ import { ButtonGuide } from '@renderer/components/ButtonGuide'
 import { TopBar } from '@renderer/components/TopBar'
 import { useInputAction } from '@renderer/core/input'
 import { getSectionPath, isSectionRoot, NavigationProvider } from '@renderer/core/navigation'
+import { Search } from '@renderer/features/search'
 import styles from './App.module.css'
 
 function App(): React.JSX.Element {
@@ -28,6 +29,7 @@ function App(): React.JSX.Element {
         </main>
         <ButtonGuide />
       </div>
+      <Search />
     </NavigationProvider>
   )
 }

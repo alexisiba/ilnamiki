@@ -1,0 +1,90 @@
+/* Covers the whole window; there is no box, only the blurred screen behind. */
+.dialog {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: calc(var(--layout-top-bar-height) + var(--space-3xl)) var(--layout-margin) 0;
+  background: none;
+  border: none;
+  color: inherit;
+  transition: opacity var(--duration-focus) var(--ease-focus);
+}
+
+.dialog[open] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dialog::backdrop {
+  background: var(--color-surface-glass);
+  backdrop-filter: blur(var(--blur-glass-strong));
+  transition: opacity var(--duration-focus) var(--ease-focus);
+}
+
+/* Fades in when it opens. */
+@starting-style {
+  .dialog[open],
+  .dialog[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  width: 100%;
+  max-width: var(--layout-panel-width);
+  padding-bottom: var(--space-sm);
+  border-bottom: 2px solid var(--color-border-strong);
+  transition: border-color var(--duration-focus) var(--ease-focus);
+}
+
+/* The underline turning primary is the focus indicator. */
+.field:focus-within {
+  border-color: var(--color-primary);
+}
+
+.icon {
+  flex-shrink: 0;
+  width: var(--icon-size-lg);
+  height: var(--icon-size-lg);
+  stroke-width: var(--icon-stroke);
+  color: var(--color-text-muted);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  font-family: var(--font-headline);
+  font-size: var(--headline-lg-size);
+  font-weight: var(--headline-lg-weight);
+  line-height: var(--headline-lg-line-height);
+  letter-spacing: var(--headline-lg-tracking);
+  color: var(--color-text-focus);
+  caret-color: var(--color-primary);
+}
+
+.input:focus-visible {
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--color-text-dim);
+}
+
+/* Docked at the bottom, leaving the room between it and the field for results. */
+.keyboard {
+  margin-top: auto;
+  padding-bottom: var(--layout-margin);
+}
+
+/* The browser's clear button does not fit the console look. */
+.input::-webkit-search-cancel-button {
+  appearance: none;
+}

@@ -24,6 +24,22 @@ describe('useInputAction', () => {
     expect(onAction).not.toHaveBeenCalled()
   })
 
+  it('sends actions only to an exclusive handler while it is mounted', async () => {
+    const onScreenAction = vi.fn()
+    const onDialogAction = vi.fn()
+    renderHook(() => useInputAction(onScreenAction))
+    const dialog = renderHook(() => useInputAction(onDialogAction, { exclusive: true }))
+    const user = userEvent.setup()
+
+    await user.keyboard('{Escape}')
+    expect(onDialogAction).toHaveBeenCalledExactlyOnceWith('back')
+    expect(onScreenAction).not.toHaveBeenCalled()
+
+    dialog.unmount()
+    await user.keyboard('{Escape}')
+    expect(onScreenAction).toHaveBeenCalledExactlyOnceWith('back')
+  })
+
   it('stops listening when unmounted', async () => {
     const onAction = vi.fn()
     const { unmount } = renderHook(() => useInputAction(onAction))

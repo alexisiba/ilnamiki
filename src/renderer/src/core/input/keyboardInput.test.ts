@@ -130,6 +130,43 @@ describe('startKeyboardInput', () => {
     expect(emit).toHaveBeenCalledTimes(3)
   })
 
+  describe('while typing in a text field', () => {
+    let field: HTMLInputElement
+
+    beforeEach(() => {
+      field = document.body.appendChild(document.createElement('input'))
+    })
+
+    afterEach(() => {
+      field.remove()
+    })
+
+    it('lets mapped letters, space and horizontal arrows edit instead of acting', () => {
+      const emit = listen()
+
+      for (const key of ['e', 'q', 'y', ' ', 'ArrowLeft']) {
+        fireEvent.keyDown(field, { key })
+      }
+
+      expect(emit).not.toHaveBeenCalled()
+    })
+
+    it('still acts on Escape, Enter and vertical arrows', () => {
+      const emit = listen()
+
+      for (const key of ['Escape', 'Enter', 'ArrowDown']) {
+        fireEvent.keyDown(field, { key })
+        fireEvent.keyUp(field, { key })
+      }
+
+      expect(emit.mock.calls).toEqual([
+        ['back', 'keyboard'],
+        ['confirm', 'keyboard'],
+        ['down', 'keyboard']
+      ])
+    })
+  })
+
   it('stops listening when stopped', () => {
     const emit = listen()
 

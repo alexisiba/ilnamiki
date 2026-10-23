@@ -11,7 +11,6 @@ describe('getKeyboardAction', () => {
     ['Enter', 'confirm'],
     [' ', 'confirm'],
     ['Escape', 'back'],
-    ['Backspace', 'back'],
     ['q', 'prevSection'],
     ['e', 'nextSection'],
     ['m', 'menu'],
@@ -30,5 +29,7 @@ describe('getKeyboardAction', () => {
   it('returns undefined for unmapped keys', () => {
     expect(getKeyboardAction('z')).toBeUndefined()
     expect(getKeyboardAction('Shift')).toBeUndefined()
+    // Only Escape goes back, so Backspace never leaves a screen by accident.
+    expect(getKeyboardAction('Backspace')).toBeUndefined()
   })
 })

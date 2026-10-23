@@ -209,6 +209,21 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: 'NES' })).toHaveFocus()
   })
 
+  it('keeps the screen behind search still: typing and back act on search only', async () => {
+    const router = renderApp()
+    const user = userEvent.setup()
+
+    await user.click(screen.getByRole('link', { name: 'Library' }))
+    await user.click(screen.getByRole('button', { name: 'NES' }))
+    await user.keyboard('{Enter}')
+    await user.keyboard('y')
+    await user.keyboard('qe{ArrowRight}{Escape}')
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(router.state.location.pathname).toBe('/library/nes')
+    expect(screen.getByRole('button', { name: 'Play now' })).toHaveFocus()
+  })
+
   it('stays on a section’s root on back', async () => {
     const router = renderApp()
     const user = userEvent.setup()

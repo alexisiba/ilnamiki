@@ -43,6 +43,12 @@
     "hours": "{{hours}} h",
     "minutes": "{{minutes}} min"
   },
+  "keyboard": {
+    "label": "Teclado",
+    "shift": "Mayúsculas",
+    "backspace": "Borrar",
+    "space": "Espacio"
+  },
   "carousel": {
     "position": "{{position}} / {{total}}"
   },

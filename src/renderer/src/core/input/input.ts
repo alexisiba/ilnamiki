@@ -38,7 +38,6 @@ export const KEYBOARD_BINDINGS: Record<string, InputAction> = {
   Enter: 'confirm',
   ' ': 'confirm',
   Escape: 'back',
-  Backspace: 'back',
   q: 'prevSection',
   e: 'nextSection',
   m: 'menu',
