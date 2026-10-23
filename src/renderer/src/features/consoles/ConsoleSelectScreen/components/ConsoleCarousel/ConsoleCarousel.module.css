@@ -1,19 +1,3 @@
-.carousel {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-md);
-}
-
-/* Every console shares one cell and slides from the center by its offset. */
-.stage {
-  position: relative;
-  display: grid;
-  width: 100%;
-  /* Clips neighbors at the safe area without becoming a scroll container. */
-  overflow-x: clip;
-}
-
 /* Barely visible circle of light behind the selected console, faded out at its edge. */
 .stage::before {
   position: absolute;
@@ -24,24 +8,6 @@
   translate: -50% -50%;
   background: radial-gradient(closest-side, var(--color-spotlight), transparent);
   content: '';
-}
-
-.slot {
-  grid-area: 1 / 1;
-  justify-self: center;
-  transform: translateX(calc(var(--offset) * var(--console-spacing))) scale(var(--scale-backdrop));
-  transition:
-    transform var(--duration-slide) var(--ease-focus),
-    visibility var(--duration-slide);
-}
-
-.current {
-  z-index: 1;
-  transform: none;
-}
-
-.hidden {
-  visibility: hidden;
 }
 
 .item {
@@ -62,22 +28,17 @@
   width: var(--console-width);
   aspect-ratio: var(--console-aspect-ratio);
   object-fit: contain;
-  opacity: var(--opacity-backdrop);
   filter: var(--filter-dim);
-  transition:
-    opacity var(--duration-slide) var(--ease-focus),
-    filter var(--duration-slide) var(--ease-focus);
+  transition: filter var(--duration-slide) var(--ease-focus);
 }
 
-.current .image {
-  opacity: 1;
+.selected .image {
   filter: none;
 }
 
-.hidden .image {
-  opacity: 0;
-}
-
+/* Beside the selection the carousel fades it like the render, below AA contrast on purpose:
+   the selected name and the console list already expose it, and a bright name behind would
+   compete with the selection. */
 .name {
   font-family: var(--font-headline);
   font-size: var(--headline-xl-size);
@@ -85,17 +46,11 @@
   line-height: var(--headline-xl-line-height);
   letter-spacing: var(--headline-xl-tracking);
   color: var(--color-text-dim);
-  /* Faded like the render, below AA contrast on purpose: the selected name and the console
-     list already expose it, and a bright name behind would compete with the selection. */
-  opacity: var(--opacity-backdrop);
-  transition:
-    color var(--duration-slide) var(--ease-focus),
-    opacity var(--duration-slide) var(--ease-focus);
+  transition: color var(--duration-slide) var(--ease-focus);
 }
 
-.current .name {
+.selected .name {
   color: var(--color-text-focus);
-  opacity: 1;
 }
 
 .details {
@@ -140,25 +95,4 @@
   background: var(--color-success);
   border-radius: var(--radius-full);
   box-shadow: 0 0 var(--space-xs) var(--color-success-glow);
-}
-
-.dots {
-  display: flex;
-  gap: var(--space-xs);
-}
-
-.dot {
-  width: var(--indicator-dot-size);
-  height: var(--indicator-dot-size);
-  background: var(--color-text-dim);
-  border-radius: var(--radius-full);
-  transition:
-    width var(--duration-slide) var(--ease-focus),
-    background var(--duration-slide) var(--ease-focus);
-}
-
-.dotSelected {
-  width: var(--indicator-line-width);
-  background: var(--color-primary);
-  box-shadow: 0 0 var(--space-sm) var(--color-primary-glow);
 }

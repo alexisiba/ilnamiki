@@ -43,6 +43,9 @@
     "hours": "{{hours}} h",
     "minutes": "{{minutes}} min"
   },
+  "carousel": {
+    "position": "{{position}} / {{total}}"
+  },
   "buttonGuide": {
     "label": "Controls",
     "navigate": "Navigate",

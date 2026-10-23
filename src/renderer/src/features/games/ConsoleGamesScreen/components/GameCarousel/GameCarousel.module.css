@@ -1,37 +1,3 @@
-.carousel {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-sm);
-  min-width: 0;
-}
-
-/* Every game shares one cell and slides from the center by its offset. */
-.stage {
-  display: grid;
-  width: 100%;
-  /* Clips neighbors at the column edge without becoming a scroll container. */
-  overflow-x: clip;
-}
-
-.slot {
-  grid-area: 1 / 1;
-  justify-self: center;
-  transform: translateX(calc(var(--offset) * var(--game-spacing))) scale(var(--scale-backdrop));
-  transition:
-    transform var(--duration-slide) var(--ease-focus),
-    visibility var(--duration-slide);
-}
-
-.current {
-  z-index: 1;
-  transform: none;
-}
-
-.hidden {
-  visibility: hidden;
-}
-
 .item {
   display: flex;
   flex-direction: column;
@@ -39,16 +5,6 @@
   gap: var(--space-sm);
   /* Room for the glow of the selected frame. */
   padding: var(--space-md) 0 0;
-  opacity: var(--opacity-backdrop);
-  transition: opacity var(--duration-slide) var(--ease-focus);
-}
-
-.current .item {
-  opacity: 1;
-}
-
-.hidden .item {
-  opacity: 0;
 }
 
 .frame {
@@ -67,7 +23,7 @@
 }
 
 /* Focus stays on Play now; the selected game shows its selection with the primary glow. */
-.current .frame {
+.selected .frame {
   border-color: var(--color-primary);
   box-shadow: var(--shadow-glow);
 }
@@ -82,7 +38,7 @@
   transition: filter var(--duration-slide) var(--ease-focus);
 }
 
-.current .image {
+.selected .image {
   filter: none;
 }
 
@@ -99,7 +55,7 @@
   transition: color var(--duration-slide) var(--ease-focus);
 }
 
-.current .title {
+.selected .title {
   color: var(--color-text-focus);
 }
 
@@ -111,16 +67,6 @@
   letter-spacing: var(--label-md-tracking);
   font-variant-ligatures: none;
   text-transform: uppercase;
-  color: var(--color-text-muted);
-}
-
-.position {
-  font-family: var(--font-label);
-  font-size: var(--label-sm-size);
-  font-weight: var(--label-sm-weight);
-  line-height: var(--label-sm-line-height);
-  letter-spacing: var(--label-sm-tracking);
-  font-variant-ligatures: none;
   color: var(--color-text-muted);
 }
 

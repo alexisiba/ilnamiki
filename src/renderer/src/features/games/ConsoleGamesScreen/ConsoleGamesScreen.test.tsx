@@ -37,13 +37,12 @@ describe('ConsoleGamesScreen', () => {
     expect(screen.getByText('7 games installed · 1994')).toBeInTheDocument()
   })
 
-  it('selects the first game with its facts, details and position', () => {
+  it('selects the first game with its facts and details', () => {
     renderGamesOf('ps1')
 
     expect(selectedGame()).toHaveAccessibleName('The Legend of Zelda: Ocarina of Time')
     expect(screen.getByText('1998 · Action-adventure · 1 player')).toBeInTheDocument()
     expect(screen.getByText(/Travel through time as Link/)).toBeInTheDocument()
-    expect(screen.getByText('1 / 7')).toBeInTheDocument()
   })
 
   it('shows the selected game’s playtime and when it was last played', () => {
@@ -69,7 +68,7 @@ describe('ConsoleGamesScreen', () => {
 
     expect(selectedGame()).toHaveAccessibleName('Donkey Kong 64')
     expect(screen.getByText('1999 · Platformer · 4 players')).toBeInTheDocument()
-    expect(screen.getByText('2 / 7')).toBeInTheDocument()
+    expect(playNow()).toHaveAccessibleDescription('Donkey Kong 64, 2 of 7')
     expect(playNow()).toHaveFocus()
   })
 
@@ -82,7 +81,7 @@ describe('ConsoleGamesScreen', () => {
 
     await user.keyboard('{ArrowRight}'.repeat(7))
     expect(selectedGame()).toHaveAccessibleName('Monster Hunter Freedom Unite')
-    expect(screen.getByText('7 / 7')).toBeInTheDocument()
+    expect(playNow()).toHaveAccessibleDescription('Monster Hunter Freedom Unite, 7 of 7')
   })
 
   it('selects a game when it is clicked, keeping focus on Play now', async () => {

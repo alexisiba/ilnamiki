@@ -1,13 +1,12 @@
 import { useTranslation } from 'react-i18next'
 
+import { Carousel } from '@renderer/components/Carousel'
+
 import { GameCarouselItem } from './components/GameCarouselItem'
 import type { GameCarouselProps } from './GameCarousel.types'
 import styles from './GameCarousel.module.css'
 
-/**
- * Games side by side, with the selected one in front and its neighbors faded behind it,
- * followed by its facts and its position in the list.
- */
+/** Games in a carousel, with the selected one's facts below it. */
 export function GameCarousel({
   games,
   selectedIndex,
@@ -24,29 +23,31 @@ export function GameCarousel({
     selected.genre,
     t('details.players', { count: selected.players })
   ]
-  const position = { position: selectedIndex + 1, total: games.length }
 
-  return (
-    <div className={styles.carousel}>
-      <ul className={styles.stage}>
-        {games.map((game, index) => (
-          <GameCarouselItem
-            key={game.id}
-            game={game}
-            offset={index - selectedIndex}
-            onSelect={() => onSelect(index)}
-          />
-        ))}
-      </ul>
+  const details = (
+    <>
       <p className={styles.facts}>{facts.join(' · ')}</p>
-      {/* The status below already announces the position. */}
-      <p className={styles.position} aria-hidden="true">
-        {t('consoleGames.position', position)}
-      </p>
       {/* Focus stays on Play now, so changing games is announced instead. */}
       <p id={statusId} className={styles.status} aria-live="polite">
-        {t('consoleGames.selected', { title: selected.title, ...position })}
+        {t('consoleGames.selected', {
+          title: selected.title,
+          position: selectedIndex + 1,
+          total: games.length
+        })}
       </p>
-    </div>
+    </>
+  )
+
+  return (
+    <Carousel selectedIndex={selectedIndex} spacing="var(--game-spacing)" details={details}>
+      {games.map((game, index) => (
+        <GameCarouselItem
+          key={game.id}
+          game={game}
+          selected={index === selectedIndex}
+          onSelect={() => onSelect(index)}
+        />
+      ))}
+    </Carousel>
   )
 }

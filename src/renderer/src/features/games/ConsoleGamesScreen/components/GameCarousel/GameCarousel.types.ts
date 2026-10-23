@@ -10,7 +10,7 @@ export interface GameCarouselProps {
 
 export interface GameCarouselItemProps {
   game: Game
-  /** Position relative to the selected game: 0 is the selected one, -1 the one before it. */
-  offset: number
+  /** Whether it is the game in front. */
+  selected: boolean
   onSelect: () => void
 }

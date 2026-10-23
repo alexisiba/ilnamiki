@@ -8,7 +8,6 @@
   "consoleGames": {
     "gamesInstalled_one": "{{count}} game installed",
     "gamesInstalled_other": "{{count}} games installed",
-    "position": "{{position}} / {{total}}",
     "selected": "{{title}}, {{position}} of {{total}}",
     "playtime": "Playtime",
     "lastPlayed": "Last played",
