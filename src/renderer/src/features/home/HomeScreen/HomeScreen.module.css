@@ -1,0 +1,18 @@
+.emptyState {
+  display: grid;
+  place-items: center;
+}
+
+/* Holds every home section and grows downward, scrolling inside the screen area. */
+.content {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding-top: var(--space-lg);
+  overflow-y: auto;
+}
+
+/* Sections keep their size and overflow into the scroll instead of shrinking. */
+.content > * {
+  flex-shrink: 0;
+}

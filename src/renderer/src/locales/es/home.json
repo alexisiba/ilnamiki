@@ -6,5 +6,16 @@
       "download": "Descargar RetroArch",
       "alreadyInstalled": "Ya tengo un emulador instalado"
     }
+  },
+  "hero": {
+    "resume": "Retomar sesión",
+    "lastPlayed": "Última sesión {{time}}",
+    "playtime": "Tiempo total: {{duration}}",
+    "continue": "Continuar jugando",
+    "duration": {
+      "hoursMinutes": "{{hours}} h {{minutes}} min",
+      "hours": "{{hours}} h",
+      "minutes": "{{minutes}} min"
+    }
   }
 }

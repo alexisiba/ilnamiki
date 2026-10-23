@@ -6,5 +6,16 @@
       "download": "Download RetroArch",
       "alreadyInstalled": "I already have an emulator installed"
     }
+  },
+  "hero": {
+    "resume": "Resume session",
+    "lastPlayed": "Last played {{time}}",
+    "playtime": "Total playtime: {{duration}}",
+    "continue": "Continue playing",
+    "duration": {
+      "hoursMinutes": "{{hours}} h {{minutes}} min",
+      "hours": "{{hours}} h",
+      "minutes": "{{minutes}} min"
+    }
   }
 }
