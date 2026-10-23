@@ -209,11 +209,11 @@ The interface balances sharp technological edges with modern living-room ergonom
 
 ### Console Carousel (Library)
 - First step of the library: one console at a time, centered, with its neighbors set back behind it. Stops at both ends; it never wraps.
-- **Selected console:** 800px-wide hardware render at full brightness, its name below in `headline-xl` `#FFFFFF`. Taking the center at full size is its focus indicator; no ring is drawn around a render.
-- **Neighbors:** 640px from the center, scaled to `0.6x`, render at 35% opacity plus the Dimming Filter, name in Slate Dim (`#6B7A90`). Only the render and name show; consoles further away are hidden.
+- **Selected console:** hardware render fitted into an 800px-wide 16:9 frame (any proportion, never cropped) at full brightness, its name below in `headline-xl` `#FFFFFF`. Taking the center at full size is its focus indicator; no ring is drawn around a render.
+- **Neighbors:** 640px from the center, scaled to `0.6x`, render at 35% opacity plus the Dimming Filter, name in Slate Dim (`#6B7A90`) faded to the same 35%. This name deliberately falls below AA contrast so it never competes with the selection; it stays available to screen readers and becomes the full-contrast title once selected. Only the render and name show; consoles further away are hidden.
 - **Details:** below the name, maker and release year as an uppercase `label-md` line in Slate Muted, then a games-installed status pill (see Metric Chips) with an 8px success dot and its glow (`rgba(0, 226, 144, 0.45)`).
 - **Position dots:** 8px Slate Dim circles; the selected one stretches into a 32px rounded line in `#00D2FF` with its cyan glow. Shape, not only color, marks the selection.
-- **Backdrop:** the canvas keeps its base color, with a barely visible radial light (`#E2E2EC` at 5%) behind the selected console that fully fades before the stage edges.
+- **Backdrop:** the canvas keeps its base color, with a soft circular white light (`#FFFFFF` at 14%) behind the selected console that fully fades before the stage edges.
 - **Motion:** consoles slide over 320ms on the focus curve; pointer hover never moves the carousel, a click selects. Reduced motion drops the slide to 0ms.
 
 ### Metric Chips & Status Badges

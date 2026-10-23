@@ -7,12 +7,23 @@
 
 /* Every console shares one cell and slides from the center by its offset. */
 .stage {
+  position: relative;
   display: grid;
   width: 100%;
   /* Clips neighbors at the safe area without becoming a scroll container. */
   overflow-x: clip;
-  /* Barely visible light behind the selected console, fully faded at the stage edges. */
+}
+
+/* Barely visible circle of light behind the selected console, faded out at its edge. */
+.stage::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--console-width);
+  aspect-ratio: 1;
+  translate: -50% -50%;
   background: radial-gradient(closest-side, var(--color-spotlight), transparent);
+  content: '';
 }
 
 .slot {
@@ -46,8 +57,11 @@
   outline: none;
 }
 
+/* A fixed frame, so renders of any proportion keep the name and details in place. */
 .image {
   width: var(--console-width);
+  aspect-ratio: var(--console-aspect-ratio);
+  object-fit: contain;
   opacity: var(--opacity-backdrop);
   filter: var(--filter-dim);
   transition:
@@ -71,11 +85,17 @@
   line-height: var(--headline-xl-line-height);
   letter-spacing: var(--headline-xl-tracking);
   color: var(--color-text-dim);
-  transition: color var(--duration-slide) var(--ease-focus);
+  /* Faded like the render, below AA contrast on purpose: the selected name and the console
+     list already expose it, and a bright name behind would compete with the selection. */
+  opacity: var(--opacity-backdrop);
+  transition:
+    color var(--duration-slide) var(--ease-focus),
+    opacity var(--duration-slide) var(--ease-focus);
 }
 
 .current .name {
   color: var(--color-text-focus);
+  opacity: 1;
 }
 
 .details {

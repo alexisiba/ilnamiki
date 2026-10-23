@@ -12,7 +12,7 @@
   --color-surface-glass: rgba(18, 22, 36, 0.65);
   --color-surface-glass-strong: rgba(18, 22, 36, 0.85);
   /* Barely visible light on the canvas behind the featured item of a screen. */
-  --color-spotlight: rgba(226, 226, 236, 0.05);
+  --color-spotlight: rgba(255, 255, 255, 0.14);
 
   /* Colors: text */
   --color-text-focus: #ffffff;
@@ -127,6 +127,7 @@
   --card-sm-width: 320px;
   --card-sm-aspect-ratio: 4 / 3;
   --console-width: 800px;
+  --console-aspect-ratio: 16 / 9;
   /* Distance between the centers of neighboring consoles in the console carousel. */
   --console-spacing: 640px;
   --indicator-dot-size: 8px;
