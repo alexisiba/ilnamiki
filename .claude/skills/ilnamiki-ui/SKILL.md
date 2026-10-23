@@ -1,6 +1,6 @@
 ---
 name: ilnamiki-ui
-description: Global principles for building anything user-facing in Ilnamiki — a console-style emulator frontend for the living room, designed for big screens and gamepad navigation, with full keyboard and mouse support. Describes the mindset and project-wide rules to keep in mind (product vision, input, focus, readability at a distance, visual consistency and icons, i18n, code boundaries), not fixed designs. Use before creating or changing any screen, feature, component, style, translation or interaction in this project.
+description: Global principles for building anything user-facing in Ilnamiki — a console-style emulator frontend for the living room, designed for big screens and gamepad navigation, with full keyboard and mouse support. Describes the mindset and project-wide rules to keep in mind (product vision, input, focus, readability at a distance, visual consistency and icons, i18n, code boundaries, lean components split by responsibility), not fixed designs. Use before creating or changing any screen, feature, component, style, translation or interaction in this project.
 ---
 
 # Ilnamiki UI
@@ -119,12 +119,34 @@ When a request would push the UI toward "web" or "streaming", say so before impl
 - Components follow the `component-structure` skill.
 - Everything in the repository is in English.
 
-## 8. Before calling UI work done
+## 8. Lean screens and components
+
+- Build every screen and component with as little code as it needs, by giving each piece
+  one job, not by compressing code.
+- **A parent composes; its children do the work.** Before writing a screen, identify the
+  parts it is made of (e.g. a header, a carousel, a details panel) and make each one a
+  component that owns its own state, logic, strings and styles. The parent wires them
+  together: data in, events out.
+- **Logic lives where it is used.** If only one child needs a piece of state, a handler or a
+  derived value, it belongs to that child, not to the parent.
+- **Extract with a reason:** a part gets its own component when it has its own
+  responsibility, its own state or logic, or is used more than once. A wrapper that only
+  forwards props adds code instead of removing it.
+- **Reuse before writing.** Check the shared components and core hooks before building
+  something similar; when a second screen needs a piece, promote it to shared (see
+  `component-structure`).
+- **Brevity never beats clarity:** no clever one-liners or nested ternaries to save lines.
+- This applies to new work. When existing code could be split this way, point it out and
+  agree on it with the user instead of refactoring it unasked.
+
+## 9. Before calling UI work done
 
 - [ ] Fully usable with gamepad, keyboard and mouse.
 - [ ] One clear focused element; focus is restored after dialogs and navigation.
 - [ ] Readable and usable from a distance on a big screen.
 - [ ] The user can tell where they are and what actions are available.
 - [ ] No hard-coded design values or user-facing strings; new strings exist in every language.
+- [ ] The parent only composes; each part owns its logic, and nothing was extracted without
+      a reason.
 - [ ] It meets the `a11y` checklist.
 - [ ] It feels like a console, not a website or a streaming app.
