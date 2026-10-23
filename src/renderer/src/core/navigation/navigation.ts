@@ -28,6 +28,8 @@ export interface Navigation {
   confirm: () => void
   /** Focuses `element` when the pointer actually moves over it. */
   pointerMove: (element: HTMLElement, event: PointerEvent) => void
+  /** Focuses `element` when it is pressed, for items that do not take focus on hover. */
+  pointerDown: (element: HTMLElement) => void
 }
 
 /**
@@ -167,6 +169,14 @@ export function createNavigation(): Navigation {
 
       claim = CLAIM.user
       // Never scroll on hover: it would slide other items under the pointer.
+      focus(item, false)
+    },
+
+    pointerDown(element) {
+      const item = items.get(element)
+      if (!item || document.activeElement === element) return
+
+      claim = CLAIM.user
       focus(item, false)
     }
   }

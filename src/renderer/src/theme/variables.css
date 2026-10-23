@@ -11,6 +11,8 @@
   --color-surface-highest: #252938;
   --color-surface-glass: rgba(18, 22, 36, 0.65);
   --color-surface-glass-strong: rgba(18, 22, 36, 0.85);
+  /* Barely visible light on the canvas behind the featured item of a screen. */
+  --color-spotlight: rgba(226, 226, 236, 0.05);
 
   /* Colors: text */
   --color-text-focus: #ffffff;
@@ -32,6 +34,7 @@
 
   /* Colors: status */
   --color-success: #00e290;
+  --color-success-glow: rgba(0, 226, 144, 0.45);
   --color-success-container: #005231;
   --color-on-success-container: #52ffac;
   --color-warning: #ffba4b;
@@ -123,6 +126,11 @@
   --layout-focus-bleed: 2rem;
   --card-sm-width: 320px;
   --card-sm-aspect-ratio: 4 / 3;
+  --console-width: 800px;
+  /* Distance between the centers of neighboring consoles in the console carousel. */
+  --console-spacing: 640px;
+  --indicator-dot-size: 8px;
+  --indicator-line-width: 32px;
 
   /* Icons */
   --icon-size-xs: 14px;
@@ -140,9 +148,13 @@
   /* Softer halo for scaled cards, so it fits inside the focus bleed of their rail. */
   --shadow-focus-card: 0 0 0 2px var(--color-primary), 0 0 20px var(--color-primary-glow);
   --filter-dim: brightness(0.6) saturate(0.8);
+  /* Items set back behind the focused one in a carousel: smaller and faded. */
+  --scale-backdrop: 0.6;
+  --opacity-backdrop: 0.35;
 
   /* Motion */
   --ease-focus: cubic-bezier(0.16, 1, 0.3, 1);
   --duration-focus: 180ms;
+  --duration-slide: 320ms;
   --scale-focus: 1.05;
 }

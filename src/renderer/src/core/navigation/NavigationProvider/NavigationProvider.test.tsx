@@ -11,11 +11,12 @@ import { NavigationProvider } from './NavigationProvider'
 interface ItemProps {
   id: string
   autoFocus?: boolean
+  focusOnHover?: boolean
   onClick?: () => void
 }
 
-function Item({ id, autoFocus, onClick }: ItemProps): React.JSX.Element {
-  const { ref } = useFocusable<HTMLButtonElement>({ id, autoFocus })
+function Item({ id, autoFocus, focusOnHover, onClick }: ItemProps): React.JSX.Element {
+  const { ref } = useFocusable<HTMLButtonElement>({ id, autoFocus, focusOnHover })
   return (
     <button ref={ref} type="button" onClick={onClick}>
       {id}
@@ -153,6 +154,40 @@ describe('NavigationProvider', () => {
     await user.pointer({ target: item('bottom3'), coords: { x: 300, y: 150 } })
 
     expect(item('bottom2')).toHaveFocus()
+  })
+
+  it('does not focus items without hover focus when the pointer moves over them', async () => {
+    render(
+      <NavigationProvider>
+        <Item id="first" />
+        <Item id="second" focusOnHover={false} />
+      </NavigationProvider>
+    )
+
+    await userEvent.setup().pointer({ target: item('second'), coords: { x: 300, y: 150 } })
+
+    expect(item('first')).toHaveFocus()
+  })
+
+  it('remembers an item without hover focus when it is pressed', async () => {
+    const user = userEvent.setup()
+    const items = (
+      <>
+        <Item id="first" focusOnHover={false} />
+        <Item id="second" focusOnHover={false} />
+      </>
+    )
+    const { rerender } = render(<NavigationProvider scope="home">{items}</NavigationProvider>)
+
+    await user.click(item('second'))
+    rerender(
+      <NavigationProvider scope="library">
+        <Item id="library" />
+      </NavigationProvider>
+    )
+    rerender(<NavigationProvider scope="home">{items}</NavigationProvider>)
+
+    expect(item('second')).toHaveFocus()
   })
 
   it('focuses an item again on a direction when focus was lost', async () => {

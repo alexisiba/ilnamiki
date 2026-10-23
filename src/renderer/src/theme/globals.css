@@ -161,6 +161,7 @@ ol {
 @media (prefers-reduced-motion: reduce) {
   :root {
     --duration-focus: 0ms;
+    --duration-slide: 0ms;
   }
 
   * {

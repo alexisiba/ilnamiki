@@ -1,0 +1,144 @@
+.carousel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+/* Every console shares one cell and slides from the center by its offset. */
+.stage {
+  display: grid;
+  width: 100%;
+  /* Clips neighbors at the safe area without becoming a scroll container. */
+  overflow-x: clip;
+  /* Barely visible light behind the selected console, fully faded at the stage edges. */
+  background: radial-gradient(closest-side, var(--color-spotlight), transparent);
+}
+
+.slot {
+  grid-area: 1 / 1;
+  justify-self: center;
+  transform: translateX(calc(var(--offset) * var(--console-spacing))) scale(var(--scale-backdrop));
+  transition:
+    transform var(--duration-slide) var(--ease-focus),
+    visibility var(--duration-slide);
+}
+
+.current {
+  z-index: 1;
+  transform: none;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 0;
+}
+
+/* Sliding to the center at full size and brightness is the focus indicator. */
+.item:focus-visible {
+  outline: none;
+}
+
+.image {
+  width: var(--console-width);
+  opacity: var(--opacity-backdrop);
+  filter: var(--filter-dim);
+  transition:
+    opacity var(--duration-slide) var(--ease-focus),
+    filter var(--duration-slide) var(--ease-focus);
+}
+
+.current .image {
+  opacity: 1;
+  filter: none;
+}
+
+.hidden .image {
+  opacity: 0;
+}
+
+.name {
+  font-family: var(--font-headline);
+  font-size: var(--headline-xl-size);
+  font-weight: var(--headline-xl-weight);
+  line-height: var(--headline-xl-line-height);
+  letter-spacing: var(--headline-xl-tracking);
+  color: var(--color-text-dim);
+  transition: color var(--duration-slide) var(--ease-focus);
+}
+
+.current .name {
+  color: var(--color-text-focus);
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.facts {
+  font-family: var(--font-label);
+  font-size: var(--label-md-size);
+  font-weight: var(--label-md-weight);
+  line-height: var(--label-md-line-height);
+  letter-spacing: var(--label-md-tracking);
+  font-variant-ligatures: none;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.games {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-md);
+  background: var(--color-surface-glass-strong);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  font-family: var(--font-label);
+  font-size: var(--label-md-size);
+  font-weight: var(--label-md-weight);
+  line-height: var(--label-md-line-height);
+  letter-spacing: var(--label-md-tracking);
+  font-variant-ligatures: none;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+
+.gamesDot {
+  width: var(--indicator-dot-size);
+  height: var(--indicator-dot-size);
+  background: var(--color-success);
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 var(--space-xs) var(--color-success-glow);
+}
+
+.dots {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.dot {
+  width: var(--indicator-dot-size);
+  height: var(--indicator-dot-size);
+  background: var(--color-text-dim);
+  border-radius: var(--radius-full);
+  transition:
+    width var(--duration-slide) var(--ease-focus),
+    background var(--duration-slide) var(--ease-focus);
+}
+
+.dotSelected {
+  width: var(--indicator-line-width);
+  background: var(--color-primary);
+  box-shadow: 0 0 var(--space-sm) var(--color-primary-glow);
+}
