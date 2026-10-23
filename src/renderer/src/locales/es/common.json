@@ -34,6 +34,15 @@
   "status": {
     "gamepadConnected": "Mando conectado"
   },
+  "playStats": {
+    "lastPlayed": "Última sesión {{time}}",
+    "playtime": "Tiempo total: {{duration}}"
+  },
+  "duration": {
+    "hoursMinutes": "{{hours}} h {{minutes}} min",
+    "hours": "{{hours}} h",
+    "minutes": "{{minutes}} min"
+  },
   "buttonGuide": {
     "label": "Controles",
     "navigate": "Navegar",

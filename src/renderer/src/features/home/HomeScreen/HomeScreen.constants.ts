@@ -1,112 +1,22 @@
-import donkeyKong64Artwork from '@renderer/assets/images/dk-64.jpg'
-import metalGearSolidArtwork from '@renderer/assets/images/mgs-ps1.jpeg'
-import monsterHunterArtwork from '@renderer/assets/images/mh-fu-psp.jpeg'
-import superMarioBros3Artwork from '@renderer/assets/images/smb3-nes.jpeg'
-import spyroArtwork from '@renderer/assets/images/spyro-ps1.jpeg'
-import tonyHawkArtwork from '@renderer/assets/images/thps-u2-ps2.jpeg'
-import ocarinaOfTimeArtwork from '@renderer/assets/images/tloz-oc-gameplay.webp'
+/** Sample game shown in the hero until the library exists. Set to `null` to see the empty state. */
+export const SAMPLE_LAST_PLAYED_GAME_ID: string | null = 'tloz-oot-n64'
 
-import type { LastPlayedGame } from './components/HomeHero'
-import type { ShelfGame } from './components/GameShelf'
-import type { RecentGame } from './HomeScreen.types'
-
-const HOUR_MS = 60 * 60 * 1000
-const DAY_MS = 24 * HOUR_MS
-const ago = (ms: number): Date => new Date(Date.now() - ms)
-
-/** Sample data until the library exists. Set to `null` to see the empty state. */
-export const SAMPLE_LAST_PLAYED_GAME: LastPlayedGame | null = {
-  title: 'The Legend of Zelda: Ocarina of Time',
-  platform: 'Nintendo 64',
-  description:
-    'Travel through time as Link to stop Ganondorf from claiming the Triforce and plunging Hyrule into darkness.',
-  imageUrl: ocarinaOfTimeArtwork,
-  lastPlayedAt: ago(2 * DAY_MS),
-  playtimeMinutes: 32 * 60 + 15
-}
-
-/** Sample data until the library exists. */
-export const SAMPLE_RECENT_GAMES: RecentGame[] = [
-  {
-    id: 'dk-64',
-    title: 'Donkey Kong 64',
-    platform: 'Nintendo 64',
-    imageUrl: donkeyKong64Artwork,
-    lastPlayedAt: ago(1 * HOUR_MS)
-  },
-  {
-    id: 'smb3-nes',
-    title: 'Super Mario Bros. 3',
-    platform: 'NES',
-    imageUrl: superMarioBros3Artwork,
-    lastPlayedAt: ago(1 * DAY_MS)
-  },
-  {
-    id: 'mgs-ps1',
-    title: 'Metal Gear Solid',
-    platform: 'PlayStation',
-    imageUrl: metalGearSolidArtwork,
-    lastPlayedAt: ago(3 * DAY_MS)
-  },
-  {
-    id: 'spyro-ps1',
-    title: 'Spyro the Dragon',
-    platform: 'PlayStation',
-    imageUrl: spyroArtwork,
-    lastPlayedAt: ago(5 * DAY_MS)
-  },
-  {
-    id: 'thps-u2-ps2',
-    title: "Tony Hawk's Underground 2",
-    platform: 'PlayStation 2',
-    imageUrl: tonyHawkArtwork,
-    lastPlayedAt: ago(12 * DAY_MS)
-  },
-  {
-    id: 'mh-fu-psp',
-    title: 'Monster Hunter Freedom Unite',
-    platform: 'PSP',
-    imageUrl: monsterHunterArtwork,
-    lastPlayedAt: ago(40 * DAY_MS)
-  }
+/** Sample "Play again" shelf until the library exists, most recent first. */
+export const SAMPLE_RECENT_GAME_IDS = [
+  'dk-64',
+  'smb3-nes',
+  'mgs-ps1',
+  'spyro-ps1',
+  'thps-u2-ps2',
+  'mh-fu-psp'
 ]
 
-/** Sample data until the library exists. */
-export const SAMPLE_RECENTLY_ADDED_GAMES: ShelfGame[] = [
-  {
-    id: 'spyro-ps1',
-    title: 'Spyro the Dragon',
-    platform: 'PlayStation',
-    imageUrl: spyroArtwork
-  },
-  {
-    id: 'tloz-oot-n64',
-    title: 'The Legend of Zelda: Ocarina of Time',
-    platform: 'Nintendo 64',
-    imageUrl: ocarinaOfTimeArtwork
-  },
-  {
-    id: 'mh-fu-psp',
-    title: 'Monster Hunter Freedom Unite',
-    platform: 'PSP',
-    imageUrl: monsterHunterArtwork
-  },
-  {
-    id: 'thps-u2-ps2',
-    title: "Tony Hawk's Underground 2",
-    platform: 'PlayStation 2',
-    imageUrl: tonyHawkArtwork
-  },
-  {
-    id: 'smb3-nes',
-    title: 'Super Mario Bros. 3',
-    platform: 'NES',
-    imageUrl: superMarioBros3Artwork
-  },
-  {
-    id: 'mgs-ps1',
-    title: 'Metal Gear Solid',
-    platform: 'PlayStation',
-    imageUrl: metalGearSolidArtwork
-  }
+/** Sample "Recently added" shelf until the library exists. */
+export const SAMPLE_RECENTLY_ADDED_GAME_IDS = [
+  'spyro-ps1',
+  'tloz-oot-n64',
+  'mh-fu-psp',
+  'thps-u2-ps2',
+  'smb3-nes',
+  'mgs-ps1'
 ]

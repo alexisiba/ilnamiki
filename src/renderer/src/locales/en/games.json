@@ -1,1 +1,8 @@
-{}
+{
+  "details": {
+    "players_one": "{{count}} player",
+    "players_other": "{{count}} players",
+    "play": "Play",
+    "notFound": "This game is not in your library."
+  }
+}

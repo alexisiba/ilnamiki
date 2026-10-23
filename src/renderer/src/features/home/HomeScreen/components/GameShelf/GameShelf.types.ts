@@ -12,8 +12,11 @@ export interface GameShelfProps {
   id: string
   title: string
   games: ShelfGame[]
+  /** Called with the game's id when a card is confirmed. */
+  onSelectGame: (gameId: string) => void
 }
 
 export interface GameShelfCardProps {
   game: ShelfGame
+  onSelect: () => void
 }

@@ -26,13 +26,13 @@ const GAMES: ShelfGame[] = [
 
 describe('GameShelf', () => {
   it('shows the section heading', () => {
-    render(<GameShelf id="recent" title="Play again" games={GAMES} />)
+    render(<GameShelf id="recent" title="Play again" games={GAMES} onSelectGame={vi.fn()} />)
 
     expect(screen.getByRole('heading', { level: 2, name: 'Play again' })).toBeInTheDocument()
   })
 
   it('shows one card per game, in order, named by title and described by platform', () => {
-    render(<GameShelf id="recent" title="Play again" games={GAMES} />)
+    render(<GameShelf id="recent" title="Play again" games={GAMES} onSelectGame={vi.fn()} />)
 
     const [first, second] = screen.getAllByRole('listitem')
     expect(within(first).getByRole('button')).toHaveAccessibleName('Donkey Kong 64')
@@ -42,7 +42,9 @@ describe('GameShelf', () => {
   })
 
   it('focuses the next card on right', async () => {
-    renderWithNavigation(<GameShelf id="recent" title="Play again" games={GAMES} />)
+    renderWithNavigation(
+      <GameShelf id="recent" title="Play again" games={GAMES} onSelectGame={vi.fn()} />
+    )
     const [first, second] = screen.getAllByRole('button')
     setRect(first, { left: 0, top: 0, width: 320, height: 240 })
     setRect(second, { left: 352, top: 0, width: 320, height: 240 })
@@ -53,7 +55,9 @@ describe('GameShelf', () => {
   })
 
   it('keeps the focused card pinned to the start of the shelf', async () => {
-    renderWithNavigation(<GameShelf id="recent" title="Play again" games={GAMES} />)
+    renderWithNavigation(
+      <GameShelf id="recent" title="Play again" games={GAMES} onSelectGame={vi.fn()} />
+    )
     const rail = screen.getByRole('list')
     const [first, second] = screen.getAllByRole('button')
     Object.defineProperty(rail, 'scrollWidth', { value: 704 })
@@ -68,8 +72,26 @@ describe('GameShelf', () => {
     expect(scrollTo).toHaveBeenLastCalledWith(expect.objectContaining({ left: 352 }))
   })
 
+  it('selects a game when its card is clicked or confirmed', async () => {
+    const onSelectGame = vi.fn()
+    renderWithNavigation(
+      <GameShelf id="recent" title="Play again" games={GAMES} onSelectGame={onSelectGame} />
+    )
+    const user = userEvent.setup()
+
+    await user.click(screen.getByRole('button', { name: 'Metal Gear Solid' }))
+    expect(onSelectGame).toHaveBeenLastCalledWith('mgs-ps1')
+
+    await user.pointer({
+      target: screen.getByRole('button', { name: 'Donkey Kong 64' }),
+      coords: { x: 10, y: 10 }
+    })
+    await user.keyboard('{Enter}')
+    expect(onSelectGame).toHaveBeenLastCalledWith('dk-64')
+  })
+
   it('shows the caption only for games that have one', () => {
-    render(<GameShelf id="recent" title="Play again" games={GAMES} />)
+    render(<GameShelf id="recent" title="Play again" games={GAMES} onSelectGame={vi.fn()} />)
 
     const [first, second] = screen.getAllByRole('listitem')
     expect(within(first).getByText('Yesterday')).toBeInTheDocument()

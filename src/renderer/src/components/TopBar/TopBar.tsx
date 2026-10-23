@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router'
 
 import { useInputAction } from '@renderer/core/input'
+import { getSectionPath } from '@renderer/core/navigation'
 
 import { ShoulderHint } from './components/ShoulderHint'
 import { TopBarBrand } from './components/TopBarBrand'
@@ -14,9 +15,10 @@ export function TopBar(): React.JSX.Element {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { pathname } = useLocation()
+  const sectionPath = getSectionPath(pathname)
 
   const selectAdjacentTab = (offset: number): void => {
-    const index = TOP_BAR_TABS.findIndex((tab) => tab.path === pathname)
+    const index = TOP_BAR_TABS.findIndex((tab) => tab.path === sectionPath)
     const nextIndex = (index + offset + TOP_BAR_TABS.length) % TOP_BAR_TABS.length
     navigate(TOP_BAR_TABS[nextIndex].path, { replace: true })
   }
@@ -33,7 +35,12 @@ export function TopBar(): React.JSX.Element {
         <ShoulderHint action="prevSection" onPress={() => selectAdjacentTab(-1)} />
         <nav className={styles.tabs}>
           {TOP_BAR_TABS.map((tab) => (
-            <TopBarTab key={tab.id} label={t(tab.labelKey)} path={tab.path} />
+            <TopBarTab
+              key={tab.id}
+              label={t(tab.labelKey)}
+              path={tab.path}
+              active={tab.path === sectionPath}
+            />
           ))}
         </nav>
         <ShoulderHint action="nextSection" onPress={() => selectAdjacentTab(1)} />

@@ -22,12 +22,12 @@ export function formatTimeSince(date: Date, now: Date, locale: string): string {
   )
 }
 
-/** Total playtime as hours and minutes, e.g. "32 h 15 min". */
-export function formatPlaytime(totalMinutes: number, t: TFunction<'home'>): string {
+/** Total playtime as hours and minutes, e.g. "32 h 15 min". `t` is for the `common` namespace. */
+export function formatPlaytime(totalMinutes: number, t: TFunction): string {
   const hours = Math.floor(totalMinutes / 60)
   const minutes = Math.round(totalMinutes % 60)
 
-  if (hours === 0) return t('hero.duration.minutes', { minutes })
-  if (minutes === 0) return t('hero.duration.hours', { hours })
-  return t('hero.duration.hoursMinutes', { hours, minutes })
+  if (hours === 0) return t('duration.minutes', { minutes })
+  if (minutes === 0) return t('duration.hours', { hours })
+  return t('duration.hoursMinutes', { hours, minutes })
 }

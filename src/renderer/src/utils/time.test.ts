@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import i18n from '@renderer/core/i18n'
 
-import { formatPlaytime, formatTimeSince } from './HomeHero.utils'
+import { formatPlaytime, formatTimeSince } from './time'
 
 const NOW = new Date('2026-10-22T18:00:00Z')
 const hoursAgo = (hours: number): Date => new Date(NOW.getTime() - hours * 60 * 60 * 1000)
@@ -30,7 +30,7 @@ describe('formatTimeSince', () => {
 })
 
 describe('formatPlaytime', () => {
-  const t = i18n.getFixedT('en', 'home')
+  const t = i18n.getFixedT('en', 'common')
 
   it('shows hours and minutes', () => {
     expect(formatPlaytime(32 * 60 + 15, t)).toBe('32 h 15 min')

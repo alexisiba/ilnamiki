@@ -9,14 +9,7 @@
   },
   "hero": {
     "resume": "Retomar sesión",
-    "lastPlayed": "Última sesión {{time}}",
-    "playtime": "Tiempo total: {{duration}}",
-    "continue": "Continuar jugando",
-    "duration": {
-      "hoursMinutes": "{{hours}} h {{minutes}} min",
-      "hours": "{{hours}} h",
-      "minutes": "{{minutes}} min"
-    }
+    "continue": "Continuar jugando"
   },
   "recentlyPlayed": {
     "title": "Volver a jugar"

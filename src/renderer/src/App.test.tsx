@@ -116,4 +116,37 @@ describe('App', () => {
 
     expect(screen.getByRole('button', { name: 'Donkey Kong 64' })).toHaveFocus()
   })
+
+  it('opens a game’s details from its card, still inside the home section', async () => {
+    renderApp()
+
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Donkey Kong 64' }))
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Donkey Kong 64' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Play' })).toHaveFocus()
+    expect(currentSection()).toHaveTextContent('Home')
+  })
+
+  it('goes back from a game’s details to home, with focus on its card', async () => {
+    renderApp()
+    const user = userEvent.setup()
+    const card = screen.getByRole('button', { name: 'Donkey Kong 64' })
+
+    await user.pointer({ target: card, coords: { x: 100, y: 500 } })
+    await user.keyboard('{Enter}')
+    await user.keyboard('{Escape}')
+
+    expect(screen.queryByRole('button', { name: 'Play' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Donkey Kong 64' })).toHaveFocus()
+  })
+
+  it('stays on a section’s root on back', async () => {
+    const router = renderApp()
+    const user = userEvent.setup()
+
+    await user.click(screen.getByRole('link', { name: 'Library' }))
+    await user.keyboard('{Escape}')
+
+    expect(router.state.location.pathname).toBe('/library')
+  })
 })

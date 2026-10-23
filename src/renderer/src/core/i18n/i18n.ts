@@ -2,8 +2,10 @@ import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 
 import enCommon from '@renderer/locales/en/common.json'
+import enGames from '@renderer/locales/en/games.json'
 import enHome from '@renderer/locales/en/home.json'
 import esCommon from '@renderer/locales/es/common.json'
+import esGames from '@renderer/locales/es/games.json'
 import esHome from '@renderer/locales/es/home.json'
 
 export const SUPPORTED_LANGUAGES = ['en', 'es'] as const
@@ -13,8 +15,8 @@ const systemLanguage = navigator.language.split('-')[0]
 
 i18n.use(initReactI18next).init({
   resources: {
-    en: { common: enCommon, home: enHome },
-    es: { common: esCommon, home: esHome }
+    en: { common: enCommon, games: enGames, home: enHome },
+    es: { common: esCommon, games: esGames, home: esHome }
   },
   lng: SUPPORTED_LANGUAGES.find((language) => language === systemLanguage) ?? DEFAULT_LANGUAGE,
   fallbackLng: DEFAULT_LANGUAGE,
