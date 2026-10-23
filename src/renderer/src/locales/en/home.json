@@ -20,5 +20,8 @@
   },
   "recentlyPlayed": {
     "title": "Play again"
+  },
+  "recentlyAdded": {
+    "title": "Recently added"
   }
 }

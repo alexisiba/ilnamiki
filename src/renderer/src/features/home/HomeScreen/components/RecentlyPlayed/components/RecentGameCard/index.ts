@@ -1,1 +1,0 @@
-export { RecentGameCard } from './RecentGameCard'

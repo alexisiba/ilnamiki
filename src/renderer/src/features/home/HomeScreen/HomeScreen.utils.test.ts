@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatLastPlayed } from './RecentlyPlayed.utils'
+import { formatLastPlayed } from './HomeScreen.utils'
 
 // Thursday, 22 October 2026, 18:00 local time.
 const NOW = new Date(2026, 9, 22, 18, 0)

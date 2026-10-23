@@ -20,5 +20,8 @@
   },
   "recentlyPlayed": {
     "title": "Volver a jugar"
+  },
+  "recentlyAdded": {
+    "title": "Agregados recientemente"
   }
 }

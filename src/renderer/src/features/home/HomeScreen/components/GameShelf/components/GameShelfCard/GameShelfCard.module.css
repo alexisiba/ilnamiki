@@ -61,7 +61,7 @@
   color: var(--color-text-focus);
 }
 
-.lastPlayed {
+.caption {
   font-family: var(--font-label);
   font-size: var(--label-sm-size);
   font-weight: var(--label-sm-weight);
