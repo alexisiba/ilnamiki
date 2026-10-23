@@ -119,6 +119,8 @@
   --layout-panel-width: 960px;
   --layout-hero-height: 600px;
   --layout-hero-content-width: 800px;
+  --layout-scroll-fade: 64px;
+  --layout-focus-bleed: 2rem;
   --card-sm-width: 320px;
   --card-sm-aspect-ratio: 4 / 3;
 
