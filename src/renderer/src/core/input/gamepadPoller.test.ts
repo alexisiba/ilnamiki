@@ -3,9 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { connectGamepad, PLAYSTATION_GAMEPAD_ID } from '@renderer/test/gamepad'
 
 import { startGamepadPolling } from './gamepadPoller'
+import { REPEAT_DELAY_MS, REPEAT_INTERVAL_MS } from './repeat'
 
 const A = 0
 const RB = 5
+const DPAD_UP = 12
 const DPAD_DOWN = 13
 const VIEW = 8
 
@@ -35,6 +37,87 @@ describe('startGamepadPolling', () => {
     gamepad.press(DPAD_DOWN)
     vi.advanceTimersToNextFrame()
 
+    expect(emit).toHaveBeenCalledExactlyOnceWith('down', 'xbox')
+  })
+
+  it('repeats a held d-pad direction after a delay, then at an interval', () => {
+    const gamepad = connectGamepad()
+    const emit = poll()
+
+    gamepad.press(DPAD_DOWN)
+    vi.advanceTimersToNextFrame()
+    vi.advanceTimersByTime(REPEAT_DELAY_MS - 50)
+    expect(emit).toHaveBeenCalledTimes(1)
+
+    vi.advanceTimersByTime(50 + 16)
+    expect(emit).toHaveBeenCalledTimes(2)
+
+    vi.advanceTimersByTime(REPEAT_INTERVAL_MS)
+    expect(emit).toHaveBeenCalledTimes(3)
+    expect(emit).toHaveBeenLastCalledWith('down', 'xbox')
+  })
+
+  it('stops repeating when the direction is released', () => {
+    const gamepad = connectGamepad()
+    const emit = poll()
+
+    gamepad.press(DPAD_UP)
+    vi.advanceTimersToNextFrame()
+    gamepad.release(DPAD_UP)
+    vi.advanceTimersByTime(REPEAT_DELAY_MS * 2)
+
+    expect(emit).toHaveBeenCalledExactlyOnceWith('up', 'xbox')
+  })
+
+  it('navigates with the left stick', () => {
+    const gamepad = connectGamepad()
+    const emit = poll()
+
+    gamepad.tiltStick(0.9, 0.1)
+    vi.advanceTimersToNextFrame()
+
+    expect(emit).toHaveBeenCalledExactlyOnceWith('right', 'xbox')
+  })
+
+  it('ignores the left stick inside its dead zone', () => {
+    const gamepad = connectGamepad()
+    const emit = poll()
+
+    gamepad.tiltStick(0.3, -0.2)
+    vi.advanceTimersByTime(REPEAT_DELAY_MS * 2)
+
+    expect(emit).not.toHaveBeenCalled()
+  })
+
+  it('repeats a held stick direction', () => {
+    const gamepad = connectGamepad()
+    const emit = poll()
+
+    gamepad.tiltStick(0, -1)
+    vi.advanceTimersToNextFrame()
+    vi.advanceTimersByTime(REPEAT_DELAY_MS + 16)
+
+    expect(emit.mock.calls).toEqual([
+      ['up', 'xbox'],
+      ['up', 'xbox']
+    ])
+  })
+
+  it('ignores a direction held while unfocused until it is released', () => {
+    const gamepad = connectGamepad()
+    const emit = poll()
+    vi.mocked(document.hasFocus).mockReturnValue(false)
+
+    gamepad.press(DPAD_DOWN)
+    vi.advanceTimersToNextFrame()
+    vi.mocked(document.hasFocus).mockReturnValue(true)
+    vi.advanceTimersByTime(REPEAT_DELAY_MS * 2)
+    expect(emit).not.toHaveBeenCalled()
+
+    gamepad.release(DPAD_DOWN)
+    vi.advanceTimersToNextFrame()
+    gamepad.press(DPAD_DOWN)
+    vi.advanceTimersToNextFrame()
     expect(emit).toHaveBeenCalledExactlyOnceWith('down', 'xbox')
   })
 

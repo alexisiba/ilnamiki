@@ -13,18 +13,21 @@ export interface FakeGamepad {
   /** Holds down the button at `index` (standard mapping). */
   press: (index: number) => void
   release: (index: number) => void
+  /** Tilts the left stick: `x` right, `y` down, from -1 to 1. */
+  tiltStick: (x: number, y: number) => void
   disconnect: () => void
 }
 
 export function connectGamepad(id = XBOX_GAMEPAD_ID): FakeGamepad {
   const buttons = Array.from({ length: 17 }, () => ({ pressed: false, touched: false, value: 0 }))
+  const axes = [0, 0, 0, 0]
   const gamepad = {
     id,
     index: gamepads.length,
     mapping: 'standard',
     connected: true,
     buttons,
-    axes: [0, 0, 0, 0],
+    axes,
     timestamp: 0
   } as unknown as Gamepad
   gamepads.push(gamepad)
@@ -35,6 +38,10 @@ export function connectGamepad(id = XBOX_GAMEPAD_ID): FakeGamepad {
     },
     release: (index) => {
       buttons[index] = { pressed: false, touched: false, value: 0 }
+    },
+    tiltStick: (x, y) => {
+      axes[0] = x
+      axes[1] = y
     },
     disconnect: () => {
       gamepads.splice(gamepads.indexOf(gamepad), 1)

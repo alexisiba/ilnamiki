@@ -1,23 +1,16 @@
 import { startGamepadPolling } from './gamepadPoller'
-import { getKeyboardAction, type InputAction, type InputDevice } from './input'
+import type { InputAction, InputDevice } from './input'
+import { startKeyboardInput } from './keyboardInput'
 
 export type InputListener = (action: InputAction, device: InputDevice) => void
 
 const listeners = new Set<InputListener>()
-let stopGamepadPolling: (() => void) | undefined
+let stopSources: (() => void) | undefined
 
 /** Sends `action`, produced by `device`, to every subscriber. */
 export function emitInput(action: InputAction, device: InputDevice): void {
   // A copy, so listeners that unsubscribe while handling the action don't skip others.
   for (const listener of [...listeners]) listener(action, device)
-}
-
-function handleKeyDown(event: KeyboardEvent): void {
-  const action = getKeyboardAction(event.key)
-  if (!action) return
-
-  event.preventDefault()
-  emitInput(action, 'keyboard')
 }
 
 /**
@@ -26,16 +19,19 @@ function handleKeyDown(event: KeyboardEvent): void {
  */
 export function subscribeToInput(listener: InputListener): () => void {
   if (listeners.size === 0) {
-    window.addEventListener('keydown', handleKeyDown)
-    stopGamepadPolling = startGamepadPolling(emitInput)
+    const stopKeyboard = startKeyboardInput(emitInput)
+    const stopGamepads = startGamepadPolling(emitInput)
+    stopSources = () => {
+      stopKeyboard()
+      stopGamepads()
+    }
   }
   listeners.add(listener)
 
   return () => {
     listeners.delete(listener)
     if (listeners.size > 0) return
-    window.removeEventListener('keydown', handleKeyDown)
-    stopGamepadPolling?.()
-    stopGamepadPolling = undefined
+    stopSources?.()
+    stopSources = undefined
   }
 }

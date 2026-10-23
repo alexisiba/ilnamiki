@@ -20,6 +20,10 @@ export type InputAction =
   | 'prevGroup'
   | 'nextGroup'
 
+export function isDirection(action: InputAction): action is Direction {
+  return action === 'up' || action === 'down' || action === 'left' || action === 'right'
+}
+
 export type InputDevice = 'xbox' | 'playstation' | 'keyboard'
 
 /**
