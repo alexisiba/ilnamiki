@@ -7,6 +7,7 @@ import { setRect } from '@renderer/test/layout'
 import { FocusGroup } from '../FocusGroup'
 import { useFocusable } from '../useFocusable'
 import { useLastFocusedId } from '../useLastFocusedId'
+import { useRememberedState } from '../useRememberedState'
 import { NavigationProvider } from './NavigationProvider'
 
 interface ItemProps {
@@ -211,6 +212,44 @@ describe('NavigationProvider', () => {
     )
 
     expect(screen.getByText('bottom2')).toBeInTheDocument()
+  })
+
+  describe('useRememberedState', () => {
+    function Counter(): React.JSX.Element {
+      const [count, setCount] = useRememberedState('count', 0)
+      return (
+        <button type="button" onClick={() => setCount(count + 1)}>
+          {`Count ${count}`}
+        </button>
+      )
+    }
+
+    /** The counter screens (`library`, `settings`) or a screen without it (`other`). */
+    const screenOf = (scope: string): React.JSX.Element => (
+      <NavigationProvider scope={scope}>
+        {scope === 'other' ? <p>Other screen</p> : <Counter />}
+      </NavigationProvider>
+    )
+
+    it('keeps a screen’s state when the screen comes back', async () => {
+      const { rerender } = render(screenOf('library'))
+
+      await userEvent.setup().click(screen.getByRole('button', { name: 'Count 0' }))
+      rerender(screenOf('other'))
+      rerender(screenOf('library'))
+
+      expect(screen.getByRole('button', { name: 'Count 1' })).toBeInTheDocument()
+    })
+
+    it('keeps the state of each screen apart', async () => {
+      const { rerender } = render(screenOf('library'))
+
+      await userEvent.setup().click(screen.getByRole('button', { name: 'Count 0' }))
+      rerender(screenOf('other'))
+      rerender(screenOf('settings'))
+
+      expect(screen.getByRole('button', { name: 'Count 0' })).toBeInTheDocument()
+    })
   })
 
   it('focuses an item again on a direction when focus was lost', async () => {

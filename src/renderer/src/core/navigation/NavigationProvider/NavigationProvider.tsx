@@ -3,7 +3,7 @@ import { useLayoutEffect, useState } from 'react'
 import { useInputAction, type Direction, type InputAction } from '@renderer/core/input'
 
 import { createNavigation } from '../navigation'
-import { NavigationContext } from '../NavigationContext'
+import { NavigationContext, ScopeContext } from '../NavigationContext'
 import type { NavigationProviderProps } from './NavigationProvider.types'
 
 const isDirection = (action: InputAction): action is Direction =>
@@ -24,5 +24,9 @@ export function NavigationProvider({
     if (action === 'confirm') navigation.confirm()
   })
 
-  return <NavigationContext value={navigation}>{children}</NavigationContext>
+  return (
+    <NavigationContext value={navigation}>
+      <ScopeContext value={scope}>{children}</ScopeContext>
+    </NavigationContext>
+  )
 }

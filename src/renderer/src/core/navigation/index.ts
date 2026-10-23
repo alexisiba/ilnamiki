@@ -11,3 +11,5 @@ export {
 } from './sections'
 export { useFocusable, type UseFocusableOptions } from './useFocusable'
 export { useLastFocusedId } from './useLastFocusedId'
+export { useLastSectionPaths } from './useLastSectionPaths'
+export { useRememberedState } from './useRememberedState'

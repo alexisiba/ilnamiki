@@ -160,6 +160,55 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: 'NES' })).toHaveAttribute('aria-current', 'true')
   })
 
+  it('returns to the screen a section was left on, as it was left', async () => {
+    const router = renderApp()
+    const user = userEvent.setup()
+
+    await user.click(screen.getByRole('link', { name: 'Library' }))
+    await user.click(screen.getByRole('button', { name: 'NES' }))
+    await user.keyboard('{Enter}{ArrowRight}')
+    await user.keyboard('q')
+    expect(currentSection()).toHaveTextContent('Home')
+
+    await user.keyboard('e')
+
+    expect(router.state.location.pathname).toBe('/library/nes')
+    expect(screen.getByRole('button', { name: 'Donkey Kong 64' })).toHaveAttribute(
+      'aria-current',
+      'true'
+    )
+    expect(screen.getByRole('button', { name: 'Play now' })).toHaveFocus()
+  })
+
+  it('returns to the screen a section was left on from its tab', async () => {
+    const router = renderApp()
+    const user = userEvent.setup()
+
+    await user.click(screen.getByRole('link', { name: 'Library' }))
+    await user.click(screen.getByRole('button', { name: 'NES' }))
+    await user.keyboard('{Enter}')
+    await user.click(screen.getByRole('link', { name: 'Home' }))
+    await user.click(screen.getByRole('link', { name: 'Library' }))
+
+    expect(router.state.location.pathname).toBe('/library/nes')
+  })
+
+  it('goes back to the section’s root after visiting other sections', async () => {
+    const router = renderApp()
+    const user = userEvent.setup()
+
+    await user.click(screen.getByRole('link', { name: 'Library' }))
+    await user.click(screen.getByRole('button', { name: 'NES' }))
+    await user.keyboard('{Enter}')
+    await user.click(screen.getByRole('button', { name: 'Donkey Kong 64' }))
+    await user.keyboard('q')
+    await user.click(screen.getByRole('button', { name: 'Donkey Kong 64' }))
+    await user.keyboard('e{Escape}')
+
+    expect(router.state.location.pathname).toBe('/library')
+    expect(screen.getByRole('button', { name: 'NES' })).toHaveFocus()
+  })
+
   it('stays on a section’s root on back', async () => {
     const router = renderApp()
     const user = userEvent.setup()

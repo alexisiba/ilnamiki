@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router'
 
 import { useInputAction } from '@renderer/core/input'
-import { getSectionPath } from '@renderer/core/navigation'
+import { getSectionPath, useLastSectionPaths } from '@renderer/core/navigation'
 
 import { ShoulderHint } from './components/ShoulderHint'
 import { TopBarBrand } from './components/TopBarBrand'
@@ -16,11 +16,13 @@ export function TopBar(): React.JSX.Element {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const sectionPath = getSectionPath(pathname)
+  // Each tab returns to the screen its section was left on.
+  const lastPathOf = useLastSectionPaths(pathname)
 
   const selectAdjacentTab = (offset: number): void => {
     const index = TOP_BAR_TABS.findIndex((tab) => tab.path === sectionPath)
     const nextIndex = (index + offset + TOP_BAR_TABS.length) % TOP_BAR_TABS.length
-    navigate(TOP_BAR_TABS[nextIndex].path, { replace: true })
+    navigate(lastPathOf(TOP_BAR_TABS[nextIndex].path), { replace: true })
   }
 
   useInputAction((action) => {
@@ -38,7 +40,7 @@ export function TopBar(): React.JSX.Element {
             <TopBarTab
               key={tab.id}
               label={t(tab.labelKey)}
-              path={tab.path}
+              path={lastPathOf(tab.path)}
               active={tab.path === sectionPath}
             />
           ))}

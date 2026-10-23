@@ -1,8 +1,9 @@
-import { useId, useState } from 'react'
+import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 
 import { useInputAction } from '@renderer/core/input'
+import { useRememberedState } from '@renderer/core/navigation'
 import { getSampleConsole } from '@renderer/mocks/consoles'
 import { SAMPLE_GAMES } from '@renderer/mocks/games'
 
@@ -19,7 +20,8 @@ export function ConsoleGamesScreen(): React.JSX.Element {
   const { consoleId = '' } = useParams()
   const gameConsole = getSampleConsole(consoleId)
   const games = SAMPLE_GAMES
-  const [selectedIndex, setSelectedIndex] = useState(0)
+  // Kept per console, so coming back from another section shows the same game.
+  const [selectedIndex, setSelectedIndex] = useRememberedState('selected-game', 0)
   const statusId = useId()
   const game = games[selectedIndex]
 

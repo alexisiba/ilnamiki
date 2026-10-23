@@ -32,6 +32,10 @@ export interface Navigation {
   pointerDown: (element: HTMLElement) => void
   /** Id of the item last focused in a group, the one focus returns to when entering it again. */
   lastFocusedIn: (groupId: string) => string | undefined
+  /** Keeps a screen's state while the app runs, so the screen looks the same when it returns. */
+  remember: (key: string, value: unknown) => void
+  /** State kept with `remember`, if any. */
+  recall: (key: string) => unknown
 }
 
 /**
@@ -53,6 +57,8 @@ export function createNavigation(): Navigation {
   const groupMemory = new Map<string, string>()
   /** Last focused item key per scope, to restore it when coming back to the screen. */
   const scopeMemory = new Map<string, string>()
+  /** State screens keep while the app runs, by key. */
+  const stateMemory = new Map<string, unknown>()
 
   let scope = ''
   /** Item to restore in the current scope, read when the scope opened. */
@@ -184,6 +190,14 @@ export function createNavigation(): Navigation {
 
     lastFocusedIn(groupId) {
       return groupMemory.get(groupId)?.slice(`${groupId}/`.length)
+    },
+
+    remember(key, value) {
+      stateMemory.set(key, value)
+    },
+
+    recall(key) {
+      return stateMemory.get(key)
     }
   }
 }

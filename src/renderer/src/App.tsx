@@ -3,17 +3,20 @@ import { Outlet, useLocation, useNavigate } from 'react-router'
 import { ButtonGuide } from '@renderer/components/ButtonGuide'
 import { TopBar } from '@renderer/components/TopBar'
 import { useInputAction } from '@renderer/core/input'
-import { isSectionRoot, NavigationProvider } from '@renderer/core/navigation'
+import { getSectionPath, isSectionRoot, NavigationProvider } from '@renderer/core/navigation'
 import styles from './App.module.css'
 
 function App(): React.JSX.Element {
   const { pathname } = useLocation()
   const navigate = useNavigate()
 
-  // Back returns one level, from a screen inside a section to the previous one. A section's
-  // root has nothing to go back to.
+  // Back returns one level, from a screen inside a section to the section's root. It does not
+  // follow the history: tabs return to the screen a section was left on, so the previous
+  // entry may belong to another section. A section's root has nothing to go back to.
   useInputAction((action) => {
-    if (action === 'back' && !isSectionRoot(pathname)) navigate(-1)
+    if (action === 'back' && !isSectionRoot(pathname)) {
+      navigate(getSectionPath(pathname), { replace: true })
+    }
   })
 
   return (
