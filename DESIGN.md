@@ -172,6 +172,7 @@ The layout is locked to a strict 1920x1080 fixed-frame standard, utilizing a TV-
   1. Top Command Bar (Height: 96px): Clock, network status, active profile, global controller prompts.
   2. Hero Stage & Active Shelves (Height: 840px): Game cover flow, dynamic metadata panel, active launch rail.
   3. Bottom Key Legend (Height: 80px): Dynamic controller action mapping (A: Launch, X: Options, Y: Filter, B: Back).
+- **Ultrawide Displays:** Screens whose content spans the width (console games, game details) are centered and capped at 2400px (`--layout-content-max-width`), so they do not stretch beyond a 16:9 composition. At 1920px the cap has no effect.
 
 ## Elevation & Depth
 
