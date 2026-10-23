@@ -4,5 +4,15 @@
     "players_other": "{{count}} jugadores",
     "play": "Jugar",
     "notFound": "Este juego no está en tu biblioteca."
+  },
+  "consoleGames": {
+    "gamesInstalled_one": "{{count}} juego instalado",
+    "gamesInstalled_other": "{{count}} juegos instalados",
+    "position": "{{position}} / {{total}}",
+    "selected": "{{title}}, {{position}} de {{total}}",
+    "playtime": "Tiempo de juego",
+    "lastPlayed": "Última vez",
+    "playNow": "Jugar ahora",
+    "notFound": "Esta consola no está en tu biblioteca."
   }
 }

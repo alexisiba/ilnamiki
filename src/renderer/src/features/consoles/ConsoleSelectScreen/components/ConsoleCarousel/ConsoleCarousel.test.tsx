@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { setRect } from '@renderer/test/layout'
 import { renderWithNavigation } from '@renderer/test/renderWithNavigation'
@@ -30,8 +30,8 @@ const CONSOLES: GameConsole[] = [
 const consoleButton = (name: string): HTMLElement => screen.getByRole('button', { name })
 
 /** Renders the carousel with the consoles laid out side by side, the first one centered. */
-function renderCarousel(): void {
-  renderWithNavigation(<ConsoleCarousel consoles={CONSOLES} />)
+function renderCarousel(onOpenConsole = vi.fn()): void {
+  renderWithNavigation(<ConsoleCarousel consoles={CONSOLES} onOpenConsole={onOpenConsole} />)
   setRect(consoleButton('PlayStation'), { left: 560, top: 0, width: 800, height: 530 })
   setRect(consoleButton('GameCube'), { left: 1200, top: 0, width: 480, height: 318 })
 }
@@ -86,13 +86,35 @@ describe('ConsoleCarousel', () => {
     expect(consoleButton('PlayStation')).toHaveAttribute('aria-current', 'true')
   })
 
-  it('selects a console when it is clicked', async () => {
-    renderCarousel()
+  it('selects a console beside the selection when it is clicked, without opening it', async () => {
+    const onOpenConsole = vi.fn()
+    renderCarousel(onOpenConsole)
 
     await userEvent.setup().click(consoleButton('GameCube'))
 
     expect(consoleButton('GameCube')).toHaveFocus()
     expect(consoleButton('GameCube')).toHaveAttribute('aria-current', 'true')
+    expect(onOpenConsole).not.toHaveBeenCalled()
+  })
+
+  it('opens the selected console when it is clicked', async () => {
+    const onOpenConsole = vi.fn()
+    renderCarousel(onOpenConsole)
+
+    await userEvent.setup().click(consoleButton('PlayStation'))
+
+    expect(onOpenConsole).toHaveBeenCalledExactlyOnceWith('ps1')
+  })
+
+  it('opens the selected console on confirm', async () => {
+    const onOpenConsole = vi.fn()
+    renderCarousel(onOpenConsole)
+    const user = userEvent.setup()
+
+    await user.keyboard('{ArrowRight}')
+    await user.keyboard('{Enter}')
+
+    expect(onOpenConsole).toHaveBeenCalledExactlyOnceWith('gc')
   })
 
   it('keeps the selected console when the pointer moves over another one', async () => {

@@ -6,6 +6,7 @@ import { setRect } from '@renderer/test/layout'
 
 import { FocusGroup } from '../FocusGroup'
 import { useFocusable } from '../useFocusable'
+import { useLastFocusedId } from '../useLastFocusedId'
 import { NavigationProvider } from './NavigationProvider'
 
 interface ItemProps {
@@ -188,6 +189,28 @@ describe('NavigationProvider', () => {
     rerender(<NavigationProvider scope="home">{items}</NavigationProvider>)
 
     expect(item('second')).toHaveFocus()
+  })
+
+  it('tells which item of a group was focused last, from the first render', async () => {
+    function LastFocused(): React.JSX.Element {
+      return <p>{useLastFocusedId('bottom') ?? 'none'}</p>
+    }
+    const user = userEvent.setup()
+    const { rerender } = render(
+      <NavigationProvider>
+        <Rows />
+      </NavigationProvider>
+    )
+    layOutRows()
+
+    await user.keyboard('{ArrowDown}{ArrowRight}')
+    rerender(
+      <NavigationProvider>
+        <LastFocused />
+      </NavigationProvider>
+    )
+
+    expect(screen.getByText('bottom2')).toBeInTheDocument()
   })
 
   it('focuses an item again on a direction when focus was lost', async () => {

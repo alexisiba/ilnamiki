@@ -84,3 +84,7 @@ export const SAMPLE_CONSOLES: GameConsole[] = [
     gameCount: 15
   }
 ]
+
+export function getSampleConsole(id: string): GameConsole | undefined {
+  return SAMPLE_CONSOLES.find((gameConsole) => gameConsole.id === id)
+}

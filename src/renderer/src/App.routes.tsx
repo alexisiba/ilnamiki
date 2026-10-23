@@ -1,8 +1,8 @@
 import type { RouteObject } from 'react-router'
 
-import { GAME_DETAILS_PATH, SECTION_PATHS } from '@renderer/core/navigation'
+import { CONSOLE_GAMES_PATH, GAME_DETAILS_PATH, SECTION_PATHS } from '@renderer/core/navigation'
 import { ConsoleSelectScreen } from '@renderer/features/consoles'
-import { GameDetailsScreen } from '@renderer/features/games'
+import { ConsoleGamesScreen, GameDetailsScreen } from '@renderer/features/games'
 import { HomeScreen } from '@renderer/features/home'
 import { SettingsScreen } from '@renderer/features/settings'
 import App from './App'
@@ -15,6 +15,7 @@ export const APP_ROUTES: RouteObject[] = [
     children: [
       { index: true, element: <HomeScreen /> },
       { path: SECTION_PATHS.library, element: <ConsoleSelectScreen /> },
+      { path: CONSOLE_GAMES_PATH, element: <ConsoleGamesScreen /> },
       { path: SECTION_PATHS.settings, element: <SettingsScreen /> },
       { path: GAME_DETAILS_PATH, element: <GameDetailsScreen /> }
     ]

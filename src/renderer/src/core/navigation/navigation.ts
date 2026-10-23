@@ -30,6 +30,8 @@ export interface Navigation {
   pointerMove: (element: HTMLElement, event: PointerEvent) => void
   /** Focuses `element` when it is pressed, for items that do not take focus on hover. */
   pointerDown: (element: HTMLElement) => void
+  /** Id of the item last focused in a group, the one focus returns to when entering it again. */
+  lastFocusedIn: (groupId: string) => string | undefined
 }
 
 /**
@@ -178,6 +180,10 @@ export function createNavigation(): Navigation {
 
       claim = CLAIM.user
       focus(item, false)
+    },
+
+    lastFocusedIn(groupId) {
+      return groupMemory.get(groupId)?.slice(`${groupId}/`.length)
     }
   }
 }

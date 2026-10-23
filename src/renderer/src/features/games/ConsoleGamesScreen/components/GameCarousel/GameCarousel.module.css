@@ -1,0 +1,133 @@
+.carousel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+/* Every game shares one cell and slides from the center by its offset. */
+.stage {
+  display: grid;
+  width: 100%;
+  /* Clips neighbors at the column edge without becoming a scroll container. */
+  overflow-x: clip;
+}
+
+.slot {
+  grid-area: 1 / 1;
+  justify-self: center;
+  transform: translateX(calc(var(--offset) * var(--game-spacing))) scale(var(--scale-backdrop));
+  transition:
+    transform var(--duration-slide) var(--ease-focus),
+    visibility var(--duration-slide);
+}
+
+.current {
+  z-index: 1;
+  transform: none;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  /* Room for the glow of the selected frame. */
+  padding: var(--space-md) 0 0;
+  opacity: var(--opacity-backdrop);
+  transition: opacity var(--duration-slide) var(--ease-focus);
+}
+
+.current .item {
+  opacity: 1;
+}
+
+.hidden .item {
+  opacity: 0;
+}
+
+.frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--game-frame-width);
+  aspect-ratio: var(--game-frame-aspect-ratio);
+  padding: var(--space-lg);
+  background: var(--color-surface-lowest);
+  border: 2px solid var(--color-border-strong);
+  border-radius: var(--radius-xl);
+  transition:
+    border-color var(--duration-slide) var(--ease-focus),
+    box-shadow var(--duration-slide) var(--ease-focus);
+}
+
+/* Focus stays on Play now; the selected game shows its selection with the primary glow. */
+.current .frame {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-glow);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  filter: var(--filter-dim);
+  transition: filter var(--duration-slide) var(--ease-focus);
+}
+
+.current .image {
+  filter: none;
+}
+
+.title {
+  max-width: var(--game-frame-width);
+  font-family: var(--font-headline);
+  font-size: var(--headline-sm-size);
+  font-weight: var(--headline-sm-weight);
+  line-height: var(--headline-sm-line-height);
+  letter-spacing: var(--headline-sm-tracking);
+  text-align: center;
+  text-wrap: balance;
+  color: var(--color-text-dim);
+  transition: color var(--duration-slide) var(--ease-focus);
+}
+
+.current .title {
+  color: var(--color-text-focus);
+}
+
+.facts {
+  font-family: var(--font-label);
+  font-size: var(--label-md-size);
+  font-weight: var(--label-md-weight);
+  line-height: var(--label-md-line-height);
+  letter-spacing: var(--label-md-tracking);
+  font-variant-ligatures: none;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.position {
+  font-family: var(--font-label);
+  font-size: var(--label-sm-size);
+  font-weight: var(--label-sm-weight);
+  line-height: var(--label-sm-line-height);
+  letter-spacing: var(--label-sm-tracking);
+  font-variant-ligatures: none;
+  color: var(--color-text-muted);
+}
+
+.status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

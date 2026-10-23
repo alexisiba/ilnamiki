@@ -1,27 +1,39 @@
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { FocusGroup } from '@renderer/core/navigation'
+import { FocusGroup, useLastFocusedId } from '@renderer/core/navigation'
 
 import { ConsoleCarouselDots } from './components/ConsoleCarouselDots'
 import { ConsoleCarouselItem } from './components/ConsoleCarouselItem'
 import type { ConsoleCarouselProps } from './ConsoleCarousel.types'
 import styles from './ConsoleCarousel.module.css'
 
+const GROUP_ID = 'console-carousel'
+
 /**
  * Consoles side by side, with the selected one in front and its neighbors faded behind it.
  * The focused console is the selected one; it stops at both ends instead of wrapping.
  */
-export function ConsoleCarousel({ consoles }: ConsoleCarouselProps): React.JSX.Element | null {
+export function ConsoleCarousel({
+  consoles,
+  onOpenConsole
+}: ConsoleCarouselProps): React.JSX.Element | null {
   const { t } = useTranslation('consoles')
-  const [selectedIndex, setSelectedIndex] = useState(0)
+  // Coming back, start on the console focus returns to, so the carousel does not slide there.
+  const lastFocusedId = useLastFocusedId(GROUP_ID)
+  const [selectedIndex, setSelectedIndex] = useState(() =>
+    Math.max(
+      consoles.findIndex(({ id }) => id === lastFocusedId),
+      0
+    )
+  )
   const detailsId = useId()
   const selected = consoles[selectedIndex]
 
   if (!selected) return null
 
   return (
-    <FocusGroup id="console-carousel" className={styles.carousel}>
+    <FocusGroup id={GROUP_ID} className={styles.carousel}>
       <ul className={styles.stage}>
         {consoles.map((gameConsole, index) => (
           <ConsoleCarouselItem
@@ -31,6 +43,7 @@ export function ConsoleCarousel({ consoles }: ConsoleCarouselProps): React.JSX.E
             autoFocus={index === 0}
             describedBy={index === selectedIndex ? detailsId : undefined}
             onFocus={() => setSelectedIndex(index)}
+            onOpen={() => onOpenConsole(gameConsole.id)}
           />
         ))}
       </ul>

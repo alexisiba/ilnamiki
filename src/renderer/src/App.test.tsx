@@ -140,6 +140,26 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: 'Donkey Kong 64' })).toHaveFocus()
   })
 
+  it('opens a console’s games from the library and goes back to it', async () => {
+    const router = renderApp()
+    const user = userEvent.setup()
+
+    await user.click(screen.getByRole('link', { name: 'Library' }))
+    await user.click(screen.getByRole('button', { name: 'NES' }))
+    await user.keyboard('{Enter}')
+
+    expect(router.state.location.pathname).toBe('/library/nes')
+    expect(screen.getByRole('heading', { level: 1, name: 'NES' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Play now' })).toHaveFocus()
+    expect(currentSection()).toHaveTextContent('Library')
+
+    await user.keyboard('{Escape}')
+
+    expect(router.state.location.pathname).toBe('/library')
+    expect(screen.getByRole('button', { name: 'NES' })).toHaveFocus()
+    expect(screen.getByRole('button', { name: 'NES' })).toHaveAttribute('aria-current', 'true')
+  })
+
   it('stays on a section’s root on back', async () => {
     const router = renderApp()
     const user = userEvent.setup()

@@ -12,6 +12,13 @@ export function getGameDetailsPath(gameId: string): string {
   return `/games/${encodeURIComponent(gameId)}`
 }
 
+/** Route of a console's games, inside the Library section. */
+export const CONSOLE_GAMES_PATH = `${SECTION_PATHS.library}/:consoleId`
+
+export function getConsoleGamesPath(consoleId: string): string {
+  return `${SECTION_PATHS.library}/${encodeURIComponent(consoleId)}`
+}
+
 const SECTION_ROOTS: readonly string[] = Object.values(SECTION_PATHS)
 
 /** Whether `pathname` is the root of a top-level section, where there is nothing to go back to. */

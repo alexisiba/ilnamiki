@@ -5,6 +5,7 @@
 
 :root {
   /* Colors: canvas and surfaces */
+  --color-surface-lowest: #07090e;
   --color-background: #11131a;
   --color-surface: #121624;
   --color-surface-high: #1b1f2d;
@@ -130,6 +131,10 @@
   --console-aspect-ratio: 16 / 9;
   /* Distance between the centers of neighboring consoles in the console carousel. */
   --console-spacing: 640px;
+  --game-frame-width: 440px;
+  --game-frame-aspect-ratio: 4 / 3;
+  /* Distance between the centers of neighboring games in the game carousel. */
+  --game-spacing: 320px;
   --indicator-dot-size: 8px;
   --indicator-line-width: 32px;
 
@@ -148,6 +153,8 @@
   --shadow-focus: 0 0 0 2px var(--color-primary), 0 0 30px var(--color-primary-glow);
   /* Softer halo for scaled cards, so it fits inside the focus bleed of their rail. */
   --shadow-focus-card: 0 0 0 2px var(--color-primary), 0 0 20px var(--color-primary-glow);
+  /* Cyan halo of a selected element that does not hold focus (e.g. the selected game). */
+  --shadow-glow: 0 0 30px var(--color-primary-glow);
   --filter-dim: brightness(0.6) saturate(0.8);
   /* Items set back behind the focused one in a carousel: smaller and faded. */
   --scale-backdrop: 0.6;

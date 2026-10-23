@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { getGameDetailsPath, getSectionPath, isSectionRoot } from './sections'
+import { getConsoleGamesPath, getGameDetailsPath, getSectionPath, isSectionRoot } from './sections'
 
 describe('getSectionPath', () => {
   it.each([
@@ -16,6 +16,10 @@ describe('getSectionPath', () => {
     expect(getSectionPath(getGameDetailsPath('mgs-ps1'))).toBe('/')
   })
 
+  it('places a console’s games in Library', () => {
+    expect(getSectionPath(getConsoleGamesPath('ps1'))).toBe('/library')
+  })
+
   it('does not mistake a path that only starts like a section for it', () => {
     expect(getSectionPath('/libraryish')).toBe('/')
   })
@@ -25,6 +29,13 @@ describe('isSectionRoot', () => {
   it('is true only for section roots', () => {
     expect(isSectionRoot('/library')).toBe(true)
     expect(isSectionRoot(getGameDetailsPath('mgs-ps1'))).toBe(false)
+    expect(isSectionRoot(getConsoleGamesPath('ps1'))).toBe(false)
+  })
+})
+
+describe('getConsoleGamesPath', () => {
+  it('builds the games path of a console inside the library', () => {
+    expect(getConsoleGamesPath('ps1')).toBe('/library/ps1')
   })
 })
 

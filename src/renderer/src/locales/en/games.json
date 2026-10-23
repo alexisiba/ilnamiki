@@ -4,5 +4,15 @@
     "players_other": "{{count}} players",
     "play": "Play",
     "notFound": "This game is not in your library."
+  },
+  "consoleGames": {
+    "gamesInstalled_one": "{{count}} game installed",
+    "gamesInstalled_other": "{{count}} games installed",
+    "position": "{{position}} / {{total}}",
+    "selected": "{{title}}, {{position}} of {{total}}",
+    "playtime": "Playtime",
+    "lastPlayed": "Last played",
+    "playNow": "Play now",
+    "notFound": "This console is not in your library."
   }
 }
