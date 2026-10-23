@@ -7,7 +7,8 @@ import type { Direction, InputAction, InputDevice } from './input'
 export type ButtonGlyph =
   | { shape: 'face'; label: string; accessibleLabelKey?: string }
   | { shape: 'shoulder'; label: string }
-  | { shape: 'dpad'; direction: Direction }
+  /** Without `direction`, the whole d-pad (every direction). */
+  | { shape: 'dpad'; direction?: Direction }
   | ({ shape: 'key'; accessibleLabelKey?: string } & ({ label: string } | { labelKey: string }))
 
 const DPAD_GLYPHS: Record<Direction, ButtonGlyph> = {
@@ -17,9 +18,13 @@ const DPAD_GLYPHS: Record<Direction, ButtonGlyph> = {
   right: { shape: 'dpad', direction: 'right' }
 }
 
-const BUTTON_GLYPHS: Record<InputDevice, Record<InputAction, ButtonGlyph>> = {
+/** What a hint can show: an input action, or `navigate` for all the directions together. */
+export type HintAction = InputAction | 'navigate'
+
+const BUTTON_GLYPHS: Record<InputDevice, Record<HintAction, ButtonGlyph>> = {
   xbox: {
     ...DPAD_GLYPHS,
+    navigate: { shape: 'dpad' },
     confirm: { shape: 'face', label: 'A' },
     back: { shape: 'face', label: 'B' },
     secondary: { shape: 'face', label: 'X' },
@@ -32,6 +37,7 @@ const BUTTON_GLYPHS: Record<InputDevice, Record<InputAction, ButtonGlyph>> = {
   },
   playstation: {
     ...DPAD_GLYPHS,
+    navigate: { shape: 'dpad' },
     confirm: { shape: 'face', label: '✕', accessibleLabelKey: 'glyphs.cross' },
     back: { shape: 'face', label: '○', accessibleLabelKey: 'glyphs.circle' },
     secondary: { shape: 'face', label: '□', accessibleLabelKey: 'glyphs.square' },
@@ -47,6 +53,7 @@ const BUTTON_GLYPHS: Record<InputDevice, Record<InputAction, ButtonGlyph>> = {
     down: { shape: 'key', label: '↓', accessibleLabelKey: 'keys.arrowDown' },
     left: { shape: 'key', label: '←', accessibleLabelKey: 'keys.arrowLeft' },
     right: { shape: 'key', label: '→', accessibleLabelKey: 'keys.arrowRight' },
+    navigate: { shape: 'key', label: '↑↓←→', accessibleLabelKey: 'keys.arrows' },
     confirm: { shape: 'key', labelKey: 'keys.enter' },
     back: { shape: 'key', labelKey: 'keys.escape' },
     secondary: { shape: 'key', label: 'X' },
@@ -59,6 +66,6 @@ const BUTTON_GLYPHS: Record<InputDevice, Record<InputAction, ButtonGlyph>> = {
   }
 }
 
-export function getButtonGlyph(action: InputAction, device: InputDevice): ButtonGlyph {
+export function getButtonGlyph(action: HintAction, device: InputDevice): ButtonGlyph {
   return BUTTON_GLYPHS[device][action]
 }

@@ -13,3 +13,10 @@
 .armActive {
   fill: var(--color-text);
 }
+
+/* Same surface and border colors as the other button glyphs. */
+.icon {
+  fill: var(--color-surface-highest);
+  stroke-width: var(--icon-stroke);
+  color: var(--color-border-strong);
+}

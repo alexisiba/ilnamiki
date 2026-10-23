@@ -13,6 +13,7 @@
     "square": "Square",
     "triangle": "Triangle",
     "dpad": {
+      "all": "D-pad",
       "up": "D-pad up",
       "down": "D-pad down",
       "left": "D-pad left",
@@ -27,10 +28,12 @@
     "arrowUp": "Up arrow",
     "arrowDown": "Down arrow",
     "arrowLeft": "Left arrow",
-    "arrowRight": "Right arrow"
+    "arrowRight": "Right arrow",
+    "arrows": "Arrow keys"
   },
   "buttonGuide": {
     "label": "Controls",
+    "navigate": "Navigate",
     "select": "Select",
     "back": "Back",
     "search": "Search",

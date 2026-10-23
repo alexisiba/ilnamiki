@@ -18,6 +18,9 @@ export function ButtonGuide(): React.JSX.Element {
     <footer className={styles.guide} aria-label={t('buttonGuide.label')}>
       <ul className={styles.hints}>
         <li>
+          <ButtonHint action="navigate" label={t('buttonGuide.navigate')} />
+        </li>
+        <li>
           <ButtonHint action="confirm" label={t('buttonGuide.select')} />
         </li>
         {!isSectionRoot(pathname) && (

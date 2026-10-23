@@ -11,9 +11,16 @@
   gap: var(--space-lg);
 }
 
-/* Two buttons sharing one label, e.g. LB RB for switching tabs. */
-.pair {
+/*
+ * Center every hint vertically. As inline content they would sit on the text baseline,
+ * which glyphs without text (the d-pad icon) and shoulder glyphs place differently.
+ */
+.hints > li {
   display: flex;
   align-items: center;
+}
+
+/* Two buttons sharing one label, e.g. LB RB for switching tabs. */
+.pair {
   gap: var(--space-xs);
 }

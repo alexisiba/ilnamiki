@@ -13,14 +13,16 @@ function renderGuideAt(path: string): HTMLElement {
 }
 
 describe('ButtonGuide', () => {
-  it('explains select, search and switching tabs', () => {
+  it('explains navigating, select, search and switching tabs', () => {
     const guide = renderGuideAt('/')
 
     const hints = within(guide).getAllByRole('listitem')
-    expect(hints).toHaveLength(3)
-    expect(hints[0]).toHaveTextContent('ASelect')
-    expect(hints[1]).toHaveTextContent('YSearch')
-    expect(hints[2]).toHaveTextContent('LBRBSwitch tab')
+    expect(hints).toHaveLength(4)
+    expect(within(hints[0]).getByRole('img', { name: 'D-pad' })).toBeInTheDocument()
+    expect(hints[0]).toHaveTextContent('Navigate')
+    expect(hints[1]).toHaveTextContent('ASelect')
+    expect(hints[2]).toHaveTextContent('YSearch')
+    expect(hints[3]).toHaveTextContent('LBRBSwitch tab')
   })
 
   it('hides back at the root of a section', () => {
@@ -33,7 +35,7 @@ describe('ButtonGuide', () => {
     const guide = renderGuideAt('/games/mgs-ps1')
 
     const hints = within(guide).getAllByRole('listitem')
-    expect(hints[1]).toHaveTextContent('BBack')
+    expect(hints[2]).toHaveTextContent('BBack')
   })
 
   it('is informative only, with nothing to focus or click', () => {

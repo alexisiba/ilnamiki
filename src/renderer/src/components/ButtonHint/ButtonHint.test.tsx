@@ -34,6 +34,13 @@ describe('ButtonHint', () => {
     expect(screen.getByRole('img', { name: 'D-pad up' })).toBeInTheDocument()
   })
 
+  it('names the whole d-pad for navigating', () => {
+    render(<ButtonHint action="navigate" label="Navigate" />)
+
+    expect(screen.getByRole('img', { name: 'D-pad' })).toBeInTheDocument()
+    expect(screen.getByText('Navigate')).toBeInTheDocument()
+  })
+
   it('names PlayStation symbols', () => {
     vi.mocked(useActiveInputDevice).mockReturnValue('playstation')
     render(<ButtonHint action="confirm" />)

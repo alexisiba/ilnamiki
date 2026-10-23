@@ -29,7 +29,9 @@ export function ButtonHint({ action, label }: ButtonHintProps): React.JSX.Elemen
         return (
           <DpadGlyph
             direction={glyph.direction}
-            accessibleLabel={t(`glyphs.dpad.${glyph.direction}`)}
+            accessibleLabel={t(
+              glyph.direction ? `glyphs.dpad.${glyph.direction}` : 'glyphs.dpad.all'
+            )}
           />
         )
       case 'key':

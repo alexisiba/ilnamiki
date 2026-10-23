@@ -13,6 +13,7 @@
     "square": "Cuadrado",
     "triangle": "Triángulo",
     "dpad": {
+      "all": "Cruceta",
       "up": "Cruceta arriba",
       "down": "Cruceta abajo",
       "left": "Cruceta izquierda",
@@ -27,10 +28,12 @@
     "arrowUp": "Flecha arriba",
     "arrowDown": "Flecha abajo",
     "arrowLeft": "Flecha izquierda",
-    "arrowRight": "Flecha derecha"
+    "arrowRight": "Flecha derecha",
+    "arrows": "Flechas"
   },
   "buttonGuide": {
     "label": "Controles",
+    "navigate": "Navegar",
     "select": "Seleccionar",
     "back": "Atrás",
     "search": "Buscar",

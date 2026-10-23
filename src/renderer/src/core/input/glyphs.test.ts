@@ -44,6 +44,16 @@ describe('getButtonGlyph', () => {
     expect(getButtonGlyph('left', 'keyboard')).toMatchObject({ shape: 'key', label: '←' })
   })
 
+  it('shows the whole d-pad for navigating on gamepads and the arrows on keyboard', () => {
+    expect(getButtonGlyph('navigate', 'xbox')).toEqual({ shape: 'dpad' })
+    expect(getButtonGlyph('navigate', 'playstation')).toEqual({ shape: 'dpad' })
+    expect(getButtonGlyph('navigate', 'keyboard')).toMatchObject({
+      shape: 'key',
+      label: '↑↓←→',
+      accessibleLabelKey: 'keys.arrows'
+    })
+  })
+
   it('names symbol-only glyphs for assistive technology', () => {
     expect(getButtonGlyph('confirm', 'playstation')).toMatchObject({
       accessibleLabelKey: 'glyphs.cross'

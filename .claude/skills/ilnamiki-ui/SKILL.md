@@ -96,6 +96,8 @@ When a request would push the UI toward "web" or "streaming", say so before impl
   SVG icons for things Lucide covers. Icons must stay legible from the couch: size them and
   pick their stroke width for distance, and color them through the theme tokens like any
   other element. Controller and keyboard button glyphs are a separate concern, not Lucide.
+  Deliberate exception: a hint for a concept rather than a specific button (e.g. "navigate"
+  with the whole d-pad) uses the matching Lucide icon (`GamepadDirectional`).
 - **Motion supports navigation**, it doesn't decorate it: short, smooth, and respectful of
   reduced-motion preferences.
 - Specific fonts, colors, sizes and effects are defined in `DESIGN.md` and the tokens, and may
