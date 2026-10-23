@@ -137,6 +137,8 @@
   --blur-glass: 32px;
   --blur-glass-strong: 40px;
   --shadow-focus: 0 0 0 2px var(--color-primary), 0 0 30px var(--color-primary-glow);
+  /* Softer halo for scaled cards, so it fits inside the focus bleed of their rail. */
+  --shadow-focus-card: 0 0 0 2px var(--color-primary), 0 0 20px var(--color-primary-glow);
   --filter-dim: brightness(0.6) saturate(0.8);
 
   /* Motion */

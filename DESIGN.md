@@ -194,7 +194,7 @@ The interface balances sharp technological edges with modern living-room ergonom
 ### Game Cover Cards
 - **Dimensions:** 260px × 360px (Vertical box-art) or 480px × 270px (Horizontal 16:9 banner).
 - **Idle State:** Surface `#121624` with 15% border (`#FFFFFF`), cover artwork dimmed by the Dimming Filter when a sibling holds focus (full brightness when nothing in its container is focused), 16px corner radius.
-- **Focused State:** Scales to `1.05x`, z-index elevated to 10. Border swaps to 2px solid `#00D2FF`. Halo: `0 0 28px rgba(0, 210, 255, 0.5)`. Text badge transforms from `#94A3B8` to `#FFFFFF`.
+- **Focused State:** Scales to `1.05x`, z-index elevated to 10. Border swaps to 2px solid `#00D2FF`. Halo: `0 0 20px rgba(0, 210, 255, 0.5)`, softer than other focus targets so the scaled card's glow fits inside its row's focus bleed. Text badge transforms from `#94A3B8` to `#FFFFFF`.
 - **Badge Overlay:** System/core tag (e.g., "PS2", "SNES") pinned to top-right using secondary accent `#A855F7` at 20% background with 1px solid border.
 
 ### Controller Action Buttons

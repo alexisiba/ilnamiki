@@ -19,7 +19,7 @@
 .card:focus {
   z-index: 1;
   outline: none;
-  box-shadow: var(--shadow-focus);
+  box-shadow: var(--shadow-focus-card);
   transform: scale(var(--scale-focus));
 }
 
