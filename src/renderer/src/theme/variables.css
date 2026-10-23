@@ -132,7 +132,7 @@
   /* Distance between the centers of neighboring consoles in the console carousel. */
   --console-spacing: 640px;
   --game-frame-width: 440px;
-  --game-frame-aspect-ratio: 4 / 3;
+  --game-frame-height: 330px;
   /* Distance between the centers of neighboring games in the game carousel. */
   --game-spacing: 320px;
   --indicator-dot-size: 8px;

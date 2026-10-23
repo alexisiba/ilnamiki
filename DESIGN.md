@@ -219,9 +219,9 @@ The interface balances sharp technological edges with modern living-room ergonom
 ### Console Games (Library)
 - Opened by confirming a console in the Console Carousel. The console name is the screen title in `headline-xl`, with games installed and release year below as an uppercase `label-md` line in Slate Muted. No console render.
 - **Two columns.** Left: a game carousel built like the Console Carousel. Right: the selected game's panel.
-- **Game frames:** 440px-wide 4:3 frame in the lowest surface (`#07090E`), 24px padding around the artwork (fitted, never cropped), 20px radius. The selected frame has a 2px `#00D2FF` border and the cyan glow (`0 0 30px rgba(0, 210, 255, 0.45)`); neighbors are 320px from the center, scaled to `0.6x` and faded to 35% with the Dimming Filter on their artwork, clipped at the column edge.
+- **Game frames:** fixed 440×330px frame in the lowest surface (`#07090E`), 24px padding, 12px radius; the artwork fills the inner area (cropped to fit) with 4px corners. The selected frame has a 2px `#00D2FF` border and the cyan glow (`0 0 30px rgba(0, 210, 255, 0.45)`); neighbors are 320px from the center, scaled to `0.6x` and faded to 35% with the Dimming Filter on their artwork, clipped at the column edge.
 - **Below the frame:** the game title in `headline-sm`, then year, genre and players as an uppercase `label-md` line, then the position as `3 / 7` (dots do not scale to large libraries).
-- **Panel:** `#1B1F2D` with a 1px border and 20px radius, holding the description, two stat cards on `#252938` (playtime and last played: uppercase `label-sm` label with an icon, `headline-sm` value) and a full-width Play now button.
+- **Panel:** `#1B1F2D` with a 1px border and 16px radius, holding the description, two stat cards on `#252938` with 12px radius (playtime and last played: uppercase `label-sm` label with an icon, `headline-sm` value) and a full-width Play now button.
 - **Input:** focus stays on Play now; left/right switch games without moving it, a click on a neighbor selects it, and the selection change is announced to screen readers.
 
 ### Metric Chips & Status Badges
