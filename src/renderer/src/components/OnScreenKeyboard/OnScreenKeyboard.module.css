@@ -34,7 +34,7 @@
 }
 
 /* Filled in primary exactly while held down, by a button or the pointer; over focus too. */
-.key.pressed,
+.key[data-pressed],
 .key:active {
   background: var(--color-primary);
   border-color: var(--color-primary);

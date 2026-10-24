@@ -1,6 +1,8 @@
-import { render, screen, within } from '@testing-library/react'
+import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
+
+import { emitInput } from '@renderer/core/input/inputBus'
 
 import { Search } from './Search'
 
@@ -85,7 +87,8 @@ describe('Search', () => {
 
     await user.keyboard('y')
     await user.click(key('k'))
-    await user.keyboard('y')
+    // A gamepad: the physical Y types a "y" while focus is on the keys.
+    act(() => emitInput('tertiary', 'xbox'))
 
     expect(screen.getByRole('dialog', { name: 'Search' })).toBeInTheDocument()
     expect(searchField()).toHaveValue('k ')

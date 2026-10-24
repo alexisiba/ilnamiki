@@ -196,6 +196,37 @@ describe('startKeyboardInput', () => {
     })
   })
 
+  describe('inside an element that types', () => {
+    let typing: HTMLDivElement
+    let button: HTMLButtonElement
+
+    beforeEach(() => {
+      typing = document.body.appendChild(document.createElement('div'))
+      typing.dataset.typing = ''
+      button = typing.appendChild(document.createElement('button'))
+    })
+
+    afterEach(() => {
+      typing.remove()
+    })
+
+    it('lets mapped letters and space type instead of acting', () => {
+      const emit = listen()
+
+      for (const key of ['q', 'x', ' ']) fireEvent.keyDown(button, { key })
+
+      expect(emit).not.toHaveBeenCalled()
+    })
+
+    it('still acts on every other key, including all the arrows', () => {
+      const emit = listen()
+
+      for (const key of ['ArrowLeft', 'Enter', 'Escape']) fireEvent.keyDown(button, { key })
+
+      expect(emit.mock.calls.map(([action]) => action)).toEqual(['left', 'confirm', 'back'])
+    })
+  })
+
   it('stops listening when stopped', () => {
     const emit = listen()
 

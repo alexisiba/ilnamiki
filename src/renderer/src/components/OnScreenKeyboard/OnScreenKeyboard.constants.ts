@@ -23,6 +23,17 @@ export const KEYBOARD_KEYS: KeyboardKey[] = [
 ]
 
 /**
+ * Physical keys (by `KeyboardEvent.key`) that match a key without a character of its own.
+ * Enter is left out: it confirms the focused key, so it only matches the action key in the
+ * text field.
+ */
+export const PHYSICAL_KEYS: Record<string, KeyboardKey> = {
+  ' ': SPACE_KEY,
+  Backspace: BACKSPACE_KEY,
+  CapsLock: CAPS_LOCK_KEY
+}
+
+/**
  * Keys that also have a button of their own, pressed wherever focus is; each key shows its
  * button. LB and Start are an exception to their fixed meaning while the keyboard is open
  * (see the ilnamiki-ui skill).

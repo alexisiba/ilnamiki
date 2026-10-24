@@ -40,8 +40,7 @@ export function KeyboardKeyButton({
   const className = [
     styles.key,
     KIND_CLASSES[keyboardKey.kind],
-    isCapsLock && capsLock && styles.active,
-    pressed && styles.pressed
+    isCapsLock && capsLock && styles.active
   ]
     .filter(Boolean)
     .join(' ')
@@ -52,6 +51,8 @@ export function KeyboardKeyButton({
       type="button"
       className={className}
       aria-pressed={isCapsLock ? capsLock : undefined}
+      // A momentary press has no ARIA state; tests read it from here.
+      data-pressed={pressed || undefined}
       aria-label={
         keyboardKey.kind === 'backspace' || isCapsLock
           ? t(`keyboard.${keyboardKey.kind}`)
