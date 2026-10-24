@@ -11,8 +11,8 @@ import styles from './SearchDialog.module.css'
 
 /**
  * Search over the current screen, which blurs behind it. It is modal: the screen behind is
- * inert, back (or the search action again) closes it, and focus returns where it was.
- * Closing unmounts it, so it always opens empty.
+ * inert, back closes it, and focus returns where it was. Closing unmounts it, so it always
+ * opens empty.
  */
 export function SearchDialog({ onClose }: SearchDialogProps): React.JSX.Element {
   const { t } = useTranslation('search')
@@ -31,7 +31,7 @@ export function SearchDialog({ onClose }: SearchDialogProps): React.JSX.Element 
   }, [])
 
   useInputAction((action) => {
-    if (action === 'back' || action === 'tertiary') onClose()
+    if (action === 'back') onClose()
   })
 
   return (

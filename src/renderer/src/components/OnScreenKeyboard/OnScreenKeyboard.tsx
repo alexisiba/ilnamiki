@@ -5,7 +5,13 @@ import { useInputAction, type InputAction } from '@renderer/core/input'
 import { FocusGroup } from '@renderer/core/navigation'
 
 import { KeyboardKeyButton } from './components/KeyboardKeyButton'
-import { ACTION_KEY, BACKSPACE_KEY, KEYBOARD_KEYS, SHIFT_KEY } from './OnScreenKeyboard.constants'
+import {
+  ACTION_KEY,
+  BACKSPACE_KEY,
+  KEYBOARD_KEYS,
+  SHIFT_KEY,
+  SPACE_KEY
+} from './OnScreenKeyboard.constants'
 import type { KeyboardKey, OnScreenKeyboardProps } from './OnScreenKeyboard.types'
 import { keyId, typeKey } from './OnScreenKeyboard.utils'
 import styles from './OnScreenKeyboard.module.css'
@@ -52,6 +58,7 @@ export function OnScreenKeyboard({
         return
       }
       if (action === 'secondary') pressKey(BACKSPACE_KEY, action)
+      if (action === 'tertiary') pressKey(SPACE_KEY, action)
       if (action === 'prevSection') pressKey(SHIFT_KEY, action)
       const confirmInField =
         action === 'confirm' && document.activeElement instanceof HTMLInputElement

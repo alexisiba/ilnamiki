@@ -91,6 +91,14 @@ describe('OnScreenKeyboard', () => {
     expect(typed()).toBe('mg')
   })
 
+  it('types a space with the tertiary action, once while it is held', () => {
+    renderWithNavigation(<TypingTest initialValue="mgs" />)
+
+    holdDown('tertiary', 2)
+
+    expect(typed()).toBe('mgs ')
+  })
+
   it('keeps deleting while the secondary action is held', () => {
     renderWithNavigation(<TypingTest initialValue="metal" />)
 

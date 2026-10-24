@@ -68,15 +68,16 @@ describe('Search', () => {
     expect(button).toHaveFocus()
   })
 
-  it('closes on its action too, while focus is on the keyboard', async () => {
+  it('types a space on its action instead of closing, while focus is on the keyboard', async () => {
     render(<Search />)
     const user = userEvent.setup()
 
     await user.keyboard('y')
-    await user.pointer({ target: key('k'), coords: { x: 10, y: 10 } })
+    await user.click(key('k'))
     await user.keyboard('y')
 
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.getByRole('dialog', { name: 'Search' })).toBeInTheDocument()
+    expect(searchField()).toHaveValue('k ')
   })
 
   it('opens empty again after closing', async () => {
