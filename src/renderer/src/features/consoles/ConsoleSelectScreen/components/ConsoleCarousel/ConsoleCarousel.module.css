@@ -1,6 +1,8 @@
-/* Barely visible circle of light behind the selected console, faded out at its edge. */
+/* Barely visible circle of light behind the selected console, faded out at its edge. It is
+   taller than the stage and overlaps the top bar, so it must not take the pointer. */
 .stage::before {
   position: absolute;
+  pointer-events: none;
   top: 50%;
   left: 50%;
   width: var(--console-width);
