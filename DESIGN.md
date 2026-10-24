@@ -131,6 +131,10 @@ spacing:
   space-3xl: 5rem
 ---
 
+> **Authorship:** the first version of this design system was generated with
+> [Stitch](https://stitch.withgoogle.com/) by Google. It has since been adapted and extended
+> for Ilnamiki as the app is built.
+
 ## Brand & Style
 
 The design system is engineered specifically for a premium living room console experience viewed from an average distance of 3 meters (10-foot UI). It rejects standard web metaphors, media streaming service patterns, and casual desktop conventions in favor of a bespoke, native video game operating environment. The experience projects low-latency authority, precision engineering, and refined cyberpunk minimalism—eschewing chaotic visual noise for deep obsidian negative space, hyper-tactile focus mechanics, and razor-sharp geometric instrumentation.
@@ -203,6 +207,20 @@ The interface balances sharp technological edges with modern living-room ergonom
 - Uses circular SVG controller face-button icons (A, B, X, Y, D-pad, RT/LT) rendered at 36px diameter.
 - Accompanying action labels in `JetBrains Mono` 20px (`label-md`), tracking at +0.08em in `#94A3B8`.
 - The footer shows only the actions the current screen has on, in a fixed order: navigate, select, back, the screen's contextual actions (X, Y, LT, RT, each with its own label) and switching tabs. An action turned off on a screen loses its chip, and its top-bar shoulder button is left out.
+
+### System Status (Top Command Bar)
+- The right side of the Top Command Bar, in order: network, controller and clock, 24px apart. Status icons are Lucide icons at 28px with a 2.25 stroke in Slate Muted (`#94A3B8`); the clock is `label-lg` in `#E2E2EC`.
+- Each icon reflects what the system reports and has a translated accessible name. When the system doesn't say, the icon is left out rather than guessed.
+- **Network:** how the computer reaches the network, refreshed every 10 seconds and whenever the network changes.
+  - Wi-Fi by signal strength: 76–100% `wifi`, 51–75% `wifi-high`, 26–50% `wifi-low`, 1–25% `wifi-zero`; `wifi` alone when the signal is unknown.
+  - Wi-Fi with no signal (0%) or without internet (captive portal, limited or no connectivity): `wifi-off`.
+  - Ethernet: `ethernet-port`. Without internet, the port turns Slate Dim (`#6B7A90`) as if switched off, with a 20px `circle-alert` in Warning (`#FFBA4B`) next to it, so the state never depends on color alone.
+  - Offline (no network at all): `globe-off`.
+  - When the system can't tell whether the internet is reachable, the connection icon shows as connected.
+- **Controller:** shown only while a gamepad is connected: `gamepad-2` followed, 8px apart, by how it is powered, refreshed every minute and whenever a controller connects or disconnects.
+  - By cable (USB): `usb`, drawn at 20px because its glyph fills more of its box than the other icons.
+  - By Bluetooth, by battery level: 71–100% `battery-full`, 41–70% `battery-medium`, 11–40% `battery-low`, 0–10% `battery-warning`.
+  - Nothing next to the gamepad when the battery isn't reported. With several controllers, the first one is shown.
 
 ### System Navigation Rails (Horizontal Carousel)
 - Content snaps to viewport center on X-axis navigation.
