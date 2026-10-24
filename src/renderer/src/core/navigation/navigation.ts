@@ -30,6 +30,8 @@ export interface Navigation {
   pointerMove: (element: HTMLElement, event: PointerEvent) => void
   /** Focuses `element` when it is pressed, for items that do not take focus on hover. */
   pointerDown: (element: HTMLElement) => void
+  /** Moves focus to the item of `element`, e.g. to results that just appeared. */
+  focusElement: (element: HTMLElement) => void
   /** Id of the item last focused in a group, the one focus returns to when entering it again. */
   lastFocusedIn: (groupId: string) => string | undefined
   /** Keeps a screen's state while the app runs, so the screen looks the same when it returns. */
@@ -186,6 +188,14 @@ export function createNavigation(): Navigation {
 
       claim = CLAIM.user
       focus(item, false)
+    },
+
+    focusElement(element) {
+      const item = items.get(element)
+      if (!item) return
+
+      claim = CLAIM.user
+      focus(item, 'auto')
     },
 
     lastFocusedIn(groupId) {

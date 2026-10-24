@@ -2,12 +2,12 @@ import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 
+import { GameCarousel } from '@renderer/components/GameCarousel'
 import { useInputAction } from '@renderer/core/input'
 import { useRememberedState } from '@renderer/core/navigation'
 import { getSampleConsole } from '@renderer/mocks/consoles'
 import { SAMPLE_GAMES } from '@renderer/mocks/games'
 
-import { GameCarousel } from './components/GameCarousel'
 import { GamePanel } from './components/GamePanel'
 import styles from './ConsoleGamesScreen.module.css'
 

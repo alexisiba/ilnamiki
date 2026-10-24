@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, type RefObject } from 'react'
+import { useCallback, useContext, useEffect, useRef, type RefObject } from 'react'
 
 import { FocusGroupContext, NavigationContext } from './NavigationContext'
 
@@ -16,6 +16,8 @@ export interface UseFocusableOptions {
 
 export interface UseFocusable<T extends HTMLElement> {
   ref: RefObject<T | null>
+  /** Moves focus to the element, e.g. to results that just appeared. */
+  focus: () => void
 }
 
 /**
@@ -52,5 +54,9 @@ export function useFocusable<T extends HTMLElement>({
     }
   }, [navigation, groupId, id, autoFocus, focusOnHover])
 
-  return { ref }
+  const focus = useCallback(() => {
+    if (navigation && ref.current) navigation.focusElement(ref.current)
+  }, [navigation])
+
+  return { ref, focus }
 }

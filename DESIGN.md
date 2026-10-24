@@ -231,6 +231,7 @@ The interface balances sharp technological edges with modern living-room ergonom
 - **Field:** a 48px Slate Muted search icon and the text in `headline-lg` `#FFFFFF` with a cyan caret, over a 2px underline that turns `#00D2FF` while focused (the focus indicator). Placeholder in Slate Dim. 960px wide at most, near the top of the screen to leave room for results.
 - Modal: the screen behind is inert and gets no input; back closes search and returns focus where it was.
 - The on-screen keyboard is docked at the bottom, leaving the room between it and the field for results.
+- **Results:** submitting (Enter in the field, the action key or Start) searches game titles only, never consoles, ignoring case and accents, and shows the first 20 matches in library order. When some match, the keyboard gives way to the game carousel (the same as Console Games, without the details panel) and focus moves to the first game; the focused game is the selected one, left/right move through them and confirming one closes search and opens its details. Up returns to the field, and confirming the field (or typing in it) hides the results and brings the keyboard back. When none match, a Slate Muted `body-lg` message replaces the results and the keyboard stays. An empty search does nothing.
 
 ### On-Screen Keyboard
 - QWERTY in ten columns of 88×72px keys with 8px gaps, so it matches the 960px panel width: digits, `qwertyuiop`, `asdfghjklñ`, `zxcvbnm-` and Delete (2 columns), then Caps Lock (2), Space (5) and the action key (3), e.g. Search.

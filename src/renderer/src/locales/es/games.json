@@ -8,7 +8,6 @@
   "consoleGames": {
     "gamesInstalled_one": "{{count}} juego instalado",
     "gamesInstalled_other": "{{count}} juegos instalados",
-    "selected": "{{title}}, {{position}} de {{total}}",
     "playtime": "Tiempo de juego",
     "lastPlayed": "Última vez",
     "playNow": "Jugar ahora",

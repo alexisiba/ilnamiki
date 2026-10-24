@@ -52,6 +52,11 @@
   "carousel": {
     "position": "{{position}} / {{total}}"
   },
+  "gameCarousel": {
+    "players_one": "{{count}} jugador",
+    "players_other": "{{count}} jugadores",
+    "selected": "{{title}}, {{position}} de {{total}}"
+  },
   "buttonGuide": {
     "label": "Controles",
     "navigate": "Navegar",

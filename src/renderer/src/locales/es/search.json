@@ -2,5 +2,7 @@
   "dialog": "Buscar",
   "field": "Buscar juegos",
   "placeholder": "Escribe el título de un juego",
-  "submit": "Buscar"
+  "submit": "Buscar",
+  "results": "Resultados",
+  "noResults": "Ningún juego coincide con «{{query}}»"
 }
