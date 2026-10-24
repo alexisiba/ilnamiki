@@ -55,6 +55,14 @@ When a request would push the UI toward "web" or "streaming", say so before impl
   menu. Others are contextual and generically named (secondary, tertiary, previous/next
   group): each screen decides what they do and labels them in its hints. Prefer an existing
   contextual action over inventing a new one; the bindings live in the input layer.
+- **Each screen declares its actions** with `useScreenActions` (from `core/input`): a
+  contextual action gets a binding of its own (handler and label), and any action, fixed or
+  contextual, can be turned off where the screen doesn't need it. Fixed actions are only ever
+  turned off, never given another meaning. App-wide defaults (e.g. tertiary opens search)
+  are declared once with `useDefaultActions` and apply wherever a screen doesn't change
+  them. The button guide and on-screen equivalents follow what is on, so never hard-code a
+  hint for a screen action. Turning off directions or confirm leaves focus stuck, so do it
+  only when the screen truly has nothing to navigate.
 - **Temporary exception: the on-screen keyboard.** While it is open (a modal, where sections
   can't be switched and the system menu doesn't open), the previous-section action (LB)
   toggles Caps Lock and the system menu action (Start) submits the text, as console keyboards
@@ -140,6 +148,11 @@ When a request would push the UI toward "web" or "streaming", say so before impl
 - **Reuse before writing.** Check the shared components and core hooks before building
   something similar; when a second screen needs a piece, promote it to shared (see
   `component-structure`).
+- **Hide by not rendering.** Something that shouldn't be there (a hint, a button, a whole
+  section) is left out with a condition in the component, not hidden with CSS
+  (`display: none`, `visibility: hidden`, `opacity: 0`). The logic stays visible in the code
+  and tests can check that it's gone. CSS hides only what has to stay rendered for an
+  animation (e.g. carousel items waiting to slide in), and says so in a comment.
 - **Brevity never beats clarity:** no clever one-liners or nested ternaries to save lines.
 - This applies to new work. When existing code could be split this way, point it out and
   agree on it with the user instead of refactoring it unasked.

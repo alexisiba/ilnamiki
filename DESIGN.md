@@ -202,6 +202,7 @@ The interface balances sharp technological edges with modern living-room ergonom
 - High-visibility tactile chips anchored along the footer bar.
 - Uses circular SVG controller face-button icons (A, B, X, Y, D-pad, RT/LT) rendered at 36px diameter.
 - Accompanying action labels in `JetBrains Mono` 20px (`label-md`), tracking at +0.08em in `#94A3B8`.
+- The footer shows only the actions the current screen has on, in a fixed order: navigate, select, back, the screen's contextual actions (X, Y, LT, RT, each with its own label) and switching tabs. An action turned off on a screen loses its chip, and its top-bar shoulder button is left out.
 
 ### System Navigation Rails (Horizontal Carousel)
 - Content snaps to viewport center on X-axis navigation.

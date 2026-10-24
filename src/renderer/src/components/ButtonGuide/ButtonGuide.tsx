@@ -2,13 +2,16 @@ import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router'
 
 import { ButtonHint } from '@renderer/components/ButtonHint'
+import { useActionEnabled, useContextualActions } from '@renderer/core/input'
 import { isSectionRoot } from '@renderer/core/navigation'
 
 import type { ButtonGuideProps } from './ButtonGuide.types'
 import styles from './ButtonGuide.module.css'
 
+const SECTION_ACTIONS = ['prevSection', 'nextSection'] as const
+
 /**
- * Bottom bar that explains the actions available: those of the current screen, or `hints`
+ * Bottom bar that explains the actions available: those the current screen has on, or `hints`
  * when given (e.g. inside a dialog). Informative only: it is never focused or clicked, and
  * screen readers reach it as the "Controls" landmark.
  */
@@ -32,31 +35,59 @@ export function ButtonGuide({ hints }: ButtonGuideProps): React.JSX.Element {
   )
 }
 
-/** The actions of the current screen. */
+/** The actions the current screen has on (see `useScreenActions`). */
 function ScreenHints(): React.JSX.Element {
   const { t } = useTranslation()
   const { pathname } = useLocation()
+  const canNavigate = [
+    useActionEnabled('up'),
+    useActionEnabled('down'),
+    useActionEnabled('left'),
+    useActionEnabled('right')
+  ].includes(true)
+  const canConfirm = useActionEnabled('confirm')
+  const canGoBack = useActionEnabled('back') && !isSectionRoot(pathname)
+  const contextualActions = useContextualActions()
+  const canSwitchTab = {
+    prevSection: useActionEnabled('prevSection'),
+    nextSection: useActionEnabled('nextSection')
+  }
+  const sectionActions = SECTION_ACTIONS.filter((action) => canSwitchTab[action])
 
   return (
     <>
-      <li>
-        <ButtonHint action="navigate" label={t('buttonGuide.navigate')} />
-      </li>
-      <li>
-        <ButtonHint action="confirm" label={t('buttonGuide.select')} />
-      </li>
-      {!isSectionRoot(pathname) && (
+      {canNavigate && (
+        <li>
+          <ButtonHint action="navigate" label={t('buttonGuide.navigate')} />
+        </li>
+      )}
+      {canConfirm && (
+        <li>
+          <ButtonHint action="confirm" label={t('buttonGuide.select')} />
+        </li>
+      )}
+      {canGoBack && (
         <li>
           <ButtonHint action="back" label={t('buttonGuide.back')} />
         </li>
       )}
-      <li>
-        <ButtonHint action="tertiary" label={t('buttonGuide.search')} />
-      </li>
-      <li className={styles.pair}>
-        <ButtonHint action="prevSection" />
-        <ButtonHint action="nextSection" label={t('buttonGuide.switchTab')} />
-      </li>
+      {contextualActions.map(({ action, label }) => (
+        <li key={action}>
+          <ButtonHint action={action} label={label} />
+        </li>
+      ))}
+      {sectionActions.length > 0 && (
+        // The label goes on the last one, after both buttons when the pair is on.
+        <li className={styles.pair}>
+          {sectionActions.map((action, index) => (
+            <ButtonHint
+              key={action}
+              action={action}
+              label={index === sectionActions.length - 1 ? t('buttonGuide.switchTab') : undefined}
+            />
+          ))}
+        </li>
+      )}
     </>
   )
 }
