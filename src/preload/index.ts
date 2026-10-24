@@ -3,10 +3,12 @@ import { electronAPI } from '@electron-toolkit/preload'
 import type { Api } from '@shared/api'
 
 import { controllersApi } from './api/controllers'
+import { networkApi } from './api/network'
 
 // Custom APIs for renderer
 const api: Api = {
-  controllers: controllersApi
+  controllers: controllersApi,
+  network: networkApi
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
