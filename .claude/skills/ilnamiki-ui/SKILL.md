@@ -55,6 +55,11 @@ When a request would push the UI toward "web" or "streaming", say so before impl
   menu. Others are contextual and generically named (secondary, tertiary, previous/next
   group): each screen decides what they do and labels them in its hints. Prefer an existing
   contextual action over inventing a new one; the bindings live in the input layer.
+- **Temporary exception: the on-screen keyboard.** While it is open (a modal, where sections
+  can't be switched and the system menu doesn't open), the previous-section action (LB)
+  toggles Shift and the system menu action (Start) submits the text, as console keyboards
+  do. This is a known exception to the fixed actions, to be replaced by an alternative later;
+  do not extend it to other screens.
 - **Hints name actions, not buttons.** Screens show a hint by action (and, for contextual
   actions, a label of what it does here); the input layer resolves which button glyph to
   draw for the device in use. Draw a specific button directly only when the button itself

@@ -1,8 +1,9 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { OnScreenKeyboard } from '@renderer/components/OnScreenKeyboard'
 import { useInputAction } from '@renderer/core/input'
+import { NavigationProvider } from '@renderer/core/navigation'
 
 import { SearchField } from './components/SearchField'
 import type { SearchDialogProps } from './SearchDialog.types'
@@ -10,16 +11,17 @@ import styles from './SearchDialog.module.css'
 
 /**
  * Search over the current screen, which blurs behind it. It is modal: the screen behind is
- * inert and gets no input, back closes it, and focus returns where it was.
+ * inert, back (or the search action again) closes it, and focus returns where it was.
+ * Closing unmounts it, so it always opens empty.
  */
 export function SearchDialog({ onClose }: SearchDialogProps): React.JSX.Element {
   const { t } = useTranslation('search')
   const ref = useRef<HTMLDialogElement>(null)
+  const [query, setQuery] = useState('')
 
   useEffect(() => {
     const dialog = ref.current
     const previousFocus = document.activeElement
-    // Also focuses its first control: the field.
     dialog?.showModal()
 
     return () => {
@@ -28,19 +30,25 @@ export function SearchDialog({ onClose }: SearchDialogProps): React.JSX.Element 
     }
   }, [])
 
-  useInputAction(
-    (action) => {
-      if (action === 'back') onClose()
-    },
-    { exclusive: true }
-  )
+  useInputAction((action) => {
+    if (action === 'back' || action === 'tertiary') onClose()
+  })
 
   return (
     <dialog ref={ref} className={styles.dialog} aria-label={t('dialog')}>
-      <SearchField />
-      <div className={styles.keyboard}>
-        <OnScreenKeyboard actionLabel={t('submit')} />
-      </div>
+      {/* Its own navigation: directions move only between the field and the keys. */}
+      <NavigationProvider scope="search">
+        <SearchField value={query} onChange={setQuery} />
+        <div className={styles.keyboard}>
+          <OnScreenKeyboard
+            value={query}
+            onChange={setQuery}
+            // Searching runs here once there are results to show.
+            onSubmit={() => {}}
+            actionLabel={t('submit')}
+          />
+        </div>
+      </NavigationProvider>
     </dialog>
   )
 }

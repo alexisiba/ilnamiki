@@ -62,7 +62,7 @@ describe('startKeyboardInput', () => {
 
     vi.advanceTimersByTime(REPEAT_INTERVAL_MS)
     expect(emit).toHaveBeenCalledTimes(3)
-    expect(emit).toHaveBeenLastCalledWith('down', 'keyboard')
+    expect(emit).toHaveBeenLastCalledWith('down', 'keyboard', 'repeat')
   })
 
   it('stops repeating when the key is released', () => {
@@ -95,13 +95,40 @@ describe('startKeyboardInput', () => {
     expect(emit).toHaveBeenCalledOnce()
   })
 
-  it('does not repeat keys that are not directions', () => {
+  it('repeats held keys that are not directions too, flagged as repeats', () => {
+    const emit = listen()
+
+    press('x')
+    vi.advanceTimersByTime(REPEAT_DELAY_MS)
+
+    expect(emit.mock.calls).toEqual([
+      ['secondary', 'keyboard'],
+      ['secondary', 'keyboard', 'repeat']
+    ])
+  })
+
+  it('reports the release of keys that are not directions, whatever their case', () => {
+    const emit = listen()
+
+    press('x')
+    release('X')
+    press('ArrowUp')
+    release('ArrowUp')
+
+    expect(emit.mock.calls).toEqual([
+      ['secondary', 'keyboard'],
+      ['secondary', 'keyboard', 'release'],
+      ['up', 'keyboard']
+    ])
+  })
+
+  it('releases held keys when the window loses focus', () => {
     const emit = listen()
 
     press('Enter')
-    vi.advanceTimersByTime(REPEAT_DELAY_MS * 2)
+    fireEvent.blur(window)
 
-    expect(emit).toHaveBeenCalledOnce()
+    expect(emit).toHaveBeenLastCalledWith('confirm', 'keyboard', 'release')
   })
 
   it('switches to the latest held direction', () => {
@@ -114,7 +141,7 @@ describe('startKeyboardInput', () => {
     expect(emit.mock.calls).toEqual([
       ['down', 'keyboard'],
       ['right', 'keyboard'],
-      ['right', 'keyboard']
+      ['right', 'keyboard', 'repeat']
     ])
   })
 
@@ -126,7 +153,7 @@ describe('startKeyboardInput', () => {
     release('ArrowDown')
     vi.advanceTimersByTime(REPEAT_DELAY_MS)
 
-    expect(emit).toHaveBeenLastCalledWith('right', 'keyboard')
+    expect(emit).toHaveBeenLastCalledWith('right', 'keyboard', 'repeat')
     expect(emit).toHaveBeenCalledTimes(3)
   })
 
@@ -161,7 +188,9 @@ describe('startKeyboardInput', () => {
 
       expect(emit.mock.calls).toEqual([
         ['back', 'keyboard'],
+        ['back', 'keyboard', 'release'],
         ['confirm', 'keyboard'],
+        ['confirm', 'keyboard', 'release'],
         ['down', 'keyboard']
       ])
     })

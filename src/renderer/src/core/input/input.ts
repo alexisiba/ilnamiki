@@ -27,6 +27,12 @@ export function isDirection(action: InputAction): action is Direction {
 export type InputDevice = 'xbox' | 'playstation' | 'keyboard'
 
 /**
+ * When an action happens: on `press`, then on every `repeat` while its button stays held, and
+ * on `release` when the button comes back up (buttons only, not directions).
+ */
+export type InputPhase = 'press' | 'repeat' | 'release'
+
+/**
  * Keyboard bindings by `KeyboardEvent.key`, with single characters lowercased.
  * Gamepad bindings will map to the same actions.
  */

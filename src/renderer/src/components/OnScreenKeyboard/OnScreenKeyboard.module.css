@@ -18,19 +18,32 @@
   font-weight: var(--headline-sm-weight);
   line-height: var(--headline-sm-line-height);
   color: var(--color-text);
+  /* Only the focus glow eases; pressing fills and empties the key at once. */
   transition:
-    background-color var(--duration-focus) var(--ease-focus),
-    color var(--duration-focus) var(--ease-focus),
+    border-color var(--duration-focus) var(--ease-focus),
     box-shadow var(--duration-focus) var(--ease-focus);
 }
 
-/* This style is the focus indicator, as on every action button. */
+/* This style is the focus indicator: the key fills only while pressed. */
 .key:focus {
   outline: none;
+  border-color: var(--color-primary);
+  color: var(--color-text-focus);
+  box-shadow: var(--shadow-glow);
+}
+
+/* Filled in primary exactly while held down, by a button or the pointer; over focus too. */
+.key.pressed,
+.key:active {
   background: var(--color-primary);
   border-color: var(--color-primary);
   color: var(--color-on-accent);
-  box-shadow: var(--shadow-glow);
+}
+
+/* Shift while it is on: lit in primary, without the focus glow. */
+.active {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 .icon {

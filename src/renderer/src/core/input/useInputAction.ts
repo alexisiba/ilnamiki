@@ -1,38 +1,39 @@
-import { useEffect, useEffectEvent } from 'react'
+import { useContext, useEffect, useEffectEvent } from 'react'
 
-import type { InputAction } from './input'
+import { isDirection, type InputAction, type InputPhase } from './input'
 import { subscribeToInput } from './inputBus'
+import { InputScopeContext, isActiveScope } from './inputScope'
 
 export interface UseInputActionOptions {
   /**
-   * While mounted, only this handler receives actions, e.g. a dialog over the screen: the
-   * screen behind neither moves focus nor goes back. The newest exclusive handler wins.
+   * Also receive the repeats of held buttons other than directions, e.g. to keep deleting
+   * while Delete is held. Held directions always repeat; other buttons act once by default.
    */
-  exclusive?: boolean
+  repeat?: boolean
+  /** Also receive button releases, e.g. to show a key pressed only while its button is down. */
+  release?: boolean
 }
 
-/** Exclusive handlers currently mounted, newest last. */
-const exclusiveHandlers: symbol[] = []
-
-/** Calls `onAction` with the semantic action of every mapped input while mounted. */
+/**
+ * Calls `onAction` with the semantic action of every mapped input while mounted, as long as
+ * its input scope is the active one (see `InputScope`). `phase` tells presses from the repeats
+ * and releases asked for in the options.
+ */
 export function useInputAction(
-  onAction: (action: InputAction) => void,
-  { exclusive = false }: UseInputActionOptions = {}
+  onAction: (action: InputAction, phase: InputPhase) => void,
+  { repeat = false, release = false }: UseInputActionOptions = {}
 ): void {
   const handleAction = useEffectEvent(onAction)
+  const scope = useContext(InputScopeContext)
 
-  useEffect(() => {
-    const handler = Symbol('input handler')
-    if (exclusive) exclusiveHandlers.push(handler)
-
-    const unsubscribe = subscribeToInput((action) => {
-      const owner = exclusiveHandlers.at(-1)
-      if (owner === undefined || owner === handler) handleAction(action)
-    })
-
-    return () => {
-      unsubscribe()
-      if (exclusive) exclusiveHandlers.splice(exclusiveHandlers.indexOf(handler), 1)
-    }
-  }, [exclusive])
+  useEffect(
+    () =>
+      subscribeToInput((action, _device, phase) => {
+        if (!isActiveScope(scope)) return
+        if (phase === 'repeat' && !repeat && !isDirection(action)) return
+        if (phase === 'release' && !release) return
+        handleAction(action, phase)
+      }),
+    [scope, repeat, release]
+  )
 }

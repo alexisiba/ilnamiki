@@ -6,6 +6,7 @@ import { startGamepadPolling } from './gamepadPoller'
 import { REPEAT_DELAY_MS, REPEAT_INTERVAL_MS } from './repeat'
 
 const A = 0
+const X = 2
 const RB = 5
 const DPAD_UP = 12
 const DPAD_DOWN = 13
@@ -54,7 +55,7 @@ describe('startGamepadPolling', () => {
 
     vi.advanceTimersByTime(REPEAT_INTERVAL_MS)
     expect(emit).toHaveBeenCalledTimes(3)
-    expect(emit).toHaveBeenLastCalledWith('down', 'xbox')
+    expect(emit).toHaveBeenLastCalledWith('down', 'xbox', 'repeat')
   })
 
   it('stops repeating when the direction is released', () => {
@@ -99,7 +100,7 @@ describe('startGamepadPolling', () => {
 
     expect(emit.mock.calls).toEqual([
       ['up', 'xbox'],
-      ['up', 'xbox']
+      ['up', 'xbox', 'repeat']
     ])
   })
 
@@ -146,8 +147,65 @@ describe('startGamepadPolling', () => {
     gamepad.press(RB)
     vi.advanceTimersToNextFrame()
 
-    expect(emit).toHaveBeenCalledTimes(2)
-    expect(emit).toHaveBeenLastCalledWith('nextSection', 'xbox')
+    expect(emit.mock.calls).toEqual([
+      ['nextSection', 'xbox'],
+      ['nextSection', 'xbox', 'release'],
+      ['nextSection', 'xbox']
+    ])
+  })
+
+  it('repeats a held button after a delay, flagged as a repeat', () => {
+    const gamepad = connectGamepad()
+    const emit = poll()
+
+    gamepad.press(X)
+    vi.advanceTimersToNextFrame()
+    vi.advanceTimersByTime(REPEAT_DELAY_MS + 16)
+
+    expect(emit.mock.calls).toEqual([
+      ['secondary', 'xbox'],
+      ['secondary', 'xbox', 'repeat']
+    ])
+  })
+
+  it('reports the release of a button and stops repeating it', () => {
+    const gamepad = connectGamepad()
+    const emit = poll()
+
+    gamepad.press(X)
+    vi.advanceTimersToNextFrame()
+    gamepad.release(X)
+    vi.advanceTimersByTime(REPEAT_DELAY_MS * 2)
+
+    expect(emit.mock.calls).toEqual([
+      ['secondary', 'xbox'],
+      ['secondary', 'xbox', 'release']
+    ])
+  })
+
+  it('reports a release even if focus was lost while the button was held', () => {
+    const gamepad = connectGamepad()
+    const emit = poll()
+
+    gamepad.press(A)
+    vi.advanceTimersToNextFrame()
+    vi.mocked(document.hasFocus).mockReturnValue(false)
+    gamepad.release(A)
+    vi.advanceTimersToNextFrame()
+
+    expect(emit).toHaveBeenLastCalledWith('confirm', 'xbox', 'release')
+  })
+
+  it('does not report releases of directions', () => {
+    const gamepad = connectGamepad()
+    const emit = poll()
+
+    gamepad.press(DPAD_UP)
+    vi.advanceTimersToNextFrame()
+    gamepad.release(DPAD_UP)
+    vi.advanceTimersToNextFrame()
+
+    expect(emit).toHaveBeenCalledExactlyOnceWith('up', 'xbox')
   })
 
   it('ignores buttons without an action', () => {

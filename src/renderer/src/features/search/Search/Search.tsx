@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { useInputAction } from '@renderer/core/input'
+import { InputScope, useInputAction } from '@renderer/core/input'
 
 import { SearchDialog } from './components/SearchDialog'
 
@@ -12,5 +12,12 @@ export function Search(): React.JSX.Element | null {
     if (action === 'tertiary') setOpen(true)
   })
 
-  return open ? <SearchDialog onClose={() => setOpen(false)} /> : null
+  if (!open) return null
+
+  // Its own input scope: while open, the screen behind gets no input.
+  return (
+    <InputScope>
+      <SearchDialog onClose={() => setOpen(false)} />
+    </InputScope>
+  )
 }

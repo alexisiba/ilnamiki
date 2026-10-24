@@ -18,6 +18,8 @@ function renderWithFocusedButton(): HTMLElement {
 }
 
 const searchField = (): HTMLElement => screen.getByRole('searchbox', { name: 'Search games' })
+const key = (name: string): HTMLElement =>
+  within(screen.getByRole('group', { name: 'Keyboard' })).getByRole('button', { name })
 
 describe('Search', () => {
   it('is closed until its action', () => {
@@ -35,15 +37,6 @@ describe('Search', () => {
     expect(searchField()).toHaveFocus()
   })
 
-  it('shows the on-screen keyboard with a Search key', async () => {
-    render(<Search />)
-
-    await userEvent.setup().keyboard('y')
-
-    const keyboard = screen.getByRole('group', { name: 'Keyboard' })
-    expect(within(keyboard).getByRole('button', { name: 'Search' })).toBeInTheDocument()
-  })
-
   it('types every letter into the field, including keys mapped to actions', async () => {
     render(<Search />)
     const user = userEvent.setup()
@@ -52,6 +45,16 @@ describe('Search', () => {
     await user.keyboard('yeq x')
 
     expect(searchField()).toHaveValue('yeq x')
+  })
+
+  it('types into the field with the on-screen keyboard', async () => {
+    render(<Search />)
+    const user = userEvent.setup()
+
+    await user.keyboard('y')
+    for (const name of ['Shift', 'M', 'Shift', 'g', 's']) await user.click(key(name))
+
+    expect(searchField()).toHaveValue('Mgs')
   })
 
   it('closes on back and returns focus to where it was', async () => {
@@ -63,5 +66,28 @@ describe('Search', () => {
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(button).toHaveFocus()
+  })
+
+  it('closes on its action too, while focus is on the keyboard', async () => {
+    render(<Search />)
+    const user = userEvent.setup()
+
+    await user.keyboard('y')
+    await user.pointer({ target: key('k'), coords: { x: 10, y: 10 } })
+    await user.keyboard('y')
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('opens empty again after closing', async () => {
+    render(<Search />)
+    const user = userEvent.setup()
+
+    await user.keyboard('y')
+    await user.keyboard('metal{Escape}')
+    await user.keyboard('y')
+
+    expect(searchField()).toHaveValue('')
+    expect(key('Shift')).toHaveAttribute('aria-pressed', 'false')
   })
 })

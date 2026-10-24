@@ -20,8 +20,9 @@ describe('inputBus', () => {
     await userEvent.setup().keyboard('{ArrowDown}z{Enter}')
 
     expect(listener.mock.calls).toEqual([
-      ['down', 'keyboard'],
-      ['confirm', 'keyboard']
+      ['down', 'keyboard', 'press'],
+      ['confirm', 'keyboard', 'press'],
+      ['confirm', 'keyboard', 'release']
     ])
   })
 
@@ -32,9 +33,13 @@ describe('inputBus', () => {
     subscribe(second)
 
     emitInput('nextSection', 'playstation')
+    emitInput('down', 'playstation', 'repeat')
 
-    expect(first).toHaveBeenCalledWith('nextSection', 'playstation')
-    expect(second).toHaveBeenCalledWith('nextSection', 'playstation')
+    expect(first.mock.calls).toEqual([
+      ['nextSection', 'playstation', 'press'],
+      ['down', 'playstation', 'repeat']
+    ])
+    expect(second).toHaveBeenCalledWith('nextSection', 'playstation', 'press')
   })
 
   it('listens to the keyboard once, however many subscribers there are', () => {

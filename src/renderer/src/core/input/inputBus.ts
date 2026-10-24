@@ -1,16 +1,20 @@
 import { startGamepadPolling } from './gamepadPoller'
-import type { InputAction, InputDevice } from './input'
+import type { InputAction, InputDevice, InputPhase } from './input'
 import { startKeyboardInput } from './keyboardInput'
 
-export type InputListener = (action: InputAction, device: InputDevice) => void
+export type InputListener = (action: InputAction, device: InputDevice, phase: InputPhase) => void
 
 const listeners = new Set<InputListener>()
 let stopSources: (() => void) | undefined
 
-/** Sends `action`, produced by `device`, to every subscriber. */
-export function emitInput(action: InputAction, device: InputDevice): void {
+/** Sends `action`, produced by `device` in `phase`, to every subscriber. */
+export function emitInput(
+  action: InputAction,
+  device: InputDevice,
+  phase: InputPhase = 'press'
+): void {
   // A copy, so listeners that unsubscribe while handling the action don't skip others.
-  for (const listener of [...listeners]) listener(action, device)
+  for (const listener of [...listeners]) listener(action, device, phase)
 }
 
 /**
