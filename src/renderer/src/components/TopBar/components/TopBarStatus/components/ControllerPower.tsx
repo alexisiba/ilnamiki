@@ -35,10 +35,11 @@ export function ControllerPower(): React.JSX.Element | null {
 
   if (controller?.connection !== 'bluetooth' || controller.batteryPercent === null) return null
 
-  const BatteryIcon = BATTERY_ICONS[getBatteryLevel(controller.batteryPercent)]
+  const level = getBatteryLevel(controller.batteryPercent)
+  const BatteryIcon = BATTERY_ICONS[level]
   return (
     <BatteryIcon
-      className={styles.icon}
+      className={level === 'warning' ? `${styles.icon} ${styles.warningIcon}` : styles.icon}
       role="img"
       aria-label={t('status.controllerBattery', { percent: controller.batteryPercent })}
     />

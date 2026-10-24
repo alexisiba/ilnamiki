@@ -25,6 +25,11 @@
   height: var(--icon-size-sm);
 }
 
+/* A battery about to run out needs attention; its icon's shape already says so. */
+.warningIcon {
+  color: var(--color-warning);
+}
+
 /* A connection that is up but can't reach the internet looks switched off… */
 .offIcon {
   color: var(--color-text-dim);

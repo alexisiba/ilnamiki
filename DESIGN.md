@@ -219,7 +219,7 @@ The interface balances sharp technological edges with modern living-room ergonom
   - When the system can't tell whether the internet is reachable, the connection icon shows as connected.
 - **Controller:** shown only while a gamepad is connected: `gamepad-2` followed, 8px apart, by how it is powered, refreshed every minute and whenever a controller connects or disconnects.
   - By cable (USB): `usb`, drawn at 20px because its glyph fills more of its box than the other icons.
-  - By Bluetooth, by battery level: 71–100% `battery-full`, 41–70% `battery-medium`, 11–40% `battery-low`, 0–10% `battery-warning`.
+  - By Bluetooth, by battery level: 71–100% `battery-full`, 41–70% `battery-medium`, 11–40% `battery-low`, 0–10% `battery-warning` in Warning (`#FFBA4B`).
   - Nothing next to the gamepad when the battery isn't reported. With several controllers, the first one is shown.
 
 ### System Navigation Rails (Horizontal Carousel)
