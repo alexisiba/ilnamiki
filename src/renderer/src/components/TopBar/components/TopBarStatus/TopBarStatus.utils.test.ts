@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { getBatteryLevel } from './TopBarStatus.utils'
+import { getBatteryLevel, getWifiLevel } from './TopBarStatus.utils'
 
 describe('getBatteryLevel', () => {
   it.each([
@@ -14,5 +14,20 @@ describe('getBatteryLevel', () => {
     [0, 'warning']
   ])('maps %i%% to %s', (percent, level) => {
     expect(getBatteryLevel(percent)).toBe(level)
+  })
+})
+
+describe('getWifiLevel', () => {
+  it.each([
+    [100, 'full'],
+    [76, 'full'],
+    [75, 'high'],
+    [51, 'high'],
+    [50, 'low'],
+    [26, 'low'],
+    [25, 'zero'],
+    [1, 'zero']
+  ])('maps %i%% to %s', (percent, level) => {
+    expect(getWifiLevel(percent)).toBe(level)
   })
 })

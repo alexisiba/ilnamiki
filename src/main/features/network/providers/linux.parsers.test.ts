@@ -1,7 +1,12 @@
 import { readFileSync } from 'fs'
 import { describe, expect, it } from 'vitest'
 
-import { parseDefaultRouteInterfaces, toNetworkStatus } from './linux.parsers'
+import {
+  parseDefaultRouteInterfaces,
+  parseNetworkManagerInternet,
+  parseWirelessSignal,
+  toNetworkStatus
+} from './linux.parsers'
 
 /** Real output captured from a Linux system. */
 function fixture(name: string): string {
@@ -47,35 +52,88 @@ describe('parseDefaultRouteInterfaces', () => {
   })
 })
 
-describe('toNetworkStatus', () => {
-  it('reports Wi-Fi when the preferred physical interface is wireless', () => {
-    expect(toNetworkStatus([{ name: 'wlp0s20f3', physical: true, wireless: true }])).toEqual({
-      connection: 'wifi'
-    })
+describe('parseWirelessSignal', () => {
+  it("turns the interface's link quality out of 70 into a percentage", () => {
+    // 63 out of 70.
+    expect(parseWirelessSignal(fixture('wireless-wifi.txt'), 'wlp0s20f3')).toBe(90)
   })
 
-  it('reports Ethernet when the preferred physical interface is wired', () => {
+  it('returns null for an interface that is not listed', () => {
+    expect(parseWirelessSignal(fixture('wireless-wifi.txt'), 'wlan1')).toBeNull()
+  })
+
+  it('returns null when there is no wireless table', () => {
+    expect(parseWirelessSignal('', 'wlp0s20f3')).toBeNull()
+  })
+})
+
+describe('parseNetworkManagerInternet', () => {
+  it('reports the internet as reachable with full connectivity', () => {
+    expect(parseNetworkManagerInternet(fixture('networkmanager-connectivity-full.txt'))).toBe(true)
+  })
+
+  it.each([
+    [1, 'none'],
+    [2, 'a captive portal'],
+    [3, 'limited connectivity']
+  ])('reports the internet as unreachable with connectivity %i (%s)', (connectivity) => {
+    const output = `{"type":"u","data":${connectivity}}\n{"type":"b","data":true}\n`
+
+    expect(parseNetworkManagerInternet(output)).toBe(false)
+  })
+
+  it("can't tell when connectivity is unknown", () => {
+    expect(parseNetworkManagerInternet('{"type":"u","data":0}\n{"type":"b","data":true}\n')).toBe(
+      null
+    )
+  })
+
+  it("can't tell when NetworkManager doesn't check connectivity", () => {
     expect(
-      toNetworkStatus([
-        { name: 'enp0s31f6', physical: true, wireless: false },
-        { name: 'wlp0s20f3', physical: true, wireless: true }
-      ])
-    ).toEqual({ connection: 'ethernet' })
+      parseNetworkManagerInternet('{"type":"u","data":4}\n{"type":"b","data":false}\n')
+    ).toBeNull()
+  })
+})
+
+describe('toNetworkStatus', () => {
+  const readings = { wireless: fixture('wireless-wifi.txt'), internet: true }
+
+  it('reports Wi-Fi and its signal when the preferred physical interface is wireless', () => {
+    expect(
+      toNetworkStatus([{ name: 'wlp0s20f3', physical: true, wireless: true }], readings)
+    ).toEqual({ connection: 'wifi', wifiSignalPercent: 90, internet: true })
+  })
+
+  it('reports Ethernet, without a signal, when the preferred physical interface is wired', () => {
+    expect(
+      toNetworkStatus(
+        [
+          { name: 'enp0s31f6', physical: true, wireless: false },
+          { name: 'wlp0s20f3', physical: true, wireless: true }
+        ],
+        { ...readings, internet: false }
+      )
+    ).toEqual({ connection: 'ethernet', wifiSignalPercent: null, internet: false })
   })
 
   it('looks past virtual interfaces such as VPNs', () => {
     expect(
-      toNetworkStatus([
-        { name: 'tailscale0', physical: false, wireless: false },
-        { name: 'wlp0s20f3', physical: true, wireless: true }
-      ])
-    ).toEqual({ connection: 'wifi' })
+      toNetworkStatus(
+        [
+          { name: 'tailscale0', physical: false, wireless: false },
+          { name: 'wlp0s20f3', physical: true, wireless: true }
+        ],
+        readings
+      )
+    ).toMatchObject({ connection: 'wifi' })
   })
 
-  it('reports no connection without a physical interface', () => {
-    expect(toNetworkStatus([])).toEqual({ connection: 'none' })
-    expect(toNetworkStatus([{ name: 'tailscale0', physical: false, wireless: false }])).toEqual({
-      connection: 'none'
-    })
+  it('reports no connection and no internet without a physical interface', () => {
+    const offline = { connection: 'none', wifiSignalPercent: null, internet: false }
+
+    expect(toNetworkStatus([], readings)).toEqual(offline)
+    expect(
+      toNetworkStatus([{ name: 'tailscale0', physical: false, wireless: false }], readings)
+    ).toEqual(offline)
   })
 })

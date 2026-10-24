@@ -36,7 +36,11 @@
     "controllerWired": "Connected by cable",
     "controllerBattery": "Battery {{percent}}%",
     "networkWifi": "Wi-Fi connected",
+    "networkWifiSignal": "Wi-Fi connected, signal {{percent}}%",
+    "networkWifiNoSignal": "Wi-Fi without signal",
+    "networkWifiNoInternet": "Wi-Fi connected, no internet",
     "networkEthernet": "Ethernet connected",
+    "networkEthernetNoInternet": "Ethernet connected, no internet",
     "networkNone": "No network connection"
   },
   "playStats": {

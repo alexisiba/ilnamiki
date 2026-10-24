@@ -7,7 +7,7 @@ import { getNetworkStatus } from './network'
 /** Cables get unplugged and Wi-Fi drops: check often, it's only a few file reads in main. */
 const REFRESH_MS = 10_000
 
-const UNKNOWN: NetworkStatus = { connection: null }
+const UNKNOWN: NetworkStatus = { connection: null, wifiSignalPercent: null, internet: null }
 
 /**
  * How the computer is connected to the network. Unknown until the system answers, and also

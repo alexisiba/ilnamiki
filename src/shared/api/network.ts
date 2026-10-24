@@ -5,6 +5,16 @@ export type NetworkConnection = 'wifi' | 'ethernet' | 'none'
 export interface NetworkStatus {
   /** How it is connected, or null when the system does not say. */
   connection: NetworkConnection | null
+  /**
+   * Wi-Fi signal as a whole number from 0 to 100 while connected by Wi-Fi, or null otherwise
+   * and when it is not reported.
+   */
+  wifiSignalPercent: number | null
+  /**
+   * Whether the internet is reachable through the connection (false behind a captive portal
+   * or with limited connectivity), or null when the system can't tell.
+   */
+  internet: boolean | null
 }
 
 /** Information about the computer's network connection. */

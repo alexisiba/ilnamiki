@@ -57,12 +57,74 @@ function isUsable(hexFlags: string): boolean {
   return (flags & RTF_UP) !== 0 && (flags & RTF_REJECT) === 0
 }
 
+/** Link quality is reported out of 70 by every driver built on cfg80211 (all modern Wi-Fi). */
+const MAX_LINK_QUALITY = 70
+
+/**
+ * Signal of `iface` from 0 to 100 in the contents of `/proc/net/wireless`, from its link
+ * quality, or null when the interface isn't listed.
+ */
+export function parseWirelessSignal(wireless: string, iface: string): number | null {
+  const line = wireless.split('\n').find((candidate) => candidate.trim().startsWith(`${iface}:`))
+  // Columns after the name: status, link quality ("60."), level, noise, …
+  const quality = Number.parseFloat(line?.split(':')[1]?.trim().split(/\s+/)[1] ?? '')
+  if (Number.isNaN(quality)) return null
+
+  return Math.round((Math.min(Math.max(quality, 0), MAX_LINK_QUALITY) / MAX_LINK_QUALITY) * 100)
+}
+
+/** NetworkManager's `NMConnectivityState`: 0 unknown, 1 none, 2 portal, 3 limited, 4 full. */
+const CONNECTIVITY_UNKNOWN = 0
+const CONNECTIVITY_FULL = 4
+
+/**
+ * Whether the internet is reachable, from the output of `busctl --json=short get-property …
+ * Connectivity ConnectivityCheckEnabled` (one JSON value per line in that order), or null when
+ * NetworkManager doesn't check it.
+ */
+export function parseNetworkManagerInternet(output: string): boolean | null {
+  const [connectivity, checkEnabled] = output
+    .split('\n')
+    .filter((line) => line.trim() !== '')
+    .map((line): unknown => JSON.parse(line))
+    .map((value) => (isBusctlValue(value) ? value.data : undefined))
+
+  if (checkEnabled !== true || typeof connectivity !== 'number') return null
+  if (connectivity === CONNECTIVITY_UNKNOWN) return null
+  return connectivity === CONNECTIVITY_FULL
+}
+
+function isBusctlValue(value: unknown): value is { data: unknown } {
+  return typeof value === 'object' && value !== null && 'data' in value
+}
+
+/** What the provider read from the system besides the routes. */
+export interface NetworkReadings {
+  /** Contents of `/proc/net/wireless`, empty when it couldn't be read. */
+  wireless: string
+  /** Whether NetworkManager reaches the internet, or null when it can't tell. */
+  internet: boolean | null
+}
+
 /**
  * The contract's status from the interfaces with a default route, preferred first: the first
  * physical one decides between Wi-Fi and Ethernet, and without any the computer is offline.
  */
-export function toNetworkStatus(interfaces: LinuxInterface[]): NetworkStatus {
+export function toNetworkStatus(
+  interfaces: LinuxInterface[],
+  { wireless, internet }: NetworkReadings
+): NetworkStatus {
   const primary = interfaces.find((candidate) => candidate.physical)
-  if (primary === undefined) return { connection: 'none' }
-  return { connection: primary.wireless ? 'wifi' : 'ethernet' }
+  if (primary === undefined) {
+    return { connection: 'none', wifiSignalPercent: null, internet: false }
+  }
+
+  if (primary.wireless) {
+    return {
+      connection: 'wifi',
+      wifiSignalPercent: parseWirelessSignal(wireless, primary.name),
+      internet
+    }
+  }
+  return { connection: 'ethernet', wifiSignalPercent: null, internet }
 }

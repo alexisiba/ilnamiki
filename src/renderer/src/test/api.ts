@@ -12,7 +12,11 @@ export function mockApi(): void {
       getStatus: vi.fn(async (): Promise<ControllerStatus[]> => [])
     },
     network: {
-      getStatus: vi.fn(async (): Promise<NetworkStatus> => ({ connection: null }))
+      getStatus: vi.fn(async (): Promise<NetworkStatus> => ({
+        connection: null,
+        wifiSignalPercent: null,
+        internet: null
+      }))
     }
   }
 }
@@ -25,10 +29,13 @@ export function mockControllerStatus(statuses: ControllerStatus[] | Error): void
   })
 }
 
-/** Makes `window.api.network.getStatus` resolve with `status`, or reject with an error. */
-export function mockNetworkStatus(status: NetworkStatus | Error): void {
+/**
+ * Makes `window.api.network.getStatus` resolve with `status` (fields left out are null), or
+ * reject with an error.
+ */
+export function mockNetworkStatus(status: Partial<NetworkStatus> | Error): void {
   vi.mocked(window.api.network.getStatus).mockImplementation(async () => {
     if (status instanceof Error) throw status
-    return status
+    return { connection: null, wifiSignalPercent: null, internet: null, ...status }
   })
 }

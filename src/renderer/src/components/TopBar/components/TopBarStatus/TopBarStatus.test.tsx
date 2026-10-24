@@ -76,6 +76,41 @@ describe('TopBarStatus', () => {
       expect(networkIcon()).toHaveAccessibleName(name)
     })
 
+    it('shows the Wi-Fi signal', async () => {
+      mockNetworkStatus({ connection: 'wifi', wifiSignalPercent: 64, internet: true })
+      await renderStatus()
+
+      expect(networkIcon()).toHaveAccessibleName('Wi-Fi connected, signal 64%')
+    })
+
+    it('shows Wi-Fi without signal when the signal is 0', async () => {
+      mockNetworkStatus({ connection: 'wifi', wifiSignalPercent: 0, internet: true })
+      await renderStatus()
+
+      expect(networkIcon()).toHaveAccessibleName('Wi-Fi without signal')
+    })
+
+    it('shows Wi-Fi without internet whatever the signal', async () => {
+      mockNetworkStatus({ connection: 'wifi', wifiSignalPercent: 90, internet: false })
+      await renderStatus()
+
+      expect(networkIcon()).toHaveAccessibleName('Wi-Fi connected, no internet')
+    })
+
+    it('shows the signal when it is not known whether the internet is reachable', async () => {
+      mockNetworkStatus({ connection: 'wifi', wifiSignalPercent: 30, internet: null })
+      await renderStatus()
+
+      expect(networkIcon()).toHaveAccessibleName('Wi-Fi connected, signal 30%')
+    })
+
+    it('shows Ethernet without internet', async () => {
+      mockNetworkStatus({ connection: 'ethernet', internet: false })
+      await renderStatus()
+
+      expect(networkIcon()).toHaveAccessibleName('Ethernet connected, no internet')
+    })
+
     it('shows nothing when the system does not say how it is connected', async () => {
       mockNetworkStatus({ connection: null })
       await renderStatus()

@@ -25,6 +25,18 @@
   height: var(--icon-size-sm);
 }
 
+/* A connection that is up but can't reach the internet looks switched off… */
+.offIcon {
+  color: var(--color-text-dim);
+}
+
+/* …with a warning next to it, so the state doesn't depend on the color alone. */
+.alertIcon {
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+  color: var(--color-warning);
+}
+
 .clock {
   font-family: var(--font-label);
   font-size: var(--label-lg-size);
