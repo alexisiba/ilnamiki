@@ -45,7 +45,7 @@
   },
   "keyboard": {
     "label": "Keyboard",
-    "shift": "Shift",
+    "capsLock": "Caps Lock",
     "backspace": "Delete",
     "space": "Space"
   },
@@ -57,6 +57,7 @@
     "navigate": "Navigate",
     "select": "Select",
     "back": "Back",
+    "close": "Close",
     "search": "Search",
     "switchTab": "Switch tab"
   }

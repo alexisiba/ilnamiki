@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { typeKey } from './OnScreenKeyboard.utils'
 
 describe('typeKey', () => {
-  it('adds a character, in uppercase while shifted', () => {
+  it('adds a character, in uppercase while Caps Lock is on', () => {
     expect(typeKey('meta', { kind: 'character', value: 'l' }, false)).toBe('metal')
     expect(typeKey('', { kind: 'character', value: 'ñ' }, true)).toBe('Ñ')
   })
@@ -17,8 +17,8 @@ describe('typeKey', () => {
     expect(typeKey('', { kind: 'backspace' }, false)).toBe('')
   })
 
-  it('leaves the text as it is on Shift and the action key', () => {
-    expect(typeKey('metal', { kind: 'shift' }, false)).toBe('metal')
+  it('leaves the text as it is on Caps Lock and the action key', () => {
+    expect(typeKey('metal', { kind: 'capsLock' }, false)).toBe('metal')
     expect(typeKey('metal', { kind: 'action' }, false)).toBe('metal')
   })
 })

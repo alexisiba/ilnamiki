@@ -75,6 +75,22 @@ describe('ButtonGuide', () => {
     expect(hints[3]).toHaveTextContent('L1R1Switch tab')
   })
 
+  it('shows the given hints instead of the current screen’s', () => {
+    render(
+      <ButtonGuide
+        hints={[
+          { action: 'confirm', label: 'Select' },
+          { action: 'back', label: 'Close' }
+        ]}
+      />
+    )
+
+    const hints = within(screen.getByRole('contentinfo', { name: 'Controls' })).getAllByRole(
+      'listitem'
+    )
+    expect(hints.map((hint) => hint.textContent)).toEqual(['EnterSelect', 'EscClose'])
+  })
+
   it('is informative only, with nothing to focus or click', () => {
     const guide = renderGuideAt('/games/mgs-ps1')
 

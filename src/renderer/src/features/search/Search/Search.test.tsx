@@ -52,9 +52,20 @@ describe('Search', () => {
     const user = userEvent.setup()
 
     await user.keyboard('y')
-    for (const name of ['Shift', 'M', 'Shift', 'g', 's']) await user.click(key(name))
+    for (const name of ['Caps Lock', 'M', 'Caps Lock', 'g', 's']) await user.click(key(name))
 
     expect(searchField()).toHaveValue('Mgs')
+  })
+
+  it('shows a button guide over the blur, where back closes search', async () => {
+    render(<Search />)
+
+    await userEvent.setup().keyboard('y')
+
+    const guide = within(screen.getByRole('dialog')).getByRole('contentinfo', {
+      name: 'Controls'
+    })
+    expect(within(guide).getByText('Close')).toBeInTheDocument()
   })
 
   it('closes on back and returns focus to where it was', async () => {
@@ -89,6 +100,6 @@ describe('Search', () => {
     await user.keyboard('y')
 
     expect(searchField()).toHaveValue('')
-    expect(key('Shift')).toHaveAttribute('aria-pressed', 'false')
+    expect(key('Caps Lock')).toHaveAttribute('aria-pressed', 'false')
   })
 })

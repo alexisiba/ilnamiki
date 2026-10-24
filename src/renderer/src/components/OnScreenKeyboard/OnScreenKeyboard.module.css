@@ -7,6 +7,7 @@
 }
 
 .key {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -40,10 +41,20 @@
   color: var(--color-on-accent);
 }
 
-/* Shift while it is on: lit in primary, without the focus glow. */
+/* Caps Lock while it is on: lit in primary, without the focus glow. */
 .active {
   border-color: var(--color-primary);
   color: var(--color-primary);
+}
+
+/* The key's gamepad button, smaller than in the button guide, in the top-right corner. */
+.shortcut {
+  --glyph-size: var(--glyph-size-sm);
+
+  position: absolute;
+  top: var(--space-xs);
+  right: var(--space-xs);
+  display: flex;
 }
 
 .icon {
@@ -52,7 +63,12 @@
   stroke-width: var(--icon-stroke);
 }
 
-.shift {
+/* Wide enough for its icon and its gamepad button side by side. */
+.backspace {
+  grid-column: span 2;
+}
+
+.capsLock {
   grid-column: span 2;
 }
 
@@ -60,9 +76,6 @@
   grid-column: span 5;
 }
 
-/* The key that finishes typing stands out in primary. */
 .action {
   grid-column: span 3;
-  border-color: var(--color-primary);
-  color: var(--color-primary);
 }

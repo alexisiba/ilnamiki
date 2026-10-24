@@ -45,7 +45,7 @@
   },
   "keyboard": {
     "label": "Teclado",
-    "shift": "Mayúsculas",
+    "capsLock": "Bloq Mayús",
     "backspace": "Borrar",
     "space": "Espacio"
   },
@@ -57,6 +57,7 @@
     "navigate": "Navegar",
     "select": "Seleccionar",
     "back": "Atrás",
+    "close": "Cerrar",
     "search": "Buscar",
     "switchTab": "Cambiar pestaña"
   }

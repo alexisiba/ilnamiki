@@ -78,10 +78,10 @@
   color: var(--color-text-dim);
 }
 
-/* Docked at the bottom, leaving the room between it and the field for results. */
+/* Docked at the bottom above the button guide, leaving the room below the field for results. */
 .keyboard {
   margin-top: auto;
-  padding-bottom: var(--layout-margin);
+  padding-bottom: var(--space-lg);
 }
 
 /* The browser's clear button does not fit the console look. */

@@ -6,6 +6,7 @@ import { useInputAction } from '@renderer/core/input'
 import { NavigationProvider } from '@renderer/core/navigation'
 
 import { SearchField } from './components/SearchField'
+import { SearchGuide } from './components/SearchGuide'
 import type { SearchDialogProps } from './SearchDialog.types'
 import styles from './SearchDialog.module.css'
 
@@ -49,6 +50,7 @@ export function SearchDialog({ onClose }: SearchDialogProps): React.JSX.Element 
           />
         </div>
       </NavigationProvider>
+      <SearchGuide />
     </dialog>
   )
 }

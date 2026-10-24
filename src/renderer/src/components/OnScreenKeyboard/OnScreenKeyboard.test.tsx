@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { InputAction } from '@renderer/core/input'
+import { setActiveInputDevice } from '@renderer/core/input/activeDevice'
 import { emitInput } from '@renderer/core/input/inputBus'
 import { renderWithNavigation } from '@renderer/test/renderWithNavigation'
 
@@ -50,15 +51,32 @@ describe('OnScreenKeyboard', () => {
       .map((button) => button.textContent)
 
     expect(keys.slice(0, 20).join('')).toBe('1234567890qwertyuiop')
-    expect(keys.slice(20, 39).join('')).toBe("asdfghjklñzxcvbnm-'")
+    expect(keys.slice(20, 38).join('')).toBe('asdfghjklñzxcvbnm-')
   })
 
   it('names the special keys, including the action key from its label', () => {
     renderWithNavigation(<TypingTest />)
 
-    for (const name of ['Delete', 'Shift', 'Space', 'Search']) {
+    for (const name of ['Delete', 'Caps Lock', 'Space', 'Search']) {
       expect(key(name)).toBeInTheDocument()
     }
+  })
+
+  it('shows on each shortcut key the gamepad button that also presses it', () => {
+    act(() => setActiveInputDevice('xbox'))
+    renderWithNavigation(<TypingTest />)
+
+    expect(within(key('Delete')).getByText('X')).toBeInTheDocument()
+    expect(within(key('Space')).getByText('Y')).toBeInTheDocument()
+    expect(within(key('Caps Lock')).getByText('LB')).toBeInTheDocument()
+    expect(within(key('Search')).getByText('☰')).toBeInTheDocument()
+    expect(within(key('k')).queryByText('X')).not.toBeInTheDocument()
+  })
+
+  it('hides the gamepad buttons while the keyboard is in use', () => {
+    renderWithNavigation(<TypingTest />)
+
+    expect(within(key('Space')).queryByText('Y')).not.toBeInTheDocument()
   })
 
   it('types the pressed keys', async () => {
@@ -125,24 +143,24 @@ describe('OnScreenKeyboard', () => {
     expect(typed()).toBe('k')
   })
 
-  it('turns Shift on and off with its key and with the previous-section action', async () => {
+  it('turns Caps Lock on and off with its key and with the previous-section action', async () => {
     renderWithNavigation(<TypingTest />)
     const user = userEvent.setup()
 
-    await user.click(key('Shift'))
-    expect(key('Shift')).toHaveAttribute('aria-pressed', 'true')
+    await user.click(key('Caps Lock'))
+    expect(key('Caps Lock')).toHaveAttribute('aria-pressed', 'true')
     expect(key('Q')).toBeInTheDocument()
 
     await user.keyboard('q')
-    expect(key('Shift')).toHaveAttribute('aria-pressed', 'false')
+    expect(key('Caps Lock')).toHaveAttribute('aria-pressed', 'false')
     expect(key('q')).toBeInTheDocument()
   })
 
-  it('types uppercase letters while Shift is on', async () => {
+  it('types uppercase letters while Caps Lock is on', async () => {
     renderWithNavigation(<TypingTest />)
     const user = userEvent.setup()
 
-    await user.click(key('Shift'))
+    await user.click(key('Caps Lock'))
     await user.click(key('Q'))
 
     expect(typed()).toBe('Q')

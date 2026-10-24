@@ -57,7 +57,7 @@ When a request would push the UI toward "web" or "streaming", say so before impl
   contextual action over inventing a new one; the bindings live in the input layer.
 - **Temporary exception: the on-screen keyboard.** While it is open (a modal, where sections
   can't be switched and the system menu doesn't open), the previous-section action (LB)
-  toggles Shift and the system menu action (Start) submits the text, as console keyboards
+  toggles Caps Lock and the system menu action (Start) submits the text, as console keyboards
   do. This is a known exception to the fixed actions, to be replaced by an alternative later;
   do not extend it to other screens.
 - **Hints name actions, not buttons.** Screens show a hint by action (and, for contextual

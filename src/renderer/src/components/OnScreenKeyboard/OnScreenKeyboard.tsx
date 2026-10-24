@@ -8,9 +8,8 @@ import { KeyboardKeyButton } from './components/KeyboardKeyButton'
 import {
   ACTION_KEY,
   BACKSPACE_KEY,
-  KEYBOARD_KEYS,
-  SHIFT_KEY,
-  SPACE_KEY
+  KEY_SHORTCUTS,
+  KEYBOARD_KEYS
 } from './OnScreenKeyboard.constants'
 import type { KeyboardKey, OnScreenKeyboardProps } from './OnScreenKeyboard.types'
 import { keyId, typeKey } from './OnScreenKeyboard.utils'
@@ -29,21 +28,20 @@ export function OnScreenKeyboard({
   actionLabel
 }: OnScreenKeyboardProps): React.JSX.Element {
   const { t } = useTranslation()
-  const [shifted, setShifted] = useState(false)
+  const [capsLock, setCapsLock] = useState(false)
   const [focusedKey, setFocusedKey] = useState<string>()
   /** The key shown pressed, and the action whose button holds it down. */
   const [held, setHeld] = useState<{ key: string; action: InputAction }>()
 
   const pressKey = (keyboardKey: KeyboardKey, heldBy?: InputAction): void => {
     if (heldBy) setHeld({ key: keyId(keyboardKey), action: heldBy })
-    if (keyboardKey.kind === 'shift') setShifted(!shifted)
+    if (keyboardKey.kind === 'capsLock') setCapsLock(!capsLock)
     else if (keyboardKey.kind === 'action') onSubmit()
-    else onChange(typeKey(value, keyboardKey, shifted))
+    else onChange(typeKey(value, keyboardKey, capsLock))
   }
 
-  // LB and Start stand in for Shift and the action key while the keyboard is open (an
-  // exception to their fixed meaning, see the ilnamiki-ui skill). Confirming in a text field
-  // (Enter) submits too.
+  // Shortcut buttons press their key wherever focus is; confirming in a text field (Enter)
+  // submits too.
   useInputAction(
     (action, phase) => {
       if (phase === 'release') {
@@ -57,12 +55,11 @@ export function OnScreenKeyboard({
         if (deleting) pressKey(BACKSPACE_KEY)
         return
       }
-      if (action === 'secondary') pressKey(BACKSPACE_KEY, action)
-      if (action === 'tertiary') pressKey(SPACE_KEY, action)
-      if (action === 'prevSection') pressKey(SHIFT_KEY, action)
-      const confirmInField =
-        action === 'confirm' && document.activeElement instanceof HTMLInputElement
-      if (action === 'menu' || confirmInField) pressKey(ACTION_KEY, action)
+      const shortcut = KEY_SHORTCUTS.find((candidate) => candidate.action === action)
+      if (shortcut) pressKey(shortcut.key, action)
+      if (action === 'confirm' && document.activeElement instanceof HTMLInputElement) {
+        pressKey(ACTION_KEY, action)
+      }
     },
     { repeat: true, release: true }
   )
@@ -77,7 +74,7 @@ export function OnScreenKeyboard({
               key={id}
               keyboardKey={keyboardKey}
               actionLabel={actionLabel}
-              shifted={shifted}
+              capsLock={capsLock}
               pressed={held?.key === id}
               onPress={(byConfirm) => pressKey(keyboardKey, byConfirm ? 'confirm' : undefined)}
               onFocus={() => setFocusedKey(id)}

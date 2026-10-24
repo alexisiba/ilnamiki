@@ -152,6 +152,8 @@
   --icon-stroke: 2.25;
   --icon-stroke-thin: 1.5;
   --glyph-size: 36px;
+  /* Button glyphs inside other controls, e.g. on-screen keyboard keys. */
+  --glyph-size-sm: 26px;
 
   /* Effects */
   --blur-glass: 32px;
