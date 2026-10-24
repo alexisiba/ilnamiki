@@ -1,0 +1,25 @@
+.stats {
+  display: flex;
+  gap: var(--space-lg);
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: var(--font-label);
+  font-size: var(--label-sm-size);
+  font-weight: var(--label-sm-weight);
+  line-height: var(--label-sm-line-height);
+  letter-spacing: var(--label-sm-tracking);
+  font-variant-ligatures: none;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.icon {
+  flex-shrink: 0;
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+  stroke-width: var(--icon-stroke);
+}

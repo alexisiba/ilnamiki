@@ -1,0 +1,12 @@
+.app {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100%;
+  /* No bottom padding: the button guide bar sits at the bottom edge with its own height. */
+  padding: var(--layout-margin-top) var(--layout-margin) 0;
+}
+
+.screen {
+  display: grid;
+  min-height: 0;
+}

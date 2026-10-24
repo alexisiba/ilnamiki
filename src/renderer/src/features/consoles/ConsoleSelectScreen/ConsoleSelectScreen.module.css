@@ -1,0 +1,15 @@
+.screen {
+  display: grid;
+  align-content: center;
+  min-height: 0;
+}
+
+/* The top bar already shows the section; the heading names the screen for screen readers. */
+.heading {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

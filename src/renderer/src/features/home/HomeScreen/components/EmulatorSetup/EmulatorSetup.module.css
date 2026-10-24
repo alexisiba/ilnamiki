@@ -1,0 +1,37 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  width: var(--layout-panel-width);
+  padding: var(--space-3xl);
+  text-align: center;
+  background: linear-gradient(to bottom, var(--color-surface-highest), var(--color-surface-high));
+  border-top: 2px solid var(--color-primary-glow);
+  border-radius: var(--radius-xl);
+}
+
+.icon {
+  align-self: center;
+  width: var(--icon-size-xl);
+  height: var(--icon-size-xl);
+  stroke-width: var(--icon-stroke-thin);
+  color: var(--color-primary);
+  filter: drop-shadow(0 0 24px var(--color-primary-glow));
+}
+
+.title {
+  color: var(--color-text-focus);
+}
+
+.description {
+  font-size: var(--body-lg-size);
+  line-height: var(--body-lg-line-height);
+  color: var(--color-text-muted);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}

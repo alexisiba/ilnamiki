@@ -1,0 +1,81 @@
+/* Ten columns of keys; special keys span several of them. */
+.keyboard {
+  display: grid;
+  grid-template-columns: repeat(10, var(--key-width));
+  grid-auto-rows: var(--key-height);
+  gap: var(--space-xs);
+}
+
+.key {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface-glass-strong);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  font-family: var(--font-headline);
+  font-size: var(--headline-sm-size);
+  font-weight: var(--headline-sm-weight);
+  line-height: var(--headline-sm-line-height);
+  color: var(--color-text);
+  /* Only the focus glow eases; pressing fills and empties the key at once. */
+  transition:
+    border-color var(--duration-focus) var(--ease-focus),
+    box-shadow var(--duration-focus) var(--ease-focus);
+}
+
+/* This style is the focus indicator: the key fills only while pressed. */
+.key:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  color: var(--color-text-focus);
+  box-shadow: var(--shadow-glow);
+}
+
+/* Filled in primary exactly while held down, by a button or the pointer; over focus too. */
+.key.pressed,
+.key:active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-on-accent);
+}
+
+/* Caps Lock while it is on: lit in primary, without the focus glow. */
+.active {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* The key's gamepad button, smaller than in the button guide, in the top-right corner. */
+.shortcut {
+  --glyph-size: var(--glyph-size-sm);
+
+  position: absolute;
+  top: var(--space-xs);
+  right: var(--space-xs);
+  display: flex;
+}
+
+.icon {
+  width: var(--icon-size-md);
+  height: var(--icon-size-md);
+  stroke-width: var(--icon-stroke);
+}
+
+/* Wide enough for its icon and its gamepad button side by side. */
+.backspace {
+  grid-column: span 2;
+}
+
+.capsLock {
+  grid-column: span 2;
+}
+
+.space {
+  grid-column: span 5;
+}
+
+.action {
+  grid-column: span 3;
+}

@@ -1,0 +1,22 @@
+.glyph {
+  flex-shrink: 0;
+  width: var(--glyph-size);
+  height: var(--glyph-size);
+}
+
+.arm {
+  fill: var(--color-surface-highest);
+  stroke: var(--color-border-strong);
+  stroke-width: 0.5;
+}
+
+.armActive {
+  fill: var(--color-text);
+}
+
+/* Same surface and border colors as the other button glyphs. */
+.icon {
+  fill: var(--color-surface-highest);
+  stroke-width: var(--icon-stroke);
+  color: var(--color-border-strong);
+}

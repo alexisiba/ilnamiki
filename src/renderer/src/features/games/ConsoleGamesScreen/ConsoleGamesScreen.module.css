@@ -1,0 +1,47 @@
+/* Centered and capped in width, so the columns do not keep growing on ultrawide displays. */
+.screen {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: var(--space-lg);
+  width: 100%;
+  max-width: var(--layout-content-max-width);
+  min-height: 0;
+  justify-self: center;
+  padding-top: var(--space-md);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.title {
+  color: var(--color-text-focus);
+}
+
+.facts {
+  font-family: var(--font-label);
+  font-size: var(--label-md-size);
+  font-weight: var(--label-md-weight);
+  line-height: var(--label-md-line-height);
+  letter-spacing: var(--label-md-tracking);
+  font-variant-ligatures: none;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.columns {
+  display: grid;
+  /* The carousel takes the room; the details panel stays narrow enough to read. */
+  grid-template-columns: 2fr 1fr;
+  align-items: center;
+  gap: var(--layout-gutter);
+  min-height: 0;
+}
+
+.notFound {
+  font-size: var(--body-lg-size);
+  line-height: var(--body-lg-line-height);
+  color: var(--color-text-muted);
+}

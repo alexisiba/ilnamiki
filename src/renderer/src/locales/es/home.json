@@ -1,0 +1,20 @@
+{
+  "emulatorSetup": {
+    "title": "Configura tu primer emulador",
+    "description": "Ilnamiki necesita un emulador para jugar tus juegos. Te recomendamos RetroArch para comenzar: una sola descarga que soporta múltiples consolas.",
+    "actions": {
+      "download": "Descargar RetroArch",
+      "alreadyInstalled": "Ya tengo un emulador instalado"
+    }
+  },
+  "hero": {
+    "resume": "Retomar sesión",
+    "continue": "Continuar jugando"
+  },
+  "recentlyPlayed": {
+    "title": "Volver a jugar"
+  },
+  "recentlyAdded": {
+    "title": "Agregados recientemente"
+  }
+}

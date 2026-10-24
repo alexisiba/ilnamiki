@@ -1,0 +1,27 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.title {
+  font-size: var(--headline-sm-size);
+  font-weight: var(--headline-sm-weight);
+  line-height: var(--headline-sm-line-height);
+  letter-spacing: var(--headline-sm-tracking);
+  color: var(--color-text-focus);
+}
+
+.rail {
+  display: flex;
+  gap: var(--layout-gutter);
+  /*
+   * The rail scrolls horizontally, which also clips vertically. Extend it on every side and
+   * pad it back so the focused card's scale and glow are not cut, and pin the focused card
+   * to the same start line as the heading.
+   */
+  margin: calc(-1 * var(--layout-focus-bleed));
+  padding: var(--layout-focus-bleed);
+  overflow-x: auto;
+  scroll-padding-inline: var(--layout-focus-bleed);
+}

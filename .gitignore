@@ -4,3 +4,6 @@ out
 .DS_Store
 .eslintcache
 *.log*
+
+# Scratch files for local checks (driver scripts, screenshots)
+.tmp

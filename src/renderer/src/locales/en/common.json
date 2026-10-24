@@ -1,0 +1,64 @@
+{
+  "appName": "Ilnamiki",
+  "navigation": {
+    "home": "Home",
+    "library": "Library",
+    "settings": "Settings"
+  },
+  "glyphs": {
+    "menu": "Menu",
+    "options": "Options",
+    "cross": "Cross",
+    "circle": "Circle",
+    "square": "Square",
+    "triangle": "Triangle",
+    "dpad": {
+      "all": "D-pad",
+      "up": "D-pad up",
+      "down": "D-pad down",
+      "left": "D-pad left",
+      "right": "D-pad right"
+    }
+  },
+  "keys": {
+    "enter": "Enter",
+    "escape": "Esc",
+    "pageUp": "PgUp",
+    "pageDown": "PgDn",
+    "arrowUp": "Up arrow",
+    "arrowDown": "Down arrow",
+    "arrowLeft": "Left arrow",
+    "arrowRight": "Right arrow",
+    "arrows": "Arrow keys"
+  },
+  "status": {
+    "gamepadConnected": "Controller connected"
+  },
+  "playStats": {
+    "lastPlayed": "Last played {{time}}",
+    "playtime": "Total playtime: {{duration}}"
+  },
+  "duration": {
+    "hoursMinutes": "{{hours}} h {{minutes}} min",
+    "hours": "{{hours}} h",
+    "minutes": "{{minutes}} min"
+  },
+  "keyboard": {
+    "label": "Keyboard",
+    "capsLock": "Caps Lock",
+    "backspace": "Delete",
+    "space": "Space"
+  },
+  "carousel": {
+    "position": "{{position}} / {{total}}"
+  },
+  "buttonGuide": {
+    "label": "Controls",
+    "navigate": "Navigate",
+    "select": "Select",
+    "back": "Back",
+    "close": "Close",
+    "search": "Search",
+    "switchTab": "Switch tab"
+  }
+}

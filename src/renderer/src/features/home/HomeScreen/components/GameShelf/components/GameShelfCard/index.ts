@@ -1,0 +1,1 @@
+export { GameShelfCard } from './GameShelfCard'

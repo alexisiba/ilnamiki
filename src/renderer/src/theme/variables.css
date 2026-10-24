@@ -1,0 +1,176 @@
+/*
+ * Design tokens. Source of truth: DESIGN.md.
+ * Components must use these variables instead of hard-coded values.
+ */
+
+:root {
+  /* Colors: canvas and surfaces */
+  --color-surface-lowest: #07090e;
+  --color-background: #11131a;
+  --color-surface: #121624;
+  --color-surface-high: #1b1f2d;
+  --color-surface-highest: #252938;
+  --color-surface-glass: rgba(18, 22, 36, 0.65);
+  --color-surface-glass-strong: rgba(18, 22, 36, 0.85);
+  /* Barely visible light on the canvas behind the featured item of a screen. */
+  --color-spotlight: rgba(255, 255, 255, 0.14);
+
+  /* Colors: text */
+  --color-text-focus: #ffffff;
+  --color-text: #e2e2ec;
+  --color-text-muted: #94a3b8;
+  --color-text-dim: #6b7a90;
+
+  /* Colors: borders */
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-border-strong: rgba(255, 255, 255, 0.15);
+
+  /* Colors: accents */
+  --color-primary: #00d2ff;
+  --color-primary-glow: rgba(0, 210, 255, 0.45);
+  --color-secondary: #a855f7;
+  --color-secondary-tint: rgba(168, 85, 247, 0.2);
+  --color-tertiary: #00ffa3;
+  --color-on-accent: #0b0d14;
+
+  /* Colors: status */
+  --color-success: #00e290;
+  --color-success-glow: rgba(0, 226, 144, 0.45);
+  --color-success-container: #005231;
+  --color-on-success-container: #52ffac;
+  --color-warning: #ffba4b;
+  --color-warning-container: #624000;
+  --color-on-warning-container: #ffddb1;
+  --color-info: #a1c9ff;
+  --color-info-container: #004880;
+  --color-on-info-container: #d3e4ff;
+  --color-error: #ffb4ab;
+  --color-error-container: #93000a;
+  --color-on-error-container: #ffdad6;
+
+  /* Typography: families */
+  --font-headline: 'Outfit', 'Segoe UI', 'Noto Sans', sans-serif;
+  --font-body: 'Plus Jakarta Sans', 'Segoe UI', 'Noto Sans', sans-serif;
+  --font-label: 'JetBrains Mono', 'Consolas', 'DejaVu Sans Mono', monospace;
+
+  /* Typography: headline scale */
+  --headline-xl-size: 72px;
+  --headline-xl-line-height: 80px;
+  --headline-xl-weight: 700;
+  --headline-xl-tracking: -0.03em;
+
+  --headline-lg-size: 56px;
+  --headline-lg-line-height: 64px;
+  --headline-lg-weight: 700;
+  --headline-lg-tracking: -0.02em;
+
+  --headline-md-size: 40px;
+  --headline-md-line-height: 48px;
+  --headline-md-weight: 600;
+  --headline-md-tracking: -0.01em;
+
+  --headline-sm-size: 32px;
+  --headline-sm-line-height: 40px;
+  --headline-sm-weight: 600;
+  --headline-sm-tracking: 0;
+
+  /* Typography: body scale */
+  --body-lg-size: 28px;
+  --body-lg-line-height: 36px;
+  --body-md-size: 24px;
+  --body-md-line-height: 32px;
+  --body-weight: 400;
+
+  /* Typography: label scale (monospace, uppercase) */
+  --label-lg-size: 24px;
+  --label-lg-line-height: 32px;
+  --label-lg-weight: 500;
+  --label-lg-tracking: 0.05em;
+
+  --label-md-size: 20px;
+  --label-md-line-height: 28px;
+  --label-md-weight: 500;
+  --label-md-tracking: 0.08em;
+
+  --label-sm-size: 16px;
+  --label-sm-line-height: 20px;
+  --label-sm-weight: 700;
+  --label-sm-tracking: 0.1em;
+
+  /* Corner radius */
+  --radius-sm: 0.25rem;
+  --radius: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* Spacing */
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
+  --space-2xl: 4rem;
+  --space-3xl: 5rem;
+
+  /* Layout */
+  --layout-margin: 4rem;
+  --layout-margin-top: 2rem;
+  --layout-gutter: 2rem;
+  --layout-top-bar-height: 96px;
+  --layout-bottom-bar-height: 80px;
+  --layout-panel-width: 960px;
+  /* Widest content of a screen, so it stays centered on ultrawide displays. */
+  --layout-content-max-width: 2400px;
+  --layout-hero-height: 600px;
+  --layout-hero-content-width: 800px;
+  --layout-scroll-fade: 64px;
+  --layout-focus-bleed: 2rem;
+  --card-sm-width: 320px;
+  --card-sm-aspect-ratio: 4 / 3;
+  --console-width: 800px;
+  --console-aspect-ratio: 16 / 9;
+  /* Distance between the centers of neighboring consoles in the console carousel. */
+  --console-spacing: 640px;
+  --game-frame-width: 440px;
+  --game-frame-height: 330px;
+  /* Distance between the centers of neighboring games in the game carousel. */
+  --game-spacing: 320px;
+  /* On-screen keyboard: ten keys and their gaps match the panel width. */
+  --key-width: 88px;
+  --key-height: 72px;
+  --indicator-dot-size: 8px;
+  --indicator-line-width: 32px;
+
+  /* Icons */
+  --icon-size-xs: 14px;
+  --icon-size-sm: 20px;
+  --icon-size-md: 28px;
+  --icon-size-lg: 48px;
+  --icon-size-xl: 96px;
+  --icon-stroke: 2.25;
+  --icon-stroke-thin: 1.5;
+  --glyph-size: 36px;
+  /* Button glyphs inside other controls, e.g. on-screen keyboard keys. */
+  --glyph-size-sm: 26px;
+
+  /* Effects */
+  --blur-glass: 32px;
+  --blur-glass-strong: 40px;
+  --shadow-focus: 0 0 0 2px var(--color-primary), 0 0 30px var(--color-primary-glow);
+  /* Softer halo for scaled cards, so it fits inside the focus bleed of their rail. */
+  --shadow-focus-card: 0 0 0 2px var(--color-primary), 0 0 20px var(--color-primary-glow);
+  /* Cyan halo of a selected element that does not hold focus (e.g. the selected game). */
+  --shadow-glow: 0 0 30px var(--color-primary-glow);
+  --filter-dim: brightness(0.6) saturate(0.8);
+  /* Items set back behind the focused one in a carousel: smaller and faded. */
+  --scale-backdrop: 0.6;
+  --opacity-backdrop: 0.35;
+
+  /* Motion */
+  --ease-focus: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-focus: 180ms;
+  --duration-slide: 320ms;
+  --scale-focus: 1.05;
+}

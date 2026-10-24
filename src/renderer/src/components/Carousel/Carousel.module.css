@@ -1,0 +1,70 @@
+.carousel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  min-width: 0;
+}
+
+/* Every item shares one cell and slides from the center by its offset. */
+.stage {
+  position: relative;
+  display: grid;
+  width: 100%;
+  /* Clips neighbors at the edges without becoming a scroll container. */
+  overflow-x: clip;
+}
+
+.slot {
+  grid-area: 1 / 1;
+  justify-self: center;
+  opacity: var(--opacity-backdrop);
+  transform: translateX(calc(var(--offset) * var(--carousel-spacing))) scale(var(--scale-backdrop));
+  transition:
+    transform var(--duration-slide) var(--ease-focus),
+    opacity var(--duration-slide) var(--ease-focus),
+    visibility var(--duration-slide);
+}
+
+.current {
+  z-index: 1;
+  opacity: 1;
+  transform: none;
+}
+
+.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.dots {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.dot {
+  width: var(--indicator-dot-size);
+  height: var(--indicator-dot-size);
+  background: var(--color-text-dim);
+  border-radius: var(--radius-full);
+  transition:
+    width var(--duration-slide) var(--ease-focus),
+    background var(--duration-slide) var(--ease-focus);
+}
+
+/* A line, not only a color, marks the selected item. */
+.dotSelected {
+  width: var(--indicator-line-width);
+  background: var(--color-primary);
+  box-shadow: 0 0 var(--space-sm) var(--color-primary-glow);
+}
+
+.position {
+  font-family: var(--font-label);
+  font-size: var(--label-sm-size);
+  font-weight: var(--label-sm-weight);
+  line-height: var(--label-sm-line-height);
+  letter-spacing: var(--label-sm-tracking);
+  font-variant-ligatures: none;
+  color: var(--color-text-muted);
+}

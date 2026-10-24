@@ -1,0 +1,98 @@
+/* Barely visible circle of light behind the selected console, faded out at its edge. */
+.stage::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--console-width);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  background: radial-gradient(closest-side, var(--color-spotlight), transparent);
+  content: '';
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 0;
+}
+
+/* Sliding to the center at full size and brightness is the focus indicator. */
+.item:focus-visible {
+  outline: none;
+}
+
+/* A fixed frame, so renders of any proportion keep the name and details in place. */
+.image {
+  width: var(--console-width);
+  aspect-ratio: var(--console-aspect-ratio);
+  object-fit: contain;
+  filter: var(--filter-dim);
+  transition: filter var(--duration-slide) var(--ease-focus);
+}
+
+.selected .image {
+  filter: none;
+}
+
+/* Beside the selection the carousel fades it like the render, below AA contrast on purpose:
+   the selected name and the console list already expose it, and a bright name behind would
+   compete with the selection. */
+.name {
+  font-family: var(--font-headline);
+  font-size: var(--headline-xl-size);
+  font-weight: var(--headline-xl-weight);
+  line-height: var(--headline-xl-line-height);
+  letter-spacing: var(--headline-xl-tracking);
+  color: var(--color-text-dim);
+  transition: color var(--duration-slide) var(--ease-focus);
+}
+
+.selected .name {
+  color: var(--color-text-focus);
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.facts {
+  font-family: var(--font-label);
+  font-size: var(--label-md-size);
+  font-weight: var(--label-md-weight);
+  line-height: var(--label-md-line-height);
+  letter-spacing: var(--label-md-tracking);
+  font-variant-ligatures: none;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.games {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-md);
+  background: var(--color-surface-glass-strong);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  font-family: var(--font-label);
+  font-size: var(--label-md-size);
+  font-weight: var(--label-md-weight);
+  line-height: var(--label-md-line-height);
+  letter-spacing: var(--label-md-tracking);
+  font-variant-ligatures: none;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+
+.gamesDot {
+  width: var(--indicator-dot-size);
+  height: var(--indicator-dot-size);
+  background: var(--color-success);
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 var(--space-xs) var(--color-success-glow);
+}

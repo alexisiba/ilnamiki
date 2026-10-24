@@ -1,34 +1,36 @@
-import Versions from './components/Versions'
-import electronLogo from './assets/electron.svg'
+import { Outlet, useLocation, useNavigate } from 'react-router'
+
+import { ButtonGuide } from '@renderer/components/ButtonGuide'
+import { TopBar } from '@renderer/components/TopBar'
+import { useInputAction } from '@renderer/core/input'
+import { getSectionPath, isSectionRoot, NavigationProvider } from '@renderer/core/navigation'
+import { Search } from '@renderer/features/search'
+import styles from './App.module.css'
 
 function App(): React.JSX.Element {
-  const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
+  const { pathname } = useLocation()
+  const navigate = useNavigate()
+
+  // Back returns one level, from a screen inside a section to the section's root. It does not
+  // follow the history: tabs return to the screen a section was left on, so the previous
+  // entry may belong to another section. A section's root has nothing to go back to.
+  useInputAction((action) => {
+    if (action === 'back' && !isSectionRoot(pathname)) {
+      navigate(getSectionPath(pathname), { replace: true })
+    }
+  })
 
   return (
-    <>
-      <img alt="logo" className="logo" src={electronLogo} />
-      <div className="creator">Powered by electron-vite</div>
-      <div className="text">
-        Build an Electron app with <span className="react">React</span>
-        &nbsp;and <span className="ts">TypeScript</span>
+    <NavigationProvider scope={pathname}>
+      <div className={styles.app}>
+        <TopBar />
+        <main className={styles.screen}>
+          <Outlet />
+        </main>
+        <ButtonGuide />
       </div>
-      <p className="tip">
-        Please try pressing <code>F12</code> to open the devTool
-      </p>
-      <div className="actions">
-        <div className="action">
-          <a href="https://electron-vite.org/" target="_blank" rel="noreferrer">
-            Documentation
-          </a>
-        </div>
-        <div className="action">
-          <a target="_blank" rel="noreferrer" onClick={ipcHandle}>
-            Send IPC
-          </a>
-        </div>
-      </div>
-      <Versions></Versions>
-    </>
+      <Search />
+    </NavigationProvider>
   )
 }
 

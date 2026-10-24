@@ -1,0 +1,67 @@
+/* Centered and capped in width (artwork included), so it does not stretch on ultrawide displays. */
+.screen {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: var(--layout-content-max-width);
+  min-height: 0;
+  justify-self: center;
+}
+
+/* Artwork on the right, fading into the app background on every edge, as in the home hero. */
+.artwork {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 70%;
+  height: 100%;
+  object-fit: cover;
+  mask-image:
+    linear-gradient(to right, transparent, black 45%, black 85%, transparent),
+    linear-gradient(to bottom, transparent, black 20%, black 75%, transparent);
+  mask-composite: intersect;
+}
+
+.content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  max-width: var(--layout-hero-content-width);
+}
+
+.title {
+  color: var(--color-text-focus);
+}
+
+.facts {
+  font-family: var(--font-label);
+  font-size: var(--label-md-size);
+  font-weight: var(--label-md-weight);
+  line-height: var(--label-md-line-height);
+  letter-spacing: var(--label-md-tracking);
+  font-variant-ligatures: none;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+
+.description {
+  font-size: var(--body-lg-size);
+  line-height: var(--body-lg-line-height);
+  color: var(--color-text-muted);
+}
+
+.stats {
+  margin-top: var(--space-sm);
+}
+
+.play {
+  margin-top: var(--space-md);
+}
+
+.notFound {
+  font-size: var(--body-lg-size);
+  line-height: var(--body-lg-line-height);
+  color: var(--color-text-muted);
+}

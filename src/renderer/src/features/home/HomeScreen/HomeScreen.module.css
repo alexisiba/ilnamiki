@@ -1,0 +1,78 @@
+.emptyState {
+  display: grid;
+  place-items: center;
+}
+
+/* Animatable fade sizes for the scroll edges (registered so keyframes can interpolate them). */
+@property --home-fade-top {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --home-fade-bottom {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+/* Holds every home section and grows downward, scrolling inside the screen area. */
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  min-height: 0;
+  /*
+   * A scroll container also clips horizontally, which would cut the focus glow of elements
+   * on its sides. Extend it into the side margins and pad it back, so content stays aligned
+   * with the safe area and only the glow uses that space.
+   */
+  margin-inline: calc(-1 * var(--layout-focus-bleed));
+  padding: var(--space-lg) var(--layout-focus-bleed) 0;
+  overflow-y: auto;
+  /* Keep scrolled-to elements (e.g. the focused one) out of the faded edges. */
+  scroll-padding-block: var(--layout-scroll-fade);
+
+  /*
+   * Content fades out near an edge only while there is more content hidden past it:
+   * the top fade grows over the first scrolled pixels and the bottom fade shrinks over the
+   * last ones. When nothing overflows, the timeline is inactive and neither edge fades.
+   */
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black var(--home-fade-top),
+    black calc(100% - var(--home-fade-bottom)),
+    transparent
+  );
+  animation:
+    home-fade-top linear both,
+    home-fade-bottom linear both;
+  animation-timeline: scroll(self), scroll(self);
+  animation-range:
+    0 var(--layout-scroll-fade),
+    calc(100% - var(--layout-scroll-fade)) 100%;
+}
+
+@keyframes home-fade-top {
+  from {
+    --home-fade-top: 0px;
+  }
+  to {
+    --home-fade-top: var(--layout-scroll-fade);
+  }
+}
+
+@keyframes home-fade-bottom {
+  from {
+    --home-fade-bottom: var(--layout-scroll-fade);
+  }
+  to {
+    --home-fade-bottom: 0px;
+  }
+}
+
+/* Sections keep their size and overflow into the scroll instead of shrinking. */
+.content > * {
+  flex-shrink: 0;
+}

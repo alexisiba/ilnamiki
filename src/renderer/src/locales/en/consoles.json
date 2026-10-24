@@ -1,0 +1,6 @@
+{
+  "carousel": {
+    "gamesInstalled_one": "{{count}} game installed",
+    "gamesInstalled_other": "{{count}} games installed"
+  }
+}
