@@ -1,9 +1,8 @@
-import { execFile } from 'child_process'
 import { readFile } from 'fs/promises'
-import { promisify } from 'util'
 
 import type { ControllersApi } from '@shared/api'
 
+import { callMethod, getProperties } from '../../../core/busctl'
 import {
   parseInputControllers,
   parseUPowerBattery,
@@ -13,10 +12,7 @@ import {
 } from './linux.parsers'
 
 const INPUT_DEVICES_PATH = '/proc/bus/input/devices'
-const BUSCTL_TIMEOUT_MS = 2000
 const UPOWER = 'org.freedesktop.UPower'
-
-const execFileAsync = promisify(execFile)
 
 /** Reads controllers from the kernel's input devices and their batteries from UPower. */
 export const linuxControllersProvider: ControllersApi = {
@@ -33,12 +29,12 @@ export const linuxControllersProvider: ControllersApi = {
 async function readUPowerBatteries(): Promise<UPowerBattery[]> {
   try {
     const paths = parseUPowerDevicePaths(
-      await busctl(['call', UPOWER, '/org/freedesktop/UPower', UPOWER, 'EnumerateDevices'])
+      await callMethod(UPOWER, '/org/freedesktop/UPower', UPOWER, 'EnumerateDevices')
     )
     const batteries = await Promise.all(
       paths.map(async (path) =>
         parseUPowerBattery(
-          await busctl(['get-property', UPOWER, path, `${UPOWER}.Device`, 'Serial', 'Percentage'])
+          await getProperties(UPOWER, path, `${UPOWER}.Device`, ['Serial', 'Percentage'])
         )
       )
     )
@@ -48,11 +44,4 @@ async function readUPowerBatteries(): Promise<UPowerBattery[]> {
     console.warn('Could not read controller batteries from UPower:', error)
     return []
   }
-}
-
-async function busctl(args: string[]): Promise<string> {
-  const { stdout } = await execFileAsync('busctl', ['--system', '--json=short', ...args], {
-    timeout: BUSCTL_TIMEOUT_MS
-  })
-  return stdout
 }

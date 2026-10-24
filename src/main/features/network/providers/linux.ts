@@ -1,10 +1,9 @@
-import { execFile } from 'child_process'
 import { access, readFile } from 'fs/promises'
 import { join } from 'path'
-import { promisify } from 'util'
 
 import type { NetworkApi } from '@shared/api'
 
+import { getProperties } from '../../../core/busctl'
 import {
   parseDefaultRouteInterfaces,
   parseNetworkManagerInternet,
@@ -16,10 +15,7 @@ const IPV4_ROUTES_PATH = '/proc/net/route'
 const IPV6_ROUTES_PATH = '/proc/net/ipv6_route'
 const WIRELESS_PATH = '/proc/net/wireless'
 const INTERFACES_PATH = '/sys/class/net'
-const BUSCTL_TIMEOUT_MS = 2000
 const NETWORK_MANAGER = 'org.freedesktop.NetworkManager'
-
-const execFileAsync = promisify(execFile)
 
 /**
  * Reads the default routes and the Wi-Fi signal from the kernel, what kind of interface each
@@ -61,21 +57,13 @@ async function exists(path: string): Promise<boolean> {
 /** Whether NetworkManager reaches the internet, or null without NetworkManager or its check. */
 async function readNetworkManagerInternet(): Promise<boolean | null> {
   try {
-    const { stdout } = await execFileAsync(
-      'busctl',
-      [
-        '--system',
-        '--json=short',
-        'get-property',
-        NETWORK_MANAGER,
-        '/org/freedesktop/NetworkManager',
-        NETWORK_MANAGER,
-        'Connectivity',
-        'ConnectivityCheckEnabled'
-      ],
-      { timeout: BUSCTL_TIMEOUT_MS }
+    const output = await getProperties(
+      NETWORK_MANAGER,
+      '/org/freedesktop/NetworkManager',
+      NETWORK_MANAGER,
+      ['Connectivity', 'ConnectivityCheckEnabled']
     )
-    return parseNetworkManagerInternet(stdout)
+    return parseNetworkManagerInternet(output)
   } catch {
     // Systems without NetworkManager simply can't tell.
     return null

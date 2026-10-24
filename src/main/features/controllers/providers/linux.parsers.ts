@@ -1,5 +1,7 @@
 import type { ControllerConnection, ControllerStatus } from '@shared/api'
 
+import { parseBusctlValues } from '../../../core/busctl'
+
 /** A controller as listed by the kernel's input subsystem. */
 export interface LinuxController {
   connection: ControllerConnection | null
@@ -47,25 +49,19 @@ function parseInputDevice(block: string): LinuxController | null {
   }
 }
 
-/** Device object paths in the output of `busctl --json=short call … EnumerateDevices`. */
+/** Device object paths in the output of UPower's `EnumerateDevices` through busctl. */
 export function parseUPowerDevicePaths(output: string): string[] {
-  const reply: unknown = JSON.parse(output)
-  if (!isBusctlValue(reply) || !Array.isArray(reply.data) || !Array.isArray(reply.data[0])) {
-    return []
-  }
-  return reply.data[0].filter((path): path is string => typeof path === 'string')
+  const [returnValues] = parseBusctlValues(output)
+  if (!Array.isArray(returnValues) || !Array.isArray(returnValues[0])) return []
+  return returnValues[0].filter((path): path is string => typeof path === 'string')
 }
 
 /**
- * Battery in the output of `busctl --json=short get-property … Serial Percentage`, one JSON
- * value per line in that order, or null when the device reports no usable serial.
+ * Battery in the output of reading a UPower device's `Serial` and `Percentage` through busctl,
+ * or null when the device reports no usable serial.
  */
 export function parseUPowerBattery(output: string): UPowerBattery | null {
-  const [serial, percent] = output
-    .split('\n')
-    .filter((line) => line.trim() !== '')
-    .map((line): unknown => JSON.parse(line))
-    .map((value) => (isBusctlValue(value) ? value.data : undefined))
+  const [serial, percent] = parseBusctlValues(output)
 
   if (typeof serial !== 'string' || serial === '' || typeof percent !== 'number') return null
 
@@ -84,8 +80,4 @@ export function toControllerStatuses(
     connection,
     batteryPercent: batteries.find((battery) => battery.serial === address)?.percent ?? null
   }))
-}
-
-function isBusctlValue(value: unknown): value is { data: unknown } {
-  return typeof value === 'object' && value !== null && 'data' in value
 }

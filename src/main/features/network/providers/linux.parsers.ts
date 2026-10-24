@@ -1,5 +1,7 @@
 import type { NetworkStatus } from '@shared/api'
 
+import { parseBusctlValues } from '../../../core/busctl'
+
 /** A network interface as described in `/sys/class/net`. */
 export interface LinuxInterface {
   name: string
@@ -78,24 +80,16 @@ const CONNECTIVITY_UNKNOWN = 0
 const CONNECTIVITY_FULL = 4
 
 /**
- * Whether the internet is reachable, from the output of `busctl --json=short get-property …
- * Connectivity ConnectivityCheckEnabled` (one JSON value per line in that order), or null when
- * NetworkManager doesn't check it.
+ * Whether the internet is reachable, from the output of reading NetworkManager's
+ * `Connectivity` and `ConnectivityCheckEnabled` through busctl, or null when NetworkManager
+ * doesn't check it.
  */
 export function parseNetworkManagerInternet(output: string): boolean | null {
-  const [connectivity, checkEnabled] = output
-    .split('\n')
-    .filter((line) => line.trim() !== '')
-    .map((line): unknown => JSON.parse(line))
-    .map((value) => (isBusctlValue(value) ? value.data : undefined))
+  const [connectivity, checkEnabled] = parseBusctlValues(output)
 
   if (checkEnabled !== true || typeof connectivity !== 'number') return null
   if (connectivity === CONNECTIVITY_UNKNOWN) return null
   return connectivity === CONNECTIVITY_FULL
-}
-
-function isBusctlValue(value: unknown): value is { data: unknown } {
-  return typeof value === 'object' && value !== null && 'data' in value
 }
 
 /** What the provider read from the system besides the routes. */
