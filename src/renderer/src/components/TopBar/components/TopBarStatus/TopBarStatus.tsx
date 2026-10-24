@@ -1,9 +1,10 @@
-import { Gamepad2, Wifi } from 'lucide-react'
+import { Gamepad2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { useGamepadConnected } from '@renderer/core/input'
 
 import { ControllerPower } from './components/ControllerPower'
+import { NetworkStatusIcon } from './components/NetworkStatusIcon'
 import { useCurrentTime } from './TopBarStatus.hooks'
 import styles from './TopBarStatus.module.css'
 
@@ -19,7 +20,7 @@ export function TopBarStatus(): React.JSX.Element {
 
   return (
     <div className={styles.status}>
-      <Wifi className={styles.icon} aria-hidden />
+      <NetworkStatusIcon />
       {gamepadConnected && (
         <span className={styles.group}>
           <Gamepad2 className={styles.icon} role="img" aria-label={t('status.gamepadConnected')} />

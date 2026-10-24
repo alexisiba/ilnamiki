@@ -1,7 +1,7 @@
 import { act, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { mockControllerStatus } from '@renderer/test/api'
+import { mockControllerStatus, mockNetworkStatus } from '@renderer/test/api'
 import { connectGamepad, type FakeGamepad } from '@renderer/test/gamepad'
 
 import { TopBarStatus } from './TopBarStatus'
@@ -13,6 +13,9 @@ const wiredIcon = (): HTMLElement | null =>
   screen.queryByRole('img', { name: 'Connected by cable' })
 
 const batteryIcon = (): HTMLElement | null => screen.queryByRole('img', { name: /^Battery/ })
+
+const networkIcon = (): HTMLElement | null =>
+  screen.queryByRole('img', { name: /Wi-Fi|Ethernet|network/ })
 
 /** Renders and lets the controller status request answer. */
 async function renderStatus(): Promise<void> {
@@ -55,6 +58,62 @@ describe('TopBarStatus', () => {
     act(() => first.disconnect())
 
     expect(gamepadIcon()).toBeInTheDocument()
+  })
+
+  describe('network', () => {
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it.each([
+      ['wifi', 'Wi-Fi connected'],
+      ['ethernet', 'Ethernet connected'],
+      ['none', 'No network connection']
+    ] as const)('shows the %s connection', async (connection, name) => {
+      mockNetworkStatus({ connection })
+      await renderStatus()
+
+      expect(networkIcon()).toHaveAccessibleName(name)
+    })
+
+    it('shows nothing when the system does not say how it is connected', async () => {
+      mockNetworkStatus({ connection: null })
+      await renderStatus()
+
+      expect(networkIcon()).not.toBeInTheDocument()
+    })
+
+    it('shows nothing when the status request fails', async () => {
+      mockNetworkStatus(new Error('No routing table'))
+      await renderStatus()
+
+      expect(networkIcon()).not.toBeInTheDocument()
+    })
+
+    it('refreshes when the browser notices the network change', async () => {
+      mockNetworkStatus({ connection: 'wifi' })
+      await renderStatus()
+
+      mockNetworkStatus({ connection: 'none' })
+      await act(async () => {
+        window.dispatchEvent(new Event('offline'))
+      })
+
+      expect(networkIcon()).toHaveAccessibleName('No network connection')
+    })
+
+    it('refreshes the connection every 10 seconds', async () => {
+      vi.useFakeTimers()
+      mockNetworkStatus({ connection: 'wifi' })
+      await renderStatus()
+
+      mockNetworkStatus({ connection: 'ethernet' })
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(10_000)
+      })
+
+      expect(networkIcon()).toHaveAccessibleName('Ethernet connected')
+    })
   })
 
   describe('controller power', () => {

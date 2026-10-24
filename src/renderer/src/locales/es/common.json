@@ -34,7 +34,10 @@
   "status": {
     "gamepadConnected": "Mando conectado",
     "controllerWired": "Conectado por cable",
-    "controllerBattery": "Batería {{percent}} %"
+    "controllerBattery": "Batería {{percent}} %",
+    "networkWifi": "Wi-Fi conectado",
+    "networkEthernet": "Ethernet conectado",
+    "networkNone": "Sin conexión de red"
   },
   "playStats": {
     "lastPlayed": "Última sesión {{time}}",
