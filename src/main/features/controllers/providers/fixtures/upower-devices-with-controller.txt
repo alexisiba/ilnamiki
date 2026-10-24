@@ -1,0 +1,1 @@
+{"type":"ao","data":[["/org/freedesktop/UPower/devices/battery_BAT0","/org/freedesktop/UPower/devices/line_power_AC","/org/freedesktop/UPower/devices/line_power_ucsi_source_psy_USBC000o001","/org/freedesktop/UPower/devices/line_power_ucsi_source_psy_USBC000o002","/org/freedesktop/UPower/devices/gaming_input_dev_3C_FA_06_05_DC_79"]]}

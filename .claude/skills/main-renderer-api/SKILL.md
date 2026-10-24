@@ -77,13 +77,13 @@ export const CONTROLLERS_CHANNELS = {
 
 ## 3. Platform providers
 
-A provider implements the domain for one platform behind one internal interface:
+A provider implements the domain's contract interface for one platform:
 
 ```ts
 // src/main/features/controllers/controllers.service.ts
 import { selectForPlatform } from '../../core/platform'
 
-export const controllersService: ControllersProvider = selectForPlatform(
+export const controllersService: ControllersApi = selectForPlatform(
   { linux: linuxControllersProvider },
   unsupportedControllersProvider
 )

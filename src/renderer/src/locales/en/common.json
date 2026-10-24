@@ -32,7 +32,9 @@
     "arrows": "Arrow keys"
   },
   "status": {
-    "gamepadConnected": "Controller connected"
+    "gamepadConnected": "Controller connected",
+    "controllerWired": "Connected by cable",
+    "controllerBattery": "Battery {{percent}}%"
   },
   "playStats": {
     "lastPlayed": "Last played {{time}}",

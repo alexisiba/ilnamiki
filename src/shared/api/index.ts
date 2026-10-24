@@ -1,5 +1,11 @@
+import type { ControllersApi } from './controllers'
+
+export * from './controllers'
+
 /**
  * Everything the main process exposes to the renderer on `window.api`, one key per domain
- * (see the `main-renderer-api` skill). Empty until the first domain is added.
+ * (see the `main-renderer-api` skill).
  */
-export type Api = Record<string, never>
+export interface Api {
+  controllers: ControllersApi
+}

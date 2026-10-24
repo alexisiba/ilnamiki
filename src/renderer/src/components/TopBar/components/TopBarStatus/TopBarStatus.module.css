@@ -19,6 +19,12 @@
   stroke-width: var(--icon-stroke);
 }
 
+/* The USB glyph fills its box more than the other icons, so it is drawn smaller to match them. */
+.wiredIcon {
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+}
+
 .clock {
   font-family: var(--font-label);
   font-size: var(--label-lg-size);

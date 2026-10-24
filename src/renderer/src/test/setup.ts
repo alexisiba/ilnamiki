@@ -1,11 +1,12 @@
 import '@testing-library/jest-dom/vitest'
 
 import { cleanup } from '@testing-library/react'
-import { afterEach, beforeAll } from 'vitest'
+import { afterEach, beforeAll, beforeEach } from 'vitest'
 
 import i18n, { DEFAULT_LANGUAGE } from '@renderer/core/i18n'
 import { DEFAULT_INPUT_DEVICE, setActiveInputDevice } from '@renderer/core/input/activeDevice'
 
+import { mockApi } from './api'
 import { disconnectAllGamepads, getFakeGamepads } from './gamepad'
 import { getMockedRect } from './layout'
 
@@ -38,6 +39,10 @@ Object.defineProperty(navigator, 'getGamepads', {
 
 beforeAll(async () => {
   await i18n.changeLanguage(DEFAULT_LANGUAGE)
+})
+
+beforeEach(() => {
+  mockApi()
 })
 
 afterEach(() => {

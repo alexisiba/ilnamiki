@@ -1,12 +1,24 @@
 import { act, render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { mockControllerStatus } from '@renderer/test/api'
 import { connectGamepad, type FakeGamepad } from '@renderer/test/gamepad'
 
 import { TopBarStatus } from './TopBarStatus'
 
 const gamepadIcon = (): HTMLElement | null =>
   screen.queryByRole('img', { name: 'Controller connected' })
+
+const wiredIcon = (): HTMLElement | null =>
+  screen.queryByRole('img', { name: 'Connected by cable' })
+
+const batteryIcon = (): HTMLElement | null => screen.queryByRole('img', { name: /^Battery/ })
+
+/** Renders and lets the controller status request answer. */
+async function renderStatus(): Promise<void> {
+  render(<TopBarStatus />)
+  await act(async () => {})
+}
 
 describe('TopBarStatus', () => {
   it('shows no controller icon while no gamepad is connected', () => {
@@ -43,5 +55,103 @@ describe('TopBarStatus', () => {
     act(() => first.disconnect())
 
     expect(gamepadIcon()).toBeInTheDocument()
+  })
+
+  describe('controller power', () => {
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('shows the cable when the controller is connected by USB', async () => {
+      mockControllerStatus([{ connection: 'usb', batteryPercent: null }])
+      connectGamepad()
+      await renderStatus()
+
+      expect(wiredIcon()).toBeInTheDocument()
+      expect(batteryIcon()).not.toBeInTheDocument()
+    })
+
+    it('shows the battery level when the controller is connected by Bluetooth', async () => {
+      mockControllerStatus([{ connection: 'bluetooth', batteryPercent: 90 }])
+      connectGamepad()
+      await renderStatus()
+
+      expect(screen.getByRole('img', { name: 'Battery 90%' })).toBeInTheDocument()
+      expect(wiredIcon()).not.toBeInTheDocument()
+    })
+
+    it('shows nothing when a Bluetooth controller does not report its battery', async () => {
+      mockControllerStatus([{ connection: 'bluetooth', batteryPercent: null }])
+      connectGamepad()
+      await renderStatus()
+
+      expect(batteryIcon()).not.toBeInTheDocument()
+      expect(wiredIcon()).not.toBeInTheDocument()
+    })
+
+    it('shows nothing when the system does not say how the controller is connected', async () => {
+      mockControllerStatus([{ connection: null, batteryPercent: 50 }])
+      connectGamepad()
+      await renderStatus()
+
+      expect(batteryIcon()).not.toBeInTheDocument()
+      expect(wiredIcon()).not.toBeInTheDocument()
+    })
+
+    it('shows nothing when the status request fails', async () => {
+      mockControllerStatus(new Error('UPower is not running'))
+      connectGamepad()
+      await renderStatus()
+
+      expect(batteryIcon()).not.toBeInTheDocument()
+      expect(wiredIcon()).not.toBeInTheDocument()
+    })
+
+    it('shows the first controller when several are connected', async () => {
+      mockControllerStatus([
+        { connection: 'bluetooth', batteryPercent: 35 },
+        { connection: 'usb', batteryPercent: null }
+      ])
+      connectGamepad()
+      await renderStatus()
+
+      expect(screen.getByRole('img', { name: 'Battery 35%' })).toBeInTheDocument()
+      expect(wiredIcon()).not.toBeInTheDocument()
+    })
+
+    it('shows no power while no gamepad is connected', async () => {
+      mockControllerStatus([{ connection: 'usb', batteryPercent: null }])
+      await renderStatus()
+
+      expect(wiredIcon()).not.toBeInTheDocument()
+    })
+
+    it('refreshes the battery level every minute', async () => {
+      vi.useFakeTimers()
+      mockControllerStatus([{ connection: 'bluetooth', batteryPercent: 90 }])
+      connectGamepad()
+      await renderStatus()
+
+      mockControllerStatus([{ connection: 'bluetooth', batteryPercent: 85 }])
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(60_000)
+      })
+
+      expect(screen.getByRole('img', { name: 'Battery 85%' })).toBeInTheDocument()
+    })
+
+    it('refreshes when the controller reconnects by another way', async () => {
+      mockControllerStatus([{ connection: 'bluetooth', batteryPercent: 90 }])
+      const gamepad = connectGamepad()
+      await renderStatus()
+
+      mockControllerStatus([{ connection: 'usb', batteryPercent: null }])
+      await act(async () => {
+        gamepad.disconnect()
+        connectGamepad()
+      })
+
+      expect(wiredIcon()).toBeInTheDocument()
+    })
   })
 })

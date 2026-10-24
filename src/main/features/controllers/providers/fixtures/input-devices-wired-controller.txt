@@ -1,0 +1,42 @@
+I: Bus=0019 Vendor=0000 Product=0005 Version=0000
+N: Name="Lid Switch"
+P: Phys=PNP0C0D/button/input0
+S: Sysfs=/devices/platform/PNP0C0D:00/input/input0
+U: Uniq=
+H: Handlers=event0 
+B: PROP=0
+B: EV=21
+B: SW=1
+
+I: Bus=0019 Vendor=0000 Product=0001 Version=0000
+N: Name="Power Button"
+P: Phys=PNP0C0C/button/input0
+S: Sysfs=/devices/platform/PNP0C0C:00/input/input1
+U: Uniq=
+H: Handlers=kbd event1 
+B: PROP=0
+B: EV=3
+B: KEY=8000 10000000000000 0
+
+I: Bus=0019 Vendor=0000 Product=0003 Version=0000
+N: Name="Sleep Button"
+P: Phys=PNP0C0E/button/input0
+S: Sysfs=/devices/platform/PNP0C0E:00/input/input2
+U: Uniq=
+H: Handlers=kbd event2 
+B: PROP=0
+B: EV=3
+B: KEY=4000 0 0
+
+I: Bus=0003 Vendor=045e Product=0b12 Version=0517
+N: Name="Microsoft Xbox Series S|X Controller"
+P: Phys=usb-0000:00:14.0-4/input0
+S: Sysfs=/devices/pci0000:00/0000:00:14.0/usb3/3-4/3-4:1.0/input/input86
+U: Uniq=
+H: Handlers=kbd event28 js0 
+B: PROP=0
+B: EV=20000b
+B: KEY=7cdb000000000000 0 8000000000 0 0
+B: ABS=3003f
+B: FF=107030000 0
+

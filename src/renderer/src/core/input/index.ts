@@ -6,6 +6,7 @@ export {
   type InputDevice,
   type InputPhase
 } from './input'
+export { subscribeToGamepadConnection } from './gamepadConnection'
 export { InputScope, type InputScopeProps } from './InputScope'
 export type { ActionBinding, ContextualAction, FixedAction, ScreenActions } from './screenActions'
 export { useActionEnabled } from './useActionEnabled'
