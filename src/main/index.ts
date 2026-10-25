@@ -57,7 +57,7 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // Before the features that read it. Nothing uses it yet, so the app still opens without it.
+  // Before the features that read it.
   try {
     initDatabase(app.getPath('userData'))
   } catch (error) {
