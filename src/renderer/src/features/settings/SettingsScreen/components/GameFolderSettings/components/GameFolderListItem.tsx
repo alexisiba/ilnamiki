@@ -10,10 +10,12 @@ import styles from '../GameFolderSettings.module.css'
 /**
  * A game folder: its platform, then how many games were saved from it and, when the folder
  * is no longer there (moved, deleted or on a drive that is out), that it isn't available.
+ * Confirming it opens its details.
  */
 export function GameFolderListItem({
   folder,
-  platformName
+  platformName,
+  onOpen
 }: GameFolderListItemProps): React.JSX.Element {
   const { t } = useTranslation('settings')
   const { ref } = useFocusable<HTMLButtonElement>({ id: folder.id })
@@ -28,6 +30,7 @@ export function GameFolderListItem({
       className={styles.item}
       aria-labelledby={platformId}
       aria-describedby={folder.isAvailable ? countId : `${countId} ${unavailableId}`}
+      onClick={onOpen}
     >
       <span id={platformId} className={styles.platform}>
         {platformName}

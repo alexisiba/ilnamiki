@@ -7,6 +7,7 @@ import {
   ADD_EMULATOR_PATH,
   ADD_GAME_FOLDER_PATH,
   getEmulatorDetailsPath,
+  getGameFolderDetailsPath,
   isSectionRoot,
   useGroupFocus,
   useOpenScreen,
@@ -91,6 +92,7 @@ export function SettingsScreen(): React.JSX.Element {
               <GameFolderSettings
                 onSetUpEmulator={() => focusCategories('emulators')}
                 onAdd={() => openScreen(ADD_GAME_FOLDER_PATH)}
+                onOpen={(folderId) => openScreen(getGameFolderDetailsPath(folderId))}
               />
             )}
           </div>

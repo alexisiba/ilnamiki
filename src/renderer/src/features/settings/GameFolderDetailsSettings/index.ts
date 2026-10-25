@@ -1,0 +1,1 @@
+export { GameFolderDetailsSettings } from './GameFolderDetailsSettings'

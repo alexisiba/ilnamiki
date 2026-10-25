@@ -39,7 +39,9 @@ const FOLDERS: GameFolder[] = [
 
 /** Renders the game folders and waits for the folders and platforms to be read. */
 async function renderGameFolders(props: Partial<GameFolderSettingsProps> = {}): Promise<void> {
-  render(<GameFolderSettings onSetUpEmulator={vi.fn()} onAdd={vi.fn()} {...props} />)
+  render(
+    <GameFolderSettings onSetUpEmulator={vi.fn()} onAdd={vi.fn()} onOpen={vi.fn()} {...props} />
+  )
   await vi.waitFor(() => {
     expect(getGameFoldersState().status).not.toBe('loading')
     expect(getPlatformsState().status).not.toBe('loading')
@@ -82,6 +84,17 @@ describe('GameFolderSettings', () => {
     expect(screen.getAllByText('Folder not available')).toHaveLength(1)
   })
 
+  it('opens a folder’s details when it is clicked', async () => {
+    const onOpen = vi.fn()
+    mockGameFolders(FOLDERS)
+    mockPlatforms([NINTENDO_64])
+    await renderGameFolders({ onOpen })
+
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Nintendo 64' }))
+
+    expect(onOpen).toHaveBeenCalledWith('f1')
+  })
+
   it('offers to add a folder below the list', async () => {
     mockGameFolders(FOLDERS)
     await renderGameFolders()
@@ -109,7 +122,7 @@ describe('GameFolderSettings', () => {
 
   it('shows nothing until the folders and platforms are read, so no empty view flashes', () => {
     vi.mocked(window.api.library.listFolders).mockReturnValue(new Promise(() => {}))
-    render(<GameFolderSettings onSetUpEmulator={vi.fn()} onAdd={vi.fn()} />)
+    render(<GameFolderSettings onSetUpEmulator={vi.fn()} onAdd={vi.fn()} onOpen={vi.fn()} />)
 
     expect(emptyTitle()).not.toBeInTheDocument()
     expect(addFolder()).not.toBeInTheDocument()

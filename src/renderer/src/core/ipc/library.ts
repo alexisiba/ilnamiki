@@ -1,4 +1,4 @@
-import type { ScanFolderRequest, ScanFolderResult, ScanProgress } from '@shared/api'
+import type { FolderGame, ScanFolderRequest, ScanFolderResult, ScanProgress } from '@shared/api'
 
 /**
  * Asks the user to choose a folder of games with the system's folder picker: its absolute
@@ -14,6 +14,19 @@ export function pickGameFolder(): Promise<string | null> {
  */
 export function scanGameFolder(request: ScanFolderRequest): Promise<ScanFolderResult> {
   return window.api.library.scanFolder(request)
+}
+
+/**
+ * Finds the games in a folder the user added, at its path and for its platform, or says why
+ * it can't. Like `scanGameFolder`, it cancels the scan running and reports its progress.
+ */
+export function rescanGameFolder(folderId: string): Promise<ScanFolderResult> {
+  return window.api.library.rescanFolder(folderId)
+}
+
+/** The games saved from a folder, by title. */
+export function listFolderGames(folderId: string): Promise<FolderGame[]> {
+  return window.api.library.listFolderGames(folderId)
 }
 
 /** Cancels the running scan, which then resolves as `cancelled`. */

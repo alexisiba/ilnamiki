@@ -1,14 +1,16 @@
-import type { AddFolderProblem, ScanFolderProblem } from '@shared/api'
+import type { AddFolderProblem, ScanFolderProblem, UpdateFolderProblem } from '@shared/api'
 
 /**
- * Why a folder couldn't be scanned, as the form explains it below the path: what main
- * reports (a cancelled scan is never shown), a path that isn't absolute, or a failure to
- * reach main.
+ * Why a folder couldn't be scanned, as Settings explains it: what main reports (a cancelled
+ * scan is never shown), a path that isn't absolute, or a failure to reach main.
  */
 export type FolderScanProblem = Exclude<ScanFolderProblem, 'cancelled'> | 'relative-path' | 'failed'
 
-/** Why a scanned folder couldn't be saved: what main reports, or a failure to reach main. */
-export type FolderSaveProblem = AddFolderProblem | 'failed'
+/**
+ * Why a scanned folder couldn't be saved, added or updated: what main reports, or a failure
+ * to reach main.
+ */
+export type FolderSaveProblem = AddFolderProblem | UpdateFolderProblem | 'failed'
 
 const SCAN_MESSAGE_KEYS: Record<FolderScanProblem, string> = {
   'relative-path': 'addGameFolder.problems.relativePath',
@@ -18,6 +20,7 @@ const SCAN_MESSAGE_KEYS: Record<FolderScanProblem, string> = {
   'unknown-platform': 'addGameFolder.problems.unknownPlatform',
   'already-added': 'addGameFolder.problems.alreadyAdded',
   'platform-has-folder': 'addGameFolder.problems.platformHasFolder',
+  'unknown-folder': 'addGameFolder.problems.unknownFolder',
   failed: 'addGameFolder.problems.failed'
 }
 
@@ -26,6 +29,7 @@ const SAVE_MESSAGE_KEYS: Record<FolderSaveProblem, string> = {
   'already-added': 'folderScan.saveProblems.alreadyAdded',
   'platform-has-folder': 'folderScan.saveProblems.platformHasFolder',
   'no-games': 'folderScan.saveProblems.noGames',
+  'unknown-folder': 'folderScan.saveProblems.unknownFolder',
   failed: 'folderScan.saveProblems.failed'
 }
 

@@ -51,6 +51,8 @@ export type ScanFolderProblem =
   | 'platform-has-folder'
   /** The scan was cancelled, or replaced by a newer one. */
   | 'cancelled'
+  /** Scanning a folder again: it isn't one of the user's folders (e.g. it was removed). */
+  | 'unknown-folder'
 
 export type ScanFolderResult =
   { ok: true; scan: FolderScan } | { ok: false; problem: ScanFolderProblem }
@@ -81,6 +83,27 @@ export type AddFolderProblem =
 
 export type AddFolderResult =
   { ok: true; folder: GameFolder } | { ok: false; problem: AddFolderProblem }
+
+/** Why a folder scanned again couldn't be updated. */
+export type UpdateFolderProblem =
+  /** The scan isn't the latest one (a newer scan replaced it), or never existed. */
+  | 'unknown-scan'
+  /** The folder isn't one of the user's folders anymore (e.g. it was removed). */
+  | 'unknown-folder'
+  /** The scan found no playable game. */
+  | 'no-games'
+
+export type UpdateFolderResult =
+  { ok: true; folder: GameFolder } | { ok: false; problem: UpdateFolderProblem }
+
+/** A game saved from a folder. Its data comes from the files and is never translated. */
+export interface FolderGame {
+  id: string
+  /** Title shown in the app, e.g. "Crash Bandicoot (USA)". */
+  title: string
+  /** Absolute path of the file the emulator opens. */
+  filePath: string
+}
 
 /** How far the running scan is. */
 export interface ScanProgress {
@@ -113,6 +136,19 @@ export interface LibraryApi {
   addFolder(scanId: string): Promise<AddFolderResult>
   /** The folders the user added, oldest first. */
   listFolders(): Promise<GameFolder[]>
+  /** The games saved from a folder, by title; none when it isn't one of the user's folders. */
+  listFolderGames(folderId: string): Promise<FolderGame[]>
+  /**
+   * Finds the games in a folder the user added, at its path and for its platform, as
+   * `scanFolder` does (with its progress and one scan at a time), or says why it can't.
+   */
+  rescanFolder(folderId: string): Promise<ScanFolderResult>
+  /**
+   * Updates the folder of the latest scan made with `rescanFolder` to its playable games:
+   * new ones are added, those no longer found are removed (keeping their history) and the
+   * rest stay as they were. Says why when it can't.
+   */
+  updateFolder(scanId: string): Promise<UpdateFolderResult>
 }
 
 export const LIBRARY_CHANNELS = {
@@ -121,5 +157,8 @@ export const LIBRARY_CHANNELS = {
   cancelScan: 'library:cancel-scan',
   scanProgress: 'library:scan-progress',
   addFolder: 'library:add-folder',
-  listFolders: 'library:list-folders'
+  listFolders: 'library:list-folders',
+  listFolderGames: 'library:list-folder-games',
+  rescanFolder: 'library:rescan-folder',
+  updateFolder: 'library:update-folder'
 } as const

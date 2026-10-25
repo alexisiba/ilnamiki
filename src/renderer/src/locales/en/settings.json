@@ -100,8 +100,18 @@
       "unknownPlatform": "No installed core plays this platform anymore. Choose another one.",
       "alreadyAdded": "This folder is already added.",
       "platformHasFolder": "This platform already has a folder.",
+      "unknownFolder": "This folder is no longer in Ilnamiki.",
       "failed": "The folder couldn't be scanned. Try again."
     }
+  },
+  "gameFolderDetails": {
+    "path": "Folder path",
+    "games": "Games",
+    "noGames": "No games were saved from this folder.",
+    "gamesFailed": "The games couldn't be loaded. Try again later.",
+    "back": "Back",
+    "rescan": "Scan again",
+    "notFound": "This folder is no longer in Ilnamiki."
   },
   "folderScan": {
     "scanning": "Scanning folder",
@@ -119,11 +129,13 @@
     "emptyIndex": "It doesn't point to any file. Check that it's the right file.",
     "back": "Back",
     "save": "Save folder",
+    "saveChanges": "Save changes",
     "saveProblems": {
       "unknownScan": "This scan is no longer valid. Go back and scan the folder again.",
       "alreadyAdded": "This folder was added in the meantime.",
       "platformHasFolder": "This platform got a folder in the meantime.",
       "noGames": "There are no playable games to save.",
+      "unknownFolder": "This folder is no longer in Ilnamiki.",
       "failed": "The folder couldn't be saved. Try again."
     }
   }

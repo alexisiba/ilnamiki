@@ -3,11 +3,11 @@ import { useTranslation } from 'react-i18next'
 
 import type { ScanFolderRequest } from '@shared/api'
 
-import { useGameFolders, usePlatforms } from '@renderer/core/ipc'
+import { addGameFolder, scanGameFolder, useGameFolders, usePlatforms } from '@renderer/core/ipc'
 import { useBackStep, useGoBack } from '@renderer/core/navigation'
 
-import { scanProblemMessageKey, type FolderScanProblem } from './AddGameFolderSettings.utils'
-import { FolderScanResults } from './components/FolderScanResults'
+import { FolderScanResults } from '../components/FolderScanResults'
+import { scanProblemMessageKey, type FolderScanProblem } from '../utils/gameFolderProblems'
 import { GameFolderForm } from './components/GameFolderForm'
 
 /**
@@ -39,8 +39,11 @@ export function AddGameFolderSettings(): React.JSX.Element {
     const platform = platforms.find(({ id }) => id === request.platformId)
     return (
       <FolderScanResults
-        request={request}
+        path={request.path}
         platformName={platform?.name ?? request.platformId}
+        scan={() => scanGameFolder(request)}
+        save={addGameFolder}
+        saveLabel={t('folderScan.save')}
         onBack={returnToForm}
         onFailed={(scanProblem) => {
           setProblem(scanProblem)

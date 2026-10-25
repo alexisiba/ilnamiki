@@ -23,6 +23,13 @@ export interface GameToSave {
   title: string
 }
 
+/** A game in a folder, as it is stored. */
+export interface GameRecord {
+  id: string
+  filePath: string
+  title: string
+}
+
 interface FolderRow {
   id: string
   path: string
@@ -54,6 +61,12 @@ export interface LibraryRepository {
    * and history, back in this folder with its title updated.
    */
   saveGames(folderId: string, platformId: string, games: GameToSave[], now: number): void
+  /** The games in the folder `folderId` (not the removed ones), by title. */
+  listGames(folderId: string): GameRecord[]
+  /** Marks the games `ids` removed at `now`, out of their folder, keeping their history. */
+  removeGames(ids: string[], now: number): void
+  /** Records that the folder `id` changed at `now`. */
+  touchFolder(id: string, now: number): void
   findFolderById(id: string): FolderWithGameCount | undefined
   findFolderByPath(path: string): FolderWithGameCount | undefined
   findFolderByPlatform(platformId: string): FolderWithGameCount | undefined
@@ -87,6 +100,27 @@ export function createLibraryRepository(db: DatabaseSync): LibraryRepository {
       for (const game of games) {
         save.run(game.id, folderId, platformId, game.filePath, game.title, now)
       }
+    },
+
+    listGames(folderId) {
+      const rows = db
+        .prepare(
+          `SELECT id, file_path, title FROM games WHERE folder_id = ?
+            ORDER BY title COLLATE NOCASE, file_path`
+        )
+        .all(folderId) as unknown as { id: string; file_path: string; title: string }[]
+      return rows.map((row) => ({ id: row.id, filePath: row.file_path, title: row.title }))
+    },
+
+    removeGames(ids, now) {
+      const remove = db.prepare(
+        'UPDATE games SET folder_id = NULL, removed_at = ? WHERE id = ? AND folder_id IS NOT NULL'
+      )
+      for (const id of ids) remove.run(now, id)
+    },
+
+    touchFolder(id, now) {
+      db.prepare('UPDATE library_folders SET updated_at = ? WHERE id = ?').run(now, id)
     },
 
     findFolderById: (id) => findFolder('f.id', id),

@@ -8,8 +8,8 @@ const PATH_MAX_LENGTH = 4096
 /** Platform ids are short words, e.g. "nintendo_64". */
 const PLATFORM_ID_PATTERN = /^[\w-]{1,100}$/
 
-/** Scan ids are UUIDs. */
-const SCAN_ID_PATTERN = /^[0-9a-f-]{36}$/
+/** Scan and folder ids are UUIDs. */
+const ID_PATTERN = /^[0-9a-f-]{36}$/
 
 /**
  * `value` as a request to scan a folder, its path written one way only (e.g. without a
@@ -28,5 +28,10 @@ export function parseScanFolderRequest(value: unknown): ScanFolderRequest | null
 
 /** `value` as a scan id, or null when it can't be one. */
 export function parseScanId(value: unknown): string | null {
-  return typeof value === 'string' && SCAN_ID_PATTERN.test(value) ? value : null
+  return typeof value === 'string' && ID_PATTERN.test(value) ? value : null
+}
+
+/** `value` as a folder id, or null when it can't be one. */
+export function parseFolderId(value: unknown): string | null {
+  return typeof value === 'string' && ID_PATTERN.test(value) ? value : null
 }

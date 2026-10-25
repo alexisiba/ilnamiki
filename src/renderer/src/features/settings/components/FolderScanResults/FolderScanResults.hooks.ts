@@ -1,15 +1,11 @@
 import { useEffect, useEffectEvent, useState } from 'react'
 
-import type { FolderScan, ScanFolderRequest } from '@shared/api'
+import type { FolderScan, ScanFolderResult } from '@shared/api'
 
-import {
-  addGameFolder,
-  cancelGameFolderScan,
-  scanGameFolder,
-  subscribeToScanProgress
-} from '@renderer/core/ipc'
+import { cancelGameFolderScan, subscribeToScanProgress } from '@renderer/core/ipc'
 
-import type { FolderSaveProblem, FolderScanProblem } from '../../AddGameFolderSettings.utils'
+import type { FolderSaveProblem, FolderScanProblem } from '../../utils/gameFolderProblems'
+import type { FolderScanSaveResult } from './FolderScanResults.types'
 
 export interface FolderScanState {
   /** What the scan found, or null while it runs. */
@@ -18,7 +14,7 @@ export interface FolderScanState {
   percent: number
   /** How many of the games found can be played (and saved). */
   playableCount: number
-  /** Whether the folder can be saved: the scan found a playable game and nothing is saving. */
+  /** Whether the scan can be saved: it found a playable game and nothing is saving. */
   canSave: boolean
   /** Why the last attempt to save failed, if it did. */
   saveProblem: FolderSaveProblem | undefined
@@ -26,12 +22,13 @@ export interface FolderScanState {
 }
 
 /**
- * Scans `request`'s folder as soon as it mounts, following its progress, and cancels the scan
- * if it unmounts first (e.g. on back). A scan that fails calls `onFailed`; saving calls
- * `onSaved` once the folder is added.
+ * Starts the scan with `startScan` as soon as it mounts, following its progress, and cancels
+ * the scan if it unmounts first (e.g. on back). A scan that fails calls `onFailed`; saving
+ * with `saveScan` calls `onSaved` once it is saved.
  */
 export function useFolderScan(
-  request: ScanFolderRequest,
+  startScan: () => Promise<ScanFolderResult>,
+  saveScan: (scanId: string) => Promise<FolderScanSaveResult>,
   onFailed: (problem: FolderScanProblem) => void,
   onSaved: () => void
 ): FolderScanState {
@@ -39,6 +36,7 @@ export function useFolderScan(
   const [percent, setPercent] = useState(0)
   const [saving, setSaving] = useState(false)
   const [saveProblem, setSaveProblem] = useState<FolderSaveProblem>()
+  const start = useEffectEvent(startScan)
   const fail = useEffectEvent(onFailed)
 
   useEffect(() => {
@@ -47,7 +45,7 @@ export function useFolderScan(
       if (running) setPercent(progress.percent)
     })
 
-    scanGameFolder(request)
+    start()
       .then((result) => {
         if (!running) return
         running = false
@@ -66,7 +64,7 @@ export function useFolderScan(
       if (running) void cancelGameFolderScan()
       running = false
     }
-  }, [request])
+  }, [])
 
   const playableCount = scan ? scan.games.filter((game) => game.problem === null).length : 0
 
@@ -75,7 +73,7 @@ export function useFolderScan(
     setSaving(true)
     setSaveProblem(undefined)
     try {
-      const result = await addGameFolder(scan.id)
+      const result = await saveScan(scan.id)
       if (result.ok) {
         onSaved()
         return

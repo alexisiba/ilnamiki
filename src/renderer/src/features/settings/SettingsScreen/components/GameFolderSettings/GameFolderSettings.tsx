@@ -11,15 +11,16 @@ import type { GameFolderSettingsProps } from './GameFolderSettings.types'
 import styles from './GameFolderSettings.module.css'
 
 /**
- * The folders Ilnamiki finds games in, each with its platform and how many games it has, and
- * the action to add one. With no folders, it says how to get the first one: by setting up an
+ * The folders Ilnamiki finds games in, each with its platform and how many games it has and
+ * opening its details, and the action to add one. With no folders, it says how to get the first one: by setting up an
  * emulator while no core is installed, else with Add folder. Until the folders and platforms
  * are read it shows nothing, so neither view flashes; when the folders can't be read, it says
  * so. It has no heading of its own: the selected category already names it.
  */
 export function GameFolderSettings({
   onSetUpEmulator,
-  onAdd
+  onAdd,
+  onOpen
 }: GameFolderSettingsProps): React.JSX.Element {
   const { t } = useTranslation('settings')
   const { status, folders } = useGameFolders()
@@ -43,6 +44,7 @@ export function GameFolderSettings({
               <GameFolderListItem
                 folder={folder}
                 platformName={platformNameOf(folder.platformId)}
+                onOpen={() => onOpen(folder.id)}
               />
             </li>
           ))}

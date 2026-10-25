@@ -6,9 +6,11 @@ export {
   CONSOLE_GAMES_PATH,
   EMULATOR_DETAILS_PATH,
   GAME_DETAILS_PATH,
+  GAME_FOLDER_DETAILS_PATH,
   getConsoleGamesPath,
   getEmulatorDetailsPath,
   getGameDetailsPath,
+  getGameFolderDetailsPath,
   getSectionPath,
   isSectionRoot,
   SECTION_PATHS

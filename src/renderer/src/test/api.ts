@@ -3,6 +3,7 @@ import { vi } from 'vitest'
 import type {
   AddEmulatorResult,
   AddFolderResult,
+  FolderGame,
   GameFolder,
   ChangeEmulatorPathResult,
   ControllerStatus,
@@ -10,7 +11,8 @@ import type {
   InspectEmulatorResult,
   InstalledPlatform,
   NetworkStatus,
-  ScanFolderResult
+  ScanFolderResult,
+  UpdateFolderResult
 } from '@shared/api'
 
 /**
@@ -48,7 +50,16 @@ export function mockApi(): void {
         ok: false,
         problem: 'unknown-scan'
       })),
-      listFolders: vi.fn(async (): Promise<GameFolder[]> => [])
+      listFolders: vi.fn(async (): Promise<GameFolder[]> => []),
+      listFolderGames: vi.fn(async (): Promise<FolderGame[]> => []),
+      rescanFolder: vi.fn(async (): Promise<ScanFolderResult> => ({
+        ok: false,
+        problem: 'unknown-folder'
+      })),
+      updateFolder: vi.fn(async (): Promise<UpdateFolderResult> => ({
+        ok: false,
+        problem: 'unknown-scan'
+      }))
     },
     network: {
       getStatus: vi.fn(async (): Promise<NetworkStatus> => ({
@@ -152,6 +163,34 @@ export function mockGameFolders(folders: GameFolder[] | Error): void {
 /** Makes `window.api.library.addFolder` resolve with `result`, or reject with an error. */
 export function mockAddGameFolder(result: AddFolderResult | Error): void {
   vi.mocked(window.api.library.addFolder).mockImplementation(async () => {
+    if (result instanceof Error) throw result
+    return result
+  })
+}
+
+/**
+ * Makes `window.api.library.rescanFolder` resolve with `result`, reject with an error, or,
+ * with `'pending'`, never answer, as a scan still running.
+ */
+export function mockRescanFolder(result: ScanFolderResult | Error | 'pending'): void {
+  vi.mocked(window.api.library.rescanFolder).mockImplementation(() => {
+    if (result === 'pending') return new Promise(() => {})
+    if (result instanceof Error) return Promise.reject(result)
+    return Promise.resolve(result)
+  })
+}
+
+/** Makes `window.api.library.listFolderGames` resolve with `games`, or reject with an error. */
+export function mockFolderGames(games: FolderGame[] | Error): void {
+  vi.mocked(window.api.library.listFolderGames).mockImplementation(async () => {
+    if (games instanceof Error) throw games
+    return games
+  })
+}
+
+/** Makes `window.api.library.updateFolder` resolve with `result`, or reject with an error. */
+export function mockUpdateGameFolder(result: UpdateFolderResult | Error): void {
+  vi.mocked(window.api.library.updateFolder).mockImplementation(async () => {
     if (result instanceof Error) throw result
     return result
   })

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { parseScanFolderRequest, parseScanId } from './library.validation'
+import { parseFolderId, parseScanFolderRequest, parseScanId } from './library.validation'
 
 describe('parseScanFolderRequest', () => {
   it('accepts an absolute path and a platform id', () => {
@@ -44,5 +44,18 @@ describe('parseScanId', () => {
   it('rejects anything else', () => {
     expect(parseScanId('latest')).toBeNull()
     expect(parseScanId(42)).toBeNull()
+  })
+})
+
+describe('parseFolderId', () => {
+  it('accepts a folder id', () => {
+    expect(parseFolderId('0b6c7b5e-3f43-4c1e-9d2a-6f0e8a1b2c3d')).toBe(
+      '0b6c7b5e-3f43-4c1e-9d2a-6f0e8a1b2c3d'
+    )
+  })
+
+  it('rejects anything else', () => {
+    expect(parseFolderId("' OR 1=1 --")).toBeNull()
+    expect(parseFolderId(null)).toBeNull()
   })
 })

@@ -103,6 +103,45 @@ describe('library repository', () => {
     expect(gameRows()).toHaveLength(2)
   })
 
+  it('lists the games in a folder by title, leaving out removed ones and other folders', () => {
+    const repository = createLibraryRepository(db)
+    repository.insertFolder(PS1_FOLDER)
+    repository.insertFolder(N64_FOLDER)
+    const ape = { id: 'g3', filePath: '/home/player/Games/PS1/ape.chd', title: 'ape Escape' }
+    repository.saveGames(PS1_FOLDER.id, 'playstation', [TEKKEN, CRASH, ape], 1)
+    repository.saveGames(N64_FOLDER.id, 'nintendo_64', [{ ...CRASH, id: 'g4' }], 1)
+    repository.removeGames(['g2'], 2)
+
+    expect(repository.listGames(PS1_FOLDER.id)).toEqual([ape, CRASH])
+    expect(repository.listGames('missing')).toEqual([])
+  })
+
+  it('marks games removed out of their folder, keeping them', () => {
+    const repository = createLibraryRepository(db)
+    repository.insertFolder(PS1_FOLDER)
+    repository.saveGames(PS1_FOLDER.id, 'playstation', [CRASH, TEKKEN], 1)
+
+    repository.removeGames(['g1'], 5)
+
+    expect(gameRows()).toEqual([
+      { id: 'g1', folder_id: null, title: 'Crash', removed_at: 5 },
+      { id: 'g2', folder_id: 'f1', title: 'Tekken 3', removed_at: null }
+    ])
+    expect(repository.findFolderById('f1')?.gameCount).toBe(1)
+  })
+
+  it('records when a folder changed', () => {
+    const repository = createLibraryRepository(db)
+    repository.insertFolder(PS1_FOLDER)
+
+    repository.touchFolder(PS1_FOLDER.id, 1_900_000_000_000)
+
+    expect(repository.findFolderById('f1')).toMatchObject({
+      createdAt: PS1_FOLDER.createdAt,
+      updatedAt: 1_900_000_000_000
+    })
+  })
+
   it('refuses to delete a folder until its games are marked removed', () => {
     const repository = createLibraryRepository(db)
     repository.insertFolder(PS1_FOLDER)

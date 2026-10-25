@@ -1,4 +1,4 @@
-import type { AddFolderResult, GameFolder } from '@shared/api'
+import type { AddFolderResult, GameFolder, UpdateFolderResult } from '@shared/api'
 
 /** The game folders shown across the app, as last read from main. */
 export interface GameFoldersState {
@@ -30,6 +30,13 @@ export async function refreshGameFolders(): Promise<void> {
 /** Adds the folder of the latest scan; once added, the game folders are read again. */
 export async function addGameFolder(scanId: string): Promise<AddFolderResult> {
   const result = await window.api.library.addFolder(scanId)
+  if (result.ok) await refreshGameFolders()
+  return result
+}
+
+/** Updates a folder to its latest scan made again; once updated, the folders are read again. */
+export async function updateGameFolder(scanId: string): Promise<UpdateFolderResult> {
+  const result = await window.api.library.updateFolder(scanId)
   if (result.ok) await refreshGameFolders()
   return result
 }

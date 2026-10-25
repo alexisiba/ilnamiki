@@ -1,11 +1,11 @@
-import { BrowserWindow, ipcMain } from 'electron'
+import { BrowserWindow, ipcMain, type IpcMainInvokeEvent } from 'electron'
 
 import { LIBRARY_CHANNELS } from '@shared/api'
 
 import { pickPath } from '../../core/dialogs'
 import { createProgressReporter } from './library.progress'
 import { libraryService } from './library.service'
-import { parseScanFolderRequest, parseScanId } from './library.validation'
+import { parseFolderId, parseScanFolderRequest, parseScanId } from './library.validation'
 
 /** Answers the renderer's `library` requests, after checking what it sends. */
 export function registerLibraryIpc(): void {
@@ -15,14 +15,21 @@ export function registerLibraryIpc(): void {
   )
 
   // The progress goes to the window that asked for the scan.
+  const progressReporterFor = (event: IpcMainInvokeEvent): ((fraction: number) => void) =>
+    createProgressReporter((progress) => {
+      if (!event.sender.isDestroyed()) event.sender.send(LIBRARY_CHANNELS.scanProgress, progress)
+    })
+
   ipcMain.handle(LIBRARY_CHANNELS.scanFolder, (event, value: unknown) => {
     const request = parseScanFolderRequest(value)
     if (request === null) throw new Error('library.scanFolder got an invalid request')
+    return libraryService.scanFolder(request, progressReporterFor(event))
+  })
 
-    const reportProgress = createProgressReporter((progress) => {
-      if (!event.sender.isDestroyed()) event.sender.send(LIBRARY_CHANNELS.scanProgress, progress)
-    })
-    return libraryService.scanFolder(request, reportProgress)
+  ipcMain.handle(LIBRARY_CHANNELS.rescanFolder, (event, value: unknown) => {
+    const folderId = parseFolderId(value)
+    if (folderId === null) throw new Error('library.rescanFolder needs a folder id')
+    return libraryService.rescanFolder(folderId, progressReporterFor(event))
   })
 
   ipcMain.handle(LIBRARY_CHANNELS.cancelScan, () => libraryService.cancelScan())
@@ -33,5 +40,17 @@ export function registerLibraryIpc(): void {
     return libraryService.addFolder(scanId)
   })
 
+  ipcMain.handle(LIBRARY_CHANNELS.updateFolder, (_event, value: unknown) => {
+    const scanId = parseScanId(value)
+    if (scanId === null) throw new Error('library.updateFolder needs a scan id')
+    return libraryService.updateFolder(scanId)
+  })
+
   ipcMain.handle(LIBRARY_CHANNELS.listFolders, () => libraryService.listFolders())
+
+  ipcMain.handle(LIBRARY_CHANNELS.listFolderGames, (_event, value: unknown) => {
+    const folderId = parseFolderId(value)
+    if (folderId === null) throw new Error('library.listFolderGames needs a folder id')
+    return libraryService.listFolderGames(folderId)
+  })
 }
