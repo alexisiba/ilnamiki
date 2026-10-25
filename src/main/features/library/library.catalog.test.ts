@@ -20,24 +20,30 @@ const SWANSTATION_EXTENSIONS = [
 
 describe('gameExtensionsOf', () => {
   it('leaves out PlayStation executables and sound files', () => {
-    expect([...gameExtensionsOf('playstation', SWANSTATION_EXTENSIONS)]).toEqual([
-      'cue',
-      'bin',
-      'img',
-      'iso',
-      'chd',
-      'pbp',
-      'ecm',
-      'mds',
-      'm3u'
-    ])
+    const extensions = gameExtensionsOf('playstation', SWANSTATION_EXTENSIONS)
+
+    expect(extensions.has('exe')).toBe(false)
+    expect(extensions.has('psexe')).toBe(false)
+    expect(extensions.has('psf')).toBe(false)
+    expect(extensions.has('cue')).toBe(true)
   })
 
-  it('keeps every extension of a platform without exceptions', () => {
+  it('takes archives as games, though the cores don’t declare them', () => {
     expect([...gameExtensionsOf('nintendo_64', ['n64', 'z64', 'bin'])]).toEqual([
       'n64',
       'z64',
-      'bin'
+      'bin',
+      'zip',
+      '7z'
+    ])
+  })
+
+  it('lists an archive once when a core also declares it', () => {
+    expect([...gameExtensionsOf('hbmame', ['zip', 'chd', '7z', 'cmd'])]).toEqual([
+      'zip',
+      'chd',
+      '7z',
+      'cmd'
     ])
   })
 })

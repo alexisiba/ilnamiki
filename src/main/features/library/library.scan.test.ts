@@ -192,6 +192,15 @@ describe('findGames', () => {
     ])
   })
 
+  it('finds archives as games when the platform’s extensions include them', () => {
+    const extensions = new Set(['n64', 'z64', 'zip', '7z'])
+
+    expect(scan(extensions, ['Super Mario 64 (USA).zip', 'Wave Race 64.7z'])).toEqual([
+      ok('Super Mario 64 (USA)', 'Super Mario 64 (USA).zip'),
+      ok('Wave Race 64', 'Wave Race 64.7z')
+    ])
+  })
+
   it('lists the same game in two formats twice', () => {
     expect(scan(PLAYSTATION, ['Tekken 3.chd', 'Tekken 3.pbp'])).toEqual([
       ok('Tekken 3', 'Tekken 3.chd'),
