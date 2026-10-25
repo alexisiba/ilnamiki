@@ -1,4 +1,4 @@
-import type { DetectedCore } from './platforms.types'
+import type { DetectedCore } from './installedPlatforms.types'
 
 /** RetroArch's value for a setting left to its default, e.g. `libretro_directory = "default"`. */
 const DEFAULT_VALUE = 'default'

@@ -13,8 +13,8 @@ import type {
 } from '@shared/api'
 
 import { getDatabase } from '../../core/database'
+import { createEmulatorsRepository, type EmulatorRecord } from '../../core/emulators'
 import { selectForPlatform } from '../../core/platform'
-import { createEmulatorsRepository, type EmulatorRecord } from './emulators.repository'
 import type { EmulatorIcon } from './emulators.types'
 import { linuxEmulatorDetector } from './providers/linux'
 import { unsupportedEmulatorDetector } from './providers/unsupported'

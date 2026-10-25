@@ -1,6 +1,6 @@
 import type { InstalledCore, InstalledPlatform } from '@shared/api'
 
-import type { EmulatorCores } from './platforms.types'
+import type { EmulatorCores } from './installedPlatforms.types'
 
 const byName = (a: { name: string }, b: { name: string }): number =>
   a.name.localeCompare(b.name, 'en', { sensitivity: 'base' })

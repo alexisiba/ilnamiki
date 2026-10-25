@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { groupByPlatform } from './platforms.grouping'
-import type { DetectedCore } from './platforms.types'
+import { groupByPlatform } from './installedPlatforms.grouping'
+import type { DetectedCore } from './installedPlatforms.types'
 
 const SNES9X: DetectedCore = {
   id: 'snes9x',

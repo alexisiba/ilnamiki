@@ -70,6 +70,8 @@ src/main/core/database/
   connection.ts      ← the app's connection: initDatabase, getDatabase, closeDatabase
 src/main/features/<domain>/
   <domain>.repository.ts   ← the domain's SQL: reads rows, returns contract data
+src/main/core/<domain>/
+  <domain>.repository.ts   ← a domain's SQL that more than one feature uses
 ```
 
 - Only main touches the database. The renderer gets data through the domain's API
@@ -77,6 +79,11 @@ src/main/features/<domain>/
 - Each domain keeps its SQL in its own `<domain>.repository.ts`, which uses `getDatabase()`
   and converts between rows and the contract's types. Services and IPC handlers call the
   repository; nothing else writes SQL.
+- **A repository lives as close as possible to the code that uses it**, as utils do
+  (`utils-placement`). Used by one feature, it lives in that feature. Used by more than one,
+  it moves to `src/main/core/<domain>/` (e.g. `core/emulators/emulators.repository.ts`, which
+  the emulators feature and the reading of installed platforms share), because features
+  never import from each other and nothing shared lives in `features/`.
 - The file is `ilnamiki.db` in the app's user data folder (`app.getPath('userData')`).
 
 ## 3. Migrations

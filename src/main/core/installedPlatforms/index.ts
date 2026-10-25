@@ -1,0 +1,1 @@
+export { listInstalledPlatforms } from './installedPlatforms'

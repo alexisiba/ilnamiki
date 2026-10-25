@@ -2,7 +2,7 @@ import { readdir, readFile, stat } from 'fs/promises'
 import { homedir } from 'os'
 import { join } from 'path'
 
-import type { CoresReader, DetectedCore } from '../platforms.types'
+import type { CoresReader, DetectedCore } from '../installedPlatforms.types'
 import { parseCoreFolders, parseCoreInfo } from '../retroarch.parsers'
 import { coreIdOf, coreInfoFileOf, resolveRetroArchFolder } from './linux.parsers'
 

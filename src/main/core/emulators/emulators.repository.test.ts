@@ -1,7 +1,7 @@
 import type { DatabaseSync } from 'node:sqlite'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-import { openDatabase } from '../../core/database'
+import { openDatabase } from '../database'
 import { createEmulatorsRepository, type EmulatorRecord } from './emulators.repository'
 
 const RETROARCH: EmulatorRecord = {
