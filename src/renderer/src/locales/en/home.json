@@ -9,6 +9,14 @@
     "description": "Your emulator is ready, but it can't play any console yet. Set it up to add the consoles you want to play; in RetroArch, by installing their cores.",
     "setUp": "Go to emulator settings"
   },
+  "gameSetup": {
+    "title": "Add your games",
+    "description": "Your emulator is ready. Add a folder with your games to start playing.",
+    "emulators": "Your emulators",
+    "linkedConsoles_one": "{{count}} console linked",
+    "linkedConsoles_other": "{{count}} consoles linked",
+    "setUp": "Go to Settings"
+  },
   "hero": {
     "resume": "Resume session",
     "continue": "Continue playing"

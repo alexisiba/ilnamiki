@@ -227,6 +227,12 @@ The interface balances sharp technological edges with modern living-room ergonom
 - Smooth hardware-accelerated translation with snappy dampening.
 - Out-of-focus cards smoothly transition their imagery to the Dimming Filter (text keeps its contrast tokens) with border radiance disabled.
 
+### Home First Run
+- Until the user can play, Home shows one setup panel, centered, checking in order: an emulator, then a platform it plays, then a folder with games. Each panel shares one layout: a large cyan icon with a soft glow, the title, a Slate Muted `body-lg` description and one button, focused, that opens Settings on the category that solves it. Until what a check needs is read nothing shows, so no panel flashes.
+- **No emulator** (gamepad icon): `Set up your first emulator`, recommending RetroArch; Set up an emulator opens Settings › Emulators.
+- **No platform** (joystick icon): `Your emulator has no consoles yet`, setting it up (in RetroArch, installing cores); Go to emulator settings opens Settings › Emulators.
+- **No games** (folder-plus icon): `Add your games`, `Your emulator is ready. Add a folder with your games to start playing.`, then the emulators set up as a list that is information, not controls: `#1B1F2D` rows with a 1px border and 12px radius: a 28px Success `monitor-check` icon with a soft green glow on the left (the emulator is ready), then the emulator's name in `body-lg` with its version 16px apart, smaller, in Slate Muted `body-md` on the same baseline, and below it how many consoles it plays (`6 consoles linked`) as an uppercase `label-md` line in Slate Muted. Go to Settings opens Settings › Game folders.
+
 ### Console Carousel (Library)
 - First step of the library: one console at a time, centered, with its neighbors set back behind it. Stops at both ends; it never wraps.
 - **Which consoles:** the installed platforms whose game folder has games, by name. The app's platform catalog names them (e.g. `NES`, not what a multi-system core calls it) and gives their release year and render; a platform it doesn't know keeps what its cores say, without a year or render.

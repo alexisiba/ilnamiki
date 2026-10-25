@@ -1,0 +1,65 @@
+/* What is already set up: plain rows, not controls, so they never look focusable. */
+.emulators {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: start;
+}
+
+/* A ready sign on the left, the emulator's details beside it. */
+.emulator {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface-high);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+/* Success, glowing as the status dots do: the emulator is ready. */
+.readyIcon {
+  flex-shrink: 0;
+  width: var(--icon-size-md);
+  height: var(--icon-size-md);
+  stroke-width: var(--icon-stroke);
+  color: var(--color-success);
+  filter: drop-shadow(0 0 8px var(--color-success-glow));
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* The version sits apart from the name, smaller, on the same baseline. */
+.name {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  font-size: var(--body-lg-size);
+  line-height: var(--body-lg-line-height);
+  color: var(--color-text);
+}
+
+.version {
+  font-size: var(--body-md-size);
+  line-height: var(--body-md-line-height);
+  color: var(--color-text-muted);
+}
+
+/* As the emulators list in Settings shows the version. */
+.platforms {
+  font-family: var(--font-label);
+  font-size: var(--label-md-size);
+  font-weight: var(--label-md-weight);
+  line-height: var(--label-md-line-height);
+  letter-spacing: var(--label-md-tracking);
+  font-variant-ligatures: none;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}

@@ -1,4 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
+import type { ReactNode } from 'react'
 
 export interface SetupPanelProps {
   /** Focus group of the panel, so focus can return to its action. */
@@ -8,6 +9,8 @@ export interface SetupPanelProps {
   title: string
   /** Why it is needed and how to get it. */
   description: string
+  /** What is already set up, shown below the description (e.g. the emulators); optional. */
+  children?: ReactNode
   /** The action that gets what is missing; it is focused when the panel shows. */
   actionLabel: string
   onAction: () => void

@@ -1,11 +1,12 @@
 import { useTranslation } from 'react-i18next'
 
-import { useEmulators, usePlatforms } from '@renderer/core/ipc'
+import { useEmulators, useGameFolders, usePlatforms } from '@renderer/core/ipc'
 import { getGameDetailsPath, useOpenScreen } from '@renderer/core/navigation'
 import { getSampleGame } from '@renderer/mocks/games'
 import type { Game } from '@renderer/types/game'
 
 import { EmulatorSetup } from './components/EmulatorSetup'
+import { GameSetup } from './components/GameSetup'
 import { GameShelf, type ShelfGame } from './components/GameShelf'
 import { HomeHero } from './components/HomeHero'
 import { PlatformSetup } from './components/PlatformSetup'
@@ -29,7 +30,8 @@ const toShelfGame = ({ id, title, platform, imageUrl }: Game): ShelfGame => ({
 /**
  * Home, checking in order what is needed to play: while the user has no emulator, how to set
  * up the first one; while their emulators play no platform, how to set one up for the
- * consoles; and otherwise the last played game and the rows of games (sample games for now).
+ * consoles; while no folder has games, how to add one; and otherwise the last played game and
+ * the rows of games (sample games for now).
  * Until what a check needs is read nothing shows, so no view flashes.
  */
 export function HomeScreen(): React.JSX.Element | null {
@@ -37,6 +39,7 @@ export function HomeScreen(): React.JSX.Element | null {
   const openScreen = useOpenScreen()
   const emulators = useEmulators()
   const platforms = usePlatforms()
+  const gameFolders = useGameFolders()
   const lastPlayedGame = SAMPLE_LAST_PLAYED_GAME_ID && getSampleGame(SAMPLE_LAST_PLAYED_GAME_ID)
 
   if (emulators.status === 'loading') return null
@@ -55,6 +58,16 @@ export function HomeScreen(): React.JSX.Element | null {
     return (
       <div className={styles.emptyState}>
         <PlatformSetup />
+      </div>
+    )
+  }
+
+  if (gameFolders.status === 'loading') return null
+
+  if (!gameFolders.folders.some((folder) => folder.gameCount > 0)) {
+    return (
+      <div className={styles.emptyState}>
+        <GameSetup emulators={emulators.emulators} platforms={platforms.platforms} />
       </div>
     )
   }

@@ -6,13 +6,15 @@ import styles from './SetupPanel.module.css'
 
 /**
  * A step of setting Ilnamiki up, shown on Home while something needed to play is missing:
- * an icon, what is missing, how to get it and the action, focused, that gets it.
+ * an icon, what is missing, how to get it, what is already set up when given, and the
+ * action, focused, that gets it.
  */
 export function SetupPanel({
   id,
   icon: Icon,
   title,
   description,
+  children,
   actionLabel,
   onAction
 }: SetupPanelProps): React.JSX.Element {
@@ -21,6 +23,7 @@ export function SetupPanel({
       <Icon className={styles.icon} aria-hidden />
       <h2 className={styles.title}>{title}</h2>
       <p className={styles.description}>{description}</p>
+      {children}
       <div className={styles.actions}>
         <Button focusId="action" autoFocus onPress={onAction}>
           {actionLabel}

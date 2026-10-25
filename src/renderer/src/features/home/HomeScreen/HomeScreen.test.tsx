@@ -2,10 +2,10 @@ import { render, screen } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
 
-import type { Emulator, InstalledPlatform } from '@shared/api'
+import type { Emulator, GameFolder, InstalledPlatform } from '@shared/api'
 
 import { NavigationProvider, SECTION_PATHS } from '@renderer/core/navigation'
-import { mockEmulators, mockPlatforms } from '@renderer/test/api'
+import { mockEmulators, mockGameFolders, mockPlatforms } from '@renderer/test/api'
 
 import { HomeScreen } from './HomeScreen'
 
@@ -45,6 +45,15 @@ const NINTENDO_64: InstalledPlatform = {
   ]
 }
 
+const N64_FOLDER: GameFolder = {
+  id: 'f1',
+  path: '/home/player/Games/N64',
+  platformId: 'nintendo_64',
+  gameCount: 12,
+  isAvailable: true,
+  addedAt: 1
+}
+
 const setUpTitle = (): Promise<HTMLElement> =>
   screen.findByRole('heading', { name: 'Set up your first emulator' })
 
@@ -70,13 +79,36 @@ describe('HomeScreen', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('shows the last played game once the emulator plays a console', async () => {
+  it('offers to add a folder of games while no folder has games', async () => {
     mockEmulators([RETROARCH])
     mockPlatforms([NINTENDO_64])
+    mockGameFolders([{ ...N64_FOLDER, gameCount: 0 }])
+    renderHome()
+
+    expect(await screen.findByRole('heading', { name: 'Add your games' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Go to Settings' })).toHaveFocus()
+    expect(screen.getByText('1 console linked')).toBeInTheDocument()
+  })
+
+  it('shows the last played game once a folder has games', async () => {
+    mockEmulators([RETROARCH])
+    mockPlatforms([NINTENDO_64])
+    mockGameFolders([N64_FOLDER])
     renderHome()
 
     expect(await screen.findByRole('button', { name: 'Continue playing' })).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: /no consoles yet/ })).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Add your games' })).not.toBeInTheDocument()
+  })
+
+  it('shows nothing until the game folders are read, so no view flashes', async () => {
+    mockEmulators([RETROARCH])
+    mockPlatforms([NINTENDO_64])
+    vi.mocked(window.api.library.listFolders).mockReturnValue(new Promise(() => {}))
+    renderHome()
+
+    await vi.waitFor(() => expect(window.api.platforms.list).toHaveBeenCalled())
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
   })
 
   it('shows nothing until the emulators are read, so no view flashes', () => {

@@ -9,6 +9,14 @@
     "description": "Tu emulador está listo, pero todavía no puede jugar ninguna consola. Configúralo para agregar las consolas que quieras jugar; en RetroArch, instalando sus núcleos.",
     "setUp": "Ir a configurar emulador"
   },
+  "gameSetup": {
+    "title": "Agrega tus juegos",
+    "description": "Tu emulador está listo. Agrega una carpeta con tus juegos para comenzar a jugar.",
+    "emulators": "Tus emuladores",
+    "linkedConsoles_one": "{{count}} consola vinculada",
+    "linkedConsoles_other": "{{count}} consolas vinculadas",
+    "setUp": "Ir a Ajustes"
+  },
   "hero": {
     "resume": "Retomar sesión",
     "continue": "Continuar jugando"
