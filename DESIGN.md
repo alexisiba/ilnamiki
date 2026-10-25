@@ -261,10 +261,18 @@ The interface balances sharp technological edges with modern living-room ergonom
 
 ### Settings
 - No visible title: the top bar already shows the section (the heading stays for screen readers). Two columns; unlike other screens, it spans the whole width (no 2400px cap).
-- **Categories:** a narrow 320px column (`--layout-settings-nav-width`) of vertical tabs, each name fitting in one or two lines (`body-lg` in Outfit). Focusing a category selects it and shows its content; the selected one keeps a `#1B1F2D` surface with a strong border and white text while focus is in its content, and the focused one fills with `#00D2FF` (black text) and the cyan glow, like a button.
-- **Content panel:** the rest of the width, framed by a 1px strong border (`#FFFFFF` at 15%) with a 16px radius and a light 24px padding.
+- **Categories:** a narrow 320px column (`--layout-settings-nav-width`) of vertical tabs with an 8px radius, each name fitting in one or two lines (`body-lg` in Outfit). Focusing a category selects it and shows its content; the selected one keeps a `#1B1F2D` surface with a strong border and white text while focus is in its content, and the focused one fills with `#00D2FF` (black text) and the cyan glow, like a button.
+- **Content panel:** the rest of the width, 16px from the categories, framed by a 1px strong border (`#FFFFFF` at 15%) with an 8px radius and a light 24px padding.
 - **Input:** right enters the content, left from the left edge of the content returns to the categories, and back (or the panel's Back button) returns focus to the selected category.
 - **Emulators:** a `Configured emulators` heading in `headline-sm` over a list of emulators, each a `#1B1F2D` row with a 1px border and 12px radius: the emulator's icon on the left in an 80px `#252938` tile (a generic Slate Muted gamepad icon when it has none), and on the right its name in `headline-sm` with its version below as an uppercase `label-md` line in Slate Muted. The focused row gets the cyan border and glow. At the bottom right, Back and Add emulator buttons.
+- **No emulators:** the heading and list give way to a message centered in their room: a 48px Slate Muted gamepad icon, `No emulators configured` in `headline-sm` and, below, how to add one in Slate Muted `body-md`. Both buttons stay.
+
+### Add Emulator (Settings)
+- Opened with Add emulator in Settings; Back (the button, the back action or Esc) returns to Settings. Spans the whole width inside the same bordered panel as Settings (1px strong border, 8px radius, 24px padding).
+- **Header:** `Add emulator` in `headline-sm`, then a note that the form is filled with a keyboard and mouse: `body-md` in `#D3E4FF` on the Info container (`#004880`), 8px radius, with a 28px keyboard icon.
+- **Fields** (up to 960px wide): an uppercase `label-md` label in Slate Muted above each field. Fields are `#1B1F2D` with a 1px strong border and 8px radius, text in `body-lg` white with a cyan caret; the focused field gets the cyan border and glow. The path field ends with a square `folder-open` icon button, as tall as the field, that opens the system's file picker and fills in the chosen path; focused, it fills with `#00D2FF` like a button. If the picker can't open, an Error-colored `body-md` message appears below.
+- **Actions:** Back and Add emulator at the bottom right, as in Settings.
+- **Input:** a deliberate exception to gamepad-first: text is typed with a physical keyboard only (no on-screen keyboard). The gamepad still moves focus and presses the buttons. Pointing at a field doesn't focus it, so moving the mouse never takes focus away from the field being typed in.
 
 ### Metric Chips & Status Badges
 - Rendered with background `#121624` (85% opacity) and 1px border.

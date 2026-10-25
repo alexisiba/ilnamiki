@@ -6,6 +6,20 @@
   "emulators": {
     "configured": "Emuladores configurados",
     "version": "Versión {{version}}",
+    "empty": {
+      "title": "No hay emuladores configurados",
+      "description": "Selecciona Agregar emulador y elige el archivo ejecutable del emulador para empezar a jugar."
+    },
+    "back": "Volver",
+    "add": "Agregar emulador"
+  },
+  "addEmulator": {
+    "title": "Agregar emulador",
+    "keyboardNote": "Completa este formulario con teclado y mouse.",
+    "name": "Nombre del emulador",
+    "path": "Ruta de la aplicación",
+    "browse": "Elegir la aplicación",
+    "pickError": "No se pudo abrir el selector de archivos. Inténtalo de nuevo.",
     "back": "Volver",
     "add": "Agregar emulador"
   }

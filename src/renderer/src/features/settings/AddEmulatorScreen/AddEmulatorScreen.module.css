@@ -1,0 +1,50 @@
+/* Spans the whole width, like Settings. */
+.screen {
+  display: grid;
+  min-height: 0;
+  padding-block: var(--space-md);
+}
+
+.panel {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: var(--space-lg);
+  min-height: 0;
+  padding: var(--space-md);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-sm);
+}
+
+.title {
+  font-size: var(--headline-sm-size);
+  font-weight: var(--headline-sm-weight);
+  line-height: var(--headline-sm-line-height);
+  letter-spacing: var(--headline-sm-tracking);
+  color: var(--color-text-focus);
+}
+
+.note {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--color-info-container);
+  border-radius: var(--radius);
+  font-size: var(--body-md-size);
+  line-height: var(--body-md-line-height);
+  color: var(--color-on-info-container);
+}
+
+.noteIcon {
+  flex-shrink: 0;
+  width: var(--icon-size-md);
+  height: var(--icon-size-md);
+  stroke-width: var(--icon-stroke);
+}

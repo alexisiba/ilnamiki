@@ -1,6 +1,7 @@
 export { FocusGroup, type FocusGroupProps } from './FocusGroup'
 export { NavigationProvider, type NavigationProviderProps } from './NavigationProvider'
 export {
+  ADD_EMULATOR_PATH,
   CONSOLE_GAMES_PATH,
   GAME_DETAILS_PATH,
   getConsoleGamesPath,

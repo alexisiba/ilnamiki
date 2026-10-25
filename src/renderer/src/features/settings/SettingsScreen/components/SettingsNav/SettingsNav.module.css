@@ -7,7 +7,7 @@
 .tab {
   padding: var(--space-sm) var(--space-md);
   border: 1px solid transparent;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius);
   font-family: var(--font-headline);
   font-size: var(--body-lg-size);
   font-weight: var(--headline-sm-weight);

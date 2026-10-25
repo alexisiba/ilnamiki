@@ -18,7 +18,7 @@
 .columns {
   display: grid;
   grid-template-columns: var(--layout-settings-nav-width) 1fr;
-  gap: var(--layout-gutter);
+  gap: var(--space-sm);
   min-height: 0;
 }
 
@@ -27,5 +27,5 @@
   min-height: 0;
   padding: var(--space-md);
   border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius);
 }

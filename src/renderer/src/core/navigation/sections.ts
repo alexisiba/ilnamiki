@@ -19,6 +19,9 @@ export function getConsoleGamesPath(consoleId: string): string {
   return `${SECTION_PATHS.library}/${encodeURIComponent(consoleId)}`
 }
 
+/** Route of the form that adds an emulator, inside the Settings section. */
+export const ADD_EMULATOR_PATH = `${SECTION_PATHS.settings}/emulators/new`
+
 const SECTION_ROOTS: readonly string[] = Object.values(SECTION_PATHS)
 
 /** Whether `pathname` is the root of a top-level section, where there is nothing to go back to. */

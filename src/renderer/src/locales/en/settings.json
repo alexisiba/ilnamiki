@@ -6,6 +6,20 @@
   "emulators": {
     "configured": "Configured emulators",
     "version": "Version {{version}}",
+    "empty": {
+      "title": "No emulators configured",
+      "description": "Select Add emulator and choose the emulator's executable file to start playing."
+    },
+    "back": "Back",
+    "add": "Add emulator"
+  },
+  "addEmulator": {
+    "title": "Add emulator",
+    "keyboardNote": "Fill in this form with a keyboard and mouse.",
+    "name": "Emulator name",
+    "path": "Application path",
+    "browse": "Choose the application",
+    "pickError": "The file picker couldn't open. Try again.",
     "back": "Back",
     "add": "Add emulator"
   }
