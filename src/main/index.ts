@@ -2,6 +2,7 @@ import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { closeDatabase, initDatabase } from './core/database'
 import { registerControllersIpc } from './features/controllers'
 import { registerEmulatorsIpc } from './features/emulators'
 import { registerNetworkIpc } from './features/network'
@@ -53,6 +54,13 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
+  // Before the features that read it. Nothing uses it yet, so the app still opens without it.
+  try {
+    initDatabase(app.getPath('userData'))
+  } catch (error) {
+    console.error('Could not open the database:', error)
+  }
+
   registerControllersIpc()
   registerEmulatorsIpc()
   registerNetworkIpc()
@@ -74,6 +82,8 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
+
+app.on('will-quit', closeDatabase)
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
