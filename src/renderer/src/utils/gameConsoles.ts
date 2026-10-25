@@ -2,7 +2,7 @@ import type { GameFolder, InstalledPlatform } from '@shared/api'
 
 import type { GameConsole } from '@renderer/types/console'
 
-import { findCatalogPlatform } from '../catalog/platformCatalog'
+import { findCatalogPlatform } from './platformCatalog/platformCatalog'
 
 const byName = (a: GameConsole, b: GameConsole): number =>
   a.name.localeCompare(b.name, 'en', { sensitivity: 'base' })

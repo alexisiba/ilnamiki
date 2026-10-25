@@ -13,12 +13,16 @@ export interface FolderGamesState {
 
 const LOADING: FolderGamesState = { status: 'loading', games: [] }
 
-/** The games saved from the folder `folderId`, read from main on mount and when it changes. */
-export function useFolderGames(folderId: string): FolderGamesState {
+/**
+ * The games saved from the folder `folderId`, read from main on mount and when it changes.
+ * Without a folder (e.g. while the folders are read), nothing is read and it stays loading.
+ */
+export function useFolderGames(folderId: string | undefined): FolderGamesState {
   // Kept with the folder they belong to, so another folder's games never show.
   const [read, setRead] = useState<{ folderId: string; state: FolderGamesState }>()
 
   useEffect(() => {
+    if (folderId === undefined) return
     let active = true
     listFolderGames(folderId).then(
       (games) => {
@@ -33,5 +37,5 @@ export function useFolderGames(folderId: string): FolderGamesState {
     }
   }, [folderId])
 
-  return read?.folderId === folderId ? read.state : LOADING
+  return read !== undefined && read.folderId === folderId ? read.state : LOADING
 }

@@ -10,8 +10,8 @@ import type { GameCarouselProps } from './GameCarousel.types'
 import styles from './GameCarousel.module.css'
 
 /**
- * Games in a carousel, with the selected one's facts below it. Either focus stays elsewhere
- * and the selection is announced (`statusId`), or the games take focus and the focused one
+ * Games in a carousel, with the selected one's facts (those known) below it. Either focus
+ * stays elsewhere and the selection is announced (`statusId`), or the games take focus and the focused one
  * is the selected one (`focusGroupId`).
  */
 export function GameCarousel(props: GameCarouselProps): React.JSX.Element | null {
@@ -22,17 +22,21 @@ export function GameCarousel(props: GameCarouselProps): React.JSX.Element | null
 
   if (!selected) return null
 
+  // Only what is known about the game; without any of it, the line is left out.
   const facts = [
     selected.releaseYear,
     selected.genre,
-    t('gameCarousel.players', { count: selected.players })
-  ]
+    selected.players !== null && t('gameCarousel.players', { count: selected.players })
+  ].filter((fact) => fact !== null && fact !== false)
+  const hasFacts = facts.length > 0
 
   const details = (
     <>
-      <p id={factsId} className={styles.facts}>
-        {facts.join(' · ')}
-      </p>
+      {hasFacts && (
+        <p id={factsId} className={styles.facts}>
+          {facts.join(' · ')}
+        </p>
+      )}
       {props.statusId !== undefined && (
         // Focus stays elsewhere, so changing games is announced instead.
         <p id={props.statusId} className={styles.status} aria-live="polite">
@@ -62,7 +66,7 @@ export function GameCarousel(props: GameCarouselProps): React.JSX.Element | null
             game={game}
             selected={index === selectedIndex}
             focusOnShow={Boolean(props.focusOnShow) && index === selectedIndex}
-            describedBy={index === selectedIndex ? factsId : undefined}
+            describedBy={index === selectedIndex && hasFacts ? factsId : undefined}
             onSelect={() => onSelect(index)}
             onOpen={() => props.onOpen(game)}
           />

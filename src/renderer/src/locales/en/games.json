@@ -8,9 +8,9 @@
   "consoleGames": {
     "gamesInstalled_one": "{{count}} game installed",
     "gamesInstalled_other": "{{count}} games installed",
-    "playtime": "Playtime",
-    "lastPlayed": "Last played",
+    "noDescription": "No description",
     "playNow": "Play now",
-    "notFound": "This console is not in your library."
+    "notFound": "This console is not in your library.",
+    "gamesFailed": "The games couldn't be loaded. Try again later."
   }
 }

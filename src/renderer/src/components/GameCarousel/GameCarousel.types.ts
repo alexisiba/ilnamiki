@@ -1,7 +1,7 @@
-import type { Game } from '@renderer/types/game'
+import type { LibraryGame } from '@renderer/types/game'
 
 interface GameCarouselBaseProps {
-  games: Game[]
+  games: LibraryGame[]
   selectedIndex: number
   onSelect: (index: number) => void
 }
@@ -21,7 +21,7 @@ interface FocusableGameCarouselProps extends GameCarouselBaseProps {
   /** Focus group of the games, so focus returns to the last one when coming back. */
   focusGroupId: string
   /** Confirming the selected game, or clicking it, opens it. */
-  onOpen: (game: Game) => void
+  onOpen: (game: LibraryGame) => void
   /** Moves focus to the selected game as soon as the carousel is shown. */
   focusOnShow?: boolean
 }
@@ -29,7 +29,7 @@ interface FocusableGameCarouselProps extends GameCarouselBaseProps {
 export type GameCarouselProps = SelectOnlyGameCarouselProps | FocusableGameCarouselProps
 
 export interface GameCarouselItemProps {
-  game: Game
+  game: LibraryGame
   /** Whether it is the game in front. */
   selected: boolean
   onSelect: () => void
@@ -44,5 +44,5 @@ export interface FocusableGameCarouselItemProps extends GameCarouselItemProps {
 }
 
 export interface GameCarouselCoverProps {
-  game: Game
+  game: LibraryGame
 }

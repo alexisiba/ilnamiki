@@ -243,8 +243,10 @@ The interface balances sharp technological edges with modern living-room ergonom
 - Opened by confirming a console in the Console Carousel. The console name is the screen title in `headline-xl`, with games installed and release year below as an uppercase `label-md` line in Slate Muted. No console render.
 - **Two columns.** Left (2/3): a game carousel built like the Console Carousel. Right (1/3): the selected game's panel. The whole screen, title included, is centered and capped at 2400px so it does not stretch on ultrawide displays.
 - **Game frames:** fixed 440×330px frame in the lowest surface (`#07090E`), 24px padding, 12px radius; the artwork fills the inner area (cropped to fit) with 4px corners. The selected frame has a 2px `#00D2FF` border and the cyan glow (`0 0 30px rgba(0, 210, 255, 0.45)`); neighbors are 320px from the center, scaled to `0.6x` and faded to 35% with the Dimming Filter on their artwork, clipped at the column edge.
-- **Below the frame:** the game title in `headline-sm`, then year, genre and players as an uppercase `label-md` line, then the carousel's position indicator.
-- **Panel:** `#1B1F2D` with a 1px border and 16px radius, holding the description, two stat cards on `#252938` with 12px radius (playtime and last played: uppercase `label-sm` label with an icon, `headline-sm` value) and a full-width Play now button.
+- **Which games:** those saved from the console's game folder, by title, titled as their file is (e.g. `Crash Bandicoot (USA)`). Until metadata exists, every game shows the generic `no-image` artwork (`assets/images/games/no-image.webp`), and any game without artwork will too.
+- **Below the frame:** the game title in `headline-sm`, then year, genre and players as an uppercase `label-md` line (only those known; left out when none is), then the carousel's position indicator.
+- **Panel:** `#1B1F2D` with a 1px border and 16px radius, holding the description (`No description` in Slate Muted when the game has none) and a full-width Play now button. Play stats will come back with play history.
+- **Loading and errors:** nothing shows until the console is known, then only its title until its games are read, so no message flashes. When the games can't be read, a Slate Muted `body-lg` line says so.
 - **Input:** focus stays on Play now; left/right switch games without moving it, a click on a neighbor selects it, and the selection change is announced to screen readers.
 
 ### Search

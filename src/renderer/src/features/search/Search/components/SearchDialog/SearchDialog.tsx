@@ -5,7 +5,7 @@ import { OnScreenKeyboard } from '@renderer/components/OnScreenKeyboard'
 import { useInputAction } from '@renderer/core/input'
 import { getGameDetailsPath, NavigationProvider, useOpenScreen } from '@renderer/core/navigation'
 import { SAMPLE_GAMES } from '@renderer/mocks/games'
-import type { Game } from '@renderer/types/game'
+import type { Game, LibraryGame } from '@renderer/types/game'
 
 import { SearchField } from './components/SearchField'
 import { SearchGuide } from './components/SearchGuide'
@@ -57,7 +57,7 @@ export function SearchDialog({ onClose }: SearchDialogProps): React.JSX.Element 
     if (query.trim()) setResults(searchGames(query, SAMPLE_GAMES, SEARCH_RESULTS_LIMIT))
   }
 
-  const openGame = (game: Game): void => {
+  const openGame = (game: LibraryGame): void => {
     // Back from the game returns to the screen search was opened over.
     openScreen(getGameDetailsPath(game.id))
     onClose()

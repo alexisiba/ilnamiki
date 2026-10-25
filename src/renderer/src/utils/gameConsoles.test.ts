@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { GameFolder, InstalledPlatform } from '@shared/api'
 
-import { toGameConsoles } from './ConsoleSelectScreen.utils'
+import { toGameConsoles } from './gameConsoles'
 
 const platform = (id: string, name: string, manufacturer: string | null): InstalledPlatform => ({
   id,

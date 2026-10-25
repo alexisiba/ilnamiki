@@ -2,10 +2,10 @@ import { useTranslation } from 'react-i18next'
 
 import { useGameFolders, usePlatforms } from '@renderer/core/ipc'
 import { getConsoleGamesPath, useOpenScreen } from '@renderer/core/navigation'
+import { toGameConsoles } from '@renderer/utils/gameConsoles'
 
 import { ConsoleCarousel } from './components/ConsoleCarousel'
 import { LibraryEmpty } from './components/LibraryEmpty'
-import { toGameConsoles } from './ConsoleSelectScreen.utils'
 import styles from './ConsoleSelectScreen.module.css'
 
 /**

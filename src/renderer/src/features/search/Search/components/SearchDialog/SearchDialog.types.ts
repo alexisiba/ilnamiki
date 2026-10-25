@@ -1,4 +1,4 @@
-import type { Game } from '@renderer/types/game'
+import type { Game, LibraryGame } from '@renderer/types/game'
 
 export interface SearchDialogProps {
   onClose: () => void
@@ -15,5 +15,5 @@ export interface SearchResultsProps {
   /** The text searched, for the message when nothing matches. */
   query: string
   results: Game[]
-  onOpen: (game: Game) => void
+  onOpen: (game: LibraryGame) => void
 }

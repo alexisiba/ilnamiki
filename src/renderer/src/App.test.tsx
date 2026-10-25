@@ -3,13 +3,17 @@ import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { mockGameFolders, mockPlatforms } from '@renderer/test/api'
+import { mockFolderGames, mockGameFolders, mockPlatforms } from '@renderer/test/api'
 import { connectGamepad } from '@renderer/test/gamepad'
 
 import { APP_ROUTES } from './App.routes'
 
-// The library has one console: the NES, installed and with a folder of games.
+// The library has one console: the NES, installed and with a folder of two games.
 beforeEach(() => {
+  mockFolderGames([
+    { id: 'g1', title: 'Contra (USA)', filePath: '/home/player/Games/NES/Contra (USA).nes' },
+    { id: 'g2', title: 'Metroid (USA)', filePath: '/home/player/Games/NES/Metroid (USA).nes' }
+  ])
   mockPlatforms([
     {
       id: 'nes',
@@ -173,7 +177,7 @@ describe('App', () => {
 
     expect(router.state.location.pathname).toBe('/library/nes')
     expect(screen.getByRole('heading', { level: 1, name: 'NES' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Play now' })).toHaveFocus()
+    expect(await screen.findByRole('button', { name: 'Play now' })).toHaveFocus()
     expect(currentSection()).toHaveTextContent('Library')
 
     await user.keyboard('{Escape}')
@@ -189,14 +193,16 @@ describe('App', () => {
 
     await user.click(screen.getByRole('link', { name: 'Library' }))
     await user.click(await screen.findByRole('button', { name: 'NES' }))
-    await user.keyboard('{Enter}{ArrowRight}')
+    await user.keyboard('{Enter}')
+    await screen.findByRole('button', { name: 'Play now' })
+    await user.keyboard('{ArrowRight}')
     await user.keyboard('q')
     expect(currentSection()).toHaveTextContent('Home')
 
     await user.keyboard('e')
 
     expect(router.state.location.pathname).toBe('/library/nes')
-    expect(screen.getByRole('button', { name: 'Donkey Kong 64' })).toHaveAttribute(
+    expect(await screen.findByRole('button', { name: 'Metroid (USA)' })).toHaveAttribute(
       'aria-current',
       'true'
     )
@@ -223,7 +229,7 @@ describe('App', () => {
     await user.click(screen.getByRole('link', { name: 'Library' }))
     await user.click(await screen.findByRole('button', { name: 'NES' }))
     await user.keyboard('{Enter}')
-    await user.click(screen.getByRole('button', { name: 'Donkey Kong 64' }))
+    await user.click(await screen.findByRole('button', { name: 'Metroid (USA)' }))
     await user.keyboard('q')
     await user.click(screen.getByRole('button', { name: 'Donkey Kong 64' }))
     await user.keyboard('e{Escape}')
@@ -239,6 +245,7 @@ describe('App', () => {
     await user.click(screen.getByRole('link', { name: 'Library' }))
     await user.click(await screen.findByRole('button', { name: 'NES' }))
     await user.keyboard('{Enter}')
+    await screen.findByRole('button', { name: 'Play now' })
     await user.keyboard('y')
     await user.keyboard('qe{ArrowRight}{Escape}')
 

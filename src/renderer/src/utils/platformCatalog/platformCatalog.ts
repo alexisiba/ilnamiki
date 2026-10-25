@@ -25,7 +25,7 @@ const ENTRIES: Record<string, CatalogEntry> = catalog
 /** The console renders that ship with the app, by file name without the extension. */
 const IMAGES: Record<string, string> = Object.fromEntries(
   Object.entries(
-    import.meta.glob<string>('../../../assets/images/consoles/*.webp', {
+    import.meta.glob<string>('../../assets/images/consoles/*.webp', {
       eager: true,
       import: 'default'
     })

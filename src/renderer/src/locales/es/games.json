@@ -8,9 +8,9 @@
   "consoleGames": {
     "gamesInstalled_one": "{{count}} juego instalado",
     "gamesInstalled_other": "{{count}} juegos instalados",
-    "playtime": "Tiempo de juego",
-    "lastPlayed": "Última vez",
+    "noDescription": "Sin descripción",
     "playNow": "Jugar ahora",
-    "notFound": "Esta consola no está en tu biblioteca."
+    "notFound": "Esta consola no está en tu biblioteca.",
+    "gamesFailed": "No se pudieron cargar los juegos. Inténtalo más tarde."
   }
 }
