@@ -1,11 +1,31 @@
+/* Spans the whole width, unlike other screens: the content panel grows with the display. */
 .screen {
-  padding-top: var(--space-xl);
+  display: grid;
+  min-height: 0;
+  padding-block: var(--space-md);
 }
 
-.title {
-  font-size: var(--headline-lg-size);
-  font-weight: var(--headline-lg-weight);
-  line-height: var(--headline-lg-line-height);
-  letter-spacing: var(--headline-lg-tracking);
-  color: var(--color-text-focus);
+/* The top bar already shows the section; the heading names the screen for screen readers. */
+.heading {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: var(--layout-settings-nav-width) 1fr;
+  gap: var(--layout-gutter);
+  min-height: 0;
+}
+
+.panel {
+  display: grid;
+  min-height: 0;
+  padding: var(--space-md);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
 }

@@ -125,6 +125,8 @@
   --layout-content-max-width: 2400px;
   --layout-hero-height: 600px;
   --layout-hero-content-width: 800px;
+  /* Settings category column: narrow, fits each category name in one or two lines. */
+  --layout-settings-nav-width: 320px;
   --layout-scroll-fade: 64px;
   --layout-focus-bleed: 2rem;
   --card-sm-width: 320px;

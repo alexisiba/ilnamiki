@@ -1,1 +1,12 @@
-{}
+{
+  "categories": {
+    "label": "Categorías de ajustes",
+    "emulators": "Emuladores"
+  },
+  "emulators": {
+    "configured": "Emuladores configurados",
+    "version": "Versión {{version}}",
+    "back": "Volver",
+    "add": "Agregar emulador"
+  }
+}
