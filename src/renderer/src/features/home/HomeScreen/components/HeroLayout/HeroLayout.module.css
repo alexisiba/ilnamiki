@@ -27,7 +27,7 @@
   max-width: var(--layout-hero-content-width);
 }
 
-.resume {
+.eyebrow {
   display: flex;
   align-items: center;
   gap: var(--space-xs);
@@ -41,10 +41,18 @@
   color: var(--color-primary);
 }
 
-.resumeIcon {
+.eyebrowIcon {
   width: var(--icon-size-xs);
   height: var(--icon-size-xs);
   fill: currentColor;
+}
+
+/* Detailed icons get lost when small and filled: larger, drawn as lines. */
+.eyebrowIconOutline {
+  flex-shrink: 0;
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+  stroke-width: var(--icon-stroke);
 }
 
 .title {
@@ -57,10 +65,12 @@
   color: var(--color-text-muted);
 }
 
-.stats {
+.details {
   margin-top: var(--space-sm);
 }
 
-.continue {
+.actions {
+  display: flex;
+  gap: var(--space-md);
   margin-top: var(--space-md);
 }

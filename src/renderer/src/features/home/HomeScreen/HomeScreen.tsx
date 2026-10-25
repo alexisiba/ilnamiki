@@ -5,11 +5,12 @@ import { getGameDetailsPath, useOpenScreen } from '@renderer/core/navigation'
 import { getSampleGame } from '@renderer/mocks/games'
 import type { Game } from '@renderer/types/game'
 
+import { ContinueHero } from './components/ContinueHero'
 import { EmulatorSetup } from './components/EmulatorSetup'
 import { GameSetup } from './components/GameSetup'
 import { GameShelf, type ShelfGame } from './components/GameShelf'
-import { HomeHero } from './components/HomeHero'
 import { PlatformSetup } from './components/PlatformSetup'
+import { ReadyHero } from './components/ReadyHero'
 import {
   SAMPLE_LAST_PLAYED_GAME_ID,
   SAMPLE_RECENT_GAME_IDS,
@@ -30,8 +31,9 @@ const toShelfGame = ({ id, title, platform, imageUrl }: Game): ShelfGame => ({
 /**
  * Home, checking in order what is needed to play: while the user has no emulator, how to set
  * up the first one; while their emulators play no platform, how to set one up for the
- * consoles; while no folder has games, how to add one; and otherwise the last played game and
- * the rows of games (sample games for now).
+ * consoles; while no folder has games, how to add one; while no game was played, the games
+ * ready to play; and otherwise the last played game and the rows of games (sample games for
+ * now).
  * Until what a check needs is read nothing shows, so no view flashes.
  */
 export function HomeScreen(): React.JSX.Element | null {
@@ -44,7 +46,7 @@ export function HomeScreen(): React.JSX.Element | null {
 
   if (emulators.status === 'loading') return null
 
-  if (emulators.emulators.length === 0 || !lastPlayedGame) {
+  if (emulators.emulators.length === 0) {
     return (
       <div className={styles.emptyState}>
         <EmulatorSetup />
@@ -64,10 +66,24 @@ export function HomeScreen(): React.JSX.Element | null {
 
   if (gameFolders.status === 'loading') return null
 
-  if (!gameFolders.folders.some((folder) => folder.gameCount > 0)) {
+  const gameCount = gameFolders.folders.reduce((total, folder) => total + folder.gameCount, 0)
+
+  if (gameCount === 0) {
     return (
       <div className={styles.emptyState}>
         <GameSetup emulators={emulators.emulators} platforms={platforms.platforms} />
+      </div>
+    )
+  }
+
+  if (!lastPlayedGame) {
+    return (
+      <div className={styles.content}>
+        <ReadyHero
+          gameCount={gameCount}
+          emulatorCount={emulators.emulators.length}
+          platformCount={platforms.platforms.length}
+        />
       </div>
     )
   }
@@ -85,7 +101,7 @@ export function HomeScreen(): React.JSX.Element | null {
 
   return (
     <div className={styles.content}>
-      <HomeHero game={lastPlayedGame} />
+      <ContinueHero game={lastPlayedGame} />
       <GameShelf
         id="home-recently-played"
         title={t('recentlyPlayed.title')}

@@ -7,6 +7,6 @@ export interface LastPlayedGame {
   playtimeMinutes: number
 }
 
-export interface HomeHeroProps {
+export interface ContinueHeroProps {
   game: LastPlayedGame
 }

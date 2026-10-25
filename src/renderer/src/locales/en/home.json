@@ -17,6 +17,18 @@
     "linkedConsoles_other": "{{count}} consoles linked",
     "setUp": "Go to Settings"
   },
+  "readyHero": {
+    "ready": "Ready to play",
+    "title_one": "{{count}} game ready to play",
+    "title_other": "{{count}} games ready to play",
+    "description": "Pick one or let Ilnamiki choose for you.",
+    "emulators_one": "{{count}} emulator",
+    "emulators_other": "{{count}} emulators",
+    "consoles_one": "{{count}} console",
+    "consoles_other": "{{count}} consoles",
+    "explore": "Explore library",
+    "surprise": "Surprise me"
+  },
   "hero": {
     "resume": "Resume session",
     "continue": "Continue playing"

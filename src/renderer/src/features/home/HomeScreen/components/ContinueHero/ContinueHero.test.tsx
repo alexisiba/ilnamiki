@@ -3,8 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { renderWithNavigation } from '@renderer/test/renderWithNavigation'
 
-import { HomeHero } from './HomeHero'
-import type { LastPlayedGame } from './HomeHero.types'
+import { ContinueHero } from './ContinueHero'
+import type { LastPlayedGame } from './ContinueHero.types'
 
 const NOW = new Date('2026-10-22T18:00:00Z')
 
@@ -17,7 +17,7 @@ const GAME: LastPlayedGame = {
   playtimeMinutes: 32 * 60 + 15
 }
 
-describe('HomeHero', () => {
+describe('ContinueHero', () => {
   beforeEach(() => {
     vi.useFakeTimers({ toFake: ['Date'] })
     vi.setSystemTime(NOW)
@@ -28,7 +28,7 @@ describe('HomeHero', () => {
   })
 
   it('shows the game as the main heading with its platform and description', () => {
-    render(<HomeHero game={GAME} />)
+    render(<ContinueHero game={GAME} />)
 
     expect(screen.getByRole('heading', { level: 1, name: GAME.title })).toBeInTheDocument()
     expect(screen.getByText('Nintendo 64')).toBeInTheDocument()
@@ -37,20 +37,20 @@ describe('HomeHero', () => {
   })
 
   it('shows when the game was last played and the total playtime', () => {
-    render(<HomeHero game={GAME} />)
+    render(<ContinueHero game={GAME} />)
 
     expect(screen.getByText('Last played 2 days ago')).toBeInTheDocument()
     expect(screen.getByText('Total playtime: 32 h 15 min')).toBeInTheDocument()
   })
 
   it('focuses the continue playing action', () => {
-    renderWithNavigation(<HomeHero game={GAME} />)
+    renderWithNavigation(<ContinueHero game={GAME} />)
 
     expect(screen.getByRole('button', { name: 'Continue playing' })).toHaveFocus()
   })
 
   it('treats the artwork as decorative', () => {
-    render(<HomeHero game={GAME} />)
+    render(<ContinueHero game={GAME} />)
 
     expect(screen.queryByRole('img')).not.toBeInTheDocument()
   })

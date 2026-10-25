@@ -17,6 +17,18 @@
     "linkedConsoles_other": "{{count}} consolas vinculadas",
     "setUp": "Ir a Ajustes"
   },
+  "readyHero": {
+    "ready": "Listo para jugar",
+    "title_one": "{{count}} juego listo para jugar",
+    "title_other": "{{count}} juegos listos para jugar",
+    "description": "Selecciona uno o deja que Ilnamiki elija por ti.",
+    "emulators_one": "{{count}} emulador",
+    "emulators_other": "{{count}} emuladores",
+    "consoles_one": "{{count}} consola",
+    "consoles_other": "{{count}} consolas",
+    "explore": "Explorar la biblioteca",
+    "surprise": "Sorpréndeme"
+  },
   "hero": {
     "resume": "Retomar sesión",
     "continue": "Continuar jugando"

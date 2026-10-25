@@ -90,13 +90,21 @@ describe('HomeScreen', () => {
     expect(screen.getByText('1 console linked')).toBeInTheDocument()
   })
 
-  it('shows the last played game once a folder has games', async () => {
+  it('shows the games of every folder ready to play while none was played', async () => {
     mockEmulators([RETROARCH])
     mockPlatforms([NINTENDO_64])
-    mockGameFolders([N64_FOLDER])
+    mockGameFolders([
+      N64_FOLDER,
+      { ...N64_FOLDER, id: 'f2', path: '/home/player/Games/NES', platformId: 'nes' }
+    ])
     renderHome()
 
-    expect(await screen.findByRole('button', { name: 'Continue playing' })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { name: '24 games ready to play' })
+    ).toBeInTheDocument()
+    expect(screen.getByText('1 emulator')).toBeInTheDocument()
+    expect(screen.getByText('1 console')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Explore library' })).toHaveFocus()
     expect(screen.queryByRole('heading', { name: 'Add your games' })).not.toBeInTheDocument()
   })
 

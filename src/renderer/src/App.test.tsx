@@ -8,6 +8,14 @@ import { connectGamepad } from '@renderer/test/gamepad'
 
 import { APP_ROUTES } from './App.routes'
 
+// A game was played, so Home shows its sample shelves, whose cards these tests move between.
+vi.mock('@renderer/features/home/HomeScreen/HomeScreen.constants', async (importOriginal) => ({
+  ...(await importOriginal<
+    typeof import('@renderer/features/home/HomeScreen/HomeScreen.constants')
+  >()),
+  SAMPLE_LAST_PLAYED_GAME_ID: 'tloz-oot-n64'
+}))
+
 // One emulator, RetroArch, and one console in the library: the NES, with a folder of two games.
 beforeEach(() => {
   mockEmulators([
