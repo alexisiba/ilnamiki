@@ -32,8 +32,11 @@ export interface Navigation {
   pointerDown: (element: HTMLElement) => void
   /** Moves focus to the item of `element`, e.g. to results that just appeared. */
   focusElement: (element: HTMLElement) => void
-  /** Moves focus into the group `groupId`: to its last focused item, else its first one. */
-  focusGroup: (groupId: string) => void
+  /**
+   * Moves focus into the group `groupId`: to its item `itemId` when given, else to its last
+   * focused item, else its first one.
+   */
+  focusGroup: (groupId: string, itemId?: string) => void
   /** Id of the item last focused in a group, the one focus returns to when entering it again. */
   lastFocusedIn: (groupId: string) => string | undefined
   /** Keeps a screen's state while the app runs, so the screen looks the same when it returns. */
@@ -226,8 +229,9 @@ export function createNavigation(): Navigation {
       focus(item, 'auto')
     },
 
-    focusGroup(groupId) {
-      const item = findByKey(groupMemory.get(groupId)) ?? itemsIn(groupId)[0]
+    focusGroup(groupId, itemId) {
+      const requested = itemId === undefined ? undefined : findByKey(`${groupId}/${itemId}`)
+      const item = requested ?? findByKey(groupMemory.get(groupId)) ?? itemsIn(groupId)[0]
       if (!item) return
 
       claim = CLAIM.user

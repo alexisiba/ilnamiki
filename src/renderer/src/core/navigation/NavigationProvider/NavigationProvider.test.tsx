@@ -153,9 +153,28 @@ describe('NavigationProvider', () => {
     expect(item('category')).toHaveFocus()
   })
 
+  it('moves focus into a group on request, to the item asked for', async () => {
+    function FocusTopThird(): React.JSX.Element {
+      const focusTop = useGroupFocus('top')
+      return <Item id="focus top3" onClick={() => focusTop('top3')} />
+    }
+    render(
+      <NavigationProvider>
+        <Rows />
+        <FocusTopThird />
+      </NavigationProvider>
+    )
+    layOutRows()
+
+    await userEvent.setup().click(item('focus top3'))
+
+    expect(item('top3')).toHaveFocus()
+  })
+
   it('moves focus into a group on request, to its last focused item', async () => {
     function FocusTop(): React.JSX.Element {
-      return <Item id="focus top" onClick={useGroupFocus('top')} />
+      const focusTop = useGroupFocus('top')
+      return <Item id="focus top" onClick={() => focusTop()} />
     }
     render(
       <NavigationProvider>
