@@ -13,8 +13,8 @@ import styles from './GameFolderSettings.module.css'
  * The folders Ilnamiki finds games in, each with its platform and how many games it has, and
  * the action to add one. With no folders, it says how to get the first
  * one: by setting up an emulator while no core is installed, else with Add folder; until it
- * is known whether any core is, it shows nothing, so neither view flashes. Sample folders for
- * now. It has no heading of its own: the selected category already names it.
+ * is known whether any core is, it shows nothing, so neither view flashes. It has no heading
+ * of its own: the selected category already names it.
  */
 export function GameFolderSettings({
   folders,

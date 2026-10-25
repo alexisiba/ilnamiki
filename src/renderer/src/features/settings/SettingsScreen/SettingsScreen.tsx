@@ -12,7 +12,6 @@ import {
   useGroupFocus,
   useRememberedState
 } from '@renderer/core/navigation'
-import { SAMPLE_GAME_FOLDERS } from '@renderer/mocks/gameFolders'
 
 import { EmulatorSettings } from './components/EmulatorSettings'
 import { GameFolderSettings } from './components/GameFolderSettings'
@@ -88,7 +87,8 @@ export function SettingsScreen(): React.JSX.Element {
               )}
               {categoryId === 'gameFolders' && (
                 <GameFolderSettings
-                  folders={SAMPLE_GAME_FOLDERS}
+                  // No game folders can be saved yet, so there are none.
+                  folders={[]}
                   // Not known until the platforms are first read.
                   hasInstalledPlatforms={
                     platforms.status === 'loading' ? null : platforms.platforms.length > 0

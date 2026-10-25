@@ -1,16 +1,15 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { ADD_EMULATOR_PATH, NavigationProvider, SECTION_PATHS } from '@renderer/core/navigation'
 import { setRect } from '@renderer/test/layout'
 
 import { SettingsScreen } from './SettingsScreen'
 
-// A first run, whatever the sample data: no game folders. There are no emulators or installed
-// platforms either: the API mock reports none.
-vi.mock('@renderer/mocks/gameFolders', () => ({ SAMPLE_GAME_FOLDERS: [] }))
+// A first run: the API mock reports no emulators or installed platforms, and no game folders
+// can be saved yet.
 
 const emulatorsTab = (): HTMLElement => screen.getByRole('tab', { name: 'Emulators' })
 const platformsTab = (): HTMLElement => screen.getByRole('tab', { name: 'Installed platforms' })
