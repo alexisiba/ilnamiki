@@ -131,6 +131,66 @@ describe('NavigationProvider', () => {
     expect(item('top3')).toHaveFocus()
   })
 
+  describe('in a group that moves by rows', () => {
+    /** A details screen: open; a path with change on its right; remove; back and save. */
+    function renderDetailsScreen(): void {
+      render(
+        <NavigationProvider>
+          <FocusGroup id="details" movement="rows">
+            {['open', 'change', 'remove', 'back', 'save'].map((id) => (
+              <Item key={id} id={id} />
+            ))}
+          </FocusGroup>
+        </NavigationProvider>
+      )
+      setRect(item('open'), { left: 0, top: 0, width: 260, height: 60 })
+      setRect(item('change'), { left: 1200, top: 120, width: 240, height: 60 })
+      setRect(item('remove'), { left: 0, top: 240, width: 300, height: 60 })
+      setRect(item('back'), { left: 1000, top: 400, width: 160, height: 60 })
+      setRect(item('save'), { left: 1200, top: 400, width: 240, height: 60 })
+    }
+
+    it('goes up and down row by row, to each row’s first item', async () => {
+      renderDetailsScreen()
+      const user = userEvent.setup()
+
+      for (const name of ['change', 'remove', 'back']) {
+        await user.keyboard('{ArrowDown}')
+        expect(item(name)).toHaveFocus()
+      }
+      for (const name of ['remove', 'change', 'open']) {
+        await user.keyboard('{ArrowUp}')
+        expect(item(name)).toHaveFocus()
+      }
+    })
+
+    it('moves left and right only within the row', async () => {
+      renderDetailsScreen()
+      const user = userEvent.setup()
+
+      await user.keyboard('{ArrowRight}')
+      expect(item('open')).toHaveFocus()
+
+      await user.keyboard('{ArrowDown}{ArrowDown}{ArrowDown}{ArrowRight}')
+      expect(item('save')).toHaveFocus()
+      await user.keyboard('{ArrowRight}{ArrowDown}')
+      expect(item('save')).toHaveFocus()
+      await user.keyboard('{ArrowLeft}')
+      expect(item('back')).toHaveFocus()
+    })
+
+    it('returns to the item last focused in a row when coming back to it', async () => {
+      renderDetailsScreen()
+      const user = userEvent.setup()
+
+      await user.keyboard('{ArrowDown}{ArrowDown}{ArrowDown}{ArrowRight}{ArrowUp}')
+      expect(item('remove')).toHaveFocus()
+
+      await user.keyboard('{ArrowDown}')
+      expect(item('save')).toHaveFocus()
+    })
+  })
+
   it('moves sideways into a column whose items are not level with the focused one', async () => {
     // A column with one item at the top, beside a list of two rows.
     render(

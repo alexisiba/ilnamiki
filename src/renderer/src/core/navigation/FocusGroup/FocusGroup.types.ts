@@ -10,6 +10,13 @@ export interface FocusGroupProps {
    * the start (e.g. a shelf sliding under a fixed focus), `nearest` scrolls only when needed.
    */
   scrollAlign?: 'nearest' | 'start'
+  /**
+   * How directions move between its items. `spatial` (the default) goes to the closest item
+   * that way, keeping the column, as shelves and grids need. `rows`, for a screen read top to
+   * bottom (a form, a details screen), goes up and down row by row, to the item last focused
+   * in the row (else its first), and left and right only within the row.
+   */
+  movement?: 'spatial' | 'rows'
   className?: string
   children: ReactNode
 }

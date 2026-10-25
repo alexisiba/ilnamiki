@@ -11,6 +11,7 @@ export function FocusGroup({
   id,
   as: Container = 'div',
   scrollAlign = 'nearest',
+  movement = 'spatial',
   className,
   children
 }: FocusGroupProps): React.JSX.Element {
@@ -21,8 +22,8 @@ export function FocusGroup({
   useLayoutEffect(() => {
     const element = ref.current
     if (!navigation || !element) return
-    return navigation.registerGroup({ id, element, scrollAlign })
-  }, [navigation, id, scrollAlign])
+    return navigation.registerGroup({ id, element, scrollAlign, movement })
+  }, [navigation, id, scrollAlign, movement])
 
   return (
     <FocusGroupContext value={id}>

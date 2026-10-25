@@ -1,7 +1,7 @@
 import type { Direction } from '@renderer/core/input'
 
 import { scrollFocusIntoView } from './scroll'
-import { findNextInDirection, isInBeam, type SpatialCandidate } from './spatial'
+import { findNextInDirection, groupIntoRows, isInBeam, type SpatialCandidate } from './spatial'
 
 export interface FocusItem {
   /** Unique across the app: `<group id>/<item id>`. Used to remember and restore focus. */
@@ -17,6 +17,8 @@ export interface FocusGroup {
   element: HTMLElement
   /** How the focused item is scrolled into view inside its scroll container. */
   scrollAlign: 'nearest' | 'start'
+  /** How directions move between its items (see `FocusGroupProps.movement`). */
+  movement: 'spatial' | 'rows'
 }
 
 export interface Navigation {
@@ -66,6 +68,9 @@ export function createNavigation(): Navigation {
   const scopeMemory = new Map<string, string>()
   /** State screens keep while the app runs, by key. */
   const stateMemory = new Map<string, unknown>()
+  /** When each item was last focused, by key (a count that grows), so a row returns to it. */
+  const focusOrder = new Map<string, number>()
+  let focusCount = 0
 
   let scope = ''
   /** Item to restore in the current scope, read when the scope opened. */
@@ -80,6 +85,7 @@ export function createNavigation(): Navigation {
   const focus = (item: FocusItem, scroll: ScrollBehavior | false): void => {
     item.element.focus({ preventScroll: true })
     focusedKey = item.key
+    focusOrder.set(item.key, ++focusCount)
     if (item.groupId !== undefined) groupMemory.set(item.groupId, item.key)
     scopeMemory.set(scope, item.key)
 
@@ -134,6 +140,32 @@ export function createNavigation(): Navigation {
     return findNextInDirection(from, toCandidates(members), direction) ?? members[0]
   }
 
+  /**
+   * In a group that moves by rows: up and down go to the row above or below, to the item last
+   * focused in it, else its first; left and right stay in the row. `undefined` when no item
+   * of the group lies that way, so focus may leave the group.
+   */
+  const findByRows = (
+    current: FocusItem,
+    groupId: string,
+    direction: Direction
+  ): FocusItem | undefined => {
+    const rows = groupIntoRows(toCandidates(itemsIn(groupId)))
+    const index = rows.findIndex((row) => row.some(({ item }) => item === current))
+
+    if (direction === 'left' || direction === 'right') {
+      const others = rows[index].filter(({ item }) => item !== current)
+      return findNextInDirection(rectOf(current), others, direction)
+    }
+
+    const row = rows[direction === 'down' ? index + 1 : index - 1]
+    if (!row) return undefined
+    const lastFocused = (item: FocusItem): number => focusOrder.get(item.key) ?? 0
+    return row
+      .map(({ item }) => item)
+      .reduce((best, item) => (lastFocused(item) > lastFocused(best) ? item : best))
+  }
+
   return {
     setScope(nextScope) {
       if (nextScope === scope) return
@@ -179,7 +211,11 @@ export function createNavigation(): Navigation {
       const others = [...items.values()].filter((item) => item !== current)
       const inGroup = others.filter((item) => item.groupId === current.groupId)
 
-      let target = findNextInDirection(from, toCandidates(inGroup), direction)
+      const { groupId } = current
+      let target =
+        groupId !== undefined && groups.get(groupId)?.movement === 'rows'
+          ? findByRows(current, groupId, direction)
+          : findNextInDirection(from, toCandidates(inGroup), direction)
 
       if (!target) {
         // Leaving the group: prefer what is straight ahead. Vertically, fall back to anything

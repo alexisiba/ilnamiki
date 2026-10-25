@@ -86,6 +86,11 @@ When a request would push the UI toward "web" or "streaming", say so before impl
   focus goes back to a sensible place (usually where it was).
 - **Navigation is spatial.** Directional input moves focus to what is visually in that
   direction, handled by the shared navigation layer, not hand-wired per feature.
+  - Shelves, grids and carousels keep the default (`FocusGroup` `movement="spatial"`): down
+    keeps the column.
+  - Screens read top to bottom, such as forms and details screens inside Settings, use
+    `movement="rows"`: up and down go row by row, to the item last focused in the row (else
+    its first), and left and right stay in the row, so no button is skipped or hard to reach.
 - **Mouse follows the same model.** Pointing at an element focuses it; clicking confirms it.
 - **Back always works** and is predictable: it closes or returns one level, to where the user
   came from, never further. In code (`core/navigation`):
