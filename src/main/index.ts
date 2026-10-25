@@ -5,6 +5,7 @@ import icon from '../../resources/icon.png?asset'
 import { closeDatabase, initDatabase } from './core/database'
 import { registerControllersIpc } from './features/controllers'
 import { registerEmulatorsIpc } from './features/emulators'
+import { registerLibraryIpc } from './features/library'
 import { registerNetworkIpc } from './features/network'
 
 function createWindow(): void {
@@ -63,6 +64,7 @@ app.whenReady().then(() => {
 
   registerControllersIpc()
   registerEmulatorsIpc()
+  registerLibraryIpc()
   registerNetworkIpc()
 
   createWindow()

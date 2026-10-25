@@ -1,9 +1,11 @@
 import type { ControllersApi } from './controllers'
 import type { EmulatorsApi } from './emulators'
+import type { LibraryApi } from './library'
 import type { NetworkApi } from './network'
 
 export * from './controllers'
 export * from './emulators'
+export * from './library'
 export * from './network'
 
 /**
@@ -13,5 +15,6 @@ export * from './network'
 export interface Api {
   controllers: ControllersApi
   emulators: EmulatorsApi
+  library: LibraryApi
   network: NetworkApi
 }

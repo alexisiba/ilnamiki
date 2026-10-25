@@ -1,5 +1,6 @@
 export { getControllerStatus } from './controllers'
 export { pickEmulatorExecutable } from './emulators'
+export { pickGameFolder } from './library'
 export { getNetworkStatus } from './network'
 export { useControllerStatus } from './useControllerStatus'
 export { useNetworkStatus } from './useNetworkStatus'
