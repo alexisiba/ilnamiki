@@ -248,6 +248,19 @@ describe('App', () => {
     expect(router.state.location.pathname).toBe('/library')
   })
 
+  it('comes back from a screen inside Settings to the categories, on the button that opened it', async () => {
+    renderApp()
+    const user = userEvent.setup()
+    await user.click(screen.getByRole('link', { name: 'Settings' }))
+    await user.click(screen.getByRole('button', { name: 'Add emulator' }))
+    expect(screen.queryByRole('tablist')).not.toBeInTheDocument()
+
+    await user.keyboard('{Escape}')
+
+    expect(screen.getByRole('tablist')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Add emulator' })).toHaveFocus()
+  })
+
   it('stays on a section’s root on back', async () => {
     const router = renderApp()
     const user = userEvent.setup()

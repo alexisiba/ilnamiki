@@ -12,7 +12,7 @@ import { RemoveEmulator } from './components/RemoveEmulator'
 import styles from './EmulatorDetailsSettings.module.css'
 
 /**
- * An emulator's details, opened from the emulators list in the Settings content panel: its
+ * An emulator's details, a screen inside Settings opened from the emulators list: its
  * name and version, its application's path with a way to change it, and the action to remove
  * it. Says so when the emulator is no longer there.
  */

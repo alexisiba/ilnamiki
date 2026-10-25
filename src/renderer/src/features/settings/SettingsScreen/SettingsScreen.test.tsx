@@ -161,18 +161,28 @@ describe('SettingsScreen', () => {
     expect(emulatorsTab()).toHaveFocus()
   })
 
-  it('opens the form to add an emulator in the content panel, keeping the categories', async () => {
+  it('opens the form to add an emulator across the whole width, in place of the categories', async () => {
     renderSettings()
 
     await userEvent.setup().click(addEmulator())
 
-    expect(screen.getByRole('tabpanel', { name: 'Emulators' })).toHaveTextContent(
-      'Add emulator form'
-    )
-    expect(emulatorsTab()).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByRole('button', { name: 'Add emulator form' })).toBeInTheDocument()
+    expect(screen.queryByRole('tablist')).not.toBeInTheDocument()
+    expect(screen.queryByRole('tabpanel')).not.toBeInTheDocument()
     expect(
       screen.queryByRole('heading', { name: 'No emulators configured' })
     ).not.toBeInTheDocument()
+  })
+
+  it('says which category a screen inside Settings belongs to', async () => {
+    renderSettings()
+    const user = userEvent.setup()
+    await user.click(gameFoldersTab())
+
+    await user.click(await screen.findByRole('button', { name: 'Set up an emulator' }))
+    await user.click(addEmulator())
+
+    expect(screen.getByText('Settings › Emulators')).toBeInTheDocument()
   })
 
   it('leaves the categories alone on back inside a screen of Settings', async () => {

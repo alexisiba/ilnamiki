@@ -11,7 +11,7 @@ import { FolderScanResults } from './components/FolderScanResults'
 import { GameFolderForm } from './components/GameFolderForm'
 
 /**
- * Adds a game folder in the Settings content panel, in place of the game folders list, in two
+ * Adds a game folder, a screen inside Settings opened from the game folders list, in two
  * steps: the form (filled with a keyboard and mouse), then the results of scanning the folder,
  * where it is saved. Back, and Back in the results, return to the form as it was; a folder
  * that can't be scanned returns to it too, saying why.

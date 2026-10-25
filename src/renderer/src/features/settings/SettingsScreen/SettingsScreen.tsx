@@ -16,6 +16,7 @@ import {
 import { EmulatorSettings } from './components/EmulatorSettings'
 import { GameFolderSettings } from './components/GameFolderSettings'
 import { PlatformSettings } from './components/PlatformSettings'
+import { SettingsInnerScreen } from './components/SettingsInnerScreen'
 import { SettingsNav } from './components/SettingsNav'
 import { SETTINGS_CATEGORIES, SETTINGS_NAV_GROUP_ID } from './SettingsScreen.constants'
 import type { SettingsCategoryId } from './SettingsScreen.types'
@@ -23,8 +24,9 @@ import styles from './SettingsScreen.module.css'
 
 /**
  * Settings: a narrow list of categories and, beside it, the content of the one in focus.
- * Screens inside Settings (e.g. adding an emulator) replace only that content, keeping the
- * categories on screen. Back returns from a category's content to the list.
+ * Screens inside Settings (e.g. adding an emulator) take the whole width instead, so another
+ * category can't be reached until back leaves them. Back returns from a category's content
+ * to the list.
  */
 export function SettingsScreen(): React.JSX.Element {
   const { t } = useTranslation()
@@ -56,44 +58,44 @@ export function SettingsScreen(): React.JSX.Element {
   return (
     <div className={styles.screen}>
       <h1 className={styles.heading}>{t('navigation.settings')}</h1>
-      <div className={styles.columns}>
-        <SettingsNav
-          selectedId={categoryId}
-          panelId={panelId}
-          getTabId={getTabId}
-          onSelect={setCategoryId}
-        />
-        <div
-          ref={panelRef}
-          id={panelId}
-          role="tabpanel"
-          aria-labelledby={getTabId(categoryId)}
-          className={styles.panel}
-        >
-          {outlet ?? (
-            <>
-              {categoryId === 'emulators' && (
-                <EmulatorSettings
-                  onAdd={() => openScreen(ADD_EMULATOR_PATH)}
-                  onOpen={(emulatorId) => openScreen(getEmulatorDetailsPath(emulatorId))}
-                />
-              )}
-              {categoryId === 'platforms' && (
-                <PlatformSettings
-                  // Focusing the category selects it, which shows the emulators.
-                  onSetUpEmulator={() => focusCategories('emulators')}
-                />
-              )}
-              {categoryId === 'gameFolders' && (
-                <GameFolderSettings
-                  onSetUpEmulator={() => focusCategories('emulators')}
-                  onAdd={() => openScreen(ADD_GAME_FOLDER_PATH)}
-                />
-              )}
-            </>
-          )}
+      {outlet ? (
+        <SettingsInnerScreen categoryId={categoryId}>{outlet}</SettingsInnerScreen>
+      ) : (
+        <div className={styles.columns}>
+          <SettingsNav
+            selectedId={categoryId}
+            panelId={panelId}
+            getTabId={getTabId}
+            onSelect={setCategoryId}
+          />
+          <div
+            ref={panelRef}
+            id={panelId}
+            role="tabpanel"
+            aria-labelledby={getTabId(categoryId)}
+            className={styles.panel}
+          >
+            {categoryId === 'emulators' && (
+              <EmulatorSettings
+                onAdd={() => openScreen(ADD_EMULATOR_PATH)}
+                onOpen={(emulatorId) => openScreen(getEmulatorDetailsPath(emulatorId))}
+              />
+            )}
+            {categoryId === 'platforms' && (
+              <PlatformSettings
+                // Focusing the category selects it, which shows the emulators.
+                onSetUpEmulator={() => focusCategories('emulators')}
+              />
+            )}
+            {categoryId === 'gameFolders' && (
+              <GameFolderSettings
+                onSetUpEmulator={() => focusCategories('emulators')}
+                onAdd={() => openScreen(ADD_GAME_FOLDER_PATH)}
+              />
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

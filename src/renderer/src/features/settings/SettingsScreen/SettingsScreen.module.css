@@ -22,6 +22,25 @@
   min-height: 0;
 }
 
+/* A screen inside Settings: its trail, then its panel across the whole width. */
+.inner {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: var(--space-sm);
+  min-height: 0;
+}
+
+.trail {
+  font-family: var(--font-label);
+  font-size: var(--label-md-size);
+  font-weight: var(--label-md-weight);
+  line-height: var(--label-md-line-height);
+  letter-spacing: var(--label-md-tracking);
+  font-variant-ligatures: none;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
 .panel {
   display: grid;
   min-height: 0;

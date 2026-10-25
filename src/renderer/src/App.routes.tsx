@@ -28,7 +28,7 @@ export const APP_ROUTES: RouteObject[] = [
       { index: true, element: <HomeScreen /> },
       { path: SECTION_PATHS.library, element: <ConsoleSelectScreen /> },
       { path: CONSOLE_GAMES_PATH, element: <ConsoleGamesScreen /> },
-      // Settings keeps its categories on screen and shows its own screens in the content panel.
+      // Settings shows its own screens across its whole width, in place of its categories.
       {
         path: SECTION_PATHS.settings,
         element: <SettingsScreen />,
