@@ -1,23 +1,29 @@
-import { Outlet, useLocation, useNavigate } from 'react-router'
+import { Outlet, useLocation } from 'react-router'
 
 import { ButtonGuide } from '@renderer/components/ButtonGuide'
 import { TopBar } from '@renderer/components/TopBar'
 import { useInputAction } from '@renderer/core/input'
-import { getSectionPath, isSectionRoot, NavigationProvider } from '@renderer/core/navigation'
+import {
+  isSectionRoot,
+  NavigationProvider,
+  takeBackStep,
+  useGoBack
+} from '@renderer/core/navigation'
 import { Search } from '@renderer/features/search'
 import styles from './App.module.css'
 
 function App(): React.JSX.Element {
   const { pathname } = useLocation()
-  const navigate = useNavigate()
+  const goBack = useGoBack()
 
-  // Back returns one level, from a screen inside a section to the section's root. It does not
-  // follow the history: tabs return to the screen a section was left on, so the previous
-  // entry may belong to another section. A section's root has nothing to go back to.
+  // Back returns one level: a step back inside the screen when it has one, else to the screen
+  // that opened it. It does not follow the history: tabs return to the screen a section was
+  // left on, so the previous entry may belong to another section. A section's root has
+  // nothing to go back to.
   useInputAction((action) => {
-    if (action === 'back' && !isSectionRoot(pathname)) {
-      navigate(getSectionPath(pathname), { replace: true })
-    }
+    if (action !== 'back') return
+    if (takeBackStep()) return
+    if (!isSectionRoot(pathname)) goBack()
   })
 
   return (

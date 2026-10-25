@@ -1,6 +1,4 @@
-import { useNavigate } from 'react-router'
-
-import { SECTION_PATHS } from '@renderer/core/navigation'
+import { useGoBack } from '@renderer/core/navigation'
 
 import { EmulatorForm } from './components/EmulatorForm'
 
@@ -10,11 +8,8 @@ import { EmulatorForm } from './components/EmulatorForm'
  * a keyboard and mouse.
  */
 export function AddEmulatorSettings(): React.JSX.Element {
-  const navigate = useNavigate()
   // As the back action does.
-  const returnToList = (): void => {
-    navigate(SECTION_PATHS.settings, { replace: true })
-  }
+  const returnToList = useGoBack()
 
   return <EmulatorForm onBack={returnToList} onAdded={returnToList} />
 }

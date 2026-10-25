@@ -87,7 +87,16 @@ When a request would push the UI toward "web" or "streaming", say so before impl
 - **Navigation is spatial.** Directional input moves focus to what is visually in that
   direction, handled by the shared navigation layer, not hand-wired per feature.
 - **Mouse follows the same model.** Pointing at an element focuses it; clicking confirms it.
-- **Back always works** and is predictable: it closes or returns one level.
+- **Back always works** and is predictable: it closes or returns one level, to where the user
+  came from, never further. In code (`core/navigation`):
+  - Open screens with `useOpenScreen`, which remembers the screen that opened them; back
+    returns there, as it was left (or to the section's root when that isn't known, e.g. a
+    screen restored by a section tab).
+  - A screen that finishes (Cancel, a form that saves) leaves with `useGoBack`, the same
+    step the back action takes, instead of navigating to a fixed path.
+  - A screen with steps of its own (e.g. a form and then its results) declares its previous
+    step with `useBackStep`, which back takes before leaving the screen. It only ever means
+    "one step back", never another action.
 
 ## 4. Readability at a distance (10-foot UI)
 

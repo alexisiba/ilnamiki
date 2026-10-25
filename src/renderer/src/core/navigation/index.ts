@@ -13,8 +13,12 @@ export {
   isSectionRoot,
   SECTION_PATHS
 } from './sections'
+export { takeBackStep } from './backNavigation'
+export { useBackStep } from './useBackStep'
 export { useFocusable, type UseFocusableOptions } from './useFocusable'
+export { useGoBack } from './useGoBack'
 export { useGroupFocus } from './useGroupFocus'
 export { useLastFocusedId } from './useLastFocusedId'
 export { useLastSectionPaths } from './useLastSectionPaths'
+export { useOpenScreen } from './useOpenScreen'
 export { useRememberedState } from './useRememberedState'

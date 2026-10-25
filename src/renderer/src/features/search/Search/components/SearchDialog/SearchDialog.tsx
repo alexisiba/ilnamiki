@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router'
 
 import { OnScreenKeyboard } from '@renderer/components/OnScreenKeyboard'
 import { useInputAction } from '@renderer/core/input'
-import { getGameDetailsPath, NavigationProvider } from '@renderer/core/navigation'
+import { getGameDetailsPath, NavigationProvider, useOpenScreen } from '@renderer/core/navigation'
 import { SAMPLE_GAMES } from '@renderer/mocks/games'
 import type { Game } from '@renderer/types/game'
 
@@ -27,7 +26,7 @@ import styles from './SearchDialog.module.css'
  */
 export function SearchDialog({ onClose }: SearchDialogProps): React.JSX.Element {
   const { t } = useTranslation('search')
-  const navigate = useNavigate()
+  const openScreen = useOpenScreen()
   const ref = useRef<HTMLDialogElement>(null)
   const [query, setQuery] = useState('')
   /** The games the last search found; `undefined` before searching and while typing again. */
@@ -59,7 +58,8 @@ export function SearchDialog({ onClose }: SearchDialogProps): React.JSX.Element 
   }
 
   const openGame = (game: Game): void => {
-    navigate(getGameDetailsPath(game.id))
+    // Back from the game returns to the screen search was opened over.
+    openScreen(getGameDetailsPath(game.id))
     onClose()
   }
 

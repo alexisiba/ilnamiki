@@ -1,10 +1,10 @@
 import { TriangleAlert } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router'
+import { useParams } from 'react-router'
 
 import { Button } from '@renderer/components/Button'
 import { useEmulators } from '@renderer/core/ipc'
-import { FocusGroup, SECTION_PATHS } from '@renderer/core/navigation'
+import { FocusGroup, useGoBack } from '@renderer/core/navigation'
 
 import { SettingsEmptyState } from '../components/SettingsEmptyState'
 import { EmulatorPath } from './components/EmulatorPath'
@@ -18,15 +18,11 @@ import styles from './EmulatorDetailsSettings.module.css'
  */
 export function EmulatorDetailsSettings(): React.JSX.Element | null {
   const { t } = useTranslation('settings')
-  const navigate = useNavigate()
   const { emulatorId } = useParams()
   const { status, emulators } = useEmulators()
   const emulator = emulators.find((candidate) => candidate.id === emulatorId)
-
   // As the back action does.
-  const returnToList = (): void => {
-    navigate(SECTION_PATHS.settings, { replace: true })
-  }
+  const returnToList = useGoBack()
 
   const back = (
     <Button focusId="back" onPress={returnToList}>

@@ -224,6 +224,30 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: 'Play now' })).toHaveFocus()
   })
 
+  it('goes back to the screen that opened a game, even in another section', async () => {
+    const router = renderApp()
+    const user = userEvent.setup()
+    await user.click(screen.getByRole('link', { name: 'Library' }))
+    await user.click(screen.getByRole('button', { name: 'NES' }))
+    await user.keyboard('{Enter}')
+
+    // As search opens a game over the screen it was opened from.
+    await act(() =>
+      router.navigate('/games/dk-64', {
+        state: { backTo: { pathname: '/library/nes', state: router.state.location.state } }
+      })
+    )
+    await user.keyboard('{Escape}')
+
+    expect(router.state.location.pathname).toBe('/library/nes')
+    expect(currentSection()).toHaveTextContent('Library')
+
+    // That screen still knows what opened it.
+    await user.keyboard('{Escape}')
+
+    expect(router.state.location.pathname).toBe('/library')
+  })
+
   it('stays on a section’s root on back', async () => {
     const router = renderApp()
     const user = userEvent.setup()

@@ -1,6 +1,6 @@
 import { useId, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocation, useNavigate, useOutlet } from 'react-router'
+import { useLocation, useOutlet } from 'react-router'
 
 import { useInputAction } from '@renderer/core/input'
 import { usePlatforms } from '@renderer/core/ipc'
@@ -10,6 +10,7 @@ import {
   getEmulatorDetailsPath,
   isSectionRoot,
   useGroupFocus,
+  useOpenScreen,
   useRememberedState
 } from '@renderer/core/navigation'
 
@@ -29,7 +30,7 @@ import styles from './SettingsScreen.module.css'
 export function SettingsScreen(): React.JSX.Element {
   const { t } = useTranslation()
   const { pathname } = useLocation()
-  const navigate = useNavigate()
+  const openScreen = useOpenScreen()
   // The screen inside Settings being shown, if any.
   const outlet = useOutlet()
   const [categoryId, setCategoryId] = useRememberedState<SettingsCategoryId>(
@@ -75,8 +76,8 @@ export function SettingsScreen(): React.JSX.Element {
             <>
               {categoryId === 'emulators' && (
                 <EmulatorSettings
-                  onAdd={() => navigate(ADD_EMULATOR_PATH)}
-                  onOpen={(emulatorId) => navigate(getEmulatorDetailsPath(emulatorId))}
+                  onAdd={() => openScreen(ADD_EMULATOR_PATH)}
+                  onOpen={(emulatorId) => openScreen(getEmulatorDetailsPath(emulatorId))}
                 />
               )}
               {categoryId === 'platforms' && (
@@ -94,7 +95,7 @@ export function SettingsScreen(): React.JSX.Element {
                     platforms.status === 'loading' ? null : platforms.platforms.length > 0
                   }
                   onSetUpEmulator={() => focusCategories('emulators')}
-                  onAdd={() => navigate(ADD_GAME_FOLDER_PATH)}
+                  onAdd={() => openScreen(ADD_GAME_FOLDER_PATH)}
                 />
               )}
             </>

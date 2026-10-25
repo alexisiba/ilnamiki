@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router'
 
-import { getGameDetailsPath } from '@renderer/core/navigation'
+import { getGameDetailsPath, useOpenScreen } from '@renderer/core/navigation'
 import { getSampleGame } from '@renderer/mocks/games'
 import type { Game } from '@renderer/types/game'
 
@@ -27,7 +26,7 @@ const toShelfGame = ({ id, title, platform, imageUrl }: Game): ShelfGame => ({
 
 export function HomeScreen(): React.JSX.Element {
   const { t, i18n } = useTranslation('home')
-  const navigate = useNavigate()
+  const openScreen = useOpenScreen()
   const lastPlayedGame = SAMPLE_LAST_PLAYED_GAME_ID && getSampleGame(SAMPLE_LAST_PLAYED_GAME_ID)
 
   if (!lastPlayedGame) {
@@ -39,7 +38,7 @@ export function HomeScreen(): React.JSX.Element {
   }
 
   const openGame = (gameId: string): void => {
-    navigate(getGameDetailsPath(gameId))
+    openScreen(getGameDetailsPath(gameId))
   }
 
   const now = new Date()
