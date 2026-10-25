@@ -1,1 +1,5 @@
-export { listInstalledPlatforms } from './installedPlatforms'
+export {
+  findPlatformPlayer,
+  listInstalledPlatforms,
+  type PlatformPlayer
+} from './installedPlatforms'

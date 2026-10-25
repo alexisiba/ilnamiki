@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -6,7 +6,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { FolderGame, GameFolder, InstalledPlatform } from '@shared/api'
 
 import { CONSOLE_GAMES_PATH, NavigationProvider } from '@renderer/core/navigation'
-import { mockFolderGames, mockGameFolders, mockPlatforms } from '@renderer/test/api'
+import {
+  emitGameEnded,
+  mockFolderGames,
+  mockGameFolders,
+  mockLaunchGame,
+  mockPlatforms
+} from '@renderer/test/api'
 
 import { ConsoleGamesScreen } from './ConsoleGamesScreen'
 
@@ -137,6 +143,60 @@ describe('ConsoleGamesScreen', () => {
 
     expect(selectedGame()).toHaveAccessibleName('Crash Bandicoot (USA)')
     expect(await playNow()).toHaveFocus()
+  })
+
+  describe('playing', () => {
+    it('starts the selected game with Play now, which reads Playing until it ends', async () => {
+      mockLaunchGame({ ok: true })
+      renderGamesOf('playstation')
+      const user = userEvent.setup()
+      await playNow()
+      await user.keyboard('{ArrowRight}')
+
+      await user.keyboard('{Enter}')
+
+      expect(window.api.games.launch).toHaveBeenCalledWith('g2')
+      const playing = screen.getByRole('button', { name: 'Playing' })
+      expect(playing).toHaveAttribute('aria-disabled', 'true')
+      expect(playing).toHaveFocus()
+
+      act(() => emitGameEnded('g2'))
+
+      expect(await playNow()).toHaveAttribute('aria-disabled', 'false')
+    })
+
+    it('starts the game once while it is starting or being played', async () => {
+      mockLaunchGame('pending')
+      renderGamesOf('playstation')
+      const user = userEvent.setup()
+      await user.click(await playNow())
+
+      await user.click(screen.getByRole('button', { name: 'Playing' }))
+
+      expect(window.api.games.launch).toHaveBeenCalledOnce()
+    })
+
+    it('says why the game couldn’t start, describing Play now', async () => {
+      mockLaunchGame({ ok: false, problem: 'missing-file' })
+      renderGamesOf('playstation')
+
+      await userEvent.setup().click(await playNow())
+
+      const message = "The game's file isn't there anymore. Check its folder in Settings."
+      expect(await screen.findByRole('alert')).toHaveTextContent(message)
+      expect(await playNow()).toHaveAccessibleDescription(`Ape Escape (USA), 1 of 3 ${message}`)
+    })
+
+    it('says so when the game fails to reach main', async () => {
+      mockLaunchGame(new Error('No main'))
+      renderGamesOf('playstation')
+
+      await userEvent.setup().click(await playNow())
+
+      expect(await screen.findByRole('alert')).toHaveTextContent(
+        "The game couldn't be started. Try again."
+      )
+    })
   })
 
   it('shows nothing until the console is known, so no message flashes', () => {

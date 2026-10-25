@@ -27,4 +27,9 @@ export interface CoresReader {
    * none are or they can't be read.
    */
   readRetroArchCores(executablePath: string): Promise<DetectedCore[]>
+  /**
+   * Absolute path of the library of the core `coreId` in the RetroArch at `executablePath`,
+   * the file RetroArch loads to play; null when it isn't there.
+   */
+  findRetroArchCoreLibrary(executablePath: string, coreId: string): Promise<string | null>
 }

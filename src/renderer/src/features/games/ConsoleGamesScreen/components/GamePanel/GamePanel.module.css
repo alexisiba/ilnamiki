@@ -21,6 +21,12 @@
   color: var(--color-text-muted);
 }
 
+.problem {
+  font-size: var(--body-md-size);
+  line-height: var(--body-md-line-height);
+  color: var(--color-error);
+}
+
 /* A grid cell stretches the button across the panel. */
 .play {
   display: grid;

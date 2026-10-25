@@ -3,8 +3,13 @@ import { homedir } from 'os'
 import { join } from 'path'
 
 import type { CoresReader, DetectedCore } from '../installedPlatforms.types'
-import { parseCoreFolders, parseCoreInfo } from '../retroarch.parsers'
-import { coreIdOf, coreInfoFileOf, resolveRetroArchFolder } from './linux.parsers'
+import { parseCoreFolders, parseCoreInfo, type RetroArchCoreFolders } from '../retroarch.parsers'
+import {
+  coreIdOf,
+  coreInfoFileOf,
+  coreLibraryFileOf,
+  resolveRetroArchFolder
+} from './linux.parsers'
 
 async function isFolder(path: string): Promise<boolean> {
   try {
@@ -36,18 +41,23 @@ async function appImageFolders(executablePath: string): Promise<{ home: string; 
   return { home, config: process.env.XDG_CONFIG_HOME || join(home, '.config') }
 }
 
+/** The folders of the cores and their info files that a RetroArch AppImage's configuration sets. */
+async function coreFoldersOf(executablePath: string): Promise<RetroArchCoreFolders> {
+  const { home, config } = await appImageFolders(executablePath)
+  const retroArchFolder = join(config, 'retroarch')
+  const configText = (await readText(join(retroArchFolder, 'retroarch.cfg'))) ?? ''
+  return parseCoreFolders(configText, (value) =>
+    resolveRetroArchFolder(value, home, join(retroArchFolder, 'cores'))
+  )
+}
+
 /**
  * Reads the cores of a RetroArch AppImage: the libraries in the cores folder its configuration
  * sets, each one described by its info file. A core without an info file, or whose info file
  * doesn't say which platform it plays, is left out.
  */
 async function readRetroArchCores(executablePath: string): Promise<DetectedCore[]> {
-  const { home, config } = await appImageFolders(executablePath)
-  const retroArchFolder = join(config, 'retroarch')
-  const configText = (await readText(join(retroArchFolder, 'retroarch.cfg'))) ?? ''
-  const folders = parseCoreFolders(configText, (value) =>
-    resolveRetroArchFolder(value, home, join(retroArchFolder, 'cores'))
-  )
+  const folders = await coreFoldersOf(executablePath)
 
   let fileNames: string[]
   try {
@@ -66,6 +76,21 @@ async function readRetroArchCores(executablePath: string): Promise<DetectedCore[
   return cores.filter((core) => core !== null)
 }
 
+/** The library of the core `coreId` in a RetroArch AppImage's cores folder, if it is there. */
+async function findRetroArchCoreLibrary(
+  executablePath: string,
+  coreId: string
+): Promise<string | null> {
+  const folders = await coreFoldersOf(executablePath)
+  const libraryPath = join(folders.cores, coreLibraryFileOf(coreId))
+  try {
+    return (await stat(libraryPath)).isFile() ? libraryPath : null
+  } catch {
+    return null
+  }
+}
+
 export const linuxCoresReader: CoresReader = {
-  readRetroArchCores
+  readRetroArchCores,
+  findRetroArchCoreLibrary
 }

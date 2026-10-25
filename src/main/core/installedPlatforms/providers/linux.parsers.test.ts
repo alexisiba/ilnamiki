@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
-import { coreIdOf, coreInfoFileOf, resolveRetroArchFolder } from './linux.parsers'
+import {
+  coreIdOf,
+  coreInfoFileOf,
+  coreLibraryFileOf,
+  resolveRetroArchFolder
+} from './linux.parsers'
 
 const HOME = '/home/user/RetroArch-Linux-x86_64.AppImage.home'
 const DEFAULT_FOLDER = `${HOME}/.config/retroarch/cores`
@@ -36,6 +41,13 @@ describe('coreIdOf', () => {
     expect(coreIdOf('mupen64plus_next_libretro.info')).toBeNull()
     expect(coreIdOf('core_info.refresh')).toBeNull()
     expect(coreIdOf('_libretro.so')).toBeNull()
+  })
+})
+
+describe('coreLibraryFileOf', () => {
+  it('names the core’s library, which coreIdOf reads back', () => {
+    expect(coreLibraryFileOf('mupen64plus_next')).toBe('mupen64plus_next_libretro.so')
+    expect(coreIdOf(coreLibraryFileOf('mupen64plus_next'))).toBe('mupen64plus_next')
   })
 })
 

@@ -4,6 +4,7 @@ import type { Api } from '@shared/api'
 
 import { controllersApi } from './api/controllers'
 import { emulatorsApi } from './api/emulators'
+import { gamesApi } from './api/games'
 import { libraryApi } from './api/library'
 import { networkApi } from './api/network'
 import { platformsApi } from './api/platforms'
@@ -12,6 +13,7 @@ import { platformsApi } from './api/platforms'
 const api: Api = {
   controllers: controllersApi,
   emulators: emulatorsApi,
+  games: gamesApi,
   library: libraryApi,
   network: networkApi,
   platforms: platformsApi

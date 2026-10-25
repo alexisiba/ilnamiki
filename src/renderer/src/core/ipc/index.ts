@@ -8,6 +8,7 @@ export {
   removeEmulator,
   type EmulatorsState
 } from './emulators'
+export { launchGame, subscribeToGameEnded } from './games'
 export {
   addGameFolder,
   refreshGameFolders,

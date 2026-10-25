@@ -29,5 +29,8 @@ export function coreIdOf(fileName: string): string | null {
   return id.length > 0 ? id : null
 }
 
+/** Name of the library of the core `id`, e.g. "mupen64plus_next_libretro.so". */
+export const coreLibraryFileOf = (id: string): string => `${id}${CORE_LIBRARY_SUFFIX}`
+
 /** Name of the info file of the core `id`, e.g. "mupen64plus_next_libretro.info". */
 export const coreInfoFileOf = (id: string): string => `${id}_libretro.info`

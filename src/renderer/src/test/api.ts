@@ -10,6 +10,7 @@ import type {
   Emulator,
   InspectEmulatorResult,
   InstalledPlatform,
+  LaunchGameResult,
   NetworkStatus,
   ScanFolderResult,
   UpdateFolderResult
@@ -37,6 +38,10 @@ export function mockApi(): void {
         problem: 'unknown-emulator'
       })),
       remove: vi.fn(async (): Promise<void> => undefined)
+    },
+    games: {
+      launch: vi.fn(async (): Promise<LaunchGameResult> => ({ ok: false, problem: 'no-core' })),
+      onGameEnded: vi.fn((): (() => void) => () => undefined)
     },
     library: {
       pickFolder: vi.fn(async (): Promise<string | null> => null),
@@ -194,6 +199,25 @@ export function mockUpdateGameFolder(result: UpdateFolderResult | Error): void {
     if (result instanceof Error) throw result
     return result
   })
+}
+
+/**
+ * Makes `window.api.games.launch` resolve with `result`, reject with an error, or, with
+ * `'pending'`, never answer, as an emulator still starting.
+ */
+export function mockLaunchGame(result: LaunchGameResult | Error | 'pending'): void {
+  vi.mocked(window.api.games.launch).mockImplementation(() => {
+    if (result === 'pending') return new Promise(() => {})
+    if (result instanceof Error) return Promise.reject(result)
+    return Promise.resolve(result)
+  })
+}
+
+/** Sends that the game `gameId` ended to every listener of `window.api.games.onGameEnded`. */
+export function emitGameEnded(gameId: string): void {
+  for (const [listener] of vi.mocked(window.api.games.onGameEnded).mock.calls) {
+    listener({ gameId })
+  }
 }
 
 /** Makes `window.api.platforms.list` resolve with `platforms`, or reject with an error. */

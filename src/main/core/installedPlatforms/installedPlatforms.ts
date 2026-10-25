@@ -27,3 +27,27 @@ export async function listInstalledPlatforms(): Promise<InstalledPlatform[]> {
     )
   )
 }
+
+/** What it takes to play a platform's games: an emulator's application and the core to load. */
+export interface PlatformPlayer {
+  /** Absolute path of the emulator's application. */
+  executablePath: string
+  /** Absolute path of the core's library. */
+  coreLibraryPath: string
+}
+
+/**
+ * How to play the platform `platformId`: with its first installed core, by name (the one
+ * listed first), until the user can choose one. Null when no installed core plays it.
+ */
+export async function findPlatformPlayer(platformId: string): Promise<PlatformPlayer | null> {
+  const platform = (await listInstalledPlatforms()).find(({ id }) => id === platformId)
+  const core = platform?.cores[0]
+  if (!core) return null
+
+  const emulator = createEmulatorsRepository(getDatabase()).findById(core.emulatorId)
+  if (!emulator) return null
+  const coreLibraryPath = await reader.findRetroArchCoreLibrary(emulator.executablePath, core.id)
+  if (coreLibraryPath === null) return null
+  return { executablePath: emulator.executablePath, coreLibraryPath }
+}
