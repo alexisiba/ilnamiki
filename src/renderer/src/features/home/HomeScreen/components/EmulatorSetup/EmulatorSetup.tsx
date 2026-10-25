@@ -1,27 +1,26 @@
 import { Gamepad2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { Button } from '@renderer/components/Button'
-import { FocusGroup } from '@renderer/core/navigation'
+import { useOpenSettings } from '@renderer/core/navigation'
 
-import { EMULATOR_SETUP_ACTIONS } from './EmulatorSetup.constants'
-import styles from './EmulatorSetup.module.css'
+import { SetupPanel } from '../SetupPanel'
 
+/**
+ * Shown on Home while the user has no emulator: that one is needed (RetroArch recommended to
+ * start) and the action, focused, that opens the emulators in Settings.
+ */
 export function EmulatorSetup(): React.JSX.Element {
   const { t } = useTranslation('home')
+  const openSettings = useOpenSettings()
 
   return (
-    <FocusGroup id="emulator-setup" as="section" className={styles.panel}>
-      <Gamepad2 className={styles.icon} aria-hidden />
-      <h2 className={styles.title}>{t('emulatorSetup.title')}</h2>
-      <p className={styles.description}>{t('emulatorSetup.description')}</p>
-      <div className={styles.actions}>
-        {EMULATOR_SETUP_ACTIONS.map((setupAction, index) => (
-          <Button key={setupAction.id} focusId={setupAction.id} autoFocus={index === 0}>
-            {t(setupAction.labelKey)}
-          </Button>
-        ))}
-      </div>
-    </FocusGroup>
+    <SetupPanel
+      id="emulator-setup"
+      icon={Gamepad2}
+      title={t('emulatorSetup.title')}
+      description={t('emulatorSetup.description')}
+      actionLabel={t('emulatorSetup.setUp')}
+      onAction={() => openSettings('emulators')}
+    />
   )
 }

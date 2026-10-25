@@ -1,4 +1,4 @@
-import { useId, useRef } from 'react'
+import { useEffect, useId, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useOutlet } from 'react-router'
 
@@ -8,6 +8,7 @@ import {
   ADD_GAME_FOLDER_PATH,
   getEmulatorDetailsPath,
   getGameFolderDetailsPath,
+  getRequestedSettingsCategory,
   isSectionRoot,
   useGroupFocus,
   useOpenScreen,
@@ -31,7 +32,7 @@ import styles from './SettingsScreen.module.css'
  */
 export function SettingsScreen(): React.JSX.Element {
   const { t } = useTranslation()
-  const { pathname } = useLocation()
+  const { pathname, state, key } = useLocation()
   const openScreen = useOpenScreen()
   // The screen inside Settings being shown, if any.
   const outlet = useOutlet()
@@ -40,10 +41,18 @@ export function SettingsScreen(): React.JSX.Element {
     SETTINGS_CATEGORIES[0].id
   )
   const focusCategories = useGroupFocus(SETTINGS_NAV_GROUP_ID)
+  const requestedCategory = SETTINGS_CATEGORIES.find(
+    ({ id }) => id === getRequestedSettingsCategory(state)
+  )?.id
   const panelRef = useRef<HTMLDivElement>(null)
   const idPrefix = useId()
   const panelId = `${idPrefix}-panel`
   const getTabId = (id: SettingsCategoryId): string => `${idPrefix}-${id}-tab`
+
+  // Opened on a category from another section (e.g. Home): focusing it selects it.
+  useEffect(() => {
+    if (requestedCategory) focusCategories(requestedCategory)
+  }, [key, requestedCategory, focusCategories])
 
   // Inside a screen of Settings, back returns to the category's content instead (see App).
   useInputAction((action) => {

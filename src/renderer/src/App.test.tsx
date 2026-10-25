@@ -3,13 +3,24 @@ import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { mockFolderGames, mockGameFolders, mockPlatforms } from '@renderer/test/api'
+import { mockEmulators, mockFolderGames, mockGameFolders, mockPlatforms } from '@renderer/test/api'
 import { connectGamepad } from '@renderer/test/gamepad'
 
 import { APP_ROUTES } from './App.routes'
 
-// The library has one console: the NES, installed and with a folder of two games.
+// One emulator, RetroArch, and one console in the library: the NES, with a folder of two games.
 beforeEach(() => {
+  mockEmulators([
+    {
+      id: 'a1',
+      kind: 'retroarch',
+      name: 'RetroArch',
+      executablePath: '/home/player/Emulators/RetroArch-Linux-x86_64.AppImage',
+      version: '1.22.2',
+      iconDataUrl: null,
+      addedAt: 1
+    }
+  ])
   mockFolderGames([
     { id: 'g1', title: 'Contra (USA)', filePath: '/home/player/Games/NES/Contra (USA).nes' },
     { id: 'g2', title: 'Metroid (USA)', filePath: '/home/player/Games/NES/Metroid (USA).nes' }
@@ -135,7 +146,7 @@ describe('App', () => {
   it('restores the focused game when coming back to home', async () => {
     renderApp()
     const user = userEvent.setup()
-    const card = screen.getByRole('button', { name: 'Donkey Kong 64' })
+    const card = await screen.findByRole('button', { name: 'Donkey Kong 64' })
 
     await user.pointer({ target: card, coords: { x: 100, y: 500 } })
     await user.keyboard('ee')
@@ -147,7 +158,7 @@ describe('App', () => {
   it('opens a game’s details from its card, still inside the home section', async () => {
     renderApp()
 
-    await userEvent.setup().click(screen.getByRole('button', { name: 'Donkey Kong 64' }))
+    await userEvent.setup().click(await screen.findByRole('button', { name: 'Donkey Kong 64' }))
 
     expect(screen.getByRole('heading', { level: 1, name: 'Donkey Kong 64' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Play' })).toHaveFocus()
@@ -157,7 +168,7 @@ describe('App', () => {
   it('goes back from a game’s details to home, with focus on its card', async () => {
     renderApp()
     const user = userEvent.setup()
-    const card = screen.getByRole('button', { name: 'Donkey Kong 64' })
+    const card = await screen.findByRole('button', { name: 'Donkey Kong 64' })
 
     await user.pointer({ target: card, coords: { x: 100, y: 500 } })
     await user.keyboard('{Enter}')
@@ -289,6 +300,22 @@ describe('App', () => {
 
     expect(screen.getByRole('tablist')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Add emulator' })).toHaveFocus()
+  })
+
+  it('opens the emulators in Settings from Home while there are none, whichever was left', async () => {
+    mockEmulators([])
+    const router = renderApp()
+    const user = userEvent.setup()
+    // Settings left on another category.
+    await user.click(screen.getByRole('link', { name: 'Settings' }))
+    await user.click(screen.getByRole('tab', { name: 'Game folders' }))
+    await user.click(screen.getByRole('link', { name: 'Home' }))
+
+    await user.click(await screen.findByRole('button', { name: 'Set up an emulator' }))
+
+    expect(router.state.location.pathname).toBe('/settings')
+    expect(screen.getByRole('tab', { name: 'Emulators' })).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByRole('tab', { name: 'Emulators' })).toHaveFocus()
   })
 
   it('stays on a section’s root on back', async () => {

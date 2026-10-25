@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 
+import { useEmulators, usePlatforms } from '@renderer/core/ipc'
 import { getGameDetailsPath, useOpenScreen } from '@renderer/core/navigation'
 import { getSampleGame } from '@renderer/mocks/games'
 import type { Game } from '@renderer/types/game'
@@ -7,6 +8,7 @@ import type { Game } from '@renderer/types/game'
 import { EmulatorSetup } from './components/EmulatorSetup'
 import { GameShelf, type ShelfGame } from './components/GameShelf'
 import { HomeHero } from './components/HomeHero'
+import { PlatformSetup } from './components/PlatformSetup'
 import {
   SAMPLE_LAST_PLAYED_GAME_ID,
   SAMPLE_RECENT_GAME_IDS,
@@ -24,15 +26,35 @@ const toShelfGame = ({ id, title, platform, imageUrl }: Game): ShelfGame => ({
   imageUrl
 })
 
-export function HomeScreen(): React.JSX.Element {
+/**
+ * Home, checking in order what is needed to play: while the user has no emulator, how to set
+ * up the first one; while their emulators play no platform, how to set one up for the
+ * consoles; and otherwise the last played game and the rows of games (sample games for now).
+ * Until what a check needs is read nothing shows, so no view flashes.
+ */
+export function HomeScreen(): React.JSX.Element | null {
   const { t, i18n } = useTranslation('home')
   const openScreen = useOpenScreen()
+  const emulators = useEmulators()
+  const platforms = usePlatforms()
   const lastPlayedGame = SAMPLE_LAST_PLAYED_GAME_ID && getSampleGame(SAMPLE_LAST_PLAYED_GAME_ID)
 
-  if (!lastPlayedGame) {
+  if (emulators.status === 'loading') return null
+
+  if (emulators.emulators.length === 0 || !lastPlayedGame) {
     return (
       <div className={styles.emptyState}>
         <EmulatorSetup />
+      </div>
+    )
+  }
+
+  if (platforms.status === 'loading') return null
+
+  if (platforms.platforms.length === 0) {
+    return (
+      <div className={styles.emptyState}>
+        <PlatformSetup />
       </div>
     )
   }

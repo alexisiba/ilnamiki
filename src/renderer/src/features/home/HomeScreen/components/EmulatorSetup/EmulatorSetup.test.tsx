@@ -1,57 +1,59 @@
-import { screen } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { createMemoryRouter, RouterProvider } from 'react-router'
 import { describe, expect, it } from 'vitest'
 
-import { setRect } from '@renderer/test/layout'
-import { renderWithNavigation } from '@renderer/test/renderWithNavigation'
+import {
+  getRequestedSettingsCategory,
+  NavigationProvider,
+  SECTION_PATHS
+} from '@renderer/core/navigation'
 
 import { EmulatorSetup } from './EmulatorSetup'
 
-const download = (): HTMLElement => screen.getByRole('button', { name: 'Download RetroArch' })
-const alreadyInstalled = (): HTMLElement =>
-  screen.getByRole('button', { name: 'I already have an emulator installed' })
-
-/** Renders the panel with its actions stacked vertically, as on screen. */
-function renderEmulatorSetup(): void {
-  renderWithNavigation(<EmulatorSetup />)
-  setRect(download(), { left: 0, top: 0, width: 400, height: 60 })
-  setRect(alreadyInstalled(), { left: 0, top: 80, width: 400, height: 60 })
+function renderEmulatorSetup(): ReturnType<typeof createMemoryRouter> {
+  const router = createMemoryRouter(
+    [
+      {
+        path: SECTION_PATHS.home,
+        element: (
+          <NavigationProvider>
+            <EmulatorSetup />
+          </NavigationProvider>
+        )
+      },
+      { path: SECTION_PATHS.settings, element: <p>Settings screen</p> }
+    ],
+    { initialEntries: [SECTION_PATHS.home] }
+  )
+  render(<RouterProvider router={router} />)
+  return router
 }
 
+const setUp = (): HTMLElement => screen.getByRole('button', { name: 'Set up an emulator' })
+
 describe('EmulatorSetup', () => {
-  it('focuses the download action first', () => {
+  it('says an emulator is needed, recommending RetroArch', () => {
     renderEmulatorSetup()
 
-    expect(download()).toHaveFocus()
+    expect(screen.getByRole('heading', { name: 'Set up your first emulator' })).toBeInTheDocument()
+    expect(screen.getByText(/We recommend RetroArch/)).toBeInTheDocument()
   })
 
-  it('moves focus down and up with the keyboard', async () => {
-    const user = userEvent.setup()
+  it('offers one action, focused: setting up an emulator', () => {
     renderEmulatorSetup()
 
-    await user.keyboard('{ArrowDown}')
-    expect(alreadyInstalled()).toHaveFocus()
-
-    await user.keyboard('{ArrowUp}')
-    expect(download()).toHaveFocus()
+    expect(screen.getAllByRole('button')).toEqual([setUp()])
+    expect(setUp()).toHaveFocus()
   })
 
-  it('stays on the edges instead of wrapping', async () => {
-    const user = userEvent.setup()
-    renderEmulatorSetup()
+  it('opens Settings on its emulators, without stacking history', async () => {
+    const router = renderEmulatorSetup()
 
-    await user.keyboard('{ArrowUp}')
-    expect(download()).toHaveFocus()
+    await userEvent.setup().click(setUp())
 
-    await user.keyboard('{ArrowDown}{ArrowDown}')
-    expect(alreadyInstalled()).toHaveFocus()
-  })
-
-  it('focuses the action the mouse points at', async () => {
-    renderEmulatorSetup()
-
-    await userEvent.setup().hover(alreadyInstalled())
-
-    expect(alreadyInstalled()).toHaveFocus()
+    expect(router.state.location.pathname).toBe(SECTION_PATHS.settings)
+    expect(getRequestedSettingsCategory(router.state.location.state)).toBe('emulators')
+    expect(router.state.historyAction).toBe('REPLACE')
   })
 })
