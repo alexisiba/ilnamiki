@@ -9,9 +9,11 @@ import {
   useGroupFocus,
   useRememberedState
 } from '@renderer/core/navigation'
+import { SAMPLE_ASSOCIATED_PLATFORMS } from '@renderer/mocks/associatedPlatforms'
 import { SAMPLE_EMULATORS } from '@renderer/mocks/emulators'
 
 import { EmulatorSettings } from './components/EmulatorSettings'
+import { PlatformSettings } from './components/PlatformSettings'
 import { SettingsNav } from './components/SettingsNav'
 import { SETTINGS_CATEGORIES, SETTINGS_NAV_GROUP_ID } from './SettingsScreen.constants'
 import type { SettingsCategoryId } from './SettingsScreen.types'
@@ -66,13 +68,23 @@ export function SettingsScreen(): React.JSX.Element {
           aria-labelledby={getTabId(categoryId)}
           className={styles.panel}
         >
-          {outlet ??
-            (categoryId === 'emulators' && (
-              <EmulatorSettings
-                emulators={SAMPLE_EMULATORS}
-                onAdd={() => navigate(ADD_EMULATOR_PATH)}
-              />
-            ))}
+          {outlet ?? (
+            <>
+              {categoryId === 'emulators' && (
+                <EmulatorSettings
+                  emulators={SAMPLE_EMULATORS}
+                  onAdd={() => navigate(ADD_EMULATOR_PATH)}
+                />
+              )}
+              {categoryId === 'platforms' && (
+                <PlatformSettings
+                  platforms={SAMPLE_ASSOCIATED_PLATFORMS}
+                  // Focusing the category selects it, which shows the emulators.
+                  onSetUpEmulator={() => focusCategories('emulators')}
+                />
+              )}
+            </>
+          )}
         </div>
       </div>
     </div>

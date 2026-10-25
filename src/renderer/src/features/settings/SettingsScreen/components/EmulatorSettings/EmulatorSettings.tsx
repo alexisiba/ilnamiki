@@ -1,10 +1,11 @@
+import { Gamepad2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@renderer/components/Button'
 import { FocusGroup } from '@renderer/core/navigation'
 
+import { SettingsEmptyState } from '../SettingsEmptyState'
 import { EmulatorListItem } from './components/EmulatorListItem'
-import { EmulatorsEmpty } from './components/EmulatorsEmpty'
 import type { EmulatorSettingsProps } from './EmulatorSettings.types'
 import styles from './EmulatorSettings.module.css'
 
@@ -18,7 +19,11 @@ export function EmulatorSettings({ emulators, onAdd }: EmulatorSettingsProps): R
   return (
     <FocusGroup id="settings-emulators" className={styles.content}>
       {emulators.length === 0 ? (
-        <EmulatorsEmpty />
+        <SettingsEmptyState
+          icon={Gamepad2}
+          title={t('emulators.empty.title')}
+          description={t('emulators.empty.description')}
+        />
       ) : (
         <section className={styles.configured}>
           <h2 className={styles.title}>{t('emulators.configured')}</h2>

@@ -142,6 +142,11 @@
   /* On-screen keyboard: ten keys and their gaps match the panel width. */
   --key-width: 88px;
   --key-height: 72px;
+  /* Switches: a pill-shaped track whose knob slides from one end to the other. */
+  --switch-width: 88px;
+  --switch-height: 48px;
+  --switch-padding: 5px;
+  --switch-knob-size: 36px;
   --indicator-dot-size: 8px;
   --indicator-line-width: 32px;
 

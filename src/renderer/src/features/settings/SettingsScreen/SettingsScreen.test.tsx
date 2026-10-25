@@ -9,6 +9,7 @@ import { setRect } from '@renderer/test/layout'
 import { SettingsScreen } from './SettingsScreen'
 
 const emulatorsTab = (): HTMLElement => screen.getByRole('tab', { name: 'Emulators' })
+const platformsTab = (): HTMLElement => screen.getByRole('tab', { name: 'Installed platforms' })
 const addEmulator = (): HTMLElement => screen.getByRole('button', { name: 'Add emulator' })
 
 /** Renders Settings at `path`, with a stand-in for the add emulator form inside it. */
@@ -39,6 +40,7 @@ function renderSettings(path: string = SECTION_PATHS.settings): void {
 function layOut(): void {
   setRect(screen.getByRole('tablist').parentElement!, { left: 0, top: 0, width: 320, height: 800 })
   setRect(emulatorsTab(), { left: 0, top: 0, width: 320, height: 70 })
+  setRect(platformsTab(), { left: 0, top: 80, width: 320, height: 70 })
   setRect(addEmulator().parentElement!.parentElement!, {
     left: 360,
     top: 0,
@@ -74,6 +76,42 @@ describe('SettingsScreen', () => {
 
     await user.keyboard('{ArrowLeft}')
     expect(emulatorsTab()).toHaveFocus()
+  })
+
+  it('lists the categories in order', () => {
+    renderSettings()
+
+    expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual([
+      'Emulators',
+      'Installed platforms'
+    ])
+  })
+
+  it('shows the installed platforms when that category takes focus', async () => {
+    renderSettings()
+    layOut()
+
+    await userEvent.setup().keyboard('{ArrowDown}')
+
+    expect(platformsTab()).toHaveFocus()
+    expect(platformsTab()).toHaveAttribute('aria-selected', 'true')
+    expect(emulatorsTab()).toHaveAttribute('aria-selected', 'false')
+    expect(screen.getByRole('tabpanel', { name: 'Installed platforms' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'No platforms installed' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Add emulator' })).not.toBeInTheDocument()
+  })
+
+  it('takes the user to the emulators from the empty installed platforms', async () => {
+    renderSettings()
+    layOut()
+    const user = userEvent.setup()
+    await user.keyboard('{ArrowDown}')
+
+    await user.click(screen.getByRole('button', { name: 'Set up an emulator' }))
+
+    expect(emulatorsTab()).toHaveFocus()
+    expect(emulatorsTab()).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByRole('heading', { name: 'No emulators configured' })).toBeInTheDocument()
   })
 
   it('returns to the category on back from the content', async () => {

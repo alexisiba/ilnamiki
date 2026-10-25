@@ -1,7 +1,17 @@
 {
   "categories": {
     "label": "Categorías de ajustes",
-    "emulators": "Emuladores"
+    "emulators": "Emuladores",
+    "platforms": "Plataformas instaladas"
+  },
+  "platforms": {
+    "core": "Núcleo: {{core}}",
+    "extensions": "Extensiones: {{extensions}}",
+    "empty": {
+      "title": "No hay plataformas instaladas",
+      "description": "Configura un emulador para asociar tu primera plataforma.",
+      "setUpEmulator": "Configurar emulador"
+    }
   },
   "emulators": {
     "configured": "Emuladores configurados",

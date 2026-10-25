@@ -1,0 +1,114 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  min-height: 0;
+  /*
+   * The list scrolls vertically, which also clips: pad it so the focus glow is not cut, and
+   * keep that padding when scrolling to the focused row, so the first and last rows scroll
+   * all the way to the list's edges.
+   */
+  margin: calc(-1 * var(--space-sm));
+  padding: var(--space-sm);
+  overflow-y: auto;
+  scroll-padding-block: var(--space-sm);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface-high);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-align: start;
+  transition:
+    border-color var(--duration-focus) var(--ease-focus),
+    box-shadow var(--duration-focus) var(--ease-focus);
+}
+
+/* This style is the focus indicator. */
+.item:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-focus);
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.name {
+  font-family: var(--font-headline);
+  font-size: var(--headline-sm-size);
+  font-weight: var(--headline-sm-weight);
+  line-height: var(--headline-sm-line-height);
+  color: var(--color-text);
+}
+
+.item:focus .name {
+  color: var(--color-text-focus);
+}
+
+/* The core and the extensions, one line each. */
+.detail {
+  font-family: var(--font-label);
+  font-size: var(--label-md-size);
+  font-weight: var(--label-md-weight);
+  line-height: var(--label-md-line-height);
+  letter-spacing: var(--label-md-tracking);
+  font-variant-ligatures: none;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* Off: a dim track with the knob on the left. On: a cyan track with the knob on the right. */
+.toggle {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  width: var(--switch-width);
+  height: var(--switch-height);
+  padding: var(--switch-padding);
+  background: var(--color-surface-highest);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  transition:
+    background-color var(--duration-focus) var(--ease-focus),
+    border-color var(--duration-focus) var(--ease-focus);
+}
+
+.knob {
+  width: var(--switch-knob-size);
+  height: var(--switch-knob-size);
+  background: var(--color-text-muted);
+  border-radius: var(--radius-full);
+  transition:
+    transform var(--duration-focus) var(--ease-focus),
+    background-color var(--duration-focus) var(--ease-focus);
+}
+
+.item[aria-checked='true'] .toggle {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.item[aria-checked='true'] .knob {
+  background: var(--color-on-accent);
+  /* Across the track: its inner width minus the knob. */
+  transform: translateX(
+    calc(var(--switch-width) - 2 * var(--switch-padding) - 2px - var(--switch-knob-size))
+  );
+}

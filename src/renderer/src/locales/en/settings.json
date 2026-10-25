@@ -1,7 +1,17 @@
 {
   "categories": {
     "label": "Settings categories",
-    "emulators": "Emulators"
+    "emulators": "Emulators",
+    "platforms": "Installed platforms"
+  },
+  "platforms": {
+    "core": "Core: {{core}}",
+    "extensions": "Extensions: {{extensions}}",
+    "empty": {
+      "title": "No platforms installed",
+      "description": "Set up an emulator to add your first platform.",
+      "setUpEmulator": "Set up an emulator"
+    }
   },
   "emulators": {
     "configured": "Configured emulators",
