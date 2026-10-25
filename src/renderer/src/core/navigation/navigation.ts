@@ -32,6 +32,8 @@ export interface Navigation {
   pointerDown: (element: HTMLElement) => void
   /** Moves focus to the item of `element`, e.g. to results that just appeared. */
   focusElement: (element: HTMLElement) => void
+  /** Moves focus into the group `groupId`: to its last focused item, else its first one. */
+  focusGroup: (groupId: string) => void
   /** Id of the item last focused in a group, the one focus returns to when entering it again. */
   lastFocusedIn: (groupId: string) => string | undefined
   /** Keeps a screen's state while the app runs, so the screen looks the same when it returns. */
@@ -100,6 +102,29 @@ export function createNavigation(): Navigation {
   const focusedItem = (): FocusItem | undefined =>
     document.activeElement instanceof HTMLElement ? items.get(document.activeElement) : undefined
 
+  const itemsIn = (groupId: string): FocusItem[] =>
+    [...items.values()].filter((item) => item.groupId === groupId)
+
+  /**
+   * An item of the group straight ahead of `from` in `direction`, e.g. a side column whose
+   * items are not level with the focused one: the closest of its items in that direction.
+   */
+  const findInGroupAhead = (
+    from: DOMRect,
+    currentGroupId: string | undefined,
+    direction: Direction
+  ): FocusItem | undefined => {
+    const ahead = [...groups.values()]
+      .filter((group) => group.id !== currentGroupId)
+      .map((group) => ({ item: group, rect: group.element.getBoundingClientRect() }))
+      .filter(({ rect }) => isInBeam(from, rect, direction))
+    const group = findNextInDirection(from, ahead, direction)
+    if (!group) return undefined
+
+    const members = itemsIn(group.id)
+    return findNextInDirection(from, toCandidates(members), direction) ?? members[0]
+  }
+
   return {
     setScope(nextScope) {
       if (nextScope === scope) return
@@ -147,13 +172,16 @@ export function createNavigation(): Navigation {
 
       if (!target) {
         // Leaving the group: prefer what is straight ahead. Vertically, fall back to anything
-        // in that direction; horizontally, stop at the edge of the row.
+        // in that direction; horizontally, to a group straight ahead (e.g. a side column),
+        // and otherwise stop at the edge of the row.
         const outside = toCandidates(others.filter((item) => item.groupId !== current.groupId))
         const ahead = outside.filter(({ rect }) => isInBeam(from, rect, direction))
         const vertical = direction === 'up' || direction === 'down'
         const next =
           findNextInDirection(from, ahead, direction) ??
-          (vertical ? findNextInDirection(from, outside, direction) : undefined)
+          (vertical
+            ? findNextInDirection(from, outside, direction)
+            : findInGroupAhead(from, current.groupId, direction))
 
         target =
           next && next.groupId !== undefined
@@ -192,6 +220,14 @@ export function createNavigation(): Navigation {
 
     focusElement(element) {
       const item = items.get(element)
+      if (!item) return
+
+      claim = CLAIM.user
+      focus(item, 'auto')
+    },
+
+    focusGroup(groupId) {
+      const item = findByKey(groupMemory.get(groupId)) ?? itemsIn(groupId)[0]
       if (!item) return
 
       claim = CLAIM.user

@@ -6,6 +6,7 @@ import { setRect } from '@renderer/test/layout'
 
 import { FocusGroup } from '../FocusGroup'
 import { useFocusable } from '../useFocusable'
+import { useGroupFocus } from '../useGroupFocus'
 import { useLastFocusedId } from '../useLastFocusedId'
 import { useRememberedState } from '../useRememberedState'
 import { NavigationProvider } from './NavigationProvider'
@@ -127,6 +128,48 @@ describe('NavigationProvider', () => {
     await user.keyboard('{ArrowRight}{ArrowRight}{ArrowDown}{ArrowLeft}{ArrowLeft}{ArrowUp}')
 
     expect(item('top3')).toHaveFocus()
+  })
+
+  it('moves sideways into a column whose items are not level with the focused one', async () => {
+    // A column with one item at the top, beside a list of two rows.
+    render(
+      <NavigationProvider>
+        <FocusGroup id="column">
+          <Item id="category" />
+        </FocusGroup>
+        <FocusGroup id="list">
+          <Item id="row1" />
+          <Item id="row2" />
+        </FocusGroup>
+      </NavigationProvider>
+    )
+    setRect(item('category').parentElement!, { left: 0, top: 0, width: 200, height: 400 })
+    setRect(item('category'), { left: 0, top: 0, width: 200, height: 100 })
+    setRect(item('row1'), { left: 240, top: 0, width: 400, height: 100 })
+    setRect(item('row2'), { left: 240, top: 300, width: 400, height: 100 })
+
+    await userEvent.setup().keyboard('{ArrowRight}{ArrowDown}{ArrowLeft}')
+
+    expect(item('category')).toHaveFocus()
+  })
+
+  it('moves focus into a group on request, to its last focused item', async () => {
+    function FocusTop(): React.JSX.Element {
+      return <Item id="focus top" onClick={useGroupFocus('top')} />
+    }
+    render(
+      <NavigationProvider>
+        <Rows />
+        <FocusTop />
+      </NavigationProvider>
+    )
+    layOutRows()
+    const user = userEvent.setup()
+
+    await user.keyboard('{ArrowRight}')
+    await user.click(item('focus top'))
+
+    expect(item('top2')).toHaveFocus()
   })
 
   it('clicks the focused item on confirm', async () => {
