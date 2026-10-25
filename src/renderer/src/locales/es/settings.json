@@ -17,12 +17,17 @@
     }
   },
   "platforms": {
-    "core": "Núcleo: {{core}}",
+    "cores_one": "Núcleo: {{cores}}",
+    "cores_other": "Núcleos: {{cores}}",
     "extensions": "Extensiones: {{extensions}}",
     "empty": {
       "title": "No hay plataformas instaladas",
       "description": "Configura un emulador para asociar tu primera plataforma.",
       "setUpEmulator": "Configurar emulador"
+    },
+    "failed": {
+      "title": "No se pudieron cargar las plataformas",
+      "description": "Cierra Ilnamiki y vuelve a abrirlo."
     }
   },
   "emulators": {

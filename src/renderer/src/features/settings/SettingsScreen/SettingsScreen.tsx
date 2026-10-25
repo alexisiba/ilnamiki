@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useOutlet } from 'react-router'
 
 import { useInputAction } from '@renderer/core/input'
+import { usePlatforms } from '@renderer/core/ipc'
 import {
   ADD_EMULATOR_PATH,
   ADD_GAME_FOLDER_PATH,
@@ -11,7 +12,6 @@ import {
   useGroupFocus,
   useRememberedState
 } from '@renderer/core/navigation'
-import { SAMPLE_ASSOCIATED_PLATFORMS } from '@renderer/mocks/associatedPlatforms'
 import { SAMPLE_GAME_FOLDERS } from '@renderer/mocks/gameFolders'
 
 import { EmulatorSettings } from './components/EmulatorSettings'
@@ -38,6 +38,7 @@ export function SettingsScreen(): React.JSX.Element {
     SETTINGS_CATEGORIES[0].id
   )
   const focusCategories = useGroupFocus(SETTINGS_NAV_GROUP_ID)
+  const platforms = usePlatforms()
   const panelRef = useRef<HTMLDivElement>(null)
   const idPrefix = useId()
   const panelId = `${idPrefix}-panel`
@@ -81,7 +82,6 @@ export function SettingsScreen(): React.JSX.Element {
               )}
               {categoryId === 'platforms' && (
                 <PlatformSettings
-                  platforms={SAMPLE_ASSOCIATED_PLATFORMS}
                   // Focusing the category selects it, which shows the emulators.
                   onSetUpEmulator={() => focusCategories('emulators')}
                 />
@@ -89,7 +89,10 @@ export function SettingsScreen(): React.JSX.Element {
               {categoryId === 'gameFolders' && (
                 <GameFolderSettings
                   folders={SAMPLE_GAME_FOLDERS}
-                  hasInstalledPlatforms={SAMPLE_ASSOCIATED_PLATFORMS.length > 0}
+                  // Not known until the platforms are first read.
+                  hasInstalledPlatforms={
+                    platforms.status === 'loading' ? null : platforms.platforms.length > 0
+                  }
                   onSetUpEmulator={() => focusCategories('emulators')}
                   onAdd={() => navigate(ADD_GAME_FOLDER_PATH)}
                 />

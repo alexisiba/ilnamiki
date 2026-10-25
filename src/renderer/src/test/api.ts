@@ -6,6 +6,7 @@ import type {
   ControllerStatus,
   Emulator,
   InspectEmulatorResult,
+  InstalledPlatform,
   NetworkStatus
 } from '@shared/api'
 
@@ -41,6 +42,9 @@ export function mockApi(): void {
         wifiSignalPercent: null,
         internet: null
       }))
+    },
+    platforms: {
+      list: vi.fn(async (): Promise<InstalledPlatform[]> => [])
     }
   }
 }
@@ -101,6 +105,14 @@ export function mockPickedFolder(path: string | null | Error): void {
   vi.mocked(window.api.library.pickFolder).mockImplementation(async () => {
     if (path instanceof Error) throw path
     return path
+  })
+}
+
+/** Makes `window.api.platforms.list` resolve with `platforms`, or reject with an error. */
+export function mockPlatforms(platforms: InstalledPlatform[] | Error): void {
+  vi.mocked(window.api.platforms.list).mockImplementation(async () => {
+    if (platforms instanceof Error) throw platforms
+    return platforms
   })
 }
 

@@ -118,6 +118,14 @@ describe('GameFolderSettings', () => {
     })
   })
 
+  it('shows nothing without folders until it is known whether a core is installed', () => {
+    renderGameFolders({ folders: [], hasInstalledPlatforms: null })
+
+    expect(emptyTitle()).not.toBeInTheDocument()
+    expect(addFolder()).not.toBeInTheDocument()
+    expect(setUpEmulator()).not.toBeInTheDocument()
+  })
+
   it('keeps Add folder with the list even when no core is installed', () => {
     renderGameFolders({ hasInstalledPlatforms: false })
 

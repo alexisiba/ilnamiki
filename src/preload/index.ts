@@ -6,13 +6,15 @@ import { controllersApi } from './api/controllers'
 import { emulatorsApi } from './api/emulators'
 import { libraryApi } from './api/library'
 import { networkApi } from './api/network'
+import { platformsApi } from './api/platforms'
 
 // Custom APIs for renderer
 const api: Api = {
   controllers: controllersApi,
   emulators: emulatorsApi,
   library: libraryApi,
-  network: networkApi
+  network: networkApi,
+  platforms: platformsApi
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

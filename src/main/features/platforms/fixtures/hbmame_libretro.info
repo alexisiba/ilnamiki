@@ -1,0 +1,19 @@
+# Software Information
+display_name = "Arcade (HBMAME)"
+authors = "Robbbert,MAMEdev"
+supported_extensions = "zip|chd|7z|cmd"
+corename = "HBMAME (Git)"
+license = "GPLv2+"
+permissions = ""
+display_version = "Git"
+categories = "Emulator"
+
+# Hardware Information
+manufacturer = "Various"
+systemname = "Arcade (various)"
+systemid = "hbmame"
+
+# Libretro Features
+supports_no_game = "false"
+database_match_archive_member = "true"
+database = "HBMAME"

@@ -7,6 +7,8 @@ import type {
   InspectEmulatorResult
 } from '@shared/api'
 
+import { refreshPlatforms } from './platforms'
+
 /** The emulators shown across the app, as last read from main. */
 export interface EmulatorsState {
   /** `loading` until the first answer, `failed` when the last read failed. */
@@ -47,26 +49,34 @@ export async function refreshEmulators(): Promise<void> {
   }
 }
 
-/** Adds an emulator; once added, the emulators are read again. */
+/** Reads the emulators and, as they come from them, the installed platforms again. */
+async function refreshAfterChange(): Promise<void> {
+  await Promise.all([refreshEmulators(), refreshPlatforms()])
+}
+
+/** Adds an emulator; once added, the emulators and platforms are read again. */
 export async function addEmulator(request: AddEmulatorRequest): Promise<AddEmulatorResult> {
   const result = await window.api.emulators.add(request)
-  if (result.ok) await refreshEmulators()
+  if (result.ok) await refreshAfterChange()
   return result
 }
 
-/** Points an emulator at another application; once changed, the emulators are read again. */
+/**
+ * Points an emulator at another application; once changed, the emulators and platforms are
+ * read again.
+ */
 export async function changeEmulatorPath(
   request: ChangeEmulatorPathRequest
 ): Promise<ChangeEmulatorPathResult> {
   const result = await window.api.emulators.changePath(request)
-  if (result.ok) await refreshEmulators()
+  if (result.ok) await refreshAfterChange()
   return result
 }
 
-/** Removes an emulator from Ilnamiki, then reads the emulators again. */
+/** Removes an emulator from Ilnamiki, then reads the emulators and platforms again. */
 export async function removeEmulator(id: string): Promise<void> {
   await window.api.emulators.remove(id)
-  await refreshEmulators()
+  await refreshAfterChange()
 }
 
 /**

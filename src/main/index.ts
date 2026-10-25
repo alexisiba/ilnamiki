@@ -7,6 +7,7 @@ import { registerControllersIpc } from './features/controllers'
 import { registerEmulatorsIpc } from './features/emulators'
 import { registerLibraryIpc } from './features/library'
 import { registerNetworkIpc } from './features/network'
+import { registerPlatformsIpc } from './features/platforms'
 
 function createWindow(): void {
   // Create the browser window.
@@ -66,6 +67,7 @@ app.whenReady().then(() => {
   registerEmulatorsIpc()
   registerLibraryIpc()
   registerNetworkIpc()
+  registerPlatformsIpc()
 
   createWindow()
 

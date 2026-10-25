@@ -2,31 +2,71 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
+import type { InstalledPlatform } from '@shared/api'
+
+import { mockPlatforms } from '@renderer/test/api'
 import { setRect } from '@renderer/test/layout'
 import { renderWithNavigation } from '@renderer/test/renderWithNavigation'
-import type { AssociatedPlatform } from '@renderer/types/associatedPlatform'
 
 import { PlatformSettings } from './PlatformSettings'
 
-const PLATFORMS: AssociatedPlatform[] = [
+const PLATFORMS: InstalledPlatform[] = [
   {
     id: 'nintendo_64',
     name: 'Nintendo 64',
-    core: 'Mupen64Plus-Next',
-    extensions: ['n64', 'v64', 'z64'],
-    enabled: true
+    cores: [
+      {
+        id: 'mupen64plus_next',
+        name: 'Mupen64Plus-Next',
+        emulatorId: 'a1',
+        extensions: ['n64', 'v64', 'z64']
+      }
+    ]
   },
-  { id: 'playstation', name: 'PlayStation', core: 'SwanStation', extensions: [], enabled: false }
+  {
+    id: 'playstation',
+    name: 'PlayStation',
+    cores: [{ id: 'swanstation', name: 'SwanStation', emulatorId: 'a1', extensions: [] }]
+  }
 ]
+
+const SUPER_NES: InstalledPlatform = {
+  id: 'super_nes',
+  name: 'Super Nintendo',
+  cores: [
+    { id: 'bsnes', name: 'bsnes', emulatorId: 'a1', extensions: ['sfc', 'bs'] },
+    { id: 'snes9x', name: 'Snes9x', emulatorId: 'a1', extensions: ['smc', 'sfc'] }
+  ]
+}
 
 const platformSwitch = (name: string): HTMLElement => screen.getByRole('switch', { name })
 
+/** Renders the platforms and waits for them to be read. */
+async function renderPlatforms(onSetUpEmulator = vi.fn()): Promise<void> {
+  render(<PlatformSettings onSetUpEmulator={onSetUpEmulator} />)
+  await screen.findAllByRole('switch')
+}
+
+/** Renders the platforms with input navigation and waits for them to be read. */
+async function renderNavigablePlatforms(): Promise<void> {
+  renderWithNavigation(<PlatformSettings onSetUpEmulator={vi.fn()} />)
+  await screen.findAllByRole('switch')
+}
+
 describe('PlatformSettings', () => {
-  it('says there are no platforms and how to get one when there are none', () => {
-    render(<PlatformSettings platforms={[]} onSetUpEmulator={vi.fn()} />)
+  it('shows nothing until the platforms are read, so the empty view never flashes', () => {
+    vi.mocked(window.api.platforms.list).mockReturnValue(new Promise(() => {}))
+    render(<PlatformSettings onSetUpEmulator={vi.fn()} />)
+
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument()
+    expect(screen.queryByRole('list')).not.toBeInTheDocument()
+  })
+
+  it('says there are no platforms and how to get one when there are none', async () => {
+    render(<PlatformSettings onSetUpEmulator={vi.fn()} />)
 
     expect(
-      screen.getByRole('heading', { level: 2, name: 'No platforms installed' })
+      await screen.findByRole('heading', { level: 2, name: 'No platforms installed' })
     ).toBeInTheDocument()
     expect(screen.getByText('Set up an emulator to add your first platform.')).toBeInTheDocument()
     expect(screen.queryByRole('list')).not.toBeInTheDocument()
@@ -34,21 +74,33 @@ describe('PlatformSettings', () => {
 
   it('takes the user to the emulators from the empty view', async () => {
     const onSetUpEmulator = vi.fn()
-    render(<PlatformSettings platforms={[]} onSetUpEmulator={onSetUpEmulator} />)
+    render(<PlatformSettings onSetUpEmulator={onSetUpEmulator} />)
 
-    await userEvent.setup().click(screen.getByRole('button', { name: 'Set up an emulator' }))
+    await userEvent.setup().click(await screen.findByRole('button', { name: 'Set up an emulator' }))
 
     expect(onSetUpEmulator).toHaveBeenCalledOnce()
   })
 
-  it('has no heading of its own, as the selected category names it', () => {
-    render(<PlatformSettings platforms={PLATFORMS} onSetUpEmulator={vi.fn()} />)
+  it('says so when the platforms can’t be read', async () => {
+    mockPlatforms(new Error('No database'))
+    render(<PlatformSettings onSetUpEmulator={vi.fn()} />)
+
+    expect(
+      await screen.findByRole('heading', { level: 2, name: "The platforms couldn't be loaded" })
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Set up an emulator' })).not.toBeInTheDocument()
+  })
+
+  it('has no heading of its own, as the selected category names it', async () => {
+    mockPlatforms(PLATFORMS)
+    await renderPlatforms()
 
     expect(screen.queryByRole('heading')).not.toBeInTheDocument()
   })
 
-  it('shows each platform as a switch, named by the platform and described by its core and extensions', () => {
-    render(<PlatformSettings platforms={PLATFORMS} onSetUpEmulator={vi.fn()} />)
+  it('shows each platform as a switch, named by the platform and described by its core and extensions', async () => {
+    mockPlatforms(PLATFORMS)
+    await renderPlatforms()
 
     expect(screen.getAllByRole('switch')).toHaveLength(2)
     expect(platformSwitch('Nintendo 64')).toHaveAccessibleDescription(
@@ -56,22 +108,34 @@ describe('PlatformSettings', () => {
     )
   })
 
-  it('leaves the extensions out when the core does not declare them', () => {
-    render(<PlatformSettings platforms={PLATFORMS} onSetUpEmulator={vi.fn()} />)
+  it('lists every core of a platform, and the extensions they play once each', async () => {
+    mockPlatforms([SUPER_NES])
+    await renderPlatforms()
+
+    expect(platformSwitch('Super Nintendo')).toHaveAccessibleDescription(
+      'Cores: bsnes · Snes9x Extensions: sfc · bs · smc'
+    )
+  })
+
+  it('leaves the extensions out when the cores don’t declare them', async () => {
+    mockPlatforms(PLATFORMS)
+    await renderPlatforms()
 
     expect(platformSwitch('PlayStation')).toHaveAccessibleDescription('Core: SwanStation')
     expect(screen.getAllByText(/^Extensions:/)).toHaveLength(1)
   })
 
-  it('shows whether each platform is on', () => {
-    render(<PlatformSettings platforms={PLATFORMS} onSetUpEmulator={vi.fn()} />)
+  it('shows every platform on', async () => {
+    mockPlatforms(PLATFORMS)
+    await renderPlatforms()
 
     expect(platformSwitch('Nintendo 64')).toBeChecked()
-    expect(platformSwitch('PlayStation')).not.toBeChecked()
+    expect(platformSwitch('PlayStation')).toBeChecked()
   })
 
   it('turns a platform off and on again when clicked', async () => {
-    render(<PlatformSettings platforms={PLATFORMS} onSetUpEmulator={vi.fn()} />)
+    mockPlatforms(PLATFORMS)
+    await renderPlatforms()
     const user = userEvent.setup()
 
     await user.click(platformSwitch('Nintendo 64'))
@@ -82,7 +146,8 @@ describe('PlatformSettings', () => {
   })
 
   it('scrolls the list to show the platform that takes focus', async () => {
-    renderWithNavigation(<PlatformSettings platforms={PLATFORMS} onSetUpEmulator={vi.fn()} />)
+    mockPlatforms(PLATFORMS)
+    await renderNavigablePlatforms()
     const list = screen.getByRole('list')
     Object.defineProperty(list, 'scrollHeight', { value: 300 })
     Object.defineProperty(list, 'clientHeight', { value: 150 })
@@ -98,7 +163,8 @@ describe('PlatformSettings', () => {
   })
 
   it('keeps the list’s scroll padding past the focused platform', async () => {
-    renderWithNavigation(<PlatformSettings platforms={PLATFORMS} onSetUpEmulator={vi.fn()} />)
+    mockPlatforms(PLATFORMS)
+    await renderNavigablePlatforms()
     const list = screen.getByRole('list')
     list.style.setProperty('scroll-padding-block-end', '16px')
     Object.defineProperty(list, 'scrollHeight', { value: 300 })
@@ -113,14 +179,15 @@ describe('PlatformSettings', () => {
     expect(scrollTo).toHaveBeenLastCalledWith(expect.objectContaining({ top: 122 }))
   })
 
-  it('turns the focused platform on with confirm', async () => {
-    renderWithNavigation(<PlatformSettings platforms={PLATFORMS} onSetUpEmulator={vi.fn()} />)
+  it('turns the focused platform off with confirm', async () => {
+    mockPlatforms(PLATFORMS)
+    await renderNavigablePlatforms()
     const user = userEvent.setup()
     await user.pointer({ target: platformSwitch('PlayStation'), coords: { x: 10, y: 10 } })
 
     await user.keyboard('{Enter}')
 
-    expect(platformSwitch('PlayStation')).toBeChecked()
+    expect(platformSwitch('PlayStation')).not.toBeChecked()
     expect(platformSwitch('Nintendo 64')).toBeChecked()
   })
 })

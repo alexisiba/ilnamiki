@@ -10,6 +10,8 @@ export {
 } from './emulators'
 export { pickGameFolder } from './library'
 export { getNetworkStatus } from './network'
+export { refreshPlatforms, type PlatformsState } from './platforms'
 export { useControllerStatus } from './useControllerStatus'
 export { useEmulators } from './useEmulators'
 export { useNetworkStatus } from './useNetworkStatus'
+export { usePlatforms } from './usePlatforms'

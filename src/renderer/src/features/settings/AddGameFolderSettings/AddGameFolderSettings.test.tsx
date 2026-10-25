@@ -1,27 +1,35 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { InstalledPlatform } from '@shared/api'
+
+import { getPlatformsState } from '@renderer/core/ipc/platforms'
 import { ADD_GAME_FOLDER_PATH, NavigationProvider, SECTION_PATHS } from '@renderer/core/navigation'
-import { mockPickedFolder } from '@renderer/test/api'
+import { mockPickedFolder, mockPlatforms } from '@renderer/test/api'
 
 import { AddGameFolderSettings } from './AddGameFolderSettings'
 
-vi.mock('@renderer/mocks/associatedPlatforms', () => ({
-  SAMPLE_ASSOCIATED_PLATFORMS: [
-    {
-      id: 'nintendo_64',
-      name: 'Nintendo 64',
-      core: 'Mupen64Plus-Next',
-      extensions: [],
-      enabled: true
-    },
-    { id: 'playstation', name: 'PlayStation', core: 'SwanStation', extensions: [], enabled: true }
-  ]
-}))
+const PLATFORMS: InstalledPlatform[] = [
+  {
+    id: 'nintendo_64',
+    name: 'Nintendo 64',
+    cores: [{ id: 'mupen64plus_next', name: 'Mupen64Plus-Next', emulatorId: 'a1', extensions: [] }]
+  },
+  {
+    id: 'playstation',
+    name: 'PlayStation',
+    cores: [{ id: 'swanstation', name: 'SwanStation', emulatorId: 'a1', extensions: [] }]
+  }
+]
 
-function renderAddGameFolder(): void {
+beforeEach(() => {
+  mockPlatforms(PLATFORMS)
+})
+
+/** Renders the form and waits for the installed platforms, which it reads when it opens. */
+async function renderAddGameFolder(): Promise<void> {
   const router = createMemoryRouter(
     [
       { path: SECTION_PATHS.settings, element: <p>Settings screen</p> },
@@ -37,6 +45,7 @@ function renderAddGameFolder(): void {
     { initialEntries: [ADD_GAME_FOLDER_PATH] }
   )
   render(<RouterProvider router={router} />)
+  await vi.waitFor(() => expect(getPlatformsState().status).toBe('ready'))
 }
 
 const pathField = (): HTMLElement => screen.getByRole('textbox', { name: 'Folder path' })
@@ -47,8 +56,8 @@ const platformList = (): HTMLElement | null =>
   screen.queryByRole('dialog', { name: 'Select a platform' })
 
 describe('AddGameFolderSettings', () => {
-  it('shows the form title and that it is filled with a keyboard and mouse', () => {
-    renderAddGameFolder()
+  it('shows the form title and that it is filled with a keyboard and mouse', async () => {
+    await renderAddGameFolder()
 
     expect(screen.getByRole('heading', { level: 2, name: 'Add game folder' })).toBeInTheDocument()
     expect(
@@ -56,30 +65,30 @@ describe('AddGameFolderSettings', () => {
     ).toBeInTheDocument()
   })
 
-  it('focuses the folder path first', () => {
-    renderAddGameFolder()
+  it('focuses the folder path first', async () => {
+    await renderAddGameFolder()
 
     expect(pathField()).toHaveFocus()
   })
 
   it('fills the path with the folder chosen in the folder picker', async () => {
     mockPickedFolder('/home/player/Games/N64')
-    renderAddGameFolder()
+    await renderAddGameFolder()
 
     await userEvent.setup().click(browse())
 
     expect(pathField()).toHaveValue('/home/player/Games/N64')
   })
 
-  it('asks for a platform until one is chosen', () => {
-    renderAddGameFolder()
+  it('asks for a platform until one is chosen', async () => {
+    await renderAddGameFolder()
 
     expect(platformSelect()).toHaveAccessibleName('Platform Select a platform')
     expect(platformSelect()).toHaveAttribute('aria-expanded', 'false')
   })
 
   it('opens the list of installed platforms on the first one', async () => {
-    renderAddGameFolder()
+    await renderAddGameFolder()
 
     await userEvent.setup().click(platformSelect())
 
@@ -93,7 +102,7 @@ describe('AddGameFolderSettings', () => {
   })
 
   it('chooses a platform, closing the list and returning focus to the select', async () => {
-    renderAddGameFolder()
+    await renderAddGameFolder()
     const user = userEvent.setup()
     await user.click(platformSelect())
 
@@ -105,7 +114,7 @@ describe('AddGameFolderSettings', () => {
   })
 
   it('opens the list on the chosen platform, marked as current', async () => {
-    renderAddGameFolder()
+    await renderAddGameFolder()
     const user = userEvent.setup()
     await user.click(platformSelect())
     await user.click(screen.getByRole('button', { name: 'PlayStation' }))
@@ -121,7 +130,7 @@ describe('AddGameFolderSettings', () => {
   })
 
   it('closes the list without choosing on back', async () => {
-    renderAddGameFolder()
+    await renderAddGameFolder()
     const user = userEvent.setup()
     await user.click(platformSelect())
 
@@ -133,7 +142,7 @@ describe('AddGameFolderSettings', () => {
   })
 
   it('keeps Add folder unavailable until the path and platform are filled in', async () => {
-    renderAddGameFolder()
+    await renderAddGameFolder()
     const user = userEvent.setup()
     expect(addFolder()).toHaveAttribute('aria-disabled', 'true')
 
@@ -146,7 +155,7 @@ describe('AddGameFolderSettings', () => {
   })
 
   it('returns to Settings with Cancel', async () => {
-    renderAddGameFolder()
+    await renderAddGameFolder()
 
     await userEvent.setup().click(screen.getByRole('button', { name: 'Cancel' }))
 

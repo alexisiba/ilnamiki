@@ -8,9 +8,8 @@ import { setRect } from '@renderer/test/layout'
 
 import { SettingsScreen } from './SettingsScreen'
 
-// A first run, whatever the sample data: no installed platforms or game folders. There are no
-// emulators either: the API mock reports none.
-vi.mock('@renderer/mocks/associatedPlatforms', () => ({ SAMPLE_ASSOCIATED_PLATFORMS: [] }))
+// A first run, whatever the sample data: no game folders. There are no emulators or installed
+// platforms either: the API mock reports none.
 vi.mock('@renderer/mocks/gameFolders', () => ({ SAMPLE_GAME_FOLDERS: [] }))
 
 const emulatorsTab = (): HTMLElement => screen.getByRole('tab', { name: 'Emulators' })
@@ -106,7 +105,9 @@ describe('SettingsScreen', () => {
     expect(gameFoldersTab()).toHaveFocus()
     expect(gameFoldersTab()).toHaveAttribute('aria-selected', 'true')
     expect(screen.getByRole('tabpanel', { name: 'Game folders' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'No game folders configured' })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { name: 'No game folders configured' })
+    ).toBeInTheDocument()
   })
 
   it('takes the user to the emulators from the empty game folders, with no core installed', async () => {
@@ -115,7 +116,7 @@ describe('SettingsScreen', () => {
     const user = userEvent.setup()
     await user.keyboard('{ArrowDown}{ArrowDown}')
 
-    await user.click(screen.getByRole('button', { name: 'Set up an emulator' }))
+    await user.click(await screen.findByRole('button', { name: 'Set up an emulator' }))
 
     expect(emulatorsTab()).toHaveFocus()
     expect(screen.getByRole('heading', { name: 'No emulators configured' })).toBeInTheDocument()
@@ -131,7 +132,9 @@ describe('SettingsScreen', () => {
     expect(platformsTab()).toHaveAttribute('aria-selected', 'true')
     expect(emulatorsTab()).toHaveAttribute('aria-selected', 'false')
     expect(screen.getByRole('tabpanel', { name: 'Installed platforms' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'No platforms installed' })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { name: 'No platforms installed' })
+    ).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Add emulator' })).not.toBeInTheDocument()
   })
 
@@ -141,7 +144,7 @@ describe('SettingsScreen', () => {
     const user = userEvent.setup()
     await user.keyboard('{ArrowDown}')
 
-    await user.click(screen.getByRole('button', { name: 'Set up an emulator' }))
+    await user.click(await screen.findByRole('button', { name: 'Set up an emulator' }))
 
     expect(emulatorsTab()).toHaveFocus()
     expect(emulatorsTab()).toHaveAttribute('aria-selected', 'true')
