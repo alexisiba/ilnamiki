@@ -6,21 +6,6 @@
   min-height: 0;
 }
 
-.configured {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  min-height: 0;
-}
-
-.title {
-  font-size: var(--headline-sm-size);
-  font-weight: var(--headline-sm-weight);
-  line-height: var(--headline-sm-line-height);
-  letter-spacing: var(--headline-sm-tracking);
-  color: var(--color-text-focus);
-}
-
 .list {
   display: flex;
   flex-direction: column;

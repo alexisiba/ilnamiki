@@ -1,0 +1,74 @@
+/* The list takes the room and scrolls; the actions stay at the bottom. */
+.content {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: var(--space-md);
+  min-height: 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  min-height: 0;
+  /*
+   * The list scrolls vertically, which also clips: pad it so the focus glow is not cut, and
+   * keep that padding when scrolling to the focused row, so the first and last rows scroll
+   * all the way to the list's edges.
+   */
+  margin: calc(-1 * var(--space-sm));
+  padding: var(--space-sm);
+  overflow-y: auto;
+  scroll-padding-block: var(--space-sm);
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface-high);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-align: start;
+  transition:
+    border-color var(--duration-focus) var(--ease-focus),
+    box-shadow var(--duration-focus) var(--ease-focus);
+}
+
+/* This style is the focus indicator. */
+.item:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-focus);
+}
+
+.platform {
+  font-family: var(--font-headline);
+  font-size: var(--headline-sm-size);
+  font-weight: var(--headline-sm-weight);
+  line-height: var(--headline-sm-line-height);
+  color: var(--color-text);
+}
+
+.item:focus .platform {
+  color: var(--color-text-focus);
+}
+
+.count {
+  font-family: var(--font-label);
+  font-size: var(--label-md-size);
+  font-weight: var(--label-md-weight);
+  line-height: var(--label-md-line-height);
+  letter-spacing: var(--label-md-tracking);
+  font-variant-ligatures: none;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+}

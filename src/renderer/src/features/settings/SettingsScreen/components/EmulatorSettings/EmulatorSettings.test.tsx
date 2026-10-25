@@ -12,12 +12,10 @@ const EMULATORS: Emulator[] = [
 ]
 
 describe('EmulatorSettings', () => {
-  it('shows the configured emulators section', () => {
+  it('has no heading of its own, as the selected category names it', () => {
     render(<EmulatorSettings emulators={EMULATORS} onAdd={vi.fn()} />)
 
-    expect(
-      screen.getByRole('heading', { level: 2, name: 'Configured emulators' })
-    ).toBeInTheDocument()
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument()
   })
 
   it('shows one item per emulator, named by its name and described by its version', () => {
@@ -38,7 +36,6 @@ describe('EmulatorSettings', () => {
     ).toBeInTheDocument()
     expect(screen.getByText(/Select Add emulator/)).toBeInTheDocument()
     expect(screen.queryByRole('list')).not.toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: 'Configured emulators' })).not.toBeInTheDocument()
   })
 
   it('has no Back button, as the main content of its category', () => {

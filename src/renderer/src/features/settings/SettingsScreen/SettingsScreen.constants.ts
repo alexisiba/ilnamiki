@@ -1,7 +1,8 @@
 /** Categories in the order the settings list shows them. */
 export const SETTINGS_CATEGORIES = [
   { id: 'emulators', labelKey: 'categories.emulators' },
-  { id: 'platforms', labelKey: 'categories.platforms' }
+  { id: 'platforms', labelKey: 'categories.platforms' },
+  { id: 'gameFolders', labelKey: 'categories.gameFolders' }
 ] as const
 
 /** Focus group of the categories list, so focus can return to it. */

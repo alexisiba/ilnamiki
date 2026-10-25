@@ -11,8 +11,10 @@ import {
 } from '@renderer/core/navigation'
 import { SAMPLE_ASSOCIATED_PLATFORMS } from '@renderer/mocks/associatedPlatforms'
 import { SAMPLE_EMULATORS } from '@renderer/mocks/emulators'
+import { SAMPLE_GAME_FOLDERS } from '@renderer/mocks/gameFolders'
 
 import { EmulatorSettings } from './components/EmulatorSettings'
+import { GameFolderSettings } from './components/GameFolderSettings'
 import { PlatformSettings } from './components/PlatformSettings'
 import { SettingsNav } from './components/SettingsNav'
 import { SETTINGS_CATEGORIES, SETTINGS_NAV_GROUP_ID } from './SettingsScreen.constants'
@@ -80,6 +82,13 @@ export function SettingsScreen(): React.JSX.Element {
                 <PlatformSettings
                   platforms={SAMPLE_ASSOCIATED_PLATFORMS}
                   // Focusing the category selects it, which shows the emulators.
+                  onSetUpEmulator={() => focusCategories('emulators')}
+                />
+              )}
+              {categoryId === 'gameFolders' && (
+                <GameFolderSettings
+                  folders={SAMPLE_GAME_FOLDERS}
+                  hasInstalledPlatforms={SAMPLE_ASSOCIATED_PLATFORMS.length > 0}
                   onSetUpEmulator={() => focusCategories('emulators')}
                 />
               )}

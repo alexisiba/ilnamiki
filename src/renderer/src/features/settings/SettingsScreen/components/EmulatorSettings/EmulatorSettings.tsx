@@ -11,7 +11,8 @@ import styles from './EmulatorSettings.module.css'
 
 /**
  * The configured emulators, or how to add one when there are none, with the action to add
- * one. As a category's main content it has no Back button: back returns to the categories.
+ * one. As a category's main content it has no Back button (back returns to the categories)
+ * and no heading of its own (the selected category already names it).
  */
 export function EmulatorSettings({ emulators, onAdd }: EmulatorSettingsProps): React.JSX.Element {
   const { t } = useTranslation('settings')
@@ -25,16 +26,13 @@ export function EmulatorSettings({ emulators, onAdd }: EmulatorSettingsProps): R
           description={t('emulators.empty.description')}
         />
       ) : (
-        <section className={styles.configured}>
-          <h2 className={styles.title}>{t('emulators.configured')}</h2>
-          <ul className={styles.list}>
-            {emulators.map((emulator) => (
-              <li key={emulator.id}>
-                <EmulatorListItem emulator={emulator} />
-              </li>
-            ))}
-          </ul>
-        </section>
+        <ul className={styles.list}>
+          {emulators.map((emulator) => (
+            <li key={emulator.id}>
+              <EmulatorListItem emulator={emulator} />
+            </li>
+          ))}
+        </ul>
       )}
       <div className={styles.actions}>
         <Button focusId="add" onPress={onAdd}>

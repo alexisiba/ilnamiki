@@ -2,7 +2,19 @@
   "categories": {
     "label": "Categorías de ajustes",
     "emulators": "Emuladores",
-    "platforms": "Plataformas instaladas"
+    "platforms": "Plataformas instaladas",
+    "gameFolders": "Carpetas de juegos"
+  },
+  "gameFolders": {
+    "games_one": "{{count}} juego",
+    "games_other": "{{count}} juegos",
+    "add": "Agregar carpeta",
+    "empty": {
+      "title": "No hay carpetas de juegos configuradas",
+      "noCores": "Parece que aún no tienes ningún núcleo instalado. Configura un emulador para instalar tu primer núcleo.",
+      "setUpEmulator": "Configurar emulador",
+      "noFolders": "Agrega tu primera carpeta de juegos con el botón Agregar carpeta."
+    }
   },
   "platforms": {
     "core": "Núcleo: {{core}}",
@@ -14,7 +26,6 @@
     }
   },
   "emulators": {
-    "configured": "Emuladores configurados",
     "version": "Versión {{version}}",
     "empty": {
       "title": "No hay emuladores configurados",

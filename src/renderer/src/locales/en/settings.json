@@ -2,7 +2,19 @@
   "categories": {
     "label": "Settings categories",
     "emulators": "Emulators",
-    "platforms": "Installed platforms"
+    "platforms": "Installed platforms",
+    "gameFolders": "Game folders"
+  },
+  "gameFolders": {
+    "games_one": "{{count}} game",
+    "games_other": "{{count}} games",
+    "add": "Add folder",
+    "empty": {
+      "title": "No game folders configured",
+      "noCores": "It looks like you don't have any cores installed yet. Set up an emulator to install your first core.",
+      "setUpEmulator": "Set up an emulator",
+      "noFolders": "Add your first game folder with the Add folder button."
+    }
   },
   "platforms": {
     "core": "Core: {{core}}",
@@ -14,7 +26,6 @@
     }
   },
   "emulators": {
-    "configured": "Configured emulators",
     "version": "Version {{version}}",
     "empty": {
       "title": "No emulators configured",
