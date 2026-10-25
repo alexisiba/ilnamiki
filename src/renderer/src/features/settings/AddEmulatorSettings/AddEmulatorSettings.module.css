@@ -1,18 +1,9 @@
-/* Spans the whole width, like Settings. */
-.screen {
-  display: grid;
-  min-height: 0;
-  padding-block: var(--space-md);
-}
-
-.panel {
+/* The header at the top; the form takes the rest, with its actions at the bottom. */
+.content {
   display: grid;
   grid-template-rows: auto 1fr;
   gap: var(--space-lg);
   min-height: 0;
-  padding: var(--space-md);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius);
 }
 
 .header {

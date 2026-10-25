@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest'
 import { ADD_EMULATOR_PATH, NavigationProvider, SECTION_PATHS } from '@renderer/core/navigation'
 import { mockPickedExecutable } from '@renderer/test/api'
 
-import { AddEmulatorScreen } from './AddEmulatorScreen'
+import { AddEmulatorSettings } from './AddEmulatorSettings'
 
 function renderAddEmulator(): void {
   const router = createMemoryRouter(
@@ -16,7 +16,7 @@ function renderAddEmulator(): void {
         path: ADD_EMULATOR_PATH,
         element: (
           <NavigationProvider>
-            <AddEmulatorScreen />
+            <AddEmulatorSettings />
           </NavigationProvider>
         )
       }
@@ -30,20 +30,40 @@ const nameField = (): HTMLElement => screen.getByRole('textbox', { name: 'Emulat
 const pathField = (): HTMLElement => screen.getByRole('textbox', { name: 'Application path' })
 const browse = (): HTMLElement => screen.getByRole('button', { name: 'Choose the application' })
 
-describe('AddEmulatorScreen', () => {
+describe('AddEmulatorSettings', () => {
   it('shows the form title and that it is filled with a keyboard and mouse', () => {
     renderAddEmulator()
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Add emulator' })).toBeInTheDocument()
-    expect(screen.getByText('Fill in this form with a keyboard and mouse.')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: 'Add emulator' })).toBeInTheDocument()
+    expect(
+      screen.getByText("You'll need a keyboard and mouse to fill in this form.")
+    ).toBeInTheDocument()
   })
 
-  it('focuses the name field, ready to type', async () => {
+  it('asks for the application path first, then the name', () => {
     renderAddEmulator()
 
-    await userEvent.setup().keyboard('RetroArch')
+    const [first, second] = screen.getAllByRole('textbox')
+    expect(first).toBe(pathField())
+    expect(second).toBe(nameField())
+  })
 
-    expect(nameField()).toHaveFocus()
+  it('focuses the path field, ready to type', async () => {
+    renderAddEmulator()
+
+    await userEvent.setup().keyboard('/usr/bin/retroarch')
+
+    expect(pathField()).toHaveFocus()
+    expect(pathField()).toHaveValue('/usr/bin/retroarch')
+  })
+
+  it('lets the name be typed', async () => {
+    renderAddEmulator()
+    const user = userEvent.setup()
+
+    await user.click(nameField())
+    await user.keyboard('RetroArch')
+
     expect(nameField()).toHaveValue('RetroArch')
   })
 

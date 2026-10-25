@@ -9,14 +9,10 @@ import { setRect } from '@renderer/test/layout'
 import { SettingsScreen } from './SettingsScreen'
 
 const emulatorsTab = (): HTMLElement => screen.getByRole('tab', { name: 'Emulators' })
-const button = (name: string): HTMLElement => screen.getByRole('button', { name })
+const addEmulator = (): HTMLElement => screen.getByRole('button', { name: 'Add emulator' })
 
-/**
- * Renders the screen laid out as on screen: the categories column on the left, and on the
- * right the emulators content with its Back and Add emulator buttons at the bottom. There
- * are no sample emulators yet.
- */
-function renderSettings(): void {
+/** Renders Settings at `path`, with a stand-in for the add emulator form inside it. */
+function renderSettings(path: string = SECTION_PATHS.settings): void {
   const router = createMemoryRouter(
     [
       {
@@ -25,23 +21,31 @@ function renderSettings(): void {
           <NavigationProvider>
             <SettingsScreen />
           </NavigationProvider>
-        )
-      },
-      { path: ADD_EMULATOR_PATH, element: <p>Add emulator form</p> }
+        ),
+        children: [
+          { path: ADD_EMULATOR_PATH, element: <button type="button">Add emulator form</button> }
+        ]
+      }
     ],
-    { initialEntries: [SECTION_PATHS.settings] }
+    { initialEntries: [path] }
   )
   render(<RouterProvider router={router} />)
+}
+
+/**
+ * Lays out the screen as on screen: the categories column on the left and, on the right, the
+ * emulators content with Add emulator at the bottom. There are no sample emulators yet.
+ */
+function layOut(): void {
   setRect(screen.getByRole('tablist').parentElement!, { left: 0, top: 0, width: 320, height: 800 })
   setRect(emulatorsTab(), { left: 0, top: 0, width: 320, height: 70 })
-  setRect(button('Back').parentElement!.parentElement!, {
+  setRect(addEmulator().parentElement!.parentElement!, {
     left: 360,
     top: 0,
     width: 1400,
     height: 800
   })
-  setRect(button('Back'), { left: 1300, top: 700, width: 200, height: 60 })
-  setRect(button('Add emulator'), { left: 1520, top: 700, width: 240, height: 60 })
+  setRect(addEmulator(), { left: 1520, top: 700, width: 240, height: 60 })
 }
 
 describe('SettingsScreen', () => {
@@ -62,10 +66,11 @@ describe('SettingsScreen', () => {
 
   it('moves into the content on right and back to the category on left', async () => {
     renderSettings()
+    layOut()
     const user = userEvent.setup()
 
     await user.keyboard('{ArrowRight}')
-    expect(button('Back')).toHaveFocus()
+    expect(addEmulator()).toHaveFocus()
 
     await user.keyboard('{ArrowLeft}')
     expect(emulatorsTab()).toHaveFocus()
@@ -73,27 +78,37 @@ describe('SettingsScreen', () => {
 
   it('returns to the category on back from the content', async () => {
     renderSettings()
+    layOut()
     const user = userEvent.setup()
 
-    await user.keyboard('{ArrowRight}{ArrowRight}')
+    await user.keyboard('{ArrowRight}')
     await user.keyboard('{Escape}')
 
     expect(emulatorsTab()).toHaveFocus()
   })
 
-  it('returns to the category with the Back button', async () => {
+  it('opens the form to add an emulator in the content panel, keeping the categories', async () => {
     renderSettings()
 
-    await userEvent.setup().click(button('Back'))
+    await userEvent.setup().click(addEmulator())
 
-    expect(emulatorsTab()).toHaveFocus()
+    expect(screen.getByRole('tabpanel', { name: 'Emulators' })).toHaveTextContent(
+      'Add emulator form'
+    )
+    expect(emulatorsTab()).toHaveAttribute('aria-selected', 'true')
+    expect(
+      screen.queryByRole('heading', { name: 'No emulators configured' })
+    ).not.toBeInTheDocument()
   })
 
-  it('opens the form to add an emulator', async () => {
-    renderSettings()
+  it('leaves the categories alone on back inside a screen of Settings', async () => {
+    renderSettings(ADD_EMULATOR_PATH)
+    const user = userEvent.setup()
+    const form = screen.getByRole('button', { name: 'Add emulator form' })
+    await user.click(form)
 
-    await userEvent.setup().click(button('Add emulator'))
+    await user.keyboard('{Escape}')
 
-    expect(screen.getByText('Add emulator form')).toBeInTheDocument()
+    expect(form).toHaveFocus()
   })
 })

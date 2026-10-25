@@ -11,8 +11,8 @@ import type { EmulatorFormProps } from './EmulatorForm.types'
 import styles from './EmulatorForm.module.css'
 
 /**
- * The emulator's name and the path to its application, which can be typed or chosen with the
- * system's file picker. Nothing is validated or saved yet.
+ * The path to the emulator's application, which can be typed or chosen with the system's file
+ * picker, then the emulator's name. Nothing is validated or saved yet.
  */
 export function EmulatorForm({ onBack }: EmulatorFormProps): React.JSX.Element {
   const { t } = useTranslation('settings')
@@ -37,12 +37,6 @@ export function EmulatorForm({ onBack }: EmulatorFormProps): React.JSX.Element {
     <FocusGroup id="add-emulator-form" className={styles.form}>
       <div className={styles.fields}>
         <div className={styles.field}>
-          <label htmlFor={nameId} className={styles.label}>
-            {t('addEmulator.name')}
-          </label>
-          <FormTextInput id={nameId} focusId="name" autoFocus value={name} onChange={setName} />
-        </div>
-        <div className={styles.field}>
           <label htmlFor={pathId} className={styles.label}>
             {t('addEmulator.path')}
           </label>
@@ -50,6 +44,7 @@ export function EmulatorForm({ onBack }: EmulatorFormProps): React.JSX.Element {
             <FormTextInput
               id={pathId}
               focusId="path"
+              autoFocus
               value={path}
               aria-describedby={pickFailed ? pickErrorId : undefined}
               onChange={setPath}
@@ -61,6 +56,12 @@ export function EmulatorForm({ onBack }: EmulatorFormProps): React.JSX.Element {
               {t('addEmulator.pickError')}
             </p>
           )}
+        </div>
+        <div className={styles.field}>
+          <label htmlFor={nameId} className={styles.label}>
+            {t('addEmulator.name')}
+          </label>
+          <FormTextInput id={nameId} focusId="name" value={name} onChange={setName} />
         </div>
       </div>
       <div className={styles.actions}>

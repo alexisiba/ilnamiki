@@ -10,12 +10,11 @@
       "title": "No emulators configured",
       "description": "Select Add emulator and choose the emulator's executable file to start playing."
     },
-    "back": "Back",
     "add": "Add emulator"
   },
   "addEmulator": {
     "title": "Add emulator",
-    "keyboardNote": "Fill in this form with a keyboard and mouse.",
+    "keyboardNote": "You'll need a keyboard and mouse to fill in this form.",
     "name": "Emulator name",
     "path": "Application path",
     "browse": "Choose the application",

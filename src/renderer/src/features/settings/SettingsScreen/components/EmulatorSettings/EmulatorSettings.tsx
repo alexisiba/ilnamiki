@@ -8,12 +8,11 @@ import { EmulatorsEmpty } from './components/EmulatorsEmpty'
 import type { EmulatorSettingsProps } from './EmulatorSettings.types'
 import styles from './EmulatorSettings.module.css'
 
-/** The configured emulators, or how to add one when there are none, with the actions. */
-export function EmulatorSettings({
-  emulators,
-  onBack,
-  onAdd
-}: EmulatorSettingsProps): React.JSX.Element {
+/**
+ * The configured emulators, or how to add one when there are none, with the action to add
+ * one. As a category's main content it has no Back button: back returns to the categories.
+ */
+export function EmulatorSettings({ emulators, onAdd }: EmulatorSettingsProps): React.JSX.Element {
   const { t } = useTranslation('settings')
 
   return (
@@ -33,9 +32,6 @@ export function EmulatorSettings({
         </section>
       )}
       <div className={styles.actions}>
-        <Button focusId="back" onPress={onBack}>
-          {t('emulators.back')}
-        </Button>
         <Button focusId="add" onPress={onAdd}>
           {t('emulators.add')}
         </Button>

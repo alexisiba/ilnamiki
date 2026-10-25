@@ -1,2 +1,2 @@
-export { AddEmulatorScreen } from './AddEmulatorScreen'
+export { AddEmulatorSettings } from './AddEmulatorSettings'
 export { SettingsScreen } from './SettingsScreen'
