@@ -1,5 +1,6 @@
 import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { useState } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 
 import { setRect } from '@renderer/test/layout'
@@ -347,6 +348,70 @@ describe('NavigationProvider', () => {
       </NavigationProvider>
     )
     expect(item('bottom2')).toHaveFocus()
+  })
+
+  it('keeps moving through items that re-register as they take focus, after a restore', async () => {
+    // Like Settings' categories: focusing a tab selects it, and only the selected one is
+    // auto-focused, so the tabs register again whenever focus moves between them.
+    function Tab({
+      id,
+      selected,
+      onFocus
+    }: {
+      id: string
+      selected: boolean
+      onFocus: () => void
+    }): React.JSX.Element {
+      const { ref } = useFocusable<HTMLButtonElement>({ id, autoFocus: selected })
+      return (
+        <button ref={ref} type="button" onFocus={onFocus}>
+          {id}
+        </button>
+      )
+    }
+    function Tabs(): React.JSX.Element {
+      const [selected, setSelected] = useState('tab1')
+      return (
+        <FocusGroup id="tabs">
+          {['tab1', 'tab2', 'tab3'].map((id) => (
+            <Tab key={id} id={id} selected={id === selected} onFocus={() => setSelected(id)} />
+          ))}
+        </FocusGroup>
+      )
+    }
+    const layOutTabs = (): void => {
+      ;['tab1', 'tab2', 'tab3'].forEach((id, index) => {
+        setRect(item(id), { left: 0, top: index * 80, width: 300, height: 70 })
+      })
+    }
+    const user = userEvent.setup()
+    const { rerender } = render(
+      <NavigationProvider scope="settings">
+        <Tabs />
+      </NavigationProvider>
+    )
+    // Leaving the screen with a tab focused, and coming back, restores that tab.
+    rerender(
+      <NavigationProvider scope="home">
+        <Item id="home" />
+      </NavigationProvider>
+    )
+    rerender(
+      <NavigationProvider scope="settings">
+        <Tabs />
+      </NavigationProvider>
+    )
+    layOutTabs()
+    expect(item('tab1')).toHaveFocus()
+
+    await user.keyboard('{ArrowDown}')
+    expect(item('tab2')).toHaveFocus()
+
+    await user.keyboard('{ArrowDown}')
+    expect(item('tab3')).toHaveFocus()
+
+    await user.keyboard('{ArrowUp}')
+    expect(item('tab2')).toHaveFocus()
   })
 
   it('scrolls the initial item through its group from the first render', () => {

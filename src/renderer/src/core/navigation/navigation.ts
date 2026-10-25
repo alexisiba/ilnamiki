@@ -88,6 +88,12 @@ export function createNavigation(): Navigation {
     scrollFocusIntoView(item.element, group, scroll)
   }
 
+  /** The user moved focus: nothing claims it again, and the screen's restore is spent. */
+  const takeControl = (): void => {
+    claim = CLAIM.user
+    restoreKey = undefined
+  }
+
   const claimOf = (item: FocusItem): number => {
     if (restoreKey === item.key) return CLAIM.restored
     return item.autoFocus ? CLAIM.autoFocus : CLAIM.first
@@ -147,8 +153,10 @@ export function createNavigation(): Navigation {
 
       return () => {
         items.delete(item.element)
-        // Losing the focused item lets the next items that appear claim focus again.
-        if (focusedKey === item.key) claim = CLAIM.none
+        // Losing the focused item lets the next items that appear claim focus again. An item
+        // still on screen is only registering again (e.g. its options changed): focus wasn't
+        // lost, so no other item may take it.
+        if (focusedKey === item.key && !item.element.isConnected) claim = CLAIM.none
       }
     },
 
@@ -161,7 +169,7 @@ export function createNavigation(): Navigation {
 
     move(direction) {
       const current = focusedItem()
-      claim = CLAIM.user
+      takeControl()
       if (!current) {
         focusInitial()
         return
@@ -208,7 +216,7 @@ export function createNavigation(): Navigation {
       const item = items.get(element)
       if (!moved || !item || document.activeElement === element) return
 
-      claim = CLAIM.user
+      takeControl()
       // Never scroll on hover: it would slide other items under the pointer.
       focus(item, false)
     },
@@ -217,7 +225,7 @@ export function createNavigation(): Navigation {
       const item = items.get(element)
       if (!item || document.activeElement === element) return
 
-      claim = CLAIM.user
+      takeControl()
       focus(item, false)
     },
 
@@ -225,7 +233,7 @@ export function createNavigation(): Navigation {
       const item = items.get(element)
       if (!item) return
 
-      claim = CLAIM.user
+      takeControl()
       focus(item, 'auto')
     },
 
@@ -234,7 +242,7 @@ export function createNavigation(): Navigation {
       const item = requested ?? findByKey(groupMemory.get(groupId)) ?? itemsIn(groupId)[0]
       if (!item) return
 
-      claim = CLAIM.user
+      takeControl()
       focus(item, 'auto')
     },
 
