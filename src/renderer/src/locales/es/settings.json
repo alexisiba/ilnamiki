@@ -9,6 +9,11 @@
     "games_one": "{{count}} juego",
     "games_other": "{{count}} juegos",
     "add": "Agregar carpeta",
+    "unavailable": "Carpeta no disponible",
+    "failed": {
+      "title": "No se pudieron cargar las carpetas de juegos",
+      "description": "Cierra Ilnamiki y vuelve a abrirlo."
+    },
     "empty": {
       "title": "No hay carpetas de juegos configuradas",
       "noCores": "Parece que aún no tienes ningún núcleo instalado. Configura un emulador para instalar tu primer núcleo.",
@@ -83,7 +88,42 @@
     "browse": "Elegir la carpeta",
     "platform": "Plataforma",
     "selectPlatform": "Selecciona una plataforma",
+    "onePerPlatform": "Cada plataforma puede tener una carpeta. Las que ya tienen una no aparecen en la lista.",
     "cancel": "Cancelar",
-    "add": "Agregar carpeta"
+    "scan": "Escanear",
+    "problems": {
+      "relativePath": "Escribe la ruta completa de la carpeta, desde la raíz.",
+      "notFound": "No hay ninguna carpeta en esta ruta.",
+      "notAFolder": "Esta ruta es un archivo. Elige una carpeta.",
+      "notReadable": "Ilnamiki no tiene permiso para leer esta carpeta.",
+      "unknownPlatform": "Ningún núcleo instalado juega ya esta plataforma. Elige otra.",
+      "alreadyAdded": "Esta carpeta ya está agregada.",
+      "platformHasFolder": "Esta plataforma ya tiene una carpeta.",
+      "failed": "No se pudo escanear la carpeta. Inténtalo de nuevo."
+    }
+  },
+  "folderScan": {
+    "scanning": "Escaneando carpeta",
+    "found": "Juegos encontrados",
+    "folder": "{{path}} · {{platform}}",
+    "percent": "{{percent}} %",
+    "games_one": "{{count}} juego",
+    "games_other": "{{count}} juegos",
+    "damaged_one": "{{count}} dañado",
+    "damaged_other": "{{count}} dañados",
+    "noGames": "No hay juegos disponibles en esta carpeta.",
+    "noPlayableGames": "No hay juegos jugables en esta carpeta.",
+    "missingFiles_one": "Falta «{{files}}». Verifica que el archivo esté en la carpeta.",
+    "missingFiles_other": "Faltan {{count}} archivos: {{files}}. Verifica que estén en la carpeta.",
+    "emptyIndex": "No apunta a ningún archivo. Verifica que sea el archivo correcto.",
+    "back": "Volver",
+    "save": "Guardar carpeta",
+    "saveProblems": {
+      "unknownScan": "Este escaneo ya no es válido. Vuelve y escanea la carpeta otra vez.",
+      "alreadyAdded": "Esta carpeta se agregó mientras tanto.",
+      "platformHasFolder": "Esta plataforma recibió una carpeta mientras tanto.",
+      "noGames": "No hay juegos jugables para guardar.",
+      "failed": "No se pudo guardar la carpeta. Inténtalo de nuevo."
+    }
   }
 }

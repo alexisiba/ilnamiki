@@ -1,16 +1,68 @@
-import { usePlatforms } from '@renderer/core/ipc'
-import { useGoBack } from '@renderer/core/navigation'
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
+import type { ScanFolderRequest } from '@shared/api'
+
+import { useGameFolders, usePlatforms } from '@renderer/core/ipc'
+import { useBackStep, useGoBack } from '@renderer/core/navigation'
+
+import { scanProblemMessageKey, type FolderScanProblem } from './AddGameFolderSettings.utils'
+import { FolderScanResults } from './components/FolderScanResults'
 import { GameFolderForm } from './components/GameFolderForm'
 
 /**
- * The form that adds a game folder, shown in the Settings content panel in place of the game
- * folders list. Filled with a keyboard and mouse. Its platforms are the installed ones.
+ * Adds a game folder in the Settings content panel, in place of the game folders list, in two
+ * steps: the form (filled with a keyboard and mouse), then the results of scanning the folder,
+ * where it is saved. Back, and Back in the results, return to the form as it was; a folder
+ * that can't be scanned returns to it too, saying why.
  */
 export function AddGameFolderSettings(): React.JSX.Element {
+  const { t } = useTranslation('settings')
   const { platforms } = usePlatforms()
-  // Cancel returns to the game folders list, as the back action does.
+  const { folders } = useGameFolders()
+  // Cancel, and saving the folder, return to the game folders list, as the back action does.
   const returnToList = useGoBack()
+  // The folder and platform last scanned: the form starts from them when it comes back.
+  const [request, setRequest] = useState<ScanFolderRequest>()
+  const [scanning, setScanning] = useState(false)
+  const [problem, setProblem] = useState<FolderScanProblem>()
 
-  return <GameFolderForm platforms={platforms} onCancel={returnToList} />
+  const returnToForm = (): void => setScanning(false)
+  useBackStep(scanning ? returnToForm : undefined)
+
+  // A platform has one folder at most: those that have one can't be chosen.
+  const choosablePlatforms = platforms.filter(
+    (platform) => !folders.some((folder) => folder.platformId === platform.id)
+  )
+
+  if (scanning && request) {
+    const platform = platforms.find(({ id }) => id === request.platformId)
+    return (
+      <FolderScanResults
+        request={request}
+        platformName={platform?.name ?? request.platformId}
+        onBack={returnToForm}
+        onFailed={(scanProblem) => {
+          setProblem(scanProblem)
+          setScanning(false)
+        }}
+        onSaved={returnToList}
+      />
+    )
+  }
+
+  return (
+    <GameFolderForm
+      platforms={choosablePlatforms}
+      initialPath={request?.path ?? ''}
+      initialPlatformId={request?.platformId}
+      problemMessage={problem && t(scanProblemMessageKey(problem))}
+      onCancel={returnToList}
+      onScan={(nextRequest) => {
+        setRequest(nextRequest)
+        setProblem(undefined)
+        setScanning(true)
+      }}
+    />
+  )
 }

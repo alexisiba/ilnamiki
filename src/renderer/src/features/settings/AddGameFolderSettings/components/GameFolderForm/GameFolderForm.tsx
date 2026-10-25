@@ -7,21 +7,54 @@ import { pickGameFolder } from '@renderer/core/ipc'
 import { FormField } from '../../../components/FormField'
 import { PathField } from '../../../components/PathField'
 import { SettingsForm } from '../../../components/SettingsForm'
+import { isAbsolutePath } from '../../../utils/paths'
+import { scanProblemMessageKey } from '../../AddGameFolderSettings.utils'
 import { PlatformSelect } from '../PlatformSelect'
 import type { GameFolderFormProps } from './GameFolderForm.types'
+import styles from './GameFolderForm.module.css'
 
 /**
  * The folder to find games in, typed or chosen with the system's folder picker (which only
- * accepts folders), and the platform its games belong to. Add folder is unavailable until
- * both are filled in; nothing is validated or saved yet.
+ * accepts folders), and the platform its games belong to, one folder per platform. Scan is
+ * unavailable until both are filled in; why a folder can't be scanned shows below its path.
  */
-export function GameFolderForm({ platforms, onCancel }: GameFolderFormProps): React.JSX.Element {
+export function GameFolderForm({
+  platforms,
+  initialPath,
+  initialPlatformId,
+  problemMessage,
+  onCancel,
+  onScan
+}: GameFolderFormProps): React.JSX.Element {
   const { t } = useTranslation('settings')
-  const [path, setPath] = useState('')
-  const [platformId, setPlatformId] = useState<string>()
+  const [path, setPath] = useState(initialPath)
+  const [platformId, setPlatformId] = useState(initialPlatformId)
+  // The problem shows until the folder or the platform changes.
+  const [problem, setProblem] = useState(problemMessage)
   const platformLabelId = useId()
   const platformControlId = useId()
+  const platformNoteId = useId()
   const complete = path.trim() !== '' && platformId !== undefined
+
+  const changePath = (nextPath: string): void => {
+    setPath(nextPath)
+    setProblem(undefined)
+  }
+
+  const changePlatform = (nextPlatformId: string): void => {
+    setPlatformId(nextPlatformId)
+    setProblem(undefined)
+  }
+
+  const scan = (): void => {
+    const folderPath = path.trim()
+    if (platformId === undefined) return
+    if (!isAbsolutePath(folderPath)) {
+      setProblem(t(scanProblemMessageKey('relative-path')))
+      return
+    }
+    onScan({ path: folderPath, platformId })
+  }
 
   return (
     <SettingsForm
@@ -32,8 +65,8 @@ export function GameFolderForm({ platforms, onCancel }: GameFolderFormProps): Re
           <Button focusId="cancel" onPress={onCancel}>
             {t('addGameFolder.cancel')}
           </Button>
-          <Button focusId="add" aria-disabled={!complete}>
-            {t('addGameFolder.add')}
+          <Button focusId="scan" aria-disabled={!complete} onPress={scan}>
+            {t('addGameFolder.scan')}
           </Button>
         </>
       }
@@ -42,8 +75,9 @@ export function GameFolderForm({ platforms, onCancel }: GameFolderFormProps): Re
         label={t('addGameFolder.path')}
         browseLabel={t('addGameFolder.browse')}
         value={path}
-        onChange={setPath}
+        onChange={changePath}
         pick={pickGameFolder}
+        error={problem}
         autoFocus
       />
       <FormField
@@ -54,10 +88,14 @@ export function GameFolderForm({ platforms, onCancel }: GameFolderFormProps): Re
         <PlatformSelect
           labelId={platformLabelId}
           controlId={platformControlId}
+          descriptionId={platformNoteId}
           platforms={platforms}
           value={platformId}
-          onChange={setPlatformId}
+          onChange={changePlatform}
         />
+        <p id={platformNoteId} className={styles.note}>
+          {t('addGameFolder.onePerPlatform')}
+        </p>
       </FormField>
     </SettingsForm>
   )

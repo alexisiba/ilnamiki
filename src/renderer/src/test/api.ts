@@ -122,6 +122,25 @@ export function mockPickedFolder(path: string | null | Error): void {
   })
 }
 
+/**
+ * Makes `window.api.library.scanFolder` resolve with `result`, reject with an error, or, with
+ * `'pending'`, never answer, as a scan still running.
+ */
+export function mockScanFolder(result: ScanFolderResult | Error | 'pending'): void {
+  vi.mocked(window.api.library.scanFolder).mockImplementation(() => {
+    if (result === 'pending') return new Promise(() => {})
+    if (result instanceof Error) return Promise.reject(result)
+    return Promise.resolve(result)
+  })
+}
+
+/** Sends `percent` to every listener of `window.api.library.onScanProgress`. */
+export function emitScanProgress(percent: number): void {
+  for (const [listener] of vi.mocked(window.api.library.onScanProgress).mock.calls) {
+    listener({ percent })
+  }
+}
+
 /** Makes `window.api.library.listFolders` resolve with `folders`, or reject with an error. */
 export function mockGameFolders(folders: GameFolder[] | Error): void {
   vi.mocked(window.api.library.listFolders).mockImplementation(async () => {

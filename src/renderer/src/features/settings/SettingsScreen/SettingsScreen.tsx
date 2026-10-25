@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { useLocation, useOutlet } from 'react-router'
 
 import { useInputAction } from '@renderer/core/input'
-import { usePlatforms } from '@renderer/core/ipc'
 import {
   ADD_EMULATOR_PATH,
   ADD_GAME_FOLDER_PATH,
@@ -38,7 +37,6 @@ export function SettingsScreen(): React.JSX.Element {
     SETTINGS_CATEGORIES[0].id
   )
   const focusCategories = useGroupFocus(SETTINGS_NAV_GROUP_ID)
-  const platforms = usePlatforms()
   const panelRef = useRef<HTMLDivElement>(null)
   const idPrefix = useId()
   const panelId = `${idPrefix}-panel`
@@ -88,12 +86,6 @@ export function SettingsScreen(): React.JSX.Element {
               )}
               {categoryId === 'gameFolders' && (
                 <GameFolderSettings
-                  // No game folders can be saved yet, so there are none.
-                  folders={[]}
-                  // Not known until the platforms are first read.
-                  hasInstalledPlatforms={
-                    platforms.status === 'loading' ? null : platforms.platforms.length > 0
-                  }
                   onSetUpEmulator={() => focusCategories('emulators')}
                   onAdd={() => openScreen(ADD_GAME_FOLDER_PATH)}
                 />

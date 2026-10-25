@@ -17,6 +17,7 @@ import styles from './PlatformSelect.module.css'
 export function PlatformSelect({
   labelId,
   controlId,
+  descriptionId,
   platforms,
   value,
   onChange
@@ -42,6 +43,7 @@ export function PlatformSelect({
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-labelledby={`${labelId} ${valueId}`}
+        aria-describedby={descriptionId}
         onClick={() => setOpen(true)}
       >
         <span id={valueId} className={selected ? styles.value : styles.placeholder}>

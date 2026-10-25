@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { addEmulator, inspectEmulator } from '@renderer/core/ipc'
 
 import type { EmulatorProblem } from '../../../utils/emulatorProblems'
-import { isAbsolutePath } from './EmulatorForm.utils'
+import { isAbsolutePath } from '../../../utils/paths'
 
 export interface EmulatorFormState {
   path: string

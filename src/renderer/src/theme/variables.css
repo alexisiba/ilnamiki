@@ -153,6 +153,11 @@
   --switch-knob-size: 36px;
   --indicator-dot-size: 8px;
   --indicator-line-width: 32px;
+  /* Status dots beside an item (e.g. a game found playable or damaged), with a soft glow. */
+  --status-dot-size: 14px;
+  --status-dot-glow-size: 10px;
+  /* Progress bars: a thin pill-shaped track. */
+  --progress-height: 12px;
 
   /* Icons */
   --icon-size-xs: 14px;

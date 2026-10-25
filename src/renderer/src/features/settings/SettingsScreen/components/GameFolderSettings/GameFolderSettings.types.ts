@@ -1,12 +1,6 @@
 import type { GameFolder } from '@renderer/types/gameFolder'
 
 export interface GameFolderSettingsProps {
-  folders: GameFolder[]
-  /**
-   * Whether any platform has an installed core, without which no folder's games can play;
-   * null while it isn't known yet.
-   */
-  hasInstalledPlatforms: boolean | null
   /** Takes the user to the emulators, where cores come from. */
   onSetUpEmulator: () => void
   /** Opens the form that adds a game folder. */
@@ -15,4 +9,6 @@ export interface GameFolderSettingsProps {
 
 export interface GameFolderListItemProps {
   folder: GameFolder
+  /** Name of the folder's platform, e.g. "PlayStation". */
+  platformName: string
 }

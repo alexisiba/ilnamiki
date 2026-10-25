@@ -5,6 +5,8 @@ export interface PlatformSelectProps {
   labelId: string
   /** Id of the select's button, which the label points to. */
   controlId: string
+  /** Id of a note that describes the select, e.g. why some platforms aren't listed. */
+  descriptionId?: string
   platforms: InstalledPlatform[]
   /** Id of the selected platform; `undefined` while none is. */
   value: string | undefined

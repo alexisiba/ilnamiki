@@ -67,6 +67,23 @@
   color: var(--color-text-muted);
 }
 
+/* Warning: the folder needs attention, but its games stay saved. */
+.unavailable {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--body-md-size);
+  line-height: var(--body-md-line-height);
+  color: var(--color-warning);
+}
+
+.unavailableIcon {
+  flex-shrink: 0;
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+  stroke-width: var(--icon-stroke);
+}
+
 .actions {
   display: flex;
   justify-content: flex-end;

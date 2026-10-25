@@ -9,6 +9,11 @@
     "games_one": "{{count}} game",
     "games_other": "{{count}} games",
     "add": "Add folder",
+    "unavailable": "Folder not available",
+    "failed": {
+      "title": "The game folders couldn't be loaded",
+      "description": "Close Ilnamiki and open it again."
+    },
     "empty": {
       "title": "No game folders configured",
       "noCores": "It looks like you don't have any cores installed yet. Set up an emulator to install your first core.",
@@ -83,7 +88,42 @@
     "browse": "Choose the folder",
     "platform": "Platform",
     "selectPlatform": "Select a platform",
+    "onePerPlatform": "Each platform can have one folder. Platforms that already have one aren't listed.",
     "cancel": "Cancel",
-    "add": "Add folder"
+    "scan": "Scan",
+    "problems": {
+      "relativePath": "Write the folder's full path, from the root.",
+      "notFound": "There's no folder at this path.",
+      "notAFolder": "This path is a file. Choose a folder.",
+      "notReadable": "Ilnamiki isn't allowed to read this folder.",
+      "unknownPlatform": "No installed core plays this platform anymore. Choose another one.",
+      "alreadyAdded": "This folder is already added.",
+      "platformHasFolder": "This platform already has a folder.",
+      "failed": "The folder couldn't be scanned. Try again."
+    }
+  },
+  "folderScan": {
+    "scanning": "Scanning folder",
+    "found": "Games found",
+    "folder": "{{path}} · {{platform}}",
+    "percent": "{{percent}} %",
+    "games_one": "{{count}} game",
+    "games_other": "{{count}} games",
+    "damaged_one": "{{count}} damaged",
+    "damaged_other": "{{count}} damaged",
+    "noGames": "No games available in this folder.",
+    "noPlayableGames": "No playable games in this folder.",
+    "missingFiles_one": "Missing “{{files}}”. Check that the file is in the folder.",
+    "missingFiles_other": "Missing {{count}} files: {{files}}. Check that they're in the folder.",
+    "emptyIndex": "It doesn't point to any file. Check that it's the right file.",
+    "back": "Back",
+    "save": "Save folder",
+    "saveProblems": {
+      "unknownScan": "This scan is no longer valid. Go back and scan the folder again.",
+      "alreadyAdded": "This folder was added in the meantime.",
+      "platformHasFolder": "This platform got a folder in the meantime.",
+      "noGames": "There are no playable games to save.",
+      "failed": "The folder couldn't be saved. Try again."
+    }
   }
 }

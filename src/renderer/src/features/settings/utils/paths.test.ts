@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { isAbsolutePath } from './EmulatorForm.utils'
+import { isAbsolutePath } from './paths'
 
 describe('isAbsolutePath', () => {
   it('accepts paths from the root and Windows drives', () => {
