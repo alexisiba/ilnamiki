@@ -74,12 +74,23 @@
 .sheet {
   display: flex;
   flex-direction: column;
+  gap: var(--space-sm);
   width: 100%;
   min-height: 0;
   padding: var(--space-sm);
   background: var(--color-surface-glass-strong);
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-lg);
+}
+
+/* Aligned with the options' text. */
+.sheetTitle {
+  padding: var(--space-xs) var(--space-md) 0;
+  font-size: var(--headline-sm-size);
+  font-weight: var(--headline-sm-weight);
+  line-height: var(--headline-sm-line-height);
+  letter-spacing: var(--headline-sm-tracking);
+  color: var(--color-text-focus);
 }
 
 .options {

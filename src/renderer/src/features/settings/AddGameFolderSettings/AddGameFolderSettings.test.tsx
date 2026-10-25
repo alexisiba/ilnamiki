@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
@@ -43,7 +43,8 @@ const pathField = (): HTMLElement => screen.getByRole('textbox', { name: 'Folder
 const browse = (): HTMLElement => screen.getByRole('button', { name: 'Choose the folder' })
 const platformSelect = (): HTMLElement => screen.getByRole('button', { name: /^Platform / })
 const addFolder = (): HTMLElement => screen.getByRole('button', { name: 'Add folder' })
-const platformList = (): HTMLElement | null => screen.queryByRole('dialog', { name: 'Platform' })
+const platformList = (): HTMLElement | null =>
+  screen.queryByRole('dialog', { name: 'Select a platform' })
 
 describe('AddGameFolderSettings', () => {
   it('shows the form title and that it is filled with a keyboard and mouse', () => {
@@ -83,6 +84,9 @@ describe('AddGameFolderSettings', () => {
     await userEvent.setup().click(platformSelect())
 
     expect(platformList()).toBeInTheDocument()
+    expect(
+      within(platformList()!).getByRole('heading', { name: 'Select a platform' })
+    ).toBeInTheDocument()
     expect(platformSelect()).toHaveAttribute('aria-expanded', 'true')
     expect(screen.getByRole('button', { name: 'Nintendo 64' })).toHaveFocus()
     expect(screen.getByRole('button', { name: 'PlayStation' })).toBeInTheDocument()

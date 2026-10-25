@@ -12,8 +12,6 @@ export interface PlatformSelectProps {
 }
 
 export interface PlatformSelectDialogProps {
-  /** Id of the field's label, which names the list. */
-  labelId: string
   platforms: AssociatedPlatform[]
   value: string | undefined
   onSelect: (platformId: string) => void

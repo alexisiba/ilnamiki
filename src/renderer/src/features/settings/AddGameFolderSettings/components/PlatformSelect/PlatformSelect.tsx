@@ -53,7 +53,6 @@ export function PlatformSelect({
         // Its own input scope: while open, the form behind gets no input.
         <InputScope>
           <PlatformSelectDialog
-            labelId={labelId}
             platforms={platforms}
             value={value}
             onSelect={select}

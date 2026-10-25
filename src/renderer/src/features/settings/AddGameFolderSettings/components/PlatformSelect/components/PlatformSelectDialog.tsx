@@ -1,4 +1,5 @@
-import { useLayoutEffect, useRef } from 'react'
+import { useId, useLayoutEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { useInputAction } from '@renderer/core/input'
 import { FocusGroup, NavigationProvider } from '@renderer/core/navigation'
@@ -8,18 +9,20 @@ import styles from '../PlatformSelect.module.css'
 import { PlatformSelectOption } from './PlatformSelectOption'
 
 /**
- * The platforms to choose from, over the blurred screen. It is modal: the form behind is
- * inert, it opens on the chosen platform (or the first one), and back or a click outside the
- * list closes it without choosing. Focus returns to the select when it closes.
+ * The platforms to choose from, under a title that says so, over the blurred screen (which
+ * hides the field it was opened from). It is modal: the form behind is inert, it opens on the
+ * chosen platform (or the first one), and back or a click outside the list closes it without
+ * choosing. Focus returns to the select when it closes.
  */
 export function PlatformSelectDialog({
-  labelId,
   platforms,
   value,
   onSelect,
   onClose
 }: PlatformSelectDialogProps): React.JSX.Element {
+  const { t } = useTranslation('settings')
   const ref = useRef<HTMLDialogElement>(null)
+  const titleId = useId()
   const hasSelection = platforms.some((platform) => platform.id === value)
 
   // Opening a modal dialog focuses its first button. A layout effect opens it before the
@@ -43,7 +46,7 @@ export function PlatformSelectDialog({
     <dialog
       ref={ref}
       className={styles.dialog}
-      aria-labelledby={labelId}
+      aria-labelledby={titleId}
       // The dialog itself is only hit outside the list, on its backdrop.
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose()
@@ -56,6 +59,9 @@ export function PlatformSelectDialog({
       {/* Its own navigation: directions move only between the platforms. */}
       <NavigationProvider scope="platform-select">
         <FocusGroup id="platform-options" className={styles.sheet}>
+          <h2 id={titleId} className={styles.sheetTitle}>
+            {t('addGameFolder.selectPlatform')}
+          </h2>
           <ul className={styles.options}>
             {platforms.map((platform, index) => (
               <li key={platform.id}>
