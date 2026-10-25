@@ -11,6 +11,9 @@ export function mockApi(): void {
     controllers: {
       getStatus: vi.fn(async (): Promise<ControllerStatus[]> => [])
     },
+    emulators: {
+      pickExecutable: vi.fn(async (): Promise<string | null> => null)
+    },
     network: {
       getStatus: vi.fn(async (): Promise<NetworkStatus> => ({
         connection: null,
@@ -26,6 +29,17 @@ export function mockControllerStatus(statuses: ControllerStatus[] | Error): void
   vi.mocked(window.api.controllers.getStatus).mockImplementation(async () => {
     if (statuses instanceof Error) throw statuses
     return statuses
+  })
+}
+
+/**
+ * Makes `window.api.emulators.pickExecutable` resolve with `path` (null when the user
+ * cancels), or reject with an error.
+ */
+export function mockPickedExecutable(path: string | null | Error): void {
+  vi.mocked(window.api.emulators.pickExecutable).mockImplementation(async () => {
+    if (path instanceof Error) throw path
+    return path
   })
 }
 

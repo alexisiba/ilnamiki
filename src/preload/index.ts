@@ -3,11 +3,13 @@ import { electronAPI } from '@electron-toolkit/preload'
 import type { Api } from '@shared/api'
 
 import { controllersApi } from './api/controllers'
+import { emulatorsApi } from './api/emulators'
 import { networkApi } from './api/network'
 
 // Custom APIs for renderer
 const api: Api = {
   controllers: controllersApi,
+  emulators: emulatorsApi,
   network: networkApi
 }
 

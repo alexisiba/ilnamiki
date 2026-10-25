@@ -3,6 +3,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { registerControllersIpc } from './features/controllers'
+import { registerEmulatorsIpc } from './features/emulators'
 import { registerNetworkIpc } from './features/network'
 
 function createWindow(): void {
@@ -53,6 +54,7 @@ app.whenReady().then(() => {
   })
 
   registerControllersIpc()
+  registerEmulatorsIpc()
   registerNetworkIpc()
 
   createWindow()
