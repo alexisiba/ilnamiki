@@ -19,7 +19,7 @@ structure: what each table is for, what each field means and how tables relate.
 | Journal | WAL (`ilnamiki.db-wal` and `ilnamiki.db-shm` exist while the app runs) |
 | Foreign keys | Enforced on every connection |
 | Schema version | Kept in `PRAGMA user_version`; the number of the last migration applied |
-| Current version | **1**: `emulators` |
+| Current version | **2**: `emulators`, `library_folders`, `games` |
 
 ## What is stored and what isn't
 
@@ -49,6 +49,8 @@ what its `NULL` means, and every foreign key states what happens when its row is
 
 ```mermaid
 erDiagram
+    library_folders |o--o{ games : "found in"
+
     emulators {
         TEXT id PK
         TEXT kind
@@ -60,6 +62,22 @@ erDiagram
         INTEGER file_modified_at
         INTEGER created_at
         INTEGER updated_at
+    }
+    library_folders {
+        TEXT id PK
+        TEXT path UK
+        TEXT platform_id UK
+        INTEGER created_at
+        INTEGER updated_at
+    }
+    games {
+        TEXT id PK
+        TEXT folder_id FK
+        TEXT platform_id
+        TEXT file_path
+        TEXT title
+        INTEGER added_at
+        INTEGER removed_at
     }
 ```
 
@@ -81,18 +99,53 @@ version, icon) is a cache: it is read when the emulator is added.
 | `created_at` | `INTEGER` | no | When it was added |
 | `updated_at` | `INTEGER` | no | When it last changed |
 
+### `library_folders`
+
+Migration 2. The folders the user added for Ilnamiki to find games in. Each one holds the
+games of one platform, and each platform has one folder at most.
+
+| Field | Type | Null | Meaning |
+|---|---|---|---|
+| `id` | `TEXT` | no | Primary key |
+| `path` | `TEXT` | no | Absolute path of the folder; unique |
+| `platform_id` | `TEXT` | no | Platform its games belong to (e.g. `playstation`); unique, so a platform has one folder |
+| `created_at` | `INTEGER` | no | When it was added |
+| `updated_at` | `INTEGER` | no | When it last changed |
+
+Whether the folder is still on disk isn't stored: it is checked when the folders are read.
+
+### `games`
+
+Migration 2. The playable games found in the library folders, saved as the scan the user
+saw found them; damaged games (e.g. a cue sheet whose tracks are missing) aren't saved.
+Games are never deleted: removing one marks it removed, so its history stays and comes back
+if the same file is added again.
+
+| Field | Type | Null | Meaning |
+|---|---|---|---|
+| `id` | `TEXT` | no | Primary key; kept when a removed game comes back |
+| `folder_id` | `TEXT` | yes | → `library_folders.id`; `NULL` exactly when the game is removed. A folder can't be deleted while games are in it (`RESTRICT`): its games are marked removed first |
+| `platform_id` | `TEXT` | no | Platform it belongs to, as its folder's when it was found |
+| `file_path` | `TEXT` | no | Absolute path of the file the emulator opens (e.g. a `.cue` or `.m3u`, not its tracks) |
+| `title` | `TEXT` | no | Title shown in the app, never empty: the file's name without its extension, for now |
+| `added_at` | `INTEGER` | no | When it was first found |
+| `removed_at` | `INTEGER` | yes | When it was removed (e.g. with its folder); `NULL` while it is in a folder |
+
+Unique: (`platform_id`, `file_path`), which is how a removed game is recognized when it comes
+back. A `CHECK` keeps `folder_id` and `removed_at` consistent: exactly one of them is set.
+Index: `games_folder_id_index`, to list and count a folder's games.
+
 ## Planned tables
 
 A first draft of where the schema is heading, so each migration fits the next. **None of
 these exist yet**: each one is designed for real, and may change, when the feature that needs
-it is built, and moves to [Tables](#tables) once its migration exists. `emulators` (above) is
-shown only for its relations.
+it is built, and moves to [Tables](#tables) once its migration exists. `emulators` and
+`games` (above) are shown only for their relations and planned columns.
 
 ```mermaid
 erDiagram
     emulators ||--o{ platform_emulators : "plays"
     emulators ||--o{ games : "forced for"
-    library_folders ||--o{ games : "found in"
     games ||--o{ play_sessions : "played in"
 
     platform_emulators {
@@ -101,21 +154,9 @@ erDiagram
         TEXT core
         INTEGER is_default
     }
-    library_folders {
-        TEXT id PK
-        TEXT path
-        TEXT platform_id
-        INTEGER created_at
-    }
     games {
-        TEXT id PK
-        TEXT folder_id FK
-        TEXT platform_id
-        TEXT file_path
-        TEXT title
         TEXT emulator_id FK
         TEXT core
-        INTEGER added_at
     }
     play_sessions {
         TEXT id PK
@@ -142,31 +183,12 @@ Which emulator, and which core of it, plays each platform.
 
 Primary key: (`platform_id`, `emulator_id`).
 
-### `library_folders` (planned)
-
-Folders the user wants scanned for games.
+### Planned columns of `games`
 
 | Field | Type | Null | Meaning |
 |---|---|---|---|
-| `id` | `TEXT` | no | Primary key |
-| `path` | `TEXT` | no | Absolute path of the folder; unique |
-| `platform_id` | `TEXT` | yes | Platform all its games belong to; `NULL` to tell each game's platform from its file |
-| `created_at` | `INTEGER` | no | When it was added |
-
-### `games` (planned)
-
-The games found in the library folders.
-
-| Field | Type | Null | Meaning |
-|---|---|---|---|
-| `id` | `TEXT` | no | Primary key |
-| `folder_id` | `TEXT` | no | → `library_folders.id`; removing the folder removes its games |
-| `platform_id` | `TEXT` | no | Platform from the app's catalog |
-| `file_path` | `TEXT` | no | Absolute path of the game file; unique |
-| `title` | `TEXT` | no | Title shown in the app |
 | `emulator_id` | `TEXT` | yes | → `emulators.id`; emulator forced for this game, `NULL` to use the platform's default. Deleting the emulator sets it back to `NULL` |
 | `core` | `TEXT` | yes | Core forced for this game; `NULL` to use the platform's |
-| `added_at` | `INTEGER` | no | When it was found |
 
 Metadata (description, genre, year, players, artwork paths) will be added when the source of
 that metadata is decided.
@@ -179,7 +201,7 @@ played are computed from them.
 | Field | Type | Null | Meaning |
 |---|---|---|---|
 | `id` | `TEXT` | no | Primary key |
-| `game_id` | `TEXT` | no | → `games.id`; removing the game removes its sessions |
+| `game_id` | `TEXT` | no | → `games.id`; games are never deleted (only marked removed), so a game's sessions stay and show again when it comes back |
 | `started_at` | `INTEGER` | no | When the emulator was launched |
 | `ended_at` | `INTEGER` | no | When it closed |
 

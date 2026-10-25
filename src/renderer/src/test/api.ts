@@ -2,6 +2,8 @@ import { vi } from 'vitest'
 
 import type {
   AddEmulatorResult,
+  AddFolderResult,
+  GameFolder,
   ChangeEmulatorPathResult,
   ControllerStatus,
   Emulator,
@@ -41,7 +43,12 @@ export function mockApi(): void {
         problem: 'not-found'
       })),
       cancelScan: vi.fn(async (): Promise<void> => undefined),
-      onScanProgress: vi.fn((): (() => void) => () => undefined)
+      onScanProgress: vi.fn((): (() => void) => () => undefined),
+      addFolder: vi.fn(async (): Promise<AddFolderResult> => ({
+        ok: false,
+        problem: 'unknown-scan'
+      })),
+      listFolders: vi.fn(async (): Promise<GameFolder[]> => [])
     },
     network: {
       getStatus: vi.fn(async (): Promise<NetworkStatus> => ({
@@ -112,6 +119,22 @@ export function mockPickedFolder(path: string | null | Error): void {
   vi.mocked(window.api.library.pickFolder).mockImplementation(async () => {
     if (path instanceof Error) throw path
     return path
+  })
+}
+
+/** Makes `window.api.library.listFolders` resolve with `folders`, or reject with an error. */
+export function mockGameFolders(folders: GameFolder[] | Error): void {
+  vi.mocked(window.api.library.listFolders).mockImplementation(async () => {
+    if (folders instanceof Error) throw folders
+    return folders
+  })
+}
+
+/** Makes `window.api.library.addFolder` resolve with `result`, or reject with an error. */
+export function mockAddGameFolder(result: AddFolderResult | Error): void {
+  vi.mocked(window.api.library.addFolder).mockImplementation(async () => {
+    if (result instanceof Error) throw result
+    return result
   })
 }
 

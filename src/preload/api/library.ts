@@ -12,5 +12,7 @@ export const libraryApi: LibraryApi = {
     return () => {
       ipcRenderer.removeListener(LIBRARY_CHANNELS.scanProgress, handle)
     }
-  }
+  },
+  addFolder: (scanId) => ipcRenderer.invoke(LIBRARY_CHANNELS.addFolder, scanId),
+  listFolders: () => ipcRenderer.invoke(LIBRARY_CHANNELS.listFolders)
 }

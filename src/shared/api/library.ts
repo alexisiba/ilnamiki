@@ -45,11 +45,42 @@ export type ScanFolderProblem =
   | 'not-readable'
   /** No installed core plays the platform (e.g. it was uninstalled). */
   | 'unknown-platform'
+  /** The folder was already added. */
+  | 'already-added'
+  /** The platform already has a folder: each platform has one at most. */
+  | 'platform-has-folder'
   /** The scan was cancelled, or replaced by a newer one. */
   | 'cancelled'
 
 export type ScanFolderResult =
   { ok: true; scan: FolderScan } | { ok: false; problem: ScanFolderProblem }
+
+/** A folder the user added for Ilnamiki to find a platform's games in. */
+export interface GameFolder {
+  id: string
+  /** Absolute path of the folder. */
+  path: string
+  /** The platform its games belong to, e.g. "playstation"; one folder per platform. */
+  platformId: string
+  /** How many playable games were saved from it. */
+  gameCount: number
+  /** Whether the folder is still there; false when it was moved or deleted, or its drive is out. */
+  isAvailable: boolean
+  /** When it was added, in milliseconds since the epoch. */
+  addedAt: number
+}
+
+/** Why a scanned folder couldn't be added. */
+export type AddFolderProblem =
+  /** The scan isn't the latest one (a newer scan replaced it), or never existed. */
+  | 'unknown-scan'
+  | 'already-added'
+  | 'platform-has-folder'
+  /** The scan found no playable game. */
+  | 'no-games'
+
+export type AddFolderResult =
+  { ok: true; folder: GameFolder } | { ok: false; problem: AddFolderProblem }
 
 /** How far the running scan is. */
 export interface ScanProgress {
@@ -66,18 +97,29 @@ export interface LibraryApi {
   pickFolder(): Promise<string | null>
   /**
    * Finds the games in a folder for a platform, reporting its progress with `onScanProgress`,
-   * or says why it can't. One scan runs at a time: starting one cancels the one running.
+   * or says why it can't. Subfolders that are other platforms' folders are left out. One scan
+   * runs at a time: starting one cancels the one running.
    */
   scanFolder(request: ScanFolderRequest): Promise<ScanFolderResult>
   /** Cancels the running scan, which then resolves as `cancelled`; nothing when none runs. */
   cancelScan(): Promise<void>
   /** Calls `listener` as the running scan advances. Returns the unsubscribe function. */
   onScanProgress(listener: (progress: ScanProgress) => void): () => void
+  /**
+   * Adds the folder of the latest scan with its playable games (damaged ones are left out),
+   * or says why it can't. A game removed before with the same platform and file comes back
+   * as it was.
+   */
+  addFolder(scanId: string): Promise<AddFolderResult>
+  /** The folders the user added, oldest first. */
+  listFolders(): Promise<GameFolder[]>
 }
 
 export const LIBRARY_CHANNELS = {
   pickFolder: 'library:pick-folder',
   scanFolder: 'library:scan-folder',
   cancelScan: 'library:cancel-scan',
-  scanProgress: 'library:scan-progress'
+  scanProgress: 'library:scan-progress',
+  addFolder: 'library:add-folder',
+  listFolders: 'library:list-folders'
 } as const

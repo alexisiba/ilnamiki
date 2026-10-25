@@ -5,7 +5,7 @@ import { LIBRARY_CHANNELS } from '@shared/api'
 import { pickPath } from '../../core/dialogs'
 import { createProgressReporter } from './library.progress'
 import { libraryService } from './library.service'
-import { parseScanFolderRequest } from './library.validation'
+import { parseScanFolderRequest, parseScanId } from './library.validation'
 
 /** Answers the renderer's `library` requests, after checking what it sends. */
 export function registerLibraryIpc(): void {
@@ -26,4 +26,12 @@ export function registerLibraryIpc(): void {
   })
 
   ipcMain.handle(LIBRARY_CHANNELS.cancelScan, () => libraryService.cancelScan())
+
+  ipcMain.handle(LIBRARY_CHANNELS.addFolder, (_event, value: unknown) => {
+    const scanId = parseScanId(value)
+    if (scanId === null) throw new Error('library.addFolder needs a scan id')
+    return libraryService.addFolder(scanId)
+  })
+
+  ipcMain.handle(LIBRARY_CHANNELS.listFolders, () => libraryService.listFolders())
 }
