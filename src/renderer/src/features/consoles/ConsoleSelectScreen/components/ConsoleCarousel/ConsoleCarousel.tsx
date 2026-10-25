@@ -32,9 +32,12 @@ export function ConsoleCarousel({
 
   if (!selected) return null
 
+  // Only what is known: either can be missing, and then the line too.
+  const facts = [selected.manufacturer, selected.releaseYear].filter((fact) => fact !== null)
+
   const details = (
     <div id={detailsId} className={styles.details}>
-      <p className={styles.facts}>{`${selected.manufacturer} · ${selected.releaseYear}`}</p>
+      {facts.length > 0 && <p className={styles.facts}>{facts.join(' · ')}</p>}
       <p className={styles.games}>
         <span className={styles.gamesDot} />
         {t('carousel.gamesInstalled', { count: selected.gameCount })}

@@ -64,6 +64,7 @@ export function parseCoreInfo(id: string, infoText: string): DetectedCore | null
     name: settings.get('corename') || id,
     platformId,
     platformName,
+    platformManufacturer: settings.get('manufacturer') || null,
     extensions: [...new Set(extensions)]
   }
 }

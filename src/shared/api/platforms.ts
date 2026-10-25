@@ -19,6 +19,8 @@ export interface InstalledPlatform {
   id: string
   /** e.g. "Nintendo 64". */
   name: string
+  /** Company that made it, e.g. "Nintendo"; null when no core says. */
+  manufacturer: string | null
   /** The cores that play it, by name; never empty. */
   cores: InstalledCore[]
 }

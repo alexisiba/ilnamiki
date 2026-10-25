@@ -8,6 +8,7 @@ const SNES9X: DetectedCore = {
   name: 'Snes9x',
   platformId: 'super_nes',
   platformName: 'Super Nintendo',
+  platformManufacturer: 'Nintendo',
   extensions: ['smc', 'sfc']
 }
 const BSNES: DetectedCore = { ...SNES9X, id: 'bsnes', name: 'bsnes', extensions: ['sfc', 'bs'] }
@@ -16,6 +17,7 @@ const MUPEN: DetectedCore = {
   name: 'Mupen64Plus-Next',
   platformId: 'nintendo_64',
   platformName: 'Nintendo 64',
+  platformManufacturer: 'Nintendo',
   extensions: ['n64']
 }
 
@@ -32,12 +34,21 @@ describe('groupByPlatform', () => {
       {
         id: 'super_nes',
         name: 'Super Nintendo',
+        manufacturer: 'Nintendo',
         cores: [
           { id: 'bsnes', name: 'bsnes', emulatorId: 'retroarch', extensions: ['sfc', 'bs'] },
           { id: 'snes9x', name: 'Snes9x', emulatorId: 'retroarch', extensions: ['smc', 'sfc'] }
         ]
       }
     ])
+  })
+
+  it('takes the manufacturer from the first core that says it', () => {
+    const silent: DetectedCore = { ...BSNES, platformManufacturer: null }
+    const platforms = groupByPlatform([{ emulatorId: 'retroarch', cores: [silent, SNES9X] }])
+
+    expect(platforms[0].manufacturer).toBe('Nintendo')
+    expect(groupByPlatform([{ emulatorId: 'e', cores: [silent] }])[0].manufacturer).toBeNull()
   })
 
   it('sorts the platforms by name', () => {

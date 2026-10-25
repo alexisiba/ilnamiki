@@ -14,6 +14,7 @@ const PLATFORMS: InstalledPlatform[] = [
   {
     id: 'nintendo_64',
     name: 'Nintendo 64',
+    manufacturer: 'Nintendo',
     cores: [
       {
         id: 'mupen64plus_next',
@@ -26,6 +27,7 @@ const PLATFORMS: InstalledPlatform[] = [
   {
     id: 'playstation',
     name: 'PlayStation',
+    manufacturer: 'Sony',
     cores: [{ id: 'swanstation', name: 'SwanStation', emulatorId: 'a1', extensions: [] }]
   }
 ]
@@ -33,6 +35,7 @@ const PLATFORMS: InstalledPlatform[] = [
 const SUPER_NES: InstalledPlatform = {
   id: 'super_nes',
   name: 'Super Nintendo',
+  manufacturer: 'Nintendo',
   cores: [
     { id: 'bsnes', name: 'bsnes', emulatorId: 'a1', extensions: ['sfc', 'bs'] },
     { id: 'snes9x', name: 'Snes9x', emulatorId: 'a1', extensions: ['smc', 'sfc'] }

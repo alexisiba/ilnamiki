@@ -10,6 +10,7 @@ import { getPlatformsState, refreshPlatforms, subscribeToPlatforms } from './pla
 const NINTENDO_64: InstalledPlatform = {
   id: 'nintendo_64',
   name: 'Nintendo 64',
+  manufacturer: 'Nintendo',
   cores: [{ id: 'mupen64plus_next', name: 'Mupen64Plus-Next', emulatorId: 'a1', extensions: [] }]
 }
 

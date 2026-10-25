@@ -1,11 +1,34 @@
 import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { mockGameFolders, mockPlatforms } from '@renderer/test/api'
 import { connectGamepad } from '@renderer/test/gamepad'
 
 import { APP_ROUTES } from './App.routes'
+
+// The library has one console: the NES, installed and with a folder of games.
+beforeEach(() => {
+  mockPlatforms([
+    {
+      id: 'nes',
+      name: 'Nintendo Entertainment System',
+      manufacturer: 'Nintendo',
+      cores: [{ id: 'mesen', name: 'Mesen', emulatorId: 'a1', extensions: ['nes'] }]
+    }
+  ])
+  mockGameFolders([
+    {
+      id: 'f1',
+      path: '/home/player/Games/NES',
+      platformId: 'nes',
+      gameCount: 56,
+      isAvailable: true,
+      addedAt: 1
+    }
+  ])
+})
 
 function renderApp(): ReturnType<typeof createMemoryRouter> {
   const router = createMemoryRouter(APP_ROUTES)
@@ -145,7 +168,7 @@ describe('App', () => {
     const user = userEvent.setup()
 
     await user.click(screen.getByRole('link', { name: 'Library' }))
-    await user.click(screen.getByRole('button', { name: 'NES' }))
+    await user.click(await screen.findByRole('button', { name: 'NES' }))
     await user.keyboard('{Enter}')
 
     expect(router.state.location.pathname).toBe('/library/nes')
@@ -165,7 +188,7 @@ describe('App', () => {
     const user = userEvent.setup()
 
     await user.click(screen.getByRole('link', { name: 'Library' }))
-    await user.click(screen.getByRole('button', { name: 'NES' }))
+    await user.click(await screen.findByRole('button', { name: 'NES' }))
     await user.keyboard('{Enter}{ArrowRight}')
     await user.keyboard('q')
     expect(currentSection()).toHaveTextContent('Home')
@@ -185,7 +208,7 @@ describe('App', () => {
     const user = userEvent.setup()
 
     await user.click(screen.getByRole('link', { name: 'Library' }))
-    await user.click(screen.getByRole('button', { name: 'NES' }))
+    await user.click(await screen.findByRole('button', { name: 'NES' }))
     await user.keyboard('{Enter}')
     await user.click(screen.getByRole('link', { name: 'Home' }))
     await user.click(screen.getByRole('link', { name: 'Library' }))
@@ -198,7 +221,7 @@ describe('App', () => {
     const user = userEvent.setup()
 
     await user.click(screen.getByRole('link', { name: 'Library' }))
-    await user.click(screen.getByRole('button', { name: 'NES' }))
+    await user.click(await screen.findByRole('button', { name: 'NES' }))
     await user.keyboard('{Enter}')
     await user.click(screen.getByRole('button', { name: 'Donkey Kong 64' }))
     await user.keyboard('q')
@@ -214,7 +237,7 @@ describe('App', () => {
     const user = userEvent.setup()
 
     await user.click(screen.getByRole('link', { name: 'Library' }))
-    await user.click(screen.getByRole('button', { name: 'NES' }))
+    await user.click(await screen.findByRole('button', { name: 'NES' }))
     await user.keyboard('{Enter}')
     await user.keyboard('y')
     await user.keyboard('qe{ArrowRight}{Escape}')
@@ -228,7 +251,7 @@ describe('App', () => {
     const router = renderApp()
     const user = userEvent.setup()
     await user.click(screen.getByRole('link', { name: 'Library' }))
-    await user.click(screen.getByRole('button', { name: 'NES' }))
+    await user.click(await screen.findByRole('button', { name: 'NES' }))
     await user.keyboard('{Enter}')
 
     // As search opens a game over the screen it was opened from.

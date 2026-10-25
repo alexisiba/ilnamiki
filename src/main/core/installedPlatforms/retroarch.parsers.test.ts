@@ -50,8 +50,15 @@ describe('parseCoreInfo', () => {
       name: 'Mupen64Plus-Next',
       platformId: 'nintendo_64',
       platformName: 'Nintendo 64',
+      platformManufacturer: 'Nintendo',
       extensions: ['n64', 'v64', 'z64', 'ndd', 'bin', 'u1']
     })
+  })
+
+  it('leaves the manufacturer out when the core doesn’t say it', () => {
+    const info = 'systemid = "psp"\nsystemname = "PSP"\nmanufacturer = ""'
+
+    expect(parseCoreInfo('ppsspp', info)?.platformManufacturer).toBeNull()
   })
 
   it('reads an arcade core as RetroArch names its system', () => {

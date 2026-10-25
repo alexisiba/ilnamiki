@@ -66,6 +66,34 @@ describe('ConsoleCarousel', () => {
     )
   })
 
+  it('leaves out what isn’t known about a console, and the line when nothing is', () => {
+    const unknown: GameConsole = {
+      id: 'quake_3',
+      name: 'Quake III',
+      manufacturer: 'id Software',
+      releaseYear: null,
+      imageUrl: null,
+      gameCount: 2
+    }
+    renderWithNavigation(
+      <ConsoleCarousel
+        consoles={[unknown, { ...unknown, id: 'other', name: 'Other', manufacturer: null }]}
+        onOpenConsole={vi.fn()}
+      />
+    )
+
+    expect(consoleButton('Quake III')).toHaveAccessibleDescription('id Software 2 games installed')
+  })
+
+  it('shows a console without a render as an unavailable image, still named by the console', () => {
+    renderWithNavigation(
+      <ConsoleCarousel consoles={[{ ...CONSOLES[0], imageUrl: null }]} onOpenConsole={vi.fn()} />
+    )
+
+    expect(consoleButton('PlayStation')).toBeInTheDocument()
+    expect(screen.queryByRole('img')).not.toBeInTheDocument()
+  })
+
   it('selects the next console on right', async () => {
     renderCarousel()
 

@@ -1,3 +1,4 @@
+import { ImageOff } from 'lucide-react'
 import { useRef } from 'react'
 
 import { useFocusable } from '@renderer/core/navigation'
@@ -44,7 +45,14 @@ export function ConsoleCarouselItem({
       }}
       onClick={handleClick}
     >
-      <img className={styles.image} src={gameConsole.imageUrl} alt="" />
+      {gameConsole.imageUrl ? (
+        <img className={styles.image} src={gameConsole.imageUrl} alt="" />
+      ) : (
+        // No render of this console ships with the app yet.
+        <span className={styles.noImage}>
+          <ImageOff className={styles.noImageIcon} aria-hidden />
+        </span>
+      )}
       <span className={styles.name}>{gameConsole.name}</span>
     </button>
   )

@@ -8,6 +8,8 @@ export interface DetectedCore {
   platformId: string
   /** e.g. "Nintendo 64". */
   platformName: string
+  /** Company that made the platform, e.g. "Nintendo"; null when the core doesn't say. */
+  platformManufacturer: string | null
   /** Lowercase, without the dot. */
   extensions: string[]
 }

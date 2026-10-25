@@ -38,6 +38,26 @@
   filter: none;
 }
 
+/* In the render's frame, so the name and details stay in place. */
+.noImage {
+  display: grid;
+  place-items: center;
+  width: var(--console-width);
+  aspect-ratio: var(--console-aspect-ratio);
+  color: var(--color-text-dim);
+  transition: color var(--duration-slide) var(--ease-focus);
+}
+
+.selected .noImage {
+  color: var(--color-text-muted);
+}
+
+.noImageIcon {
+  width: var(--icon-size-xl);
+  height: var(--icon-size-xl);
+  stroke-width: var(--icon-stroke-thin);
+}
+
 /* Beside the selection the carousel fades it like the render, below AA contrast on purpose:
    the selected name and the console list already expose it, and a bright name behind would
    compete with the selection. */
