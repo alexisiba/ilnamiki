@@ -8,7 +8,12 @@ export {
   removeEmulator,
   type EmulatorsState
 } from './emulators'
-export { pickGameFolder } from './library'
+export {
+  cancelGameFolderScan,
+  pickGameFolder,
+  scanGameFolder,
+  subscribeToScanProgress
+} from './library'
 export { getNetworkStatus } from './network'
 export { refreshPlatforms, type PlatformsState } from './platforms'
 export { useControllerStatus } from './useControllerStatus'

@@ -7,7 +7,8 @@ import type {
   Emulator,
   InspectEmulatorResult,
   InstalledPlatform,
-  NetworkStatus
+  NetworkStatus,
+  ScanFolderResult
 } from '@shared/api'
 
 /**
@@ -34,7 +35,13 @@ export function mockApi(): void {
       remove: vi.fn(async (): Promise<void> => undefined)
     },
     library: {
-      pickFolder: vi.fn(async (): Promise<string | null> => null)
+      pickFolder: vi.fn(async (): Promise<string | null> => null),
+      scanFolder: vi.fn(async (): Promise<ScanFolderResult> => ({
+        ok: false,
+        problem: 'not-found'
+      })),
+      cancelScan: vi.fn(async (): Promise<void> => undefined),
+      onScanProgress: vi.fn((): (() => void) => () => undefined)
     },
     network: {
       getStatus: vi.fn(async (): Promise<NetworkStatus> => ({
