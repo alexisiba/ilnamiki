@@ -64,6 +64,22 @@ export type ChangeEmulatorPathResult =
   /** `unknown-emulator` when no emulator has that id (e.g. it was removed). */
   | { ok: false; problem: EmulatorProblem | 'already-added' | 'unknown-emulator' }
 
+/** Why an emulator couldn't be opened. */
+export type OpenEmulatorProblem =
+  /** No emulator has that id (e.g. it was removed). */
+  | 'unknown-emulator'
+  /** An emulator is already open, or a game is being played: one runs at a time. */
+  | 'already-running'
+  /** Its application couldn't be started (e.g. it moved or can't run). */
+  | 'not-started'
+
+export type OpenEmulatorResult = { ok: true } | { ok: false; problem: OpenEmulatorProblem }
+
+/** An emulator opened from Ilnamiki that closed, however it was closed. */
+export interface EmulatorClosed {
+  emulatorId: string
+}
+
 /** Setting up the emulators Ilnamiki launches games with. */
 export interface EmulatorsApi {
   /**
@@ -84,6 +100,14 @@ export interface EmulatorsApi {
   changePath(request: ChangeEmulatorPathRequest): Promise<ChangeEmulatorPathResult>
   /** Removes an emulator from Ilnamiki; its application stays on the computer. */
   remove(id: string): Promise<void>
+  /**
+   * Opens the emulator on its own, in full screen, so the user can set it up in its menus
+   * (e.g. install RetroArch's cores). Resolves once it has started; `onClosed` says when it
+   * closes.
+   */
+  open(id: string): Promise<OpenEmulatorResult>
+  /** Calls `listener` when an emulator opened with `open` closes. Returns the unsubscribe function. */
+  onClosed(listener: (closed: EmulatorClosed) => void): () => void
 }
 
 export const EMULATORS_CHANNELS = {
@@ -92,5 +116,7 @@ export const EMULATORS_CHANNELS = {
   add: 'emulators:add',
   list: 'emulators:list',
   changePath: 'emulators:change-path',
-  remove: 'emulators:remove'
+  remove: 'emulators:remove',
+  open: 'emulators:open',
+  closed: 'emulators:closed'
 } as const

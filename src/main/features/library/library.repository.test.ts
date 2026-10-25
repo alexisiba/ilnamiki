@@ -142,6 +142,30 @@ describe('library repository', () => {
     })
   })
 
+  it('points a folder and its games at another path, keeping their ids', () => {
+    const repository = createLibraryRepository(db)
+    repository.insertFolder(PS1_FOLDER)
+    repository.saveGames(PS1_FOLDER.id, 'playstation', [CRASH], 1_800_000_000_100)
+
+    repository.setFolderPath(PS1_FOLDER.id, '/media/player/PS1')
+    repository.setGameFilePath(CRASH.id, '/media/player/PS1/Crash.cue')
+
+    expect(repository.findFolderByPath('/media/player/PS1')).toMatchObject({ id: 'f1' })
+    expect(repository.listGames(PS1_FOLDER.id)).toEqual([
+      { ...CRASH, filePath: '/media/player/PS1/Crash.cue' }
+    ])
+  })
+
+  it('leaves a game where it was when its platform has another game with that file', () => {
+    const repository = createLibraryRepository(db)
+    repository.insertFolder(PS1_FOLDER)
+    repository.saveGames(PS1_FOLDER.id, 'playstation', [CRASH, TEKKEN], 1_800_000_000_100)
+
+    repository.setGameFilePath(CRASH.id, TEKKEN.filePath)
+
+    expect(repository.listGames(PS1_FOLDER.id)).toEqual([CRASH, TEKKEN])
+  })
+
   it('refuses to delete a folder until its games are marked removed', () => {
     const repository = createLibraryRepository(db)
     repository.insertFolder(PS1_FOLDER)
@@ -154,6 +178,18 @@ describe('library repository', () => {
     db.prepare('UPDATE games SET folder_id = NULL, removed_at = 2').run()
     deleteFolder()
 
+    expect(gameRows()).toEqual([{ id: 'g1', folder_id: null, title: 'Crash', removed_at: 2 }])
+  })
+
+  it('deletes a folder whose games are marked removed, keeping the games', () => {
+    const repository = createLibraryRepository(db)
+    repository.insertFolder(PS1_FOLDER)
+    repository.saveGames(PS1_FOLDER.id, 'playstation', [CRASH], 1)
+
+    repository.removeGames([CRASH.id], 2)
+    repository.deleteFolder(PS1_FOLDER.id)
+
+    expect(repository.findFolderById(PS1_FOLDER.id)).toBeUndefined()
     expect(gameRows()).toEqual([{ id: 'g1', folder_id: null, title: 'Crash', removed_at: 2 }])
   })
 

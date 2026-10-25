@@ -12,6 +12,7 @@ import type {
   InstalledPlatform,
   LaunchGameResult,
   NetworkStatus,
+  OpenEmulatorResult,
   ScanFolderResult,
   UpdateFolderResult
 } from '@shared/api'
@@ -37,7 +38,12 @@ export function mockApi(): void {
         ok: false,
         problem: 'unknown-emulator'
       })),
-      remove: vi.fn(async (): Promise<void> => undefined)
+      remove: vi.fn(async (): Promise<void> => undefined),
+      open: vi.fn(async (): Promise<OpenEmulatorResult> => ({
+        ok: false,
+        problem: 'unknown-emulator'
+      })),
+      onClosed: vi.fn((): (() => void) => () => undefined)
     },
     games: {
       launch: vi.fn(async (): Promise<LaunchGameResult> => ({ ok: false, problem: 'no-core' })),
@@ -64,7 +70,8 @@ export function mockApi(): void {
       updateFolder: vi.fn(async (): Promise<UpdateFolderResult> => ({
         ok: false,
         problem: 'unknown-scan'
-      }))
+      })),
+      removeFolder: vi.fn(async (): Promise<void> => undefined)
     },
     network: {
       getStatus: vi.fn(async (): Promise<NetworkStatus> => ({
@@ -125,6 +132,25 @@ export function mockChangeEmulatorPath(result: ChangeEmulatorPathResult | Error)
     if (result instanceof Error) throw result
     return result
   })
+}
+
+/**
+ * Makes `window.api.emulators.open` resolve with `result`, reject with an error, or, with
+ * `'pending'`, never answer, as an emulator still starting.
+ */
+export function mockOpenEmulator(result: OpenEmulatorResult | Error | 'pending'): void {
+  vi.mocked(window.api.emulators.open).mockImplementation(() => {
+    if (result === 'pending') return new Promise(() => {})
+    if (result instanceof Error) return Promise.reject(result)
+    return Promise.resolve(result)
+  })
+}
+
+/** Sends that the emulator `emulatorId` closed to every listener of `window.api.emulators.onClosed`. */
+export function emitEmulatorClosed(emulatorId: string): void {
+  for (const [listener] of vi.mocked(window.api.emulators.onClosed).mock.calls) {
+    listener({ emulatorId })
+  }
 }
 
 /**

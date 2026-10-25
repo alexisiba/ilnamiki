@@ -1,6 +1,23 @@
 import { describe, expect, it } from 'vitest'
 
-import { parseFolderId, parseScanFolderRequest, parseScanId } from './library.validation'
+import {
+  parseFolderId,
+  parseFolderPath,
+  parseScanFolderRequest,
+  parseScanId
+} from './library.validation'
+
+describe('parseFolderPath', () => {
+  it('accepts an absolute path, written one way only', () => {
+    expect(parseFolderPath('/media/player//PS1/')).toBe('/media/player/PS1')
+  })
+
+  it('rejects a path that isn’t absolute, is too long or isn’t text', () => {
+    expect(parseFolderPath('Games/PS1')).toBeNull()
+    expect(parseFolderPath(`/${'a'.repeat(5000)}`)).toBeNull()
+    expect(parseFolderPath(42)).toBeNull()
+  })
+})
 
 describe('parseScanFolderRequest', () => {
   it('accepts an absolute path and a platform id', () => {

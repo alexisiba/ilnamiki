@@ -5,7 +5,12 @@ import { LIBRARY_CHANNELS } from '@shared/api'
 import { pickPath } from '../../core/dialogs'
 import { createProgressReporter } from './library.progress'
 import { libraryService } from './library.service'
-import { parseFolderId, parseScanFolderRequest, parseScanId } from './library.validation'
+import {
+  parseFolderId,
+  parseFolderPath,
+  parseScanFolderRequest,
+  parseScanId
+} from './library.validation'
 
 /** Answers the renderer's `library` requests, after checking what it sends. */
 export function registerLibraryIpc(): void {
@@ -26,10 +31,12 @@ export function registerLibraryIpc(): void {
     return libraryService.scanFolder(request, progressReporterFor(event))
   })
 
-  ipcMain.handle(LIBRARY_CHANNELS.rescanFolder, (event, value: unknown) => {
+  ipcMain.handle(LIBRARY_CHANNELS.rescanFolder, (event, value: unknown, pathValue: unknown) => {
     const folderId = parseFolderId(value)
     if (folderId === null) throw new Error('library.rescanFolder needs a folder id')
-    return libraryService.rescanFolder(folderId, progressReporterFor(event))
+    const path = pathValue === undefined ? undefined : parseFolderPath(pathValue)
+    if (path === null) throw new Error('library.rescanFolder got an invalid path')
+    return libraryService.rescanFolder(folderId, path, progressReporterFor(event))
   })
 
   ipcMain.handle(LIBRARY_CHANNELS.cancelScan, () => libraryService.cancelScan())
@@ -44,6 +51,12 @@ export function registerLibraryIpc(): void {
     const scanId = parseScanId(value)
     if (scanId === null) throw new Error('library.updateFolder needs a scan id')
     return libraryService.updateFolder(scanId)
+  })
+
+  ipcMain.handle(LIBRARY_CHANNELS.removeFolder, (_event, value: unknown) => {
+    const folderId = parseFolderId(value)
+    if (folderId === null) throw new Error('library.removeFolder needs a folder id')
+    return libraryService.removeFolder(folderId)
   })
 
   ipcMain.handle(LIBRARY_CHANNELS.listFolders, () => libraryService.listFolders())

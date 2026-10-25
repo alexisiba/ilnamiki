@@ -67,6 +67,15 @@ export interface LibraryRepository {
   removeGames(ids: string[], now: number): void
   /** Records that the folder `id` changed at `now`. */
   touchFolder(id: string, now: number): void
+  /** Deletes the folder `id`; its games must be marked removed first. */
+  deleteFolder(id: string): void
+  /** Points the folder `id` at `path`. */
+  setFolderPath(id: string, path: string): void
+  /**
+   * Points the game `id` at `filePath`, unless another game of its platform is stored with
+   * that file (e.g. one removed before), which then is the one kept when it is found again.
+   */
+  setGameFilePath(id: string, filePath: string): void
   findFolderById(id: string): FolderWithGameCount | undefined
   findFolderByPath(path: string): FolderWithGameCount | undefined
   findFolderByPlatform(platformId: string): FolderWithGameCount | undefined
@@ -121,6 +130,18 @@ export function createLibraryRepository(db: DatabaseSync): LibraryRepository {
 
     touchFolder(id, now) {
       db.prepare('UPDATE library_folders SET updated_at = ? WHERE id = ?').run(now, id)
+    },
+
+    deleteFolder(id) {
+      db.prepare('DELETE FROM library_folders WHERE id = ?').run(id)
+    },
+
+    setFolderPath(id, path) {
+      db.prepare('UPDATE library_folders SET path = ? WHERE id = ?').run(path, id)
+    },
+
+    setGameFilePath(id, filePath) {
+      db.prepare('UPDATE OR IGNORE games SET file_path = ? WHERE id = ?').run(filePath, id)
     },
 
     findFolderById: (id) => findFolder('f.id', id),

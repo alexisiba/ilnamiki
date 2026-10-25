@@ -1,7 +1,7 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import type { Emulator } from '@shared/api'
 
@@ -12,7 +12,14 @@ import {
   NavigationProvider,
   SECTION_PATHS
 } from '@renderer/core/navigation'
-import { mockChangeEmulatorPath, mockEmulators, mockPickedExecutable } from '@renderer/test/api'
+import {
+  emitEmulatorClosed,
+  mockChangeEmulatorPath,
+  mockEmulators,
+  mockOpenEmulator,
+  mockPickedExecutable
+} from '@renderer/test/api'
+import { setRect } from '@renderer/test/layout'
 
 import { EmulatorDetailsSettings } from './EmulatorDetailsSettings'
 
@@ -143,6 +150,90 @@ describe('EmulatorDetailsSettings', () => {
         'Only AppImages are supported for now.'
       )
       expect(screen.getByText(RETROARCH.executablePath)).toBeInTheDocument()
+    })
+  })
+
+  it('opens on Open emulator and goes down and up through every button, row by row', async () => {
+    mockEmulators([RETROARCH])
+    renderDetails()
+    const open = await screen.findByRole('button', { name: 'Open emulator' })
+    const back = screen.getByRole('button', { name: 'Back' })
+    // As laid out: Open emulator and Remove emulator on the left, Change path and Back on the
+    // right.
+    setRect(open, { left: 400, top: 200, width: 260, height: 60 })
+    setRect(changePath(), { left: 1560, top: 320, width: 240, height: 60 })
+    setRect(remove(), { left: 400, top: 600, width: 300, height: 60 })
+    setRect(back, { left: 1640, top: 900, width: 160, height: 60 })
+    const user = userEvent.setup()
+    const order = [open, changePath(), remove(), back]
+
+    expect(open).toHaveFocus()
+    for (const button of order.slice(1)) {
+      await user.keyboard('{ArrowDown}')
+      expect(button).toHaveFocus()
+    }
+    for (const button of order.slice(0, -1).reverse()) {
+      await user.keyboard('{ArrowUp}')
+      expect(button).toHaveFocus()
+    }
+  })
+
+  it('keeps removing apart, in its own section saying what it does', async () => {
+    mockEmulators([RETROARCH])
+    renderDetails()
+
+    const removal = await screen.findByRole('region', { name: 'Remove from Ilnamiki' })
+    expect(within(removal).getByRole('button')).toBe(remove())
+    expect(remove()).toHaveAccessibleDescription('Its application stays on your computer.')
+  })
+
+  describe('opening the emulator', () => {
+    it('opens the emulator to set it up', async () => {
+      mockEmulators([RETROARCH])
+      renderDetails()
+      mockOpenEmulator({ ok: true })
+
+      await userEvent.setup().click(await screen.findByRole('button', { name: 'Open emulator' }))
+
+      expect(window.api.emulators.open).toHaveBeenCalledWith(RETROARCH.id)
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    })
+
+    it('reads the platforms again once the emulator closes', async () => {
+      mockEmulators([RETROARCH])
+      renderDetails()
+      mockOpenEmulator({ ok: true })
+      await userEvent.setup().click(await screen.findByRole('button', { name: 'Open emulator' }))
+      vi.mocked(window.api.platforms.list).mockClear()
+
+      emitEmulatorClosed(RETROARCH.id)
+
+      await vi.waitFor(() => expect(window.api.platforms.list).toHaveBeenCalledOnce())
+    })
+
+    it('says why the emulator didn’t open', async () => {
+      mockEmulators([RETROARCH])
+      renderDetails()
+      mockOpenEmulator({ ok: false, problem: 'already-running' })
+      const open = await screen.findByRole('button', { name: 'Open emulator' })
+
+      await userEvent.setup().click(open)
+
+      const alert = await screen.findByRole('alert')
+      expect(alert).toHaveTextContent('An emulator or a game is already open. Close it first.')
+      expect(open).toHaveAccessibleDescription(alert.textContent ?? '')
+    })
+
+    it('says it failed when main can’t be reached', async () => {
+      mockEmulators([RETROARCH])
+      renderDetails()
+      mockOpenEmulator(new Error('IPC failed'))
+
+      await userEvent.setup().click(await screen.findByRole('button', { name: 'Open emulator' }))
+
+      expect(await screen.findByRole('alert')).toHaveTextContent(
+        "The emulator couldn't open. Try again."
+      )
     })
   })
 

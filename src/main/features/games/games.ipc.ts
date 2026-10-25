@@ -2,16 +2,9 @@ import { BrowserWindow, ipcMain } from 'electron'
 
 import { GAMES_CHANNELS, type GameEnded } from '@shared/api'
 
+import { bringBack } from '../../core/emulatorProcess'
 import { gamesService } from './games.service'
 import { parseGameId } from './games.validation'
-
-/** Brings `window` back in front once a game ends, so the user returns to Ilnamiki. */
-function bringBack(window: BrowserWindow | null): void {
-  if (!window || window.isDestroyed()) return
-  if (window.isMinimized()) window.restore()
-  window.show()
-  window.focus()
-}
 
 /** Answers the renderer's `games` requests, after checking what it sends. */
 export function registerGamesIpc(): void {

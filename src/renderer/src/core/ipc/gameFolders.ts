@@ -42,6 +42,15 @@ export async function updateGameFolder(scanId: string): Promise<UpdateFolderResu
 }
 
 /**
+ * Removes a folder from Ilnamiki, its games leaving the library; then the game folders are
+ * read again.
+ */
+export async function removeGameFolder(folderId: string): Promise<void> {
+  await window.api.library.removeFolder(folderId)
+  await refreshGameFolders()
+}
+
+/**
  * Calls `listener` whenever the game folders change. The first subscriber after none reads
  * them again, so a screen that opens shows them fresh (e.g. whether each folder is still
  * there). Returns the unsubscribe function.

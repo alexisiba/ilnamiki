@@ -74,6 +74,17 @@
     "path": "Ruta de la aplicación",
     "changePath": "Cambiar ruta",
     "back": "Volver",
+    "open": "Abrir emulador",
+    "openProblems": {
+      "unknownEmulator": "Este emulador ya no está en Ilnamiki.",
+      "alreadyRunning": "Ya hay un emulador o un juego abierto. Ciérralo primero.",
+      "notStarted": "No se pudo abrir el emulador. Revisa que su aplicación siga en esta ruta.",
+      "failed": "No se pudo abrir el emulador. Inténtalo de nuevo."
+    },
+    "removal": {
+      "title": "Eliminar de Ilnamiki",
+      "description": "Su aplicación se queda en tu equipo."
+    },
     "remove": "Eliminar emulador",
     "notFound": "Este emulador ya no está en Ilnamiki.",
     "confirmRemove": {
@@ -106,11 +117,19 @@
   },
   "gameFolderDetails": {
     "path": "Ruta de la carpeta",
+    "changePath": "Cambiar ruta",
     "games": "Juegos",
     "noGames": "No se guardó ningún juego de esta carpeta.",
     "gamesFailed": "No se pudieron cargar los juegos. Inténtalo más tarde.",
     "back": "Volver",
     "rescan": "Volver a escanear",
+    "remove": "Eliminar carpeta",
+    "confirmRemove": {
+      "title": "¿Eliminar la carpeta de {{platform}}?",
+      "description": "Sus juegos dejarán de estar en tu biblioteca. Los archivos se quedan en tu equipo, y si vuelves a agregar la carpeta, los juegos regresan.",
+      "cancel": "Cancelar",
+      "confirm": "Eliminar"
+    },
     "notFound": "Esta carpeta ya no está en Ilnamiki."
   },
   "folderScan": {

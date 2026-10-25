@@ -16,6 +16,8 @@ export const libraryApi: LibraryApi = {
   addFolder: (scanId) => ipcRenderer.invoke(LIBRARY_CHANNELS.addFolder, scanId),
   listFolders: () => ipcRenderer.invoke(LIBRARY_CHANNELS.listFolders),
   listFolderGames: (folderId) => ipcRenderer.invoke(LIBRARY_CHANNELS.listFolderGames, folderId),
-  rescanFolder: (folderId) => ipcRenderer.invoke(LIBRARY_CHANNELS.rescanFolder, folderId),
-  updateFolder: (scanId) => ipcRenderer.invoke(LIBRARY_CHANNELS.updateFolder, scanId)
+  rescanFolder: (folderId, path) =>
+    ipcRenderer.invoke(LIBRARY_CHANNELS.rescanFolder, folderId, path),
+  updateFolder: (scanId) => ipcRenderer.invoke(LIBRARY_CHANNELS.updateFolder, scanId),
+  removeFolder: (folderId) => ipcRenderer.invoke(LIBRARY_CHANNELS.removeFolder, folderId)
 }

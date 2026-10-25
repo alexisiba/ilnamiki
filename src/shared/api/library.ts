@@ -90,6 +90,8 @@ export type UpdateFolderProblem =
   | 'unknown-scan'
   /** The folder isn't one of the user's folders anymore (e.g. it was removed). */
   | 'unknown-folder'
+  /** Moving the folder: another folder was added at that path since the scan. */
+  | 'already-added'
   /** The scan found no playable game. */
   | 'no-games'
 
@@ -139,16 +141,26 @@ export interface LibraryApi {
   /** The games saved from a folder, by title; none when it isn't one of the user's folders. */
   listFolderGames(folderId: string): Promise<FolderGame[]>
   /**
-   * Finds the games in a folder the user added, at its path and for its platform, as
-   * `scanFolder` does (with its progress and one scan at a time), or says why it can't.
+   * Finds the games in a folder the user added, for its platform, as `scanFolder` does (with
+   * its progress and one scan at a time), or says why it can't. It scans the folder's path,
+   * or `path` when given, to move the folder there (e.g. after the user moved its files);
+   * `already-added` when another folder has that path.
    */
-  rescanFolder(folderId: string): Promise<ScanFolderResult>
+  rescanFolder(folderId: string, path?: string): Promise<ScanFolderResult>
   /**
    * Updates the folder of the latest scan made with `rescanFolder` to its playable games:
    * new ones are added, those no longer found are removed (keeping their history) and the
-   * rest stay as they were. Says why when it can't.
+   * rest stay as they were. A scan of another path moves the folder there first, its games
+   * with it: a game at the same place inside the folder is the same game. Says why when it
+   * can't.
    */
   updateFolder(scanId: string): Promise<UpdateFolderResult>
+  /**
+   * Removes a folder from Ilnamiki: its games leave the library, keeping their history, so
+   * they come back as they were if the folder is added again. Its files stay on the computer.
+   * Nothing when it isn't one of the user's folders.
+   */
+  removeFolder(folderId: string): Promise<void>
 }
 
 export const LIBRARY_CHANNELS = {
@@ -160,5 +172,6 @@ export const LIBRARY_CHANNELS = {
   listFolders: 'library:list-folders',
   listFolderGames: 'library:list-folder-games',
   rescanFolder: 'library:rescan-folder',
-  updateFolder: 'library:update-folder'
+  updateFolder: 'library:update-folder',
+  removeFolder: 'library:remove-folder'
 } as const

@@ -1,4 +1,3 @@
-import { spawn } from 'child_process'
 import { app } from 'electron'
 import { mkdir, stat, writeFile } from 'fs/promises'
 import { join } from 'path'
@@ -6,15 +5,10 @@ import { join } from 'path'
 import type { LaunchGameResult } from '@shared/api'
 
 import { getDatabase } from '../../core/database'
+import { freeEmulatorTurn, startEmulator, takeEmulatorTurn } from '../../core/emulatorProcess'
 import { findPlatformPlayer } from '../../core/installedPlatforms'
 import { createGamesRepository } from './games.repository'
 import { retroArchLaunchArgs, retroArchOverridesText } from './games.retroarch'
-
-/**
- * Whether a game is being started or played: one plays at a time, so another launch waits
- * for it to end.
- */
-let busy = false
 
 async function isFile(path: string): Promise<boolean> {
   try {
@@ -36,24 +30,6 @@ async function writeRetroArchOverrides(): Promise<string> {
   return path
 }
 
-/**
- * Starts `executablePath` with `args`, resolving whether it started. Once it has, `onExit`
- * is called when it ends, however it ends.
- */
-function start(executablePath: string, args: string[], onExit: () => void): Promise<boolean> {
-  return new Promise((resolve) => {
-    const child = spawn(executablePath, args, { stdio: 'ignore' })
-    child.once('spawn', () => {
-      child.once('exit', onExit)
-      resolve(true)
-    })
-    child.once('error', (error) => {
-      console.error('Could not start the emulator:', error)
-      resolve(false)
-    })
-  })
-}
-
 /** Playing the library's games with the emulators the user added. */
 export const gamesService = {
   /**
@@ -61,8 +37,7 @@ export const gamesService = {
    * says why it can't. `onEnded` is called when the emulator closes.
    */
   async launch(gameId: string, onEnded: () => void): Promise<LaunchGameResult> {
-    if (busy) return { ok: false, problem: 'already-playing' }
-    busy = true
+    if (!takeEmulatorTurn()) return { ok: false, problem: 'already-playing' }
 
     let started = false
     try {
@@ -78,14 +53,11 @@ export const gamesService = {
         overridesPath: await writeRetroArchOverrides(),
         gamePath: game.filePath
       })
-      started = await start(player.executablePath, args, () => {
-        busy = false
-        onEnded()
-      })
+      started = await startEmulator(player.executablePath, args, onEnded)
       return started ? { ok: true } : { ok: false, problem: 'not-started' }
     } finally {
       // Until it ends, a game that started keeps the others waiting.
-      if (!started) busy = false
+      if (!started) freeEmulatorTurn()
     }
   }
 }

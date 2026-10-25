@@ -1,7 +1,7 @@
-/* The name and path at the top; the actions at the bottom. */
+/* The name, Open emulator, the path and removing at the top; Back at the bottom. */
 .content {
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto auto auto auto 1fr;
   align-content: start;
   gap: var(--space-lg);
   min-height: 0;
@@ -38,12 +38,19 @@
   color: var(--color-text-muted);
 }
 
+/* Open emulator, at its width, with why it didn't open below. */
+.open {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-xs);
+}
+
 .path {
   display: flex;
   flex-direction: column;
   align-self: start;
   gap: var(--space-xs);
-  max-width: var(--layout-panel-width);
 }
 
 /* Styled like the forms' field labels. */
@@ -72,8 +79,8 @@
   background: var(--color-surface-high);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  font-size: var(--body-lg-size);
-  line-height: var(--body-lg-line-height);
+  font-size: var(--body-md-size);
+  line-height: var(--body-md-line-height);
   color: var(--color-text);
   overflow-wrap: anywhere;
 }
@@ -97,9 +104,31 @@
   color: var(--color-error);
 }
 
+/* Apart from the rest by a line above: what removing does, with the button below. */
+.removal {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--color-border);
+}
+
+.removalText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.removalDescription {
+  font-size: var(--body-md-size);
+  line-height: var(--body-md-line-height);
+  color: var(--color-text-muted);
+}
+
 .actions {
   display: flex;
-  grid-row: 3;
+  align-self: end;
   justify-content: flex-end;
   gap: var(--space-sm);
 }

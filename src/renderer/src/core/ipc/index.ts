@@ -3,6 +3,7 @@ export {
   addEmulator,
   changeEmulatorPath,
   inspectEmulator,
+  openEmulator,
   pickEmulatorExecutable,
   refreshEmulators,
   removeEmulator,
@@ -12,6 +13,7 @@ export { launchGame, subscribeToGameEnded } from './games'
 export {
   addGameFolder,
   refreshGameFolders,
+  removeGameFolder,
   updateGameFolder,
   type GameFoldersState
 } from './gameFolders'

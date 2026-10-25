@@ -17,11 +17,14 @@ export function scanGameFolder(request: ScanFolderRequest): Promise<ScanFolderRe
 }
 
 /**
- * Finds the games in a folder the user added, at its path and for its platform, or says why
- * it can't. Like `scanGameFolder`, it cancels the scan running and reports its progress.
+ * Finds the games in a folder the user added, for its platform, at its path or at `path` to
+ * move it there, or says why it can't. Like `scanGameFolder`, it cancels the scan running and
+ * reports its progress.
  */
-export function rescanGameFolder(folderId: string): Promise<ScanFolderResult> {
-  return window.api.library.rescanFolder(folderId)
+export function rescanGameFolder(folderId: string, path?: string): Promise<ScanFolderResult> {
+  return path === undefined
+    ? window.api.library.rescanFolder(folderId)
+    : window.api.library.rescanFolder(folderId, path)
 }
 
 /** The games saved from a folder, by title. */

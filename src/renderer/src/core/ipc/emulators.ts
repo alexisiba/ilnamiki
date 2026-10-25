@@ -4,7 +4,8 @@ import type {
   ChangeEmulatorPathRequest,
   ChangeEmulatorPathResult,
   Emulator,
-  InspectEmulatorResult
+  InspectEmulatorResult,
+  OpenEmulatorResult
 } from '@shared/api'
 
 import { refreshPlatforms } from './platforms'
@@ -77,6 +78,27 @@ export async function changeEmulatorPath(
 export async function removeEmulator(id: string): Promise<void> {
   await window.api.emulators.remove(id)
   await refreshAfterChange()
+}
+
+/**
+ * Opens the emulator on its own, in full screen, so the user can set it up in its menus, or
+ * says why it can't. Resolves once it has started; when it closes, the emulators and platforms
+ * are read again, as setting it up may have installed or removed cores.
+ */
+export async function openEmulator(id: string): Promise<OpenEmulatorResult> {
+  const unsubscribe = window.api.emulators.onClosed((closed) => {
+    if (closed.emulatorId !== id) return
+    unsubscribe()
+    void refreshAfterChange()
+  })
+  try {
+    const result = await window.api.emulators.open(id)
+    if (!result.ok) unsubscribe()
+    return result
+  } catch (error) {
+    unsubscribe()
+    throw error
+  }
 }
 
 /**

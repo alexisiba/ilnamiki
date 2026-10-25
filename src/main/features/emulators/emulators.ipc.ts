@@ -1,8 +1,9 @@
 import { BrowserWindow, ipcMain } from 'electron'
 
-import { EMULATORS_CHANNELS } from '@shared/api'
+import { EMULATORS_CHANNELS, type EmulatorClosed } from '@shared/api'
 
 import { pickPath } from '../../core/dialogs'
+import { bringBack } from '../../core/emulatorProcess'
 import { emulatorsService } from './emulators.service'
 import {
   parseAddEmulatorRequest,
@@ -42,5 +43,18 @@ export function registerEmulatorsIpc(): void {
     const id = parseEmulatorId(value)
     if (id === null) throw new Error('emulators.remove needs an emulator id')
     return emulatorsService.remove(id)
+  })
+
+  // That it closed goes to the window that opened it, which comes back in front.
+  ipcMain.handle(EMULATORS_CHANNELS.open, (event, value: unknown) => {
+    const id = parseEmulatorId(value)
+    if (id === null) throw new Error('emulators.open needs an emulator id')
+
+    const window = BrowserWindow.fromWebContents(event.sender)
+    return emulatorsService.open(id, () => {
+      bringBack(window)
+      const closed: EmulatorClosed = { emulatorId: id }
+      if (!event.sender.isDestroyed()) event.sender.send(EMULATORS_CHANNELS.closed, closed)
+    })
   })
 }

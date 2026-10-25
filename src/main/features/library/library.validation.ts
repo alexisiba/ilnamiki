@@ -12,6 +12,17 @@ const PLATFORM_ID_PATTERN = /^[\w-]{1,100}$/
 const ID_PATTERN = /^[0-9a-f-]{36}$/
 
 /**
+ * `value` as an absolute folder path written one way only (e.g. without a trailing `/`), or
+ * null when it isn't one.
+ */
+export function parseFolderPath(value: unknown): string | null {
+  if (typeof value !== 'string' || value.length > PATH_MAX_LENGTH || !isAbsolute(value)) {
+    return null
+  }
+  return resolve(value)
+}
+
+/**
  * `value` as a request to scan a folder, its path written one way only (e.g. without a
  * trailing `/`, so a folder is never added twice), or null when the renderer sent something
  * else.
@@ -20,10 +31,11 @@ export function parseScanFolderRequest(value: unknown): ScanFolderRequest | null
   if (typeof value !== 'object' || value === null) return null
   const { path, platformId } = value as Record<string, unknown>
 
-  if (typeof path !== 'string' || path.length > PATH_MAX_LENGTH || !isAbsolute(path)) return null
+  const folderPath = parseFolderPath(path)
+  if (folderPath === null) return null
   if (typeof platformId !== 'string' || !PLATFORM_ID_PATTERN.test(platformId)) return null
 
-  return { path: resolve(path), platformId }
+  return { path: folderPath, platformId }
 }
 
 /** `value` as a scan id, or null when it can't be one. */

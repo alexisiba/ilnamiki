@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import type { FolderGame, FolderScan, GameFolder, InstalledPlatform } from '@shared/api'
 
 import { APP_ROUTES } from '@renderer/App.routes'
+import { getGameFoldersState } from '@renderer/core/ipc/gameFolders'
 import {
   GAME_FOLDER_DETAILS_PATH,
   getGameFolderDetailsPath,
@@ -16,10 +17,12 @@ import {
   emitScanProgress,
   mockFolderGames,
   mockGameFolders,
+  mockPickedFolder,
   mockPlatforms,
   mockRescanFolder,
   mockUpdateGameFolder
 } from '@renderer/test/api'
+import { setRect } from '@renderer/test/layout'
 
 import { GameFolderDetailsSettings } from './GameFolderDetailsSettings'
 
@@ -88,6 +91,7 @@ function renderDetails(folderId: string = PS1_FOLDER.id): void {
 const rescan = (): HTMLElement => screen.getByRole('button', { name: 'Scan again' })
 const saveChanges = (): HTMLElement => screen.getByRole('button', { name: 'Save changes' })
 const gamesList = (): HTMLElement => screen.getByRole('region', { name: 'Games' })
+const removeFolder = (): HTMLElement => screen.getByRole('button', { name: 'Remove folder' })
 
 describe('GameFolderDetailsSettings', () => {
   it('shows the folder’s platform as its title and how many games it has', async () => {
@@ -166,6 +170,156 @@ describe('GameFolderDetailsSettings', () => {
     ).toBeInTheDocument()
     await userEvent.setup().click(screen.getByRole('button', { name: 'Back' }))
     expect(screen.getByText('Settings screen')).toBeInTheDocument()
+  })
+
+  it('goes down from Scan again to Change path and the games, with Remove folder to its right', async () => {
+    renderDetails()
+    const user = userEvent.setup()
+    const scanAgain = await screen.findByRole('button', { name: 'Scan again' })
+    const [crash, tekken] = await within(gamesList()).findAllByRole('button')
+    const changePath = screen.getByRole('button', { name: 'Change path' })
+    // As laid out: the folder's actions in one row, then the path, the games and Back.
+    setRect(scanAgain, { left: 400, top: 200, width: 260, height: 60 })
+    setRect(removeFolder(), { left: 1540, top: 200, width: 260, height: 60 })
+    setRect(changePath, { left: 1560, top: 340, width: 240, height: 60 })
+    setRect(crash, { left: 400, top: 480, width: 1400, height: 50 })
+    setRect(tekken, { left: 400, top: 540, width: 1400, height: 50 })
+    setRect(screen.getByRole('button', { name: 'Back' }), {
+      left: 1640,
+      top: 900,
+      width: 160,
+      height: 60
+    })
+
+    expect(scanAgain).toHaveFocus()
+    await user.keyboard('{ArrowDown}')
+    expect(changePath).toHaveFocus()
+    await user.keyboard('{ArrowDown}')
+    expect(crash).toHaveFocus()
+    await user.keyboard('{ArrowUp}{ArrowUp}{ArrowRight}')
+    expect(removeFolder()).toHaveFocus()
+  })
+
+  describe('removing the folder', () => {
+    const confirmation = (): HTMLElement | null =>
+      screen.queryByRole('dialog', { name: 'Remove the PlayStation folder?' })
+
+    it('asks first, with Cancel focused', async () => {
+      renderDetails()
+
+      await userEvent.setup().click(await screen.findByRole('button', { name: 'Remove folder' }))
+
+      expect(confirmation()).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Cancel' })).toHaveFocus()
+      expect(window.api.library.removeFolder).not.toHaveBeenCalled()
+    })
+
+    it('keeps the folder when the user cancels', async () => {
+      renderDetails()
+      const user = userEvent.setup()
+      await user.click(await screen.findByRole('button', { name: 'Remove folder' }))
+
+      await user.keyboard('{Escape}')
+
+      expect(confirmation()).not.toBeInTheDocument()
+      expect(window.api.library.removeFolder).not.toHaveBeenCalled()
+      expect(removeFolder()).toHaveFocus()
+    })
+
+    it('removes the folder once confirmed and returns to the list', async () => {
+      renderDetails()
+      const user = userEvent.setup()
+      await user.click(await screen.findByRole('button', { name: 'Remove folder' }))
+      mockGameFolders([])
+
+      await user.click(screen.getByRole('button', { name: 'Remove' }))
+
+      expect(window.api.library.removeFolder).toHaveBeenCalledWith(PS1_FOLDER.id)
+      expect(await screen.findByText('Settings screen')).toBeInTheDocument()
+      expect(getGameFoldersState().folders).toEqual([])
+    })
+  })
+
+  describe('changing the path', () => {
+    const MOVED_PATH = '/media/player/PS1'
+    const changePath = (): HTMLElement => screen.getByRole('button', { name: 'Change path' })
+
+    it('shows Change path beside the path, described by it', async () => {
+      renderDetails()
+
+      const path = await screen.findByRole('region', { name: 'Folder path' })
+      expect(within(path).getByRole('button', { name: 'Change path' })).toHaveAccessibleDescription(
+        PS1_PATH
+      )
+    })
+
+    it('scans the folder chosen in the picker, in the scan step', async () => {
+      mockPickedFolder(MOVED_PATH)
+      mockRescanFolder('pending')
+      renderDetails()
+      await screen.findByRole('heading', { name: 'PlayStation' })
+
+      await userEvent.setup().click(changePath())
+
+      expect(window.api.library.rescanFolder).toHaveBeenCalledWith(PS1_FOLDER.id, MOVED_PATH)
+      expect(screen.getByRole('heading', { name: 'Scanning folder' })).toBeInTheDocument()
+      expect(screen.getByText(`${MOVED_PATH} · PlayStation`)).toBeInTheDocument()
+    })
+
+    it('moves the folder once saved, showing its new path', async () => {
+      mockPickedFolder(MOVED_PATH)
+      mockRescanFolder({ ok: true, scan: { ...RESCAN, path: MOVED_PATH } })
+      renderDetails()
+      const user = userEvent.setup()
+      await screen.findByRole('heading', { name: 'PlayStation' })
+      await user.click(changePath())
+      await screen.findByRole('heading', { name: 'Games found' })
+      const moved = { ...PS1_FOLDER, path: MOVED_PATH }
+      mockUpdateGameFolder({ ok: true, folder: moved })
+      mockGameFolders([moved])
+
+      await user.click(saveChanges())
+
+      const path = await screen.findByRole('region', { name: 'Folder path' })
+      expect(within(path).getByText(MOVED_PATH)).toBeInTheDocument()
+    })
+
+    it('changes nothing when the picker is cancelled or the same folder is chosen', async () => {
+      renderDetails()
+      await screen.findByRole('heading', { name: 'PlayStation' })
+      const user = userEvent.setup()
+
+      mockPickedFolder(null)
+      await user.click(changePath())
+      mockPickedFolder(PS1_PATH)
+      await user.click(changePath())
+
+      expect(window.api.library.rescanFolder).not.toHaveBeenCalled()
+      expect(screen.getByRole('heading', { name: 'PlayStation' })).toBeInTheDocument()
+    })
+
+    it('returns to the details saying why the folder chosen can’t be used', async () => {
+      mockPickedFolder('/home/player/Games/N64')
+      mockRescanFolder({ ok: false, problem: 'already-added' })
+      renderDetails()
+      await screen.findByRole('heading', { name: 'PlayStation' })
+
+      await userEvent.setup().click(changePath())
+
+      expect(await screen.findByRole('alert')).toHaveTextContent('This folder is already added.')
+      expect(screen.getByText(PS1_PATH)).toBeInTheDocument()
+    })
+
+    it('says so when the picker can’t open', async () => {
+      mockPickedFolder(new Error('No main'))
+      renderDetails()
+      await screen.findByRole('heading', { name: 'PlayStation' })
+
+      await userEvent.setup().click(changePath())
+
+      expect(await screen.findByRole('alert')).toBeInTheDocument()
+      expect(window.api.library.rescanFolder).not.toHaveBeenCalled()
+    })
   })
 
   describe('scanning again', () => {

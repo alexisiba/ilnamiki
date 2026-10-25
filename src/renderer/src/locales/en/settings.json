@@ -74,6 +74,17 @@
     "path": "Application path",
     "changePath": "Change path",
     "back": "Back",
+    "open": "Open emulator",
+    "openProblems": {
+      "unknownEmulator": "This emulator is no longer in Ilnamiki.",
+      "alreadyRunning": "An emulator or a game is already open. Close it first.",
+      "notStarted": "The emulator couldn't open. Check that its application is still at this path.",
+      "failed": "The emulator couldn't open. Try again."
+    },
+    "removal": {
+      "title": "Remove from Ilnamiki",
+      "description": "Its application stays on your computer."
+    },
     "remove": "Remove emulator",
     "notFound": "This emulator is no longer in Ilnamiki.",
     "confirmRemove": {
@@ -106,11 +117,19 @@
   },
   "gameFolderDetails": {
     "path": "Folder path",
+    "changePath": "Change path",
     "games": "Games",
     "noGames": "No games were saved from this folder.",
     "gamesFailed": "The games couldn't be loaded. Try again later.",
     "back": "Back",
     "rescan": "Scan again",
+    "remove": "Remove folder",
+    "confirmRemove": {
+      "title": "Remove the {{platform}} folder?",
+      "description": "Its games will no longer be in your library. The files stay on your computer, and adding the folder again brings the games back.",
+      "cancel": "Cancel",
+      "confirm": "Remove"
+    },
     "notFound": "This folder is no longer in Ilnamiki."
   },
   "folderScan": {
