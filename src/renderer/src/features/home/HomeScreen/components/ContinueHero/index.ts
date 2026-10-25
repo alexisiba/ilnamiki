@@ -1,2 +1,2 @@
 export { ContinueHero } from './ContinueHero'
-export type { ContinueHeroProps, LastPlayedGame } from './ContinueHero.types'
+export type { ContinueGame, ContinueHeroProps } from './ContinueHero.types'

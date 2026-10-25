@@ -34,7 +34,7 @@ export function HeroLayout({
           {eyebrow}
         </p>
         <h1 className={styles.title}>{title}</h1>
-        <p className={styles.description}>{description}</p>
+        {description && <p className={styles.description}>{description}</p>}
         <div className={styles.details}>{details}</div>
         <div className={styles.actions}>{actions}</div>
       </div>

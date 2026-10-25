@@ -10,6 +10,7 @@ import type {
   Emulator,
   InspectEmulatorResult,
   InstalledPlatform,
+  LastPlayedGame,
   LaunchGameResult,
   NetworkStatus,
   OpenEmulatorResult,
@@ -46,6 +47,7 @@ export function mockApi(): void {
       onClosed: vi.fn((): (() => void) => () => undefined)
     },
     games: {
+      getLastPlayed: vi.fn(async (): Promise<LastPlayedGame | null> => null),
       launch: vi.fn(async (): Promise<LaunchGameResult> => ({ ok: false, problem: 'no-core' })),
       onGameEnded: vi.fn((): (() => void) => () => undefined)
     },
@@ -244,6 +246,17 @@ export function emitGameEnded(gameId: string): void {
   for (const [listener] of vi.mocked(window.api.games.onGameEnded).mock.calls) {
     listener({ gameId })
   }
+}
+
+/**
+ * Makes `window.api.games.getLastPlayed` resolve with `game` (null when none was played), or
+ * reject with an error.
+ */
+export function mockLastPlayedGame(game: LastPlayedGame | null | Error): void {
+  vi.mocked(window.api.games.getLastPlayed).mockImplementation(async () => {
+    if (game instanceof Error) throw game
+    return game
+  })
 }
 
 /** Makes `window.api.platforms.list` resolve with `platforms`, or reject with an error. */

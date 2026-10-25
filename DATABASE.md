@@ -19,7 +19,7 @@ structure: what each table is for, what each field means and how tables relate.
 | Journal | WAL (`ilnamiki.db-wal` and `ilnamiki.db-shm` exist while the app runs) |
 | Foreign keys | Enforced on every connection |
 | Schema version | Kept in `PRAGMA user_version`; the number of the last migration applied |
-| Current version | **2**: `emulators`, `library_folders`, `games` |
+| Current version | **3**: `emulators`, `library_folders`, `games`, `play_sessions` |
 
 ## What is stored and what isn't
 
@@ -50,6 +50,8 @@ what its `NULL` means, and every foreign key states what happens when its row is
 ```mermaid
 erDiagram
     library_folders |o--o{ games : "found in"
+    games ||--o{ play_sessions : "played in"
+    emulators |o--o{ play_sessions : "played with"
 
     emulators {
         TEXT id PK
@@ -78,6 +80,15 @@ erDiagram
         TEXT title
         INTEGER added_at
         INTEGER removed_at
+    }
+    play_sessions {
+        TEXT id PK
+        TEXT game_id FK
+        TEXT emulator_id FK
+        TEXT core
+        INTEGER started_at
+        INTEGER ended_at
+        INTEGER created_at
     }
 ```
 
@@ -135,6 +146,27 @@ Unique: (`platform_id`, `file_path`), which is how a removed game is recognized 
 back. A `CHECK` keeps `folder_id` and `removed_at` consistent: exactly one of them is set.
 Index: `games_folder_id_index`, to list and count a folder's games.
 
+### `play_sessions`
+
+Migration 3. Each time a game was played, from when its emulator started until it closed,
+however it closed. A game open less than 10 seconds doesn't count and isn't saved. Rows are
+only added, never changed; whether a game was played, when it was last played and its total
+playtime are computed from them. A session is saved when the emulator closes, so one in
+progress when Ilnamiki itself closes is lost.
+
+| Field | Type | Null | Meaning |
+|---|---|---|---|
+| `id` | `TEXT` | no | Primary key |
+| `game_id` | `TEXT` | no | → `games.id`. Games are never deleted (only marked removed), so a game's sessions stay and show again when it comes back; a played game can't be deleted (`RESTRICT`) |
+| `emulator_id` | `TEXT` | yes | → `emulators.id`: the emulator it was played with; `NULL` once that emulator is deleted (`SET NULL`), the session staying |
+| `core` | `TEXT` | yes | Core it was played with (e.g. `mupen64plus_next`), never empty; `NULL` for emulators without cores |
+| `started_at` | `INTEGER` | no | When the emulator started |
+| `ended_at` | `INTEGER` | no | When it closed; never before `started_at` (`CHECK`) |
+| `created_at` | `INTEGER` | no | When the session was saved, so rows keep the order they were added in |
+
+Indexes: `play_sessions_game_id_index`, to sum and date a game's sessions;
+`play_sessions_ended_at_index`, to find the game played last.
+
 ## Planned tables
 
 A first draft of where the schema is heading, so each migration fits the next. **None of
@@ -146,7 +178,6 @@ it is built, and moves to [Tables](#tables) once its migration exists. `emulator
 erDiagram
     emulators ||--o{ platform_emulators : "plays"
     emulators ||--o{ games : "forced for"
-    games ||--o{ play_sessions : "played in"
 
     platform_emulators {
         TEXT platform_id PK
@@ -157,12 +188,6 @@ erDiagram
     games {
         TEXT emulator_id FK
         TEXT core
-    }
-    play_sessions {
-        TEXT id PK
-        TEXT game_id FK
-        INTEGER started_at
-        INTEGER ended_at
     }
     settings {
         TEXT key PK
@@ -192,18 +217,6 @@ Primary key: (`platform_id`, `emulator_id`).
 
 Metadata (description, genre, year, players, artwork paths) will be added when the source of
 that metadata is decided.
-
-### `play_sessions` (planned)
-
-Each time a game was played. Rows are only added, never changed; total playtime and last
-played are computed from them.
-
-| Field | Type | Null | Meaning |
-|---|---|---|---|
-| `id` | `TEXT` | no | Primary key |
-| `game_id` | `TEXT` | no | → `games.id`; games are never deleted (only marked removed), so a game's sessions stay and show again when it comes back |
-| `started_at` | `INTEGER` | no | When the emulator was launched |
-| `ended_at` | `INTEGER` | no | When it closed |
 
 ### `settings` (planned)
 

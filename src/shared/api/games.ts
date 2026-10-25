@@ -18,8 +18,26 @@ export interface GameEnded {
   gameId: string
 }
 
+/** The game of the library played most recently, with its play history. */
+export interface LastPlayedGame {
+  id: string
+  /** Title shown in the app, never empty. */
+  title: string
+  /** Platform it belongs to, e.g. "nintendo_64". */
+  platformId: string
+  /** When it was last played: when its latest session ended, in epoch ms. */
+  lastPlayedAt: number
+  /** Total time played over all its sessions, in ms. */
+  playtimeMs: number
+}
+
 /** Playing the games of the user's library. */
 export interface GamesApi {
+  /**
+   * The game of the library played most recently, or null when none of its games was played.
+   * Games removed from the library are left out.
+   */
+  getLastPlayed(): Promise<LastPlayedGame | null>
   /**
    * Starts the game in full screen with its platform's emulator, or says why it can't.
    * Resolves once the emulator has started; `onGameEnded` says when it closes.
@@ -30,6 +48,7 @@ export interface GamesApi {
 }
 
 export const GAMES_CHANNELS = {
+  getLastPlayed: 'games:get-last-played',
   launch: 'games:launch',
   gameEnded: 'games:game-ended'
 } as const

@@ -14,7 +14,8 @@ export interface HeroLayoutProps {
   eyebrowIconStyle?: 'filled' | 'outline'
   eyebrow: string
   title: string
-  description: string
+  /** Null when there is none to show. */
+  description: string | null
   /** Facts below the description (e.g. playtime); information, not controls. */
   details: ReactNode
   /** The hero's buttons; one of them is focused when Home shows. */

@@ -4,14 +4,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderWithNavigation } from '@renderer/test/renderWithNavigation'
 
 import { ContinueHero } from './ContinueHero'
-import type { LastPlayedGame } from './ContinueHero.types'
+import type { ContinueGame } from './ContinueHero.types'
 
 const NOW = new Date('2026-10-22T18:00:00Z')
 
-const GAME: LastPlayedGame = {
+const DESCRIPTION = 'Travel through time as Link.'
+
+const GAME: ContinueGame = {
   title: 'The Legend of Zelda: Ocarina of Time',
   platform: 'Nintendo 64',
-  description: 'Travel through time as Link.',
+  description: DESCRIPTION,
   imageUrl: 'artwork.webp',
   lastPlayedAt: new Date('2026-10-20T18:00:00Z'),
   playtimeMinutes: 32 * 60 + 15
@@ -32,8 +34,15 @@ describe('ContinueHero', () => {
 
     expect(screen.getByRole('heading', { level: 1, name: GAME.title })).toBeInTheDocument()
     expect(screen.getByText('Nintendo 64')).toBeInTheDocument()
-    expect(screen.getByText(GAME.description)).toBeInTheDocument()
+    expect(screen.getByText(DESCRIPTION)).toBeInTheDocument()
     expect(screen.getByText('Resume session')).toBeInTheDocument()
+  })
+
+  it('leaves the description out while the game has none', () => {
+    render(<ContinueHero game={{ ...GAME, description: null }} />)
+
+    expect(screen.queryByText(DESCRIPTION)).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: GAME.title })).toBeInTheDocument()
   })
 
   it('shows when the game was last played and the total playtime', () => {

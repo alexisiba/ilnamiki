@@ -2,10 +2,16 @@ import { render, screen } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
 
-import type { Emulator, GameFolder, InstalledPlatform } from '@shared/api'
+import type { Emulator, GameFolder, InstalledPlatform, LastPlayedGame } from '@shared/api'
 
 import { NavigationProvider, SECTION_PATHS } from '@renderer/core/navigation'
-import { mockEmulators, mockGameFolders, mockPlatforms } from '@renderer/test/api'
+import {
+  emitGameEnded,
+  mockEmulators,
+  mockGameFolders,
+  mockLastPlayedGame,
+  mockPlatforms
+} from '@renderer/test/api'
 
 import { HomeScreen } from './HomeScreen'
 
@@ -52,6 +58,14 @@ const N64_FOLDER: GameFolder = {
   gameCount: 12,
   isAvailable: true,
   addedAt: 1
+}
+
+const OCARINA: LastPlayedGame = {
+  id: 'g1',
+  title: 'The Legend of Zelda - Ocarina of Time (USA)',
+  platformId: 'nintendo_64',
+  lastPlayedAt: 1_800_000_000_000,
+  playtimeMs: 90 * 60 * 1000
 }
 
 const setUpTitle = (): Promise<HTMLElement> =>
@@ -106,6 +120,48 @@ describe('HomeScreen', () => {
     expect(screen.getByText('1 console')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Explore library' })).toHaveFocus()
     expect(screen.queryByRole('heading', { name: 'Add your games' })).not.toBeInTheDocument()
+  })
+
+  it('shows the last played game, ready to continue, once one was played', async () => {
+    mockEmulators([RETROARCH])
+    mockPlatforms([NINTENDO_64])
+    mockGameFolders([N64_FOLDER])
+    mockLastPlayedGame(OCARINA)
+    renderHome()
+
+    expect(
+      await screen.findByRole('heading', { level: 1, name: OCARINA.title })
+    ).toBeInTheDocument()
+    expect(screen.getByText('Total playtime: 1 h 30 min')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Continue playing' })).toHaveFocus()
+    expect(screen.queryByText('Ready to play')).not.toBeInTheDocument()
+  })
+
+  it('shows the game just played once the first game ends', async () => {
+    mockEmulators([RETROARCH])
+    mockPlatforms([NINTENDO_64])
+    mockGameFolders([N64_FOLDER])
+    renderHome()
+    expect(await screen.findByText('Ready to play')).toBeInTheDocument()
+
+    mockLastPlayedGame(OCARINA)
+    emitGameEnded(OCARINA.id)
+
+    expect(
+      await screen.findByRole('heading', { level: 1, name: OCARINA.title })
+    ).toBeInTheDocument()
+  })
+
+  it('shows nothing until the last played game is read, so no view flashes', async () => {
+    mockEmulators([RETROARCH])
+    mockPlatforms([NINTENDO_64])
+    mockGameFolders([N64_FOLDER])
+    vi.mocked(window.api.games.getLastPlayed).mockReturnValue(new Promise(() => {}))
+    renderHome()
+
+    await vi.waitFor(() => expect(window.api.library.listFolders).toHaveBeenCalled())
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
   })
 
   it('shows nothing until the game folders are read, so no view flashes', async () => {

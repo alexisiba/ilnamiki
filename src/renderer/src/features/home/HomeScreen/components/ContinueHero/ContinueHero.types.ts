@@ -1,12 +1,15 @@
-export interface LastPlayedGame {
+/** The game to continue, as the hero shows it. */
+export interface ContinueGame {
   title: string
+  /** Console it runs on, e.g. "Nintendo 64". */
   platform: string
-  description: string
+  /** Null while the game has no metadata. */
+  description: string | null
   imageUrl: string
   lastPlayedAt: Date
   playtimeMinutes: number
 }
 
 export interface ContinueHeroProps {
-  game: LastPlayedGame
+  game: ContinueGame
 }

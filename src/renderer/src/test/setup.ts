@@ -7,6 +7,7 @@ import i18n, { DEFAULT_LANGUAGE } from '@renderer/core/i18n'
 import { DEFAULT_INPUT_DEVICE, setActiveInputDevice } from '@renderer/core/input/activeDevice'
 import { resetEmulators } from '@renderer/core/ipc/emulators'
 import { resetGameFolders } from '@renderer/core/ipc/gameFolders'
+import { resetLastPlayedGame } from '@renderer/core/ipc/lastPlayedGame'
 import { resetPlatforms } from '@renderer/core/ipc/platforms'
 
 import { mockApi } from './api'
@@ -53,8 +54,9 @@ afterEach(() => {
   disconnectAllGamepads()
   // The active device is app-wide state; each test starts from the default.
   setActiveInputDevice(DEFAULT_INPUT_DEVICE)
-  // So are the emulators, platforms and game folders read from main.
+  // So are the emulators, platforms, game folders and last played game read from main.
   resetEmulators()
   resetPlatforms()
   resetGameFolders()
+  resetLastPlayedGame()
 })

@@ -49,5 +49,24 @@ export const MIGRATIONS: Migration[] = [
 
       CREATE INDEX games_folder_id_index ON games (folder_id);
     `
+  },
+  {
+    version: 3,
+    name: 'Create the play sessions table',
+    up: `
+      CREATE TABLE play_sessions (
+        id TEXT PRIMARY KEY,
+        game_id TEXT NOT NULL REFERENCES games (id) ON DELETE RESTRICT,
+        emulator_id TEXT REFERENCES emulators (id) ON DELETE SET NULL,
+        core TEXT CHECK (length(core) > 0),
+        started_at INTEGER NOT NULL,
+        ended_at INTEGER NOT NULL,
+        created_at INTEGER NOT NULL,
+        CHECK (ended_at >= started_at)
+      ) STRICT;
+
+      CREATE INDEX play_sessions_game_id_index ON play_sessions (game_id);
+      CREATE INDEX play_sessions_ended_at_index ON play_sessions (ended_at);
+    `
   }
 ]

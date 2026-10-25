@@ -17,6 +17,7 @@ export {
   updateGameFolder,
   type GameFoldersState
 } from './gameFolders'
+export { refreshLastPlayedGame, type LastPlayedGameState } from './lastPlayedGame'
 export {
   cancelGameFolderScan,
   listFolderGames,
@@ -31,5 +32,6 @@ export { useControllerStatus } from './useControllerStatus'
 export { useEmulators } from './useEmulators'
 export { useFolderGames, type FolderGamesState } from './useFolderGames'
 export { useGameFolders } from './useGameFolders'
+export { useLastPlayedGame } from './useLastPlayedGame'
 export { useNetworkStatus } from './useNetworkStatus'
 export { usePlatforms } from './usePlatforms'

@@ -3,21 +3,27 @@ import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { mockEmulators, mockFolderGames, mockGameFolders, mockPlatforms } from '@renderer/test/api'
+import {
+  mockEmulators,
+  mockFolderGames,
+  mockGameFolders,
+  mockLastPlayedGame,
+  mockPlatforms
+} from '@renderer/test/api'
 import { connectGamepad } from '@renderer/test/gamepad'
 
 import { APP_ROUTES } from './App.routes'
 
-// A game was played, so Home shows its sample shelves, whose cards these tests move between.
-vi.mock('@renderer/features/home/HomeScreen/HomeScreen.constants', async (importOriginal) => ({
-  ...(await importOriginal<
-    typeof import('@renderer/features/home/HomeScreen/HomeScreen.constants')
-  >()),
-  SAMPLE_LAST_PLAYED_GAME_ID: 'tloz-oot-n64'
-}))
-
-// One emulator, RetroArch, and one console in the library: the NES, with a folder of two games.
+// One emulator, RetroArch, and one console in the library: the NES, with a folder of two games,
+// one of them played, so Home shows its sample shelves, whose cards these tests move between.
 beforeEach(() => {
+  mockLastPlayedGame({
+    id: 'g1',
+    title: 'Contra (USA)',
+    platformId: 'nes',
+    lastPlayedAt: 1_800_000_000_000,
+    playtimeMs: 30 * 60 * 1000
+  })
   mockEmulators([
     {
       id: 'a1',
