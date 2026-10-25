@@ -1,12 +1,17 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { ADD_EMULATOR_PATH, NavigationProvider, SECTION_PATHS } from '@renderer/core/navigation'
 import { setRect } from '@renderer/test/layout'
 
 import { SettingsScreen } from './SettingsScreen'
+
+// A first run, whatever the sample data: no emulators, installed platforms or game folders.
+vi.mock('@renderer/mocks/emulators', () => ({ SAMPLE_EMULATORS: [] }))
+vi.mock('@renderer/mocks/associatedPlatforms', () => ({ SAMPLE_ASSOCIATED_PLATFORMS: [] }))
+vi.mock('@renderer/mocks/gameFolders', () => ({ SAMPLE_GAME_FOLDERS: [] }))
 
 const emulatorsTab = (): HTMLElement => screen.getByRole('tab', { name: 'Emulators' })
 const platformsTab = (): HTMLElement => screen.getByRole('tab', { name: 'Installed platforms' })

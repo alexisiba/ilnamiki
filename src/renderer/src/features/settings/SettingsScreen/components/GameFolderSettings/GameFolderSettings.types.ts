@@ -6,6 +6,8 @@ export interface GameFolderSettingsProps {
   hasInstalledPlatforms: boolean
   /** Takes the user to the emulators, where cores come from. */
   onSetUpEmulator: () => void
+  /** Opens the form that adds a game folder. */
+  onAdd: () => void
 }
 
 export interface GameFolderListItemProps {

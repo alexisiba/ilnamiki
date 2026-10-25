@@ -95,9 +95,9 @@ describe('AddEmulatorSettings', () => {
     await userEvent.setup().click(browse())
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      "The file picker couldn't open. Try again."
+      "The picker couldn't open. Try again."
     )
-    expect(pathField()).toHaveAccessibleDescription("The file picker couldn't open. Try again.")
+    expect(pathField()).toHaveAccessibleDescription("The picker couldn't open. Try again.")
   })
 
   it('clears the error once the file picker opens again', async () => {

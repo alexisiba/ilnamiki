@@ -5,6 +5,7 @@ import { useLocation, useNavigate, useOutlet } from 'react-router'
 import { useInputAction } from '@renderer/core/input'
 import {
   ADD_EMULATOR_PATH,
+  ADD_GAME_FOLDER_PATH,
   isSectionRoot,
   useGroupFocus,
   useRememberedState
@@ -90,6 +91,7 @@ export function SettingsScreen(): React.JSX.Element {
                   folders={SAMPLE_GAME_FOLDERS}
                   hasInstalledPlatforms={SAMPLE_ASSOCIATED_PLATFORMS.length > 0}
                   onSetUpEmulator={() => focusCategories('emulators')}
+                  onAdd={() => navigate(ADD_GAME_FOLDER_PATH)}
                 />
               )}
             </>

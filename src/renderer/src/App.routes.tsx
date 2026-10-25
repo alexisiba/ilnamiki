@@ -2,6 +2,7 @@ import type { RouteObject } from 'react-router'
 
 import {
   ADD_EMULATOR_PATH,
+  ADD_GAME_FOLDER_PATH,
   CONSOLE_GAMES_PATH,
   GAME_DETAILS_PATH,
   SECTION_PATHS
@@ -9,7 +10,11 @@ import {
 import { ConsoleSelectScreen } from '@renderer/features/consoles'
 import { ConsoleGamesScreen, GameDetailsScreen } from '@renderer/features/games'
 import { HomeScreen } from '@renderer/features/home'
-import { AddEmulatorSettings, SettingsScreen } from '@renderer/features/settings'
+import {
+  AddEmulatorSettings,
+  AddGameFolderSettings,
+  SettingsScreen
+} from '@renderer/features/settings'
 import App from './App'
 
 /** App layout with one child route per top-level section, plus the screens inside them. */
@@ -25,7 +30,10 @@ export const APP_ROUTES: RouteObject[] = [
       {
         path: SECTION_PATHS.settings,
         element: <SettingsScreen />,
-        children: [{ path: ADD_EMULATOR_PATH, element: <AddEmulatorSettings /> }]
+        children: [
+          { path: ADD_EMULATOR_PATH, element: <AddEmulatorSettings /> },
+          { path: ADD_GAME_FOLDER_PATH, element: <AddGameFolderSettings /> }
+        ]
       },
       { path: GAME_DETAILS_PATH, element: <GameDetailsScreen /> }
     ]

@@ -277,12 +277,22 @@ The interface balances sharp technological edges with modern living-room ergonom
 - **Empty categories** share one layout: icon, `headline-sm` title saying what is missing, Slate Muted `body-md` description saying how to get it, and an optional action button below.
 - **Switch:** an 88×48px pill track with a 36px round knob and 5px padding. Off: `#252938` track with a strong border and a Slate Muted knob on the left. On: `#00D2FF` track and a `#0B0D14` knob on the right, so the state shows by position as well as color. The knob slides over 180ms on the focus curve (instant with reduced motion).
 
+### Settings Forms
+Forms opened from a Settings category (Add emulator, Add game folder) replace the content panel's content and share one layout.
+- **Header:** the form's title in `headline-sm`, then a note that the form is filled with a keyboard and mouse: `body-md` in `#D3E4FF` on the Info container (`#004880`), 8px radius, with a 28px keyboard icon.
+- **Fields** (up to 960px wide): an uppercase `label-md` label in Slate Muted above each field. Text fields are `#1B1F2D` with a 1px strong border and 8px radius, text in `body-lg` white with a cyan caret; the focused field gets the cyan border and glow.
+- **Path field:** a text field ending with a square `folder-open` icon button, as tall as the field, that opens the system's picker and fills in the chosen path; focused, it fills with `#00D2FF` like a button. Cancelling the picker keeps the path; if the picker can't open, an Error-colored `body-md` message appears below.
+- **Select:** looks like a text field, showing the chosen option in white (or a prompt in Slate Dim) and a chevron-down on the right. Confirming it opens the options over the blurred screen, in a centered 640px sheet (`#121624` at 85%, 1px strong border, 16px radius) of `body-lg` rows; the focused row fills with `#00D2FF`, and the chosen one is white with a check. It opens on the chosen option (or the first); directions move, confirm chooses and closes, and back or a click outside closes without choosing. Focus returns to the select. It is the app's own list, not the system's, so it works with the gamepad too.
+- **Actions** at the bottom right: the way out first (Back or Cancel), then the one that submits. The submit button is unavailable until the form is complete: Slate Dim text and a quiet border, still focusable (focused, a cyan outline without the fill) but doing nothing.
+- **Input:** a deliberate exception to gamepad-first: text is typed with a physical keyboard only (no on-screen keyboard). The gamepad still moves focus, presses the buttons and uses selects. Pointing at a field doesn't focus it, so moving the mouse never takes focus away from the field being typed in.
+
 ### Add Emulator (Settings)
-- Opened with Add emulator in Settings, in the Settings content panel in place of the emulators list; Back (the button, the back action or Esc) returns to the list.
-- **Header:** `Add emulator` in `headline-sm`, then a note that the form is filled with a keyboard and mouse: `body-md` in `#D3E4FF` on the Info container (`#004880`), 8px radius, with a 28px keyboard icon.
-- **Fields** (up to 960px wide), the application path first (focused when the form opens) and the name below it: an uppercase `label-md` label in Slate Muted above each field. Fields are `#1B1F2D` with a 1px strong border and 8px radius, text in `body-lg` white with a cyan caret; the focused field gets the cyan border and glow. The path field ends with a square `folder-open` icon button, as tall as the field, that opens the system's file picker and fills in the chosen path; focused, it fills with `#00D2FF` like a button. If the picker can't open, an Error-colored `body-md` message appears below.
-- **Actions:** Back and Add emulator at the bottom right.
-- **Input:** a deliberate exception to gamepad-first: text is typed with a physical keyboard only (no on-screen keyboard). The gamepad still moves focus and presses the buttons. Pointing at a field doesn't focus it, so moving the mouse never takes focus away from the field being typed in.
+- Opened with Add emulator, in place of the emulators list; Back (the button, the back action or Esc) returns to the list.
+- Fields: the application path first (focused when the form opens; the picker chooses a file), then the emulator's name. Actions: Back and Add emulator.
+
+### Add Game Folder (Settings)
+- Opened with Add folder, in place of the game folders list; Cancel, the back action or Esc returns to the list.
+- Fields: the folder path first (focused when the form opens; the picker only chooses folders), then the platform its games belong to, a select of the installed platforms. Which emulator and core play a platform is chosen per platform, not per folder. Actions: Cancel and Add folder, unavailable until both fields are filled in.
 
 ### Metric Chips & Status Badges
 - Rendered with background `#121624` (85% opacity) and 1px border.

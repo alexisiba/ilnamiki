@@ -33,14 +33,25 @@
     },
     "add": "Agregar emulador"
   },
+  "form": {
+    "keyboardNote": "Para completar este formulario necesitarás teclado y mouse.",
+    "pickError": "No se pudo abrir el selector. Inténtalo de nuevo."
+  },
   "addEmulator": {
     "title": "Agregar emulador",
-    "keyboardNote": "Para completar este formulario necesitarás teclado y mouse.",
     "name": "Nombre del emulador",
     "path": "Ruta de la aplicación",
     "browse": "Elegir la aplicación",
-    "pickError": "No se pudo abrir el selector de archivos. Inténtalo de nuevo.",
     "back": "Volver",
     "add": "Agregar emulador"
+  },
+  "addGameFolder": {
+    "title": "Agregar carpeta de juegos",
+    "path": "Ruta de la carpeta",
+    "browse": "Elegir la carpeta",
+    "platform": "Plataforma",
+    "selectPlatform": "Selecciona una plataforma",
+    "cancel": "Cancelar",
+    "add": "Agregar carpeta"
   }
 }

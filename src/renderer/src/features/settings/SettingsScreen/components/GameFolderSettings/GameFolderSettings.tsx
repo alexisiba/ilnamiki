@@ -11,14 +11,15 @@ import styles from './GameFolderSettings.module.css'
 
 /**
  * The folders Ilnamiki finds games in, each with its platform and how many games it has, and
- * the action to add one (it does nothing yet). With no folders, it says how to get the first
+ * the action to add one. With no folders, it says how to get the first
  * one: by setting up an emulator while no core is installed, else with Add folder. Sample
  * data for now. It has no heading of its own: the selected category already names it.
  */
 export function GameFolderSettings({
   folders,
   hasInstalledPlatforms,
-  onSetUpEmulator
+  onSetUpEmulator,
+  onAdd
 }: GameFolderSettingsProps): React.JSX.Element {
   const { t } = useTranslation('settings')
   // Only the empty view without cores leaves it out: it offers to set up an emulator instead.
@@ -56,7 +57,9 @@ export function GameFolderSettings({
       )}
       {canAddFolder && (
         <div className={styles.actions}>
-          <Button focusId="add">{t('gameFolders.add')}</Button>
+          <Button focusId="add" onPress={onAdd}>
+            {t('gameFolders.add')}
+          </Button>
         </div>
       )}
     </FocusGroup>

@@ -18,6 +18,7 @@ function renderGameFolders(props: Partial<GameFolderSettingsProps> = {}): void {
       folders={FOLDERS}
       hasInstalledPlatforms
       onSetUpEmulator={vi.fn()}
+      onAdd={vi.fn()}
       {...props}
     />
   )
@@ -52,6 +53,15 @@ describe('GameFolderSettings', () => {
     renderGameFolders()
 
     expect(screen.getByRole('list')).not.toContainElement(addFolder())
+  })
+
+  it('opens the form to add a folder when Add folder is clicked', async () => {
+    const onAdd = vi.fn()
+    renderGameFolders({ onAdd })
+
+    await userEvent.setup().click(addFolder()!)
+
+    expect(onAdd).toHaveBeenCalledOnce()
   })
 
   it('has no heading of its own, as the selected category names it', () => {

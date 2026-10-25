@@ -1,7 +1,7 @@
 import { useFocusable } from '@renderer/core/navigation'
 
-import type { FormTextInputProps } from '../EmulatorForm.types'
-import styles from '../EmulatorForm.module.css'
+import type { FormTextInputProps } from './FormTextInput.types'
+import styles from './FormTextInput.module.css'
 
 /**
  * A text field typed with a physical keyboard. Pointing at it doesn't focus it, so moving the

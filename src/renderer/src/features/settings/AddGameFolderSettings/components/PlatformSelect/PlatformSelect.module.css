@@ -1,0 +1,138 @@
+/* Looks like a text field of the form, with a chevron that says it opens a list. */
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface-high);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius);
+  font-size: var(--body-lg-size);
+  line-height: var(--body-lg-line-height);
+  text-align: start;
+  transition:
+    border-color var(--duration-focus) var(--ease-focus),
+    box-shadow var(--duration-focus) var(--ease-focus);
+}
+
+/* This style is the focus indicator. */
+.trigger:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-focus);
+}
+
+.value {
+  color: var(--color-text-focus);
+}
+
+.placeholder {
+  color: var(--color-text-dim);
+}
+
+.chevron {
+  flex-shrink: 0;
+  width: var(--icon-size-md);
+  height: var(--icon-size-md);
+  stroke-width: var(--icon-stroke);
+  color: var(--color-text-muted);
+}
+
+/* Centered over the blurred screen. */
+.dialog {
+  width: var(--layout-select-width);
+  max-width: none;
+  max-height: 80vh;
+  margin: auto;
+  padding: 0;
+  background: none;
+  border: none;
+  color: inherit;
+  transition: opacity var(--duration-focus) var(--ease-focus);
+}
+
+.dialog[open] {
+  display: flex;
+}
+
+.dialog::backdrop {
+  background: var(--color-surface-glass);
+  backdrop-filter: blur(var(--blur-glass-strong));
+  transition: opacity var(--duration-focus) var(--ease-focus);
+}
+
+/* Fades in when it opens. */
+@starting-style {
+  .dialog[open],
+  .dialog[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+.sheet {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+  padding: var(--space-sm);
+  background: var(--color-surface-glass-strong);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-height: 0;
+  /* Scrolls when there are many: pad it so the focus glow is not cut, and keep that padding. */
+  margin: calc(-1 * var(--space-xs));
+  padding: var(--space-xs);
+  overflow-y: auto;
+  scroll-padding-block: var(--space-xs);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  font-size: var(--body-lg-size);
+  line-height: var(--body-lg-line-height);
+  text-align: start;
+  color: var(--color-text);
+  transition:
+    background-color var(--duration-focus) var(--ease-focus),
+    color var(--duration-focus) var(--ease-focus),
+    box-shadow var(--duration-focus) var(--ease-focus);
+}
+
+.option[aria-current='true'] {
+  color: var(--color-text-focus);
+}
+
+/* This style is the focus indicator. */
+.option:focus {
+  outline: none;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-on-accent);
+  box-shadow: 0 0 30px var(--color-primary-glow);
+}
+
+.optionName {
+  min-width: 0;
+}
+
+.check {
+  flex-shrink: 0;
+  width: var(--icon-size-md);
+  height: var(--icon-size-md);
+  stroke-width: var(--icon-stroke);
+}

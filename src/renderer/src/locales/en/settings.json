@@ -33,14 +33,25 @@
     },
     "add": "Add emulator"
   },
+  "form": {
+    "keyboardNote": "You'll need a keyboard and mouse to fill in this form.",
+    "pickError": "The picker couldn't open. Try again."
+  },
   "addEmulator": {
     "title": "Add emulator",
-    "keyboardNote": "You'll need a keyboard and mouse to fill in this form.",
     "name": "Emulator name",
     "path": "Application path",
     "browse": "Choose the application",
-    "pickError": "The file picker couldn't open. Try again.",
     "back": "Back",
     "add": "Add emulator"
+  },
+  "addGameFolder": {
+    "title": "Add game folder",
+    "path": "Folder path",
+    "browse": "Choose the folder",
+    "platform": "Platform",
+    "selectPlatform": "Select a platform",
+    "cancel": "Cancel",
+    "add": "Add folder"
   }
 }
