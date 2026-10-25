@@ -39,6 +39,23 @@ describe('Button', () => {
     expect(onPress).toHaveBeenCalledOnce()
   })
 
+  it('does nothing when unavailable, but can still be focused', async () => {
+    const onPress = vi.fn()
+    renderWithNavigation(
+      <Button focusId="add" aria-disabled onPress={onPress}>
+        Add
+      </Button>
+    )
+    const user = userEvent.setup()
+
+    await user.click(screen.getByRole('button', { name: 'Add' }))
+    await user.keyboard('{Enter}')
+
+    expect(onPress).not.toHaveBeenCalled()
+    expect(screen.getByRole('button', { name: 'Add' })).toHaveFocus()
+    expect(screen.getByRole('button', { name: 'Add' })).toHaveAttribute('aria-disabled', 'true')
+  })
+
   it('calls onPress when clicked', async () => {
     const onPress = vi.fn()
     render(

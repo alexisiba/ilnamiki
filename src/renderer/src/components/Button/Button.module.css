@@ -13,11 +13,24 @@
     box-shadow var(--duration-focus) var(--ease-focus);
 }
 
+/* Unavailable for now (e.g. until a form is complete): dim, but still there to be found. */
+.button[aria-disabled='true'] {
+  border-color: var(--color-border);
+  color: var(--color-text-dim);
+}
+
 /* This style is the focus indicator. */
-.button:focus {
+.button:not([aria-disabled='true']):focus {
   outline: none;
   background: var(--color-primary);
   border-color: var(--color-primary);
   color: var(--color-on-accent);
   box-shadow: 0 0 30px var(--color-primary-glow);
+}
+
+/* Focused while unavailable: a cyan outline without the fill, so it doesn't look pressable. */
+.button[aria-disabled='true']:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
 }
