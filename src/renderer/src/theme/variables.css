@@ -46,6 +46,8 @@
   --color-on-info-container: #d3e4ff;
   --color-error: #ffb4ab;
   --color-error-container: #93000a;
+  /* Red halo of a focused destructive button. */
+  --color-error-glow: rgba(255, 180, 171, 0.35);
   --color-on-error-container: #ffdad6;
 
   /* Typography: families */

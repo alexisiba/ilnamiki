@@ -10,6 +10,7 @@ import styles from './Button.module.css'
 export function Button({
   focusId,
   autoFocus = false,
+  variant = 'default',
   onPress,
   children,
   ...buttonProps
@@ -22,7 +23,7 @@ export function Button({
       {...buttonProps}
       ref={ref}
       type="button"
-      className={styles.button}
+      className={variant === 'danger' ? `${styles.button} ${styles.danger}` : styles.button}
       onClick={disabled ? undefined : onPress}
     >
       {children}

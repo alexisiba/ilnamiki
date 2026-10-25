@@ -98,8 +98,10 @@
   color: var(--color-text-muted);
 }
 
+/* Always in the bottom row, even while the list above has not been read yet. */
 .actions {
   display: flex;
+  grid-row: 2;
   justify-content: flex-end;
   gap: var(--space-sm);
 }

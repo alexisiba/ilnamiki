@@ -22,6 +22,13 @@ export function getConsoleGamesPath(consoleId: string): string {
 /** Route of the form that adds an emulator, inside the Settings section. */
 export const ADD_EMULATOR_PATH = `${SECTION_PATHS.settings}/emulators/new`
 
+/** Route of an emulator's details, inside the Settings section. */
+export const EMULATOR_DETAILS_PATH = `${SECTION_PATHS.settings}/emulators/:emulatorId`
+
+export function getEmulatorDetailsPath(emulatorId: string): string {
+  return `${SECTION_PATHS.settings}/emulators/${encodeURIComponent(emulatorId)}`
+}
+
 /** Route of the form that adds a game folder, inside the Settings section. */
 export const ADD_GAME_FOLDER_PATH = `${SECTION_PATHS.settings}/game-folders/new`
 

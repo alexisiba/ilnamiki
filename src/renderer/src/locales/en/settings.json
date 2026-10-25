@@ -31,6 +31,10 @@
       "title": "No emulators configured",
       "description": "Select Add emulator and choose the emulator's executable file to start playing."
     },
+    "failed": {
+      "title": "The emulators couldn't be loaded",
+      "description": "Close Ilnamiki and open it again. You can still add an emulator."
+    },
     "add": "Add emulator"
   },
   "form": {
@@ -44,6 +48,29 @@
     "browse": "Choose the application",
     "back": "Back",
     "add": "Add emulator"
+  },
+  "emulatorProblems": {
+    "notFound": "There's no file at this path.",
+    "notAFile": "This path is a folder. Choose the emulator's application file.",
+    "notExecutable": "This file isn't allowed to run. Allow it to run as a program and try again.",
+    "unsupportedFormat": "Only AppImages are supported for now.",
+    "alreadyAdded": "This emulator is already added.",
+    "unknownEmulator": "This emulator is no longer in Ilnamiki.",
+    "relativePath": "Enter the full path to the application.",
+    "failed": "The emulator couldn't be saved. Try again."
+  },
+  "emulatorDetails": {
+    "path": "Application path",
+    "changePath": "Change path",
+    "back": "Back",
+    "remove": "Remove emulator",
+    "notFound": "This emulator is no longer in Ilnamiki.",
+    "confirmRemove": {
+      "title": "Remove {{name}}?",
+      "description": "It will no longer be in Ilnamiki. Its application stays on your computer.",
+      "cancel": "Cancel",
+      "confirm": "Remove"
+    }
   },
   "addGameFolder": {
     "title": "Add game folder",

@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { FAILING_MIGRATION, TEST_MIGRATIONS } from './database.fixtures'
 import { openDatabase } from './database'
 import { getSchemaVersion } from './migrate'
+import { MIGRATIONS } from './migrations'
 
 let db: DatabaseSync | undefined
 
@@ -33,9 +34,9 @@ describe('openDatabase', () => {
     expect(() => openDatabase(':memory:', [...TEST_MIGRATIONS, FAILING_MIGRATION])).toThrow()
   })
 
-  it('opens an empty database with the app’s migrations', () => {
+  it('brings a new database up to the app’s latest migration', () => {
     db = openDatabase(':memory:')
 
-    expect(getSchemaVersion(db)).toBe(0)
+    expect(getSchemaVersion(db)).toBe(MIGRATIONS.length)
   })
 })

@@ -15,7 +15,7 @@ export function SettingsEmptyState({
     <section className={styles.empty}>
       <Icon className={styles.icon} aria-hidden />
       <h2 className={styles.title}>{title}</h2>
-      <p className={styles.description}>{description}</p>
+      {description && <p className={styles.description}>{description}</p>}
       {action && <div className={styles.action}>{action}</div>}
     </section>
   )

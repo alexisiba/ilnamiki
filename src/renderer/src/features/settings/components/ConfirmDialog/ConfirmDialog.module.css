@@ -1,0 +1,56 @@
+/* Centered over the blurred screen. */
+.dialog {
+  width: var(--layout-select-width);
+  max-width: none;
+  margin: auto;
+  padding: 0;
+  background: none;
+  border: none;
+  color: inherit;
+  transition: opacity var(--duration-focus) var(--ease-focus);
+}
+
+.dialog::backdrop {
+  background: var(--color-surface-glass);
+  backdrop-filter: blur(var(--blur-glass-strong));
+  transition: opacity var(--duration-focus) var(--ease-focus);
+}
+
+/* Fades in when it opens. */
+@starting-style {
+  .dialog[open],
+  .dialog[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+.box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  background: var(--color-surface-glass-strong);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+}
+
+.title {
+  font-size: var(--headline-sm-size);
+  font-weight: var(--headline-sm-weight);
+  line-height: var(--headline-sm-line-height);
+  letter-spacing: var(--headline-sm-tracking);
+  color: var(--color-text-focus);
+}
+
+.description {
+  font-size: var(--body-md-size);
+  line-height: var(--body-md-line-height);
+  color: var(--color-text-muted);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}

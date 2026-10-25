@@ -56,6 +56,19 @@ describe('Button', () => {
     expect(screen.getByRole('button', { name: 'Add' })).toHaveAttribute('aria-disabled', 'true')
   })
 
+  it('works the same as a destructive button', async () => {
+    const onPress = vi.fn()
+    render(
+      <Button focusId="remove" variant="danger" onPress={onPress}>
+        Remove
+      </Button>
+    )
+
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Remove' }))
+
+    expect(onPress).toHaveBeenCalledOnce()
+  })
+
   it('calls onPress when clicked', async () => {
     const onPress = vi.fn()
     render(

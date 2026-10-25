@@ -1,6 +1,13 @@
 import { vi } from 'vitest'
 
-import type { ControllerStatus, NetworkStatus } from '@shared/api'
+import type {
+  AddEmulatorResult,
+  ChangeEmulatorPathResult,
+  ControllerStatus,
+  Emulator,
+  InspectEmulatorResult,
+  NetworkStatus
+} from '@shared/api'
 
 /**
  * Installs a fresh `window.api` (jsdom has no preload), where every request answers that
@@ -12,7 +19,18 @@ export function mockApi(): void {
       getStatus: vi.fn(async (): Promise<ControllerStatus[]> => [])
     },
     emulators: {
-      pickExecutable: vi.fn(async (): Promise<string | null> => null)
+      pickExecutable: vi.fn(async (): Promise<string | null> => null),
+      inspect: vi.fn(async (): Promise<InspectEmulatorResult> => ({
+        ok: false,
+        problem: 'not-found'
+      })),
+      add: vi.fn(async (): Promise<AddEmulatorResult> => ({ ok: false, problem: 'not-found' })),
+      list: vi.fn(async (): Promise<Emulator[]> => []),
+      changePath: vi.fn(async (): Promise<ChangeEmulatorPathResult> => ({
+        ok: false,
+        problem: 'unknown-emulator'
+      })),
+      remove: vi.fn(async (): Promise<void> => undefined)
     },
     library: {
       pickFolder: vi.fn(async (): Promise<string | null> => null)
@@ -43,6 +61,35 @@ export function mockPickedExecutable(path: string | null | Error): void {
   vi.mocked(window.api.emulators.pickExecutable).mockImplementation(async () => {
     if (path instanceof Error) throw path
     return path
+  })
+}
+
+/** Makes `window.api.emulators.list` resolve with `emulators`, or reject with an error. */
+export function mockEmulators(emulators: Emulator[] | Error): void {
+  vi.mocked(window.api.emulators.list).mockImplementation(async () => {
+    if (emulators instanceof Error) throw emulators
+    return emulators
+  })
+}
+
+/** Makes `window.api.emulators.inspect` resolve with `result`. */
+export function mockEmulatorInspection(result: InspectEmulatorResult): void {
+  vi.mocked(window.api.emulators.inspect).mockResolvedValue(result)
+}
+
+/** Makes `window.api.emulators.add` resolve with `result`, or reject with an error. */
+export function mockAddEmulator(result: AddEmulatorResult | Error): void {
+  vi.mocked(window.api.emulators.add).mockImplementation(async () => {
+    if (result instanceof Error) throw result
+    return result
+  })
+}
+
+/** Makes `window.api.emulators.changePath` resolve with `result`, or reject with an error. */
+export function mockChangeEmulatorPath(result: ChangeEmulatorPathResult | Error): void {
+  vi.mocked(window.api.emulators.changePath).mockImplementation(async () => {
+    if (result instanceof Error) throw result
+    return result
   })
 }
 

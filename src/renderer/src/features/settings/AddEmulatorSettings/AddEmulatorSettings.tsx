@@ -6,11 +6,15 @@ import { EmulatorForm } from './components/EmulatorForm'
 
 /**
  * The form that adds an emulator, shown in the Settings content panel in place of the
- * emulators list. Filled with a keyboard and mouse.
+ * emulators list, which it returns to when leaving or once the emulator is added. Filled with
+ * a keyboard and mouse.
  */
 export function AddEmulatorSettings(): React.JSX.Element {
   const navigate = useNavigate()
+  // As the back action does.
+  const returnToList = (): void => {
+    navigate(SECTION_PATHS.settings, { replace: true })
+  }
 
-  // Back returns to the emulators list, as the back action does.
-  return <EmulatorForm onBack={() => navigate(SECTION_PATHS.settings, { replace: true })} />
+  return <EmulatorForm onBack={returnToList} onAdded={returnToList} />
 }

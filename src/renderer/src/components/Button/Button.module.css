@@ -28,6 +28,19 @@
   box-shadow: 0 0 30px var(--color-primary-glow);
 }
 
+/* Destroys something: red at rest, filled with red when focused. */
+.danger {
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
+
+.danger:not([aria-disabled='true']):focus {
+  background: var(--color-error-container);
+  border-color: var(--color-error);
+  color: var(--color-on-error-container);
+  box-shadow: 0 0 30px var(--color-error-glow);
+}
+
 /* Focused while unavailable: a cyan outline without the fill, so it doesn't look pressable. */
 .button[aria-disabled='true']:focus {
   outline: none;

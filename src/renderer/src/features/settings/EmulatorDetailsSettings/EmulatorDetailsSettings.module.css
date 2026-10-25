@@ -1,0 +1,105 @@
+/* The name and path at the top; the actions at the bottom. */
+.content {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  align-content: start;
+  gap: var(--space-lg);
+  min-height: 0;
+}
+
+/* Room for the centered message that the emulator is gone. */
+.missing {
+  display: flex;
+  min-height: 0;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.title {
+  font-size: var(--headline-sm-size);
+  font-weight: var(--headline-sm-weight);
+  line-height: var(--headline-sm-line-height);
+  letter-spacing: var(--headline-sm-tracking);
+  color: var(--color-text-focus);
+}
+
+.version {
+  font-family: var(--font-label);
+  font-size: var(--label-md-size);
+  font-weight: var(--label-md-weight);
+  line-height: var(--label-md-line-height);
+  letter-spacing: var(--label-md-tracking);
+  font-variant-ligatures: none;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.path {
+  display: flex;
+  flex-direction: column;
+  align-self: start;
+  gap: var(--space-xs);
+  max-width: var(--layout-panel-width);
+}
+
+/* Styled like the forms' field labels. */
+.label {
+  font-family: var(--font-label);
+  font-size: var(--label-md-size);
+  font-weight: var(--label-md-weight);
+  line-height: var(--label-md-line-height);
+  letter-spacing: var(--label-md-tracking);
+  font-variant-ligatures: none;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.pathRow {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-xs);
+}
+
+/* Shown like a field, but read-only: Change path is how it changes. */
+.pathValue {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface-high);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-size: var(--body-lg-size);
+  line-height: var(--body-lg-line-height);
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.buttonContent {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  white-space: nowrap;
+}
+
+.buttonIcon {
+  width: var(--icon-size-md);
+  height: var(--icon-size-md);
+  stroke-width: var(--icon-stroke);
+}
+
+.problem {
+  font-size: var(--body-md-size);
+  line-height: var(--body-md-line-height);
+  color: var(--color-error);
+}
+
+.actions {
+  display: flex;
+  grid-row: 3;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+}

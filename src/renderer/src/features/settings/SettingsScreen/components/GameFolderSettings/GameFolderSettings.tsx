@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@renderer/components/Button'
 import { FocusGroup } from '@renderer/core/navigation'
 
-import { SettingsEmptyState } from '../SettingsEmptyState'
+import { SettingsEmptyState } from '../../../components/SettingsEmptyState'
 import { GameFolderListItem } from './components/GameFolderListItem'
 import type { GameFolderSettingsProps } from './GameFolderSettings.types'
 import styles from './GameFolderSettings.module.css'

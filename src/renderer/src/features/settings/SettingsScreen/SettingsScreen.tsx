@@ -6,12 +6,12 @@ import { useInputAction } from '@renderer/core/input'
 import {
   ADD_EMULATOR_PATH,
   ADD_GAME_FOLDER_PATH,
+  getEmulatorDetailsPath,
   isSectionRoot,
   useGroupFocus,
   useRememberedState
 } from '@renderer/core/navigation'
 import { SAMPLE_ASSOCIATED_PLATFORMS } from '@renderer/mocks/associatedPlatforms'
-import { SAMPLE_EMULATORS } from '@renderer/mocks/emulators'
 import { SAMPLE_GAME_FOLDERS } from '@renderer/mocks/gameFolders'
 
 import { EmulatorSettings } from './components/EmulatorSettings'
@@ -75,8 +75,8 @@ export function SettingsScreen(): React.JSX.Element {
             <>
               {categoryId === 'emulators' && (
                 <EmulatorSettings
-                  emulators={SAMPLE_EMULATORS}
                   onAdd={() => navigate(ADD_EMULATOR_PATH)}
+                  onOpen={(emulatorId) => navigate(getEmulatorDetailsPath(emulatorId))}
                 />
               )}
               {categoryId === 'platforms' && (

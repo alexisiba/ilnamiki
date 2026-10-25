@@ -31,6 +31,10 @@
       "title": "No hay emuladores configurados",
       "description": "Selecciona Agregar emulador y elige el archivo ejecutable del emulador para empezar a jugar."
     },
+    "failed": {
+      "title": "No se pudieron cargar los emuladores",
+      "description": "Cierra Ilnamiki y vuelve a abrirlo. Aun así puedes agregar un emulador."
+    },
     "add": "Agregar emulador"
   },
   "form": {
@@ -44,6 +48,29 @@
     "browse": "Elegir la aplicación",
     "back": "Volver",
     "add": "Agregar emulador"
+  },
+  "emulatorProblems": {
+    "notFound": "No hay ningún archivo en esta ruta.",
+    "notAFile": "Esta ruta es una carpeta. Elige el archivo de la aplicación del emulador.",
+    "notExecutable": "Este archivo no tiene permiso para ejecutarse. Permite que se ejecute como programa y vuelve a intentarlo.",
+    "unsupportedFormat": "Por ahora solo se admiten AppImages.",
+    "alreadyAdded": "Este emulador ya está agregado.",
+    "unknownEmulator": "Este emulador ya no está en Ilnamiki.",
+    "relativePath": "Escribe la ruta completa de la aplicación.",
+    "failed": "No se pudo guardar el emulador. Inténtalo de nuevo."
+  },
+  "emulatorDetails": {
+    "path": "Ruta de la aplicación",
+    "changePath": "Cambiar ruta",
+    "back": "Volver",
+    "remove": "Eliminar emulador",
+    "notFound": "Este emulador ya no está en Ilnamiki.",
+    "confirmRemove": {
+      "title": "¿Eliminar {{name}}?",
+      "description": "Dejará de estar en Ilnamiki. Su aplicación se queda en tu equipo.",
+      "cancel": "Cancelar",
+      "confirm": "Eliminar"
+    }
   },
   "addGameFolder": {
     "title": "Agregar carpeta de juegos",

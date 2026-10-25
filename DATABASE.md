@@ -19,7 +19,7 @@ structure: what each table is for, what each field means and how tables relate.
 | Journal | WAL (`ilnamiki.db-wal` and `ilnamiki.db-shm` exist while the app runs) |
 | Foreign keys | Enforced on every connection |
 | Schema version | Kept in `PRAGMA user_version`; the number of the last migration applied |
-| Current version | **0**: no tables yet |
+| Current version | **1**: `emulators` |
 
 ## What is stored and what isn't
 
@@ -47,13 +47,46 @@ what its `NULL` means, and every foreign key states what happens when its row is
 
 ## Tables
 
-None yet. Each table gets a section here, with its fields, when its migration is added.
+```mermaid
+erDiagram
+    emulators {
+        TEXT id PK
+        TEXT kind
+        TEXT name
+        TEXT executable_path UK
+        TEXT version
+        TEXT icon_path
+        TEXT extra_args
+        INTEGER file_modified_at
+        INTEGER created_at
+        INTEGER updated_at
+    }
+```
+
+### `emulators`
+
+Migration 1. The emulators the user added. What is detected about the application (kind,
+version, icon) is a cache: it is read when the emulator is added.
+
+| Field | Type | Null | Meaning |
+|---|---|---|---|
+| `id` | `TEXT` | no | Primary key |
+| `kind` | `TEXT` | no | Which known emulator it is: `retroarch`, or `unknown` when Ilnamiki doesn't recognize it |
+| `name` | `TEXT` | no | Name shown in the app, never empty: detected from the application's desktop entry, then editable by the user |
+| `executable_path` | `TEXT` | no | Absolute path to the emulator's application (an AppImage for now); unique, so an application is added once |
+| `version` | `TEXT` | yes | Version the application reports (e.g. `1.22.2`); `NULL` when it reports none or isn't recognized |
+| `icon_path` | `TEXT` | yes | The application's icon, copied to `emulators/icons/<id>.<svg\|png>` in the app's data folder; `NULL` without one |
+| `extra_args` | `TEXT` | yes | Command-line arguments the user adds to the known ones; `NULL` for none (not used yet) |
+| `file_modified_at` | `INTEGER` | yes | When the application file was last modified, at detection; a different value means it changed and should be detected again |
+| `created_at` | `INTEGER` | no | When it was added |
+| `updated_at` | `INTEGER` | no | When it last changed |
 
 ## Planned tables
 
 A first draft of where the schema is heading, so each migration fits the next. **None of
 these exist yet**: each one is designed for real, and may change, when the feature that needs
-it is built, and moves to [Tables](#tables) once its migration exists.
+it is built, and moves to [Tables](#tables) once its migration exists. `emulators` (above) is
+shown only for its relations.
 
 ```mermaid
 erDiagram
@@ -62,18 +95,6 @@ erDiagram
     library_folders ||--o{ games : "found in"
     games ||--o{ play_sessions : "played in"
 
-    emulators {
-        TEXT id PK
-        TEXT kind
-        TEXT name
-        TEXT executable_path
-        TEXT version
-        TEXT icon_path
-        TEXT extra_args
-        INTEGER file_modified_at
-        INTEGER created_at
-        INTEGER updated_at
-    }
     platform_emulators {
         TEXT platform_id PK
         TEXT emulator_id PK, FK
@@ -107,23 +128,6 @@ erDiagram
         TEXT value
     }
 ```
-
-### `emulators` (planned)
-
-The emulators the user added.
-
-| Field | Type | Null | Meaning |
-|---|---|---|---|
-| `id` | `TEXT` | no | Primary key |
-| `kind` | `TEXT` | no | Which known emulator it is (`retroarch`), or `custom` when it isn't recognized |
-| `name` | `TEXT` | no | Name shown in the app; detected, then editable by the user |
-| `executable_path` | `TEXT` | no | Absolute path to the emulator's application (e.g. an AppImage) |
-| `version` | `TEXT` | yes | Version detected from the application; `NULL` when it couldn't be read |
-| `icon_path` | `TEXT` | yes | The emulator's icon, copied into the app's data folder; `NULL` without one |
-| `extra_args` | `TEXT` | yes | Command-line arguments the user adds to the known ones; `NULL` for none |
-| `file_modified_at` | `INTEGER` | yes | When the application file was last modified at detection; a different value means it must be detected again |
-| `created_at` | `INTEGER` | no | When it was added |
-| `updated_at` | `INTEGER` | no | When it last changed |
 
 ### `platform_emulators` (planned)
 
