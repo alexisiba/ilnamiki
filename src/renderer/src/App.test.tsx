@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   mockEmulators,
   mockFolderGames,
+  mockGameDetails,
   mockGameFolders,
   mockLastPlayedGame,
   mockPlatforms
@@ -171,11 +172,22 @@ describe('App', () => {
   })
 
   it('opens a game’s details from its card, still inside the home section', async () => {
+    mockGameDetails({
+      id: 'dk-64',
+      title: 'Donkey Kong 64',
+      platformId: 'nintendo_64',
+      addedAt: 1,
+      lastPlayedAt: null,
+      playtimeMs: 0
+    })
     renderApp()
 
     await userEvent.setup().click(await screen.findByRole('button', { name: 'Donkey Kong 64' }))
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Donkey Kong 64' })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Donkey Kong 64' })
+    ).toBeInTheDocument()
+    expect(window.api.games.getDetails).toHaveBeenCalledWith('dk-64')
     expect(screen.getByRole('button', { name: 'Play' })).toHaveFocus()
     expect(currentSection()).toHaveTextContent('Home')
   })

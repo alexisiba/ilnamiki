@@ -3,7 +3,7 @@ import { app } from 'electron'
 import { mkdir, stat, writeFile } from 'fs/promises'
 import { join } from 'path'
 
-import type { LastPlayedGame, LaunchGameResult, RecentlyAddedGame } from '@shared/api'
+import type { GameDetails, LastPlayedGame, LaunchGameResult, RecentlyAddedGame } from '@shared/api'
 
 import { getDatabase } from '../../core/database'
 import { freeEmulatorTurn, startEmulator, takeEmulatorTurn } from '../../core/emulatorProcess'
@@ -86,6 +86,11 @@ export const gamesService = {
   /** The 20 games most recently added to the library at most, newest first. */
   listRecentlyAdded(): RecentlyAddedGame[] {
     return createGamesRepository(getDatabase()).listRecentlyAdded(RECENTLY_ADDED_LIMIT)
+  },
+
+  /** What the library knows about the game `gameId`, or null when it isn't in the library. */
+  getDetails(gameId: string): GameDetails | null {
+    return createGamesRepository(getDatabase()).findDetails(gameId)
   },
 
   /**

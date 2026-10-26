@@ -1,4 +1,9 @@
-import type { GameEnded, LaunchGameResult, RecentlyAddedGame } from '@shared/api'
+import type { GameDetails, GameEnded, LaunchGameResult, RecentlyAddedGame } from '@shared/api'
+
+/** What the library knows about the game `gameId`, or null when it isn't in the library. */
+export function getGameDetails(gameId: string): Promise<GameDetails | null> {
+  return window.api.games.getDetails(gameId)
+}
 
 /** The 20 games most recently added to the library at most, newest first. */
 export function listRecentlyAddedGames(): Promise<RecentlyAddedGame[]> {

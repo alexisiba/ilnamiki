@@ -1,9 +1,11 @@
 {
   "details": {
-    "players_one": "{{count}} jugador",
-    "players_other": "{{count}} jugadores",
+    "noMetadata": "Sin metadatos",
+    "noDescription": "Sin descripción",
+    "neverPlayed": "Aún no se ha jugado",
     "play": "Jugar",
-    "notFound": "Este juego no está en tu biblioteca."
+    "notFound": "Este juego no está en tu biblioteca.",
+    "failed": "No se pudo cargar el juego. Inténtalo más tarde."
   },
   "consoleGames": {
     "gamesInstalled_one": "{{count}} juego instalado",

@@ -4,6 +4,7 @@ import type {
   AddEmulatorResult,
   AddFolderResult,
   FolderGame,
+  GameDetails,
   GameFolder,
   ChangeEmulatorPathResult,
   ControllerStatus,
@@ -50,6 +51,7 @@ export function mockApi(): void {
     games: {
       getLastPlayed: vi.fn(async (): Promise<LastPlayedGame | null> => null),
       listRecentlyAdded: vi.fn(async (): Promise<RecentlyAddedGame[]> => []),
+      getDetails: vi.fn(async (): Promise<GameDetails | null> => null),
       launch: vi.fn(async (): Promise<LaunchGameResult> => ({ ok: false, problem: 'no-core' })),
       onGameEnded: vi.fn((): (() => void) => () => undefined)
     },
@@ -256,6 +258,17 @@ export function emitGameEnded(gameId: string): void {
  */
 export function mockLastPlayedGame(game: LastPlayedGame | null | Error): void {
   vi.mocked(window.api.games.getLastPlayed).mockImplementation(async () => {
+    if (game instanceof Error) throw game
+    return game
+  })
+}
+
+/**
+ * Makes `window.api.games.getDetails` resolve with `game` (null when it isn't in the library),
+ * or reject with an error.
+ */
+export function mockGameDetails(game: GameDetails | null | Error): void {
+  vi.mocked(window.api.games.getDetails).mockImplementation(async () => {
     if (game instanceof Error) throw game
     return game
   })

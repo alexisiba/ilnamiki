@@ -115,6 +115,37 @@ describe('games repository', () => {
     expect(repository.listRecentlyAdded(10).map(({ id }) => id)).not.toContain('g2')
   })
 
+  it('finds a game’s details with its play history', () => {
+    const repository = createGamesRepository(db)
+    repository.addPlaySession(session('s1', 'g1', 1_000 * MINUTE_MS, 30))
+    repository.addPlaySession(session('s2', 'g1', 3_000 * MINUTE_MS, 45))
+    repository.addPlaySession(session('s3', 'g3', 4_000 * MINUTE_MS, 15))
+
+    expect(repository.findDetails('g1')).toEqual({
+      id: 'g1',
+      title: 'Game',
+      platformId: 'playstation',
+      addedAt: 1,
+      lastPlayedAt: 3_000 * MINUTE_MS,
+      playtimeMs: 75 * MINUTE_MS
+    })
+  })
+
+  it('finds the details of a game never played, without play history', () => {
+    expect(createGamesRepository(db).findDetails('g3')).toMatchObject({
+      id: 'g3',
+      lastPlayedAt: null,
+      playtimeMs: 0
+    })
+  })
+
+  it('finds no details of a removed or unknown game', () => {
+    const repository = createGamesRepository(db)
+
+    expect(repository.findDetails('g2')).toBeNull()
+    expect(repository.findDetails('missing')).toBeNull()
+  })
+
   it('finds no last played game while none was played', () => {
     expect(createGamesRepository(db).findLastPlayed()).toBeNull()
   })

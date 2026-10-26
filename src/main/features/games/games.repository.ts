@@ -1,6 +1,6 @@
 import type { DatabaseSync } from 'node:sqlite'
 
-import type { LastPlayedGame, RecentlyAddedGame } from '@shared/api'
+import type { GameDetails, LastPlayedGame, RecentlyAddedGame } from '@shared/api'
 
 /** A game in a folder, with what it takes to play it. */
 export interface PlayableGameRecord {
@@ -46,6 +46,8 @@ export interface GamesRepository {
    * The `limit` games in a folder added last, newest first; games added together by title.
    */
   listRecentlyAdded(limit: number): RecentlyAddedGame[]
+  /** The game `id` while it is in a folder, with its play history; null otherwise. */
+  findDetails(id: string): GameDetails | null
   addPlaySession(session: PlaySessionRecord): void
 }
 
@@ -54,6 +56,15 @@ interface LastPlayedRow {
   title: string
   platform_id: string
   last_played_at: number
+  playtime_ms: number
+}
+
+interface DetailsRow {
+  id: string
+  title: string
+  platform_id: string
+  added_at: number
+  last_played_at: number | null
   playtime_ms: number
 }
 
@@ -127,6 +138,29 @@ export function createGamesRepository(db: DatabaseSync): GamesRepository {
         platformId: row.platform_id,
         addedAt: row.added_at
       }))
+    },
+
+    findDetails(id) {
+      const row = db
+        .prepare(
+          `SELECT games.id, games.title, games.platform_id, games.added_at,
+              MAX(play_sessions.ended_at) AS last_played_at,
+              COALESCE(SUM(play_sessions.ended_at - play_sessions.started_at), 0) AS playtime_ms
+            FROM games
+            LEFT JOIN play_sessions ON play_sessions.game_id = games.id
+            WHERE games.id = ? AND games.folder_id IS NOT NULL
+            GROUP BY games.id`
+        )
+        .get(id) as DetailsRow | undefined
+      if (!row) return null
+      return {
+        id: row.id,
+        title: row.title,
+        platformId: row.platform_id,
+        addedAt: row.added_at,
+        lastPlayedAt: row.last_played_at,
+        playtimeMs: row.playtime_ms
+      }
     },
 
     addPlaySession(session) {

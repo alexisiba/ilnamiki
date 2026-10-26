@@ -3,6 +3,7 @@ import type { InstalledPlatform, LastPlayedGame, RecentlyAddedGame } from '@shar
 import consolesArtwork from '@renderer/assets/images/consoles/consoles.webp'
 import noImage from '@renderer/assets/images/games/no-image.webp'
 import { findCatalogPlatform } from '@renderer/utils/platformCatalog/platformCatalog'
+import { getPlatformName } from '@renderer/utils/platformName'
 
 import type { ContinueGame } from './components/ContinueHero'
 import type { ShelfGame } from './components/GameShelf'
@@ -23,7 +24,7 @@ export function toContinueGame(game: LastPlayedGame, platforms: InstalledPlatfor
   return {
     id: game.id,
     title: game.title,
-    platform: platformName(game.platformId, platforms),
+    platform: getPlatformName(game.platformId, platforms),
     description: null,
     imageUrl: findCatalogPlatform(game.platformId)?.imageUrl ?? consolesArtwork,
     lastPlayedAt: new Date(game.lastPlayedAt),
@@ -42,15 +43,9 @@ export function toRecentlyAddedShelfGame(
   return {
     id: game.id,
     title: game.title,
-    platform: platformName(game.platformId, platforms),
+    platform: getPlatformName(game.platformId, platforms),
     imageUrl: noImage
   }
-}
-
-/** The console `platformId` as the app's catalog names it, or as its cores do, or its id. */
-function platformName(platformId: string, platforms: InstalledPlatform[]): string {
-  const installed = platforms.find((platform) => platform.id === platformId)
-  return findCatalogPlatform(platformId)?.name ?? installed?.name ?? platformId
 }
 
 /**

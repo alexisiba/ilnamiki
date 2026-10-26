@@ -1,9 +1,11 @@
 {
   "details": {
-    "players_one": "{{count}} player",
-    "players_other": "{{count}} players",
+    "noMetadata": "No metadata",
+    "noDescription": "No description",
+    "neverPlayed": "Not played yet",
     "play": "Play",
-    "notFound": "This game is not in your library."
+    "notFound": "This game is not in your library.",
+    "failed": "The game couldn't be loaded. Try again later."
   },
   "consoleGames": {
     "gamesInstalled_one": "{{count}} game installed",

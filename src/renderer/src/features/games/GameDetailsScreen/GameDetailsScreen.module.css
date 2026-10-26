@@ -56,8 +56,21 @@
   margin-top: var(--space-sm);
 }
 
+/* Muted: it says what is missing, as the absent metadata does. */
+.neverPlayed {
+  font-size: var(--body-md-size);
+  line-height: var(--body-md-line-height);
+  color: var(--color-text-muted);
+}
+
 .play {
   margin-top: var(--space-md);
+}
+
+.problem {
+  font-size: var(--body-md-size);
+  line-height: var(--body-md-line-height);
+  color: var(--color-error);
 }
 
 .notFound {
