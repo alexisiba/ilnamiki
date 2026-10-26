@@ -27,7 +27,7 @@ const platform = (id: string, name: string): InstalledPlatform => ({
 })
 
 describe('toContinueGame', () => {
-  it('names the console as the catalog does and shows its render', () => {
+  it('names the console as the catalog does and shows a generic screenshot', () => {
     const game = toContinueGame(CRASH, [platform('playstation', 'Sony - PlayStation')])
 
     expect(game).toMatchObject({
@@ -37,20 +37,19 @@ describe('toContinueGame', () => {
       description: null,
       lastPlayedAt: new Date(1_800_000_000_000)
     })
-    expect(game.imageUrl).toEqual(expect.stringContaining('ps1'))
+    expect(game.imageUrl).toEqual(expect.stringContaining('no-bg-image'))
   })
 
   it('rounds the playtime to minutes', () => {
     expect(toContinueGame(CRASH, []).playtimeMinutes).toBe(2 * 60 + 16)
   })
 
-  it('names a console the catalog doesn’t know as its cores do, with Home’s artwork', () => {
+  it('names a console the catalog doesn’t know as its cores do', () => {
     const game = toContinueGame({ ...CRASH, platformId: 'quake_3' }, [
       platform('quake_3', 'Quake III')
     ])
 
     expect(game.platform).toBe('Quake III')
-    expect(game.imageUrl).toEqual(expect.stringContaining('consoles'))
   })
 
   it('names a console no emulator plays anymore by its id', () => {

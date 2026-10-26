@@ -5,9 +5,8 @@ import type {
   RecentlyPlayedGame
 } from '@shared/api'
 
-import consolesArtwork from '@renderer/assets/images/consoles/consoles.webp'
+import noScreenshot from '@renderer/assets/images/games/no-bg-image.webp'
 import noImage from '@renderer/assets/images/games/no-image.webp'
-import { findCatalogPlatform } from '@renderer/utils/platformCatalog/platformCatalog'
 import { getPlatformName } from '@renderer/utils/platformName'
 
 import type { ContinueGame } from './components/ContinueHero'
@@ -22,8 +21,8 @@ const startOfDay = (date: Date): number =>
 
 /**
  * The last played game as the hero shows it. Until games have metadata, it has no description
- * and shows its console's render (or Home's consoles artwork when the console has none); the
- * console is named as the app's catalog names it, or as its cores do.
+ * and shows a generic screenshot; the console is named as the app's catalog names it, or as
+ * its cores do.
  */
 export function toContinueGame(game: LastPlayedGame, platforms: InstalledPlatform[]): ContinueGame {
   return {
@@ -31,7 +30,7 @@ export function toContinueGame(game: LastPlayedGame, platforms: InstalledPlatfor
     title: game.title,
     platform: getPlatformName(game.platformId, platforms),
     description: null,
-    imageUrl: findCatalogPlatform(game.platformId)?.imageUrl ?? consolesArtwork,
+    imageUrl: noScreenshot,
     lastPlayedAt: new Date(game.lastPlayedAt),
     playtimeMinutes: Math.round(game.playtimeMs / MINUTE_MS)
   }

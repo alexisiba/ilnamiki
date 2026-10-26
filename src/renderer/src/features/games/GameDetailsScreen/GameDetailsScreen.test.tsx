@@ -110,12 +110,15 @@ describe('GameDetailsScreen', () => {
     expect(await play()).toHaveFocus()
   })
 
-  it('treats the artwork as decorative', async () => {
+  it('shows a generic screenshot behind the game, as decoration', async () => {
     mockGameDetails(CRASH)
     renderDetailsOf('g1')
 
     await play()
     expect(screen.queryByRole('img')).not.toBeInTheDocument()
+    const images = [...document.querySelectorAll('img')]
+    expect(images).toHaveLength(1)
+    expect(images[0].src).toContain('no-bg-image')
   })
 
   it('starts the game with Play, which reads Playing until it ends', async () => {

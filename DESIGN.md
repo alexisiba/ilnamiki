@@ -227,6 +227,11 @@ The interface balances sharp technological edges with modern living-room ergonom
 - Smooth hardware-accelerated translation with snappy dampening.
 - Out-of-focus cards smoothly transition their imagery to the Dimming Filter (text keeps its contrast tokens) with border radiance disabled.
 
+### Game Imagery
+- **Two kinds of image per game.** Its **cover** (box art) stands for the game where it is one of many: shelf cards on Home and frames in the Console Games carousel. Its **screenshot** (a capture of the game being played) sets the scene where the game is the one in view: the Continue playing hero on Home, the game's details, and the backdrop of the selected game's column in Console Games.
+- **Both come from the game's metadata.** Until a game has metadata, or when its metadata has no such image, each falls back to its generic image: covers to `no-image` (`assets/images/games/no-image.webp`) and screenshots to `no-bg-image` (`assets/images/games/no-bg-image.webp`). A console's render never stands in for a game's image.
+- **Decorative.** Game images have no alternative text: the game's title, always shown beside them, names it.
+
 ### Home First Run
 - Until the user can play, Home shows one setup panel, centered, checking in order: an emulator, then a platform it plays, then a folder with games. Each panel shares one layout: a large cyan icon with a soft glow, the title, a Slate Muted `body-lg` description and one button, focused, that opens Settings on the category that solves it. Until what a check needs is read nothing shows, so no panel flashes.
 - **No emulator** (gamepad icon): `Set up your first emulator`, recommending RetroArch; Set up an emulator opens Settings › Emulators.
