@@ -9,7 +9,13 @@ export {
   removeEmulator,
   type EmulatorsState
 } from './emulators'
-export { getGameDetails, launchGame, listRecentlyAddedGames, subscribeToGameEnded } from './games'
+export {
+  getGameDetails,
+  launchGame,
+  launchRandomGame,
+  listRecentlyAddedGames,
+  subscribeToGameEnded
+} from './games'
 export {
   addGameFolder,
   refreshGameFolders,

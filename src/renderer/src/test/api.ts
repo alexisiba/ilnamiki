@@ -13,6 +13,7 @@ import type {
   InstalledPlatform,
   LastPlayedGame,
   LaunchGameResult,
+  LaunchRandomGameResult,
   NetworkStatus,
   OpenEmulatorResult,
   RecentlyAddedGame,
@@ -53,6 +54,10 @@ export function mockApi(): void {
       listRecentlyAdded: vi.fn(async (): Promise<RecentlyAddedGame[]> => []),
       getDetails: vi.fn(async (): Promise<GameDetails | null> => null),
       launch: vi.fn(async (): Promise<LaunchGameResult> => ({ ok: false, problem: 'no-core' })),
+      launchRandom: vi.fn(async (): Promise<LaunchRandomGameResult> => ({
+        ok: false,
+        problem: 'no-games'
+      })),
       onGameEnded: vi.fn((): (() => void) => () => undefined)
     },
     library: {
@@ -239,6 +244,18 @@ export function mockUpdateGameFolder(result: UpdateFolderResult | Error): void {
  */
 export function mockLaunchGame(result: LaunchGameResult | Error | 'pending'): void {
   vi.mocked(window.api.games.launch).mockImplementation(() => {
+    if (result === 'pending') return new Promise(() => {})
+    if (result instanceof Error) return Promise.reject(result)
+    return Promise.resolve(result)
+  })
+}
+
+/**
+ * Makes `window.api.games.launchRandom` resolve with `result`, reject with an error, or, with
+ * `'pending'`, never answer, as an emulator still starting.
+ */
+export function mockLaunchRandomGame(result: LaunchRandomGameResult | Error | 'pending'): void {
+  vi.mocked(window.api.games.launchRandom).mockImplementation(() => {
     if (result === 'pending') return new Promise(() => {})
     if (result instanceof Error) return Promise.reject(result)
     return Promise.resolve(result)

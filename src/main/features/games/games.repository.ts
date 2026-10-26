@@ -35,6 +35,8 @@ export interface GamePlayerRecord {
 export interface GamesRepository {
   /** The game `id` while it is in a folder; removed games can't be played. */
   findPlayable(id: string): PlayableGameRecord | undefined
+  /** Every game in a folder, of every platform; removed games can't be played. */
+  listPlayable(): PlayableGameRecord[]
   /**
    * The emulator and core the game `gameId` was last played with, or undefined when it was
    * never played with an emulator the user still has.
@@ -85,6 +87,19 @@ export function createGamesRepository(db: DatabaseSync): GamesRepository {
         )
         .get(id) as { id: string; platform_id: string; file_path: string } | undefined
       return row && { id: row.id, platformId: row.platform_id, filePath: row.file_path }
+    },
+
+    listPlayable() {
+      const rows = db
+        .prepare(
+          'SELECT id, platform_id, file_path FROM games WHERE folder_id IS NOT NULL ORDER BY id'
+        )
+        .all() as unknown as { id: string; platform_id: string; file_path: string }[]
+      return rows.map((row) => ({
+        id: row.id,
+        platformId: row.platform_id,
+        filePath: row.file_path
+      }))
     },
 
     findLastPlayer(gameId) {

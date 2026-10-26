@@ -3,15 +3,23 @@ import { app } from 'electron'
 import { mkdir, stat, writeFile } from 'fs/promises'
 import { join } from 'path'
 
-import type { GameDetails, LastPlayedGame, LaunchGameResult, RecentlyAddedGame } from '@shared/api'
+import type {
+  GameDetails,
+  LastPlayedGame,
+  LaunchGameResult,
+  LaunchRandomGameResult,
+  RecentlyAddedGame
+} from '@shared/api'
 
 import { getDatabase } from '../../core/database'
 import { freeEmulatorTurn, startEmulator, takeEmulatorTurn } from '../../core/emulatorProcess'
 import {
   findCorePlayer,
   findPlatformPlayer,
+  listInstalledPlatforms,
   type PlatformPlayer
 } from '../../core/installedPlatforms'
+import { inRandomOrder, onPlayablePlatforms } from './games.random'
 import { createGamesRepository, type PlayableGameRecord } from './games.repository'
 import { retroArchLaunchArgs, retroArchOverridesText } from './games.retroarch'
 import { isPlaySession } from './games.sessions'
@@ -76,6 +84,31 @@ function recordPlaySession(gameId: string, player: PlatformPlayer, startedAt: nu
   }
 }
 
+/** Whether a game started, or why its emulator didn't. */
+type StartGameResult = { ok: true } | { ok: false; problem: 'no-core' | 'not-started' }
+
+/**
+ * Starts `game`, whose file is there, in full screen with `findGamePlayer`'s emulator and
+ * core, once the emulator's turn is taken. When the emulator closes, the time played is
+ * recorded and `onEnded` is called.
+ */
+async function startGame(game: PlayableGameRecord, onEnded: () => void): Promise<StartGameResult> {
+  const player = await findGamePlayer(game)
+  if (!player) return { ok: false, problem: 'no-core' }
+
+  const args = retroArchLaunchArgs({
+    coreLibraryPath: player.coreLibraryPath,
+    overridesPath: await writeRetroArchOverrides(),
+    gamePath: game.filePath
+  })
+  const startedAt = Date.now()
+  const started = await startEmulator(player.executablePath, args, () => {
+    recordPlaySession(game.id, player, startedAt)
+    onEnded()
+  })
+  return started ? { ok: true } : { ok: false, problem: 'not-started' }
+}
+
 /** Playing the library's games with the emulators the user added. */
 export const gamesService = {
   /** The game of the library played most recently, or null when none was played. */
@@ -107,20 +140,44 @@ export const gamesService = {
       if (!game) return { ok: false, problem: 'unknown-game' }
       if (!(await isFile(game.filePath))) return { ok: false, problem: 'missing-file' }
 
-      const player = await findGamePlayer(game)
-      if (!player) return { ok: false, problem: 'no-core' }
+      const result = await startGame(game, onEnded)
+      started = result.ok
+      return result
+    } finally {
+      // Until it ends, a game that started keeps the others waiting.
+      if (!started) freeEmulatorTurn()
+    }
+  },
 
-      const args = retroArchLaunchArgs({
-        coreLibraryPath: player.coreLibraryPath,
-        overridesPath: await writeRetroArchOverrides(),
-        gamePath: game.filePath
-      })
-      const startedAt = Date.now()
-      started = await startEmulator(player.executablePath, args, () => {
-        recordPlaySession(game.id, player, startedAt)
-        onEnded()
-      })
-      return started ? { ok: true } : { ok: false, problem: 'not-started' }
+  /**
+   * Starts a game picked at random among the library's games, of every folder, that an
+   * installed core plays, as `launch` starts it; a game whose file isn't there, or whose core
+   * can't be found, is passed over for another. Says which game started, or why none did. When its emulator closes, the time
+   * played is recorded and `onEnded` is called with the game's id.
+   */
+  async launchRandom(onEnded: (gameId: string) => void): Promise<LaunchRandomGameResult> {
+    if (!takeEmulatorTurn()) return { ok: false, problem: 'already-playing' }
+
+    let started = false
+    try {
+      const playablePlatformIds = new Set((await listInstalledPlatforms()).map(({ id }) => id))
+      const games = onPlayablePlatforms(
+        createGamesRepository(getDatabase()).listPlayable(),
+        playablePlatformIds
+      )
+
+      for (const game of inRandomOrder(games)) {
+        if (!(await isFile(game.filePath))) continue
+
+        const result = await startGame(game, () => onEnded(game.id))
+        if (result.ok) {
+          started = true
+          return { ok: true, gameId: game.id }
+        }
+        // An emulator that can't run would fail the other games too.
+        if (result.problem === 'not-started') return { ok: false, problem: 'not-started' }
+      }
+      return { ok: false, problem: 'no-games' }
     } finally {
       // Until it ends, a game that started keeps the others waiting.
       if (!started) freeEmulatorTurn()

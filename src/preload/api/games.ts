@@ -7,6 +7,7 @@ export const gamesApi: GamesApi = {
   listRecentlyAdded: () => ipcRenderer.invoke(GAMES_CHANNELS.listRecentlyAdded),
   getDetails: (gameId) => ipcRenderer.invoke(GAMES_CHANNELS.getDetails, gameId),
   launch: (gameId) => ipcRenderer.invoke(GAMES_CHANNELS.launch, gameId),
+  launchRandom: () => ipcRenderer.invoke(GAMES_CHANNELS.launchRandom),
   onGameEnded: (listener) => {
     const handle = (_event: IpcRendererEvent, ended: GameEnded): void => listener(ended)
     ipcRenderer.on(GAMES_CHANNELS.gameEnded, handle)

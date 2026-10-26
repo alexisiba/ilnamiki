@@ -57,6 +57,13 @@ describe('games repository', () => {
     })
   })
 
+  it('lists every game in a folder, leaving removed ones out', () => {
+    expect(createGamesRepository(db).listPlayable()).toEqual([
+      { id: 'g1', platformId: 'playstation', filePath: '/home/player/Games/PS1/Crash.cue' },
+      { id: 'g3', platformId: 'playstation', filePath: '/home/player/Games/PS1/Spyro.cue' }
+    ])
+  })
+
   it('finds no removed or unknown game', () => {
     const repository = createGamesRepository(db)
 

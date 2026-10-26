@@ -1,4 +1,10 @@
-import type { GameDetails, GameEnded, LaunchGameResult, RecentlyAddedGame } from '@shared/api'
+import type {
+  GameDetails,
+  GameEnded,
+  LaunchGameResult,
+  LaunchRandomGameResult,
+  RecentlyAddedGame
+} from '@shared/api'
 
 /** What the library knows about the game `gameId`, or null when it isn't in the library. */
 export function getGameDetails(gameId: string): Promise<GameDetails | null> {
@@ -17,6 +23,14 @@ export function listRecentlyAddedGames(): Promise<RecentlyAddedGame[]> {
  */
 export function launchGame(gameId: string): Promise<LaunchGameResult> {
   return window.api.games.launch(gameId)
+}
+
+/**
+ * Starts a game of the library picked at random, as `launchGame` would start it, or says why
+ * none started. Resolves once the emulator has started, saying which game it is.
+ */
+export function launchRandomGame(): Promise<LaunchRandomGameResult> {
+  return window.api.games.launchRandom()
 }
 
 /** Calls `listener` when the game being played ends. Returns the unsubscribe function. */

@@ -27,3 +27,9 @@
   height: var(--icon-size-sm);
   stroke-width: var(--icon-stroke);
 }
+
+.problem {
+  font-size: var(--body-md-size);
+  line-height: var(--body-md-line-height);
+  color: var(--color-error);
+}

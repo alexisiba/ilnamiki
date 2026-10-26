@@ -1,10 +1,13 @@
 import { Gamepad2, Joystick, Sparkles } from 'lucide-react'
+import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 
 import consolesArtwork from '@renderer/assets/images/consoles/consoles.webp'
 import { Button } from '@renderer/components/Button'
 import { SECTION_PATHS } from '@renderer/core/navigation'
+import { usePlayRandomGame } from '@renderer/core/play'
+import { playProblemMessageKey } from '@renderer/utils/playProblems'
 
 import { HeroLayout } from '../HeroLayout'
 import type { ReadyHeroProps } from './ReadyHero.types'
@@ -12,8 +15,9 @@ import styles from './ReadyHero.module.css'
 
 /**
  * Home's hero while no game was played yet: how many games are ready, what plays them
- * (information, not controls), and the actions: exploring the library, focused, and a random
- * game (not available yet).
+ * (information, not controls), and the actions: exploring the library, focused, and Surprise
+ * me, which starts a game of the library picked at random and reads Playing, unavailable,
+ * until its emulator closes; when no game can start, why shows below it.
  */
 export function ReadyHero({
   gameCount,
@@ -22,6 +26,8 @@ export function ReadyHero({
 }: ReadyHeroProps): React.JSX.Element {
   const { t } = useTranslation('home')
   const navigate = useNavigate()
+  const { playing, problem, play } = usePlayRandomGame()
+  const problemId = useId()
 
   return (
     <HeroLayout
@@ -54,10 +60,22 @@ export function ReadyHero({
           >
             {t('readyHero.explore')}
           </Button>
-          <Button focusId="surprise" aria-disabled>
-            {t('readyHero.surprise')}
+          <Button
+            focusId="surprise"
+            aria-describedby={problem ? problemId : undefined}
+            aria-disabled={playing}
+            onPress={play}
+          >
+            {playing ? t('play.playing', { ns: 'common' }) : t('readyHero.surprise')}
           </Button>
         </>
+      }
+      message={
+        problem && (
+          <p id={problemId} role="alert" className={styles.problem}>
+            {t(playProblemMessageKey(problem), { ns: 'common' })}
+          </p>
+        )
       }
     />
   )

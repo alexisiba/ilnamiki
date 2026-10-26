@@ -13,6 +13,19 @@ export type LaunchGameProblem =
 
 export type LaunchGameResult = { ok: true } | { ok: false; problem: LaunchGameProblem }
 
+/** Why no game was started at random. */
+export type LaunchRandomGameProblem =
+  /** No game of the library can be played: none has an installed core and its file there. */
+  | 'no-games'
+  /** Another game is being played: one plays at a time. */
+  | 'already-playing'
+  /** The emulator couldn't be started (e.g. its application can't run). */
+  | 'not-started'
+
+export type LaunchRandomGameResult =
+  /** `gameId` is the game started, whose end `onGameEnded` says. */
+  { ok: true; gameId: string } | { ok: false; problem: LaunchRandomGameProblem }
+
 /** A game that stopped being played: its emulator closed, however it was closed. */
 export interface GameEnded {
   gameId: string
@@ -81,6 +94,12 @@ export interface GamesApi {
    * Resolves once the emulator has started; `onGameEnded` says when it closes.
    */
   launch(gameId: string): Promise<LaunchGameResult>
+  /**
+   * Starts a game of the library picked at random, among those of every folder that an
+   * installed core plays and whose file is still there, with the emulator and core `launch`
+   * would use; or says why none started. Resolves once the emulator has started; `onGameEnded` says when it closes.
+   */
+  launchRandom(): Promise<LaunchRandomGameResult>
   /** Calls `listener` when the game being played ends. Returns the unsubscribe function. */
   onGameEnded(listener: (ended: GameEnded) => void): () => void
 }
@@ -90,5 +109,6 @@ export const GAMES_CHANNELS = {
   listRecentlyAdded: 'games:list-recently-added',
   getDetails: 'games:get-details',
   launch: 'games:launch',
+  launchRandom: 'games:launch-random',
   gameEnded: 'games:game-ended'
 } as const
