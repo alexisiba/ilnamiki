@@ -16,6 +16,8 @@ Related sources of truth:
 - **`component-structure` skill**: folder and file conventions for components.
 - **`a11y` skill**: accessibility rules every user-facing component must follow from its first
   version; **`a11y-review` skill** to audit them.
+- **`ui-audio` skill**: how sound effects and music are played, and which sound each
+  interaction makes.
 
 If these sources and the code disagree, stop and ask the user which one is right.
 
@@ -55,6 +57,14 @@ When a request would push the UI toward "web" or "streaming", say so before impl
   menu. Others are contextual and generically named (secondary, tertiary, previous/next
   group): each screen decides what they do and labels them in its hints. Prefer an existing
   contextual action over inventing a new one; the bindings live in the input layer.
+- **Each screen declares its actions** with `useScreenActions` (from `core/input`): a
+  contextual action gets a binding of its own (handler and label), and any action, fixed or
+  contextual, can be turned off where the screen doesn't need it. Fixed actions are only ever
+  turned off, never given another meaning. App-wide defaults (e.g. tertiary opens search)
+  are declared once with `useDefaultActions` and apply wherever a screen doesn't change
+  them. The button guide and on-screen equivalents follow what is on, so never hard-code a
+  hint for a screen action. Turning off directions or confirm leaves focus stuck, so do it
+  only when the screen truly has nothing to navigate.
 - **Temporary exception: the on-screen keyboard.** While it is open (a modal, where sections
   can't be switched and the system menu doesn't open), the previous-section action (LB)
   toggles Caps Lock and the system menu action (Start) submits the text, as console keyboards
@@ -76,10 +86,33 @@ When a request would push the UI toward "web" or "streaming", say so before impl
 - **There is always exactly one focused element**, and it is obvious from across the room.
 - **Focus is never lost.** After closing a dialog, switching views or returning to a screen,
   focus goes back to a sensible place (usually where it was).
+- **Focus is kept when returning, not when opening.** Coming back to a screen (back, a
+  section's tab) shows it with focus where it was left. Opening a screen anew starts on its
+  initial focus, even if it was shown before, so a stale focus (e.g. on Back) is never
+  confirmed by mistake. `useOpenScreen` is the only navigation that stacks history, which is
+  how the app tells the two apart; everything else replaces the current entry.
 - **Navigation is spatial.** Directional input moves focus to what is visually in that
   direction, handled by the shared navigation layer, not hand-wired per feature.
+  - Shelves, grids and carousels keep the default (`FocusGroup` `movement="spatial"`): down
+    keeps the column.
+  - A list beside the content of its selected item (e.g. Settings' categories) is not
+    crossed with directions: moving through the list only previews the content. Both sides
+    use `contained` focus groups, confirm (or a click) enters the content with
+    `useEnterGroup`, and back returns to the list as a step back (`useBackStep`).
+  - Screens read top to bottom, such as forms and details screens inside Settings, use
+    `movement="rows"`: up and down go row by row, to the item last focused in the row (else
+    its first), and left and right stay in the row, so no button is skipped or hard to reach.
 - **Mouse follows the same model.** Pointing at an element focuses it; clicking confirms it.
-- **Back always works** and is predictable: it closes or returns one level.
+- **Back always works** and is predictable: it closes or returns one level, to where the user
+  came from, never further. In code (`core/navigation`):
+  - Open screens with `useOpenScreen`, which remembers the screen that opened them; back
+    returns there, as it was left (or to the section's root when that isn't known, e.g. a
+    screen restored by a section tab).
+  - A screen that finishes (Cancel, a form that saves) leaves with `useGoBack`, the same
+    step the back action takes, instead of navigating to a fixed path.
+  - A screen with steps of its own (e.g. a form and then its results) declares its previous
+    step with `useBackStep`, which back takes before leaving the screen. It only ever means
+    "one step back", never another action.
 
 ## 4. Readability at a distance (10-foot UI)
 
@@ -105,6 +138,9 @@ When a request would push the UI toward "web" or "streaming", say so before impl
   with the whole d-pad) uses the matching Lucide icon (`GamepadDirectional`).
 - **Motion supports navigation**, it doesn't decorate it: short, smooth, and respectful of
   reduced-motion preferences.
+- **Sound answers the input**, like a console menu: moving, confirming, going back and
+  switching tabs each make their sound, and music plays behind the menus. How and when is
+  defined in the `ui-audio` skill.
 - Specific fonts, colors, sizes and effects are defined in `DESIGN.md` and the tokens, and may
   change. Follow whatever they currently say rather than memorizing values.
 
@@ -140,6 +176,11 @@ When a request would push the UI toward "web" or "streaming", say so before impl
 - **Reuse before writing.** Check the shared components and core hooks before building
   something similar; when a second screen needs a piece, promote it to shared (see
   `component-structure`).
+- **Hide by not rendering.** Something that shouldn't be there (a hint, a button, a whole
+  section) is left out with a condition in the component, not hidden with CSS
+  (`display: none`, `visibility: hidden`, `opacity: 0`). The logic stays visible in the code
+  and tests can check that it's gone. CSS hides only what has to stay rendered for an
+  animation (e.g. carousel items waiting to slide in), and says so in a comment.
 - **Brevity never beats clarity:** no clever one-liners or nested ternaries to save lines.
 - This applies to new work. When existing code could be split this way, point it out and
   agree on it with the user instead of refactoring it unasked.
@@ -153,5 +194,6 @@ When a request would push the UI toward "web" or "streaming", say so before impl
 - [ ] No hard-coded design values or user-facing strings; new strings exist in every language.
 - [ ] The parent only composes; each part owns its logic, and nothing was extracted without
       a reason.
+- [ ] Interactions play their sound as the `ui-audio` skill says.
 - [ ] It meets the `a11y` checklist.
 - [ ] It feels like a console, not a website or a streaming app.

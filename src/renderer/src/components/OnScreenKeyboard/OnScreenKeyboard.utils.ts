@@ -1,8 +1,17 @@
+import { KEYBOARD_KEYS, PHYSICAL_KEYS } from './OnScreenKeyboard.constants'
 import type { KeyboardKey } from './OnScreenKeyboard.types'
 
 /** Unique id of a key, e.g. `q` or `backspace`. */
 export function keyId(keyboardKey: KeyboardKey): string {
   return keyboardKey.kind === 'character' ? keyboardKey.value : keyboardKey.kind
+}
+
+/** The on-screen key a physical key (`KeyboardEvent.key`) matches, whatever its case. */
+export function matchPhysicalKey(key: string): KeyboardKey | undefined {
+  if (key in PHYSICAL_KEYS) return PHYSICAL_KEYS[key]
+  return KEYBOARD_KEYS.find(
+    (keyboardKey) => keyboardKey.kind === 'character' && keyboardKey.value === key.toLowerCase()
+  )
 }
 
 /** What a character key types: its character, in uppercase while Caps Lock is on. */

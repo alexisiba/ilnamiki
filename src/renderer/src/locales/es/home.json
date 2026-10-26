@@ -2,10 +2,32 @@
   "emulatorSetup": {
     "title": "Configura tu primer emulador",
     "description": "Ilnamiki necesita un emulador para jugar tus juegos. Te recomendamos RetroArch para comenzar: una sola descarga que soporta múltiples consolas.",
-    "actions": {
-      "download": "Descargar RetroArch",
-      "alreadyInstalled": "Ya tengo un emulador instalado"
-    }
+    "setUp": "Configurar emulador"
+  },
+  "platformSetup": {
+    "title": "Tu emulador aún no tiene consolas",
+    "description": "Tu emulador está listo, pero todavía no puede jugar ninguna consola. Configúralo para agregar las consolas que quieras jugar; en RetroArch, instalando sus núcleos.",
+    "setUp": "Ir a configurar emulador"
+  },
+  "gameSetup": {
+    "title": "Agrega tus juegos",
+    "description": "Tu emulador está listo. Agrega una carpeta con tus juegos para comenzar a jugar.",
+    "emulators": "Tus emuladores",
+    "linkedConsoles_one": "{{count}} consola vinculada",
+    "linkedConsoles_other": "{{count}} consolas vinculadas",
+    "setUp": "Ir a Ajustes"
+  },
+  "readyHero": {
+    "ready": "Listo para jugar",
+    "title_one": "{{count}} juego listo para jugar",
+    "title_other": "{{count}} juegos listos para jugar",
+    "description": "Selecciona uno o deja que Ilnamiki elija por ti.",
+    "emulators_one": "{{count}} emulador",
+    "emulators_other": "{{count}} emuladores",
+    "consoles_one": "{{count}} consola",
+    "consoles_other": "{{count}} consolas",
+    "explore": "Explorar la biblioteca",
+    "surprise": "Sorpréndeme"
   },
   "hero": {
     "resume": "Retomar sesión",

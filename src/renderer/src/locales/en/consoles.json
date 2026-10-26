@@ -2,5 +2,10 @@
   "carousel": {
     "gamesInstalled_one": "{{count}} game installed",
     "gamesInstalled_other": "{{count}} games installed"
+  },
+  "empty": {
+    "title": "No consoles with games yet",
+    "description": "Add a folder of games in Settings, for a platform with an installed core, and its console will show here.",
+    "openSettings": "Open Settings"
   }
 }

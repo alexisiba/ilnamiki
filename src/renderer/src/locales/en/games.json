@@ -8,10 +8,18 @@
   "consoleGames": {
     "gamesInstalled_one": "{{count}} game installed",
     "gamesInstalled_other": "{{count}} games installed",
-    "selected": "{{title}}, {{position}} of {{total}}",
-    "playtime": "Playtime",
-    "lastPlayed": "Last played",
+    "noDescription": "No description",
     "playNow": "Play now",
-    "notFound": "This console is not in your library."
+    "playing": "Playing",
+    "playProblems": {
+      "unknownGame": "This game is no longer in your library.",
+      "missingFile": "The game's file isn't there anymore. Check its folder in Settings.",
+      "noCore": "No installed core plays this console. Set up an emulator in Settings.",
+      "alreadyPlaying": "Another game is being played. Close it first.",
+      "notStarted": "The emulator couldn't be started. Check it in Settings.",
+      "failed": "The game couldn't be started. Try again."
+    },
+    "notFound": "This console is not in your library.",
+    "gamesFailed": "The games couldn't be loaded. Try again later."
   }
 }

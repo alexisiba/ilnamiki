@@ -19,6 +19,26 @@ export function getConsoleGamesPath(consoleId: string): string {
   return `${SECTION_PATHS.library}/${encodeURIComponent(consoleId)}`
 }
 
+/** Route of the form that adds an emulator, inside the Settings section. */
+export const ADD_EMULATOR_PATH = `${SECTION_PATHS.settings}/emulators/new`
+
+/** Route of an emulator's details, inside the Settings section. */
+export const EMULATOR_DETAILS_PATH = `${SECTION_PATHS.settings}/emulators/:emulatorId`
+
+export function getEmulatorDetailsPath(emulatorId: string): string {
+  return `${SECTION_PATHS.settings}/emulators/${encodeURIComponent(emulatorId)}`
+}
+
+/** Route of the form that adds a game folder, inside the Settings section. */
+export const ADD_GAME_FOLDER_PATH = `${SECTION_PATHS.settings}/game-folders/new`
+
+/** Route of a game folder's details, inside the Settings section. */
+export const GAME_FOLDER_DETAILS_PATH = `${SECTION_PATHS.settings}/game-folders/:folderId`
+
+export function getGameFolderDetailsPath(folderId: string): string {
+  return `${SECTION_PATHS.settings}/game-folders/${encodeURIComponent(folderId)}`
+}
+
 const SECTION_ROOTS: readonly string[] = Object.values(SECTION_PATHS)
 
 /** Whether `pathname` is the root of a top-level section, where there is nothing to go back to. */

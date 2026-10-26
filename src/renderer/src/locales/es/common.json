@@ -32,7 +32,16 @@
     "arrows": "Flechas"
   },
   "status": {
-    "gamepadConnected": "Mando conectado"
+    "gamepadConnected": "Mando conectado",
+    "controllerWired": "Conectado por cable",
+    "controllerBattery": "Batería {{percent}} %",
+    "networkWifi": "Wi-Fi conectado",
+    "networkWifiSignal": "Wi-Fi conectado, señal {{percent}} %",
+    "networkWifiNoSignal": "Wi-Fi sin señal",
+    "networkWifiNoInternet": "Wi-Fi conectado, sin internet",
+    "networkEthernet": "Ethernet conectado",
+    "networkEthernetNoInternet": "Ethernet conectado, sin internet",
+    "networkNone": "Sin conexión de red"
   },
   "playStats": {
     "lastPlayed": "Última sesión {{time}}",
@@ -51,6 +60,11 @@
   },
   "carousel": {
     "position": "{{position}} / {{total}}"
+  },
+  "gameCarousel": {
+    "players_one": "{{count}} jugador",
+    "players_other": "{{count}} jugadores",
+    "selected": "{{title}}, {{position}} de {{total}}"
   },
   "buttonGuide": {
     "label": "Controles",

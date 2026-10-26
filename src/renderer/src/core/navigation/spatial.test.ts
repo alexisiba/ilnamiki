@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { findNextInDirection, isInBeam, type Rect } from './spatial'
+import { findNextInDirection, groupIntoRows, isInBeam, type Rect } from './spatial'
 
 const box = (left: number, top: number, width = 100, height = 100): Rect => ({
   left,
@@ -67,6 +67,25 @@ describe('findNextInDirection', () => {
 
   it('returns undefined when there are no candidates', () => {
     expect(findNextInDirection(from, [], 'down')).toBeUndefined()
+  })
+})
+
+describe('groupIntoRows', () => {
+  const rowsOf = (rects: Record<string, Rect>): string[][] =>
+    groupIntoRows(candidates(rects)).map((row) => row.map(({ item }) => item))
+
+  it('puts candidates whose vertical spans overlap in one row, left to right', () => {
+    expect(
+      rowsOf({ save: box(400, 300), back: box(200, 320), open: box(0, 0), change: box(600, 140) })
+    ).toEqual([['open'], ['change'], ['back', 'save']])
+  })
+
+  it('keeps candidates that only touch in separate rows', () => {
+    expect(rowsOf({ below: box(0, 100), above: box(0, 0) })).toEqual([['above'], ['below']])
+  })
+
+  it('returns no rows without candidates', () => {
+    expect(rowsOf({})).toEqual([])
   })
 })
 

@@ -78,6 +78,24 @@
   color: var(--color-text-dim);
 }
 
+/* The room below the field: the carousel of games found, or the message when none match. */
+.results {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  max-width: var(--layout-content-max-width);
+  min-height: 0;
+}
+
+.noResults {
+  font-size: var(--body-lg-size);
+  line-height: var(--body-lg-line-height);
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
 /* Docked at the bottom above the button guide, leaving the room below the field for results. */
 .keyboard {
   margin-top: auto;

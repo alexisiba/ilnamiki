@@ -32,7 +32,16 @@
     "arrows": "Arrow keys"
   },
   "status": {
-    "gamepadConnected": "Controller connected"
+    "gamepadConnected": "Controller connected",
+    "controllerWired": "Connected by cable",
+    "controllerBattery": "Battery {{percent}}%",
+    "networkWifi": "Wi-Fi connected",
+    "networkWifiSignal": "Wi-Fi connected, signal {{percent}}%",
+    "networkWifiNoSignal": "Wi-Fi without signal",
+    "networkWifiNoInternet": "Wi-Fi connected, no internet",
+    "networkEthernet": "Ethernet connected",
+    "networkEthernetNoInternet": "Ethernet connected, no internet",
+    "networkNone": "No network connection"
   },
   "playStats": {
     "lastPlayed": "Last played {{time}}",
@@ -51,6 +60,11 @@
   },
   "carousel": {
     "position": "{{position}} / {{total}}"
+  },
+  "gameCarousel": {
+    "players_one": "{{count}} player",
+    "players_other": "{{count}} players",
+    "selected": "{{title}}, {{position}} of {{total}}"
   },
   "buttonGuide": {
     "label": "Controls",

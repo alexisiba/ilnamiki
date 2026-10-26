@@ -65,6 +65,28 @@ export function isInBeam(from: Rect, to: Rect, direction: Direction): boolean {
 }
 
 /**
+ * The candidates in rows, top to bottom, each row left to right: candidates whose vertical
+ * spans overlap a row's share it (e.g. a path's Change path button and nothing else, or Back
+ * and Save side by side).
+ */
+export function groupIntoRows<T>(candidates: SpatialCandidate<T>[]): SpatialCandidate<T>[][] {
+  const byTop = [...candidates].sort((a, b) => a.rect.top - b.rect.top)
+  const rows: { bottom: number; members: SpatialCandidate<T>[] }[] = []
+
+  for (const candidate of byTop) {
+    const row = rows.at(-1)
+    if (row && candidate.rect.top < row.bottom) {
+      row.members.push(candidate)
+      row.bottom = Math.max(row.bottom, candidate.rect.bottom)
+    } else {
+      rows.push({ bottom: candidate.rect.bottom, members: [candidate] })
+    }
+  }
+
+  return rows.map(({ members }) => members.sort((a, b) => a.rect.left - b.rect.left))
+}
+
+/**
  * The candidate that is visually next to `from` in `direction`: the closest one past it,
  * favoring candidates aligned with it. `undefined` when nothing lies in that direction.
  */

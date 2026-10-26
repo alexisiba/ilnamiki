@@ -2,5 +2,7 @@
   "dialog": "Search",
   "field": "Search games",
   "placeholder": "Type a game title",
-  "submit": "Search"
+  "submit": "Search",
+  "results": "Results",
+  "noResults": "No games match “{{query}}”"
 }

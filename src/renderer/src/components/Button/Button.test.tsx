@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
+import { getPlayedSounds } from '@renderer/test/audio'
 import { renderWithNavigation } from '@renderer/test/renderWithNavigation'
 
 import { Button } from './Button'
@@ -26,6 +27,23 @@ describe('Button', () => {
     expect(screen.getByRole('button', { name: 'Second' })).toHaveFocus()
   })
 
+  it('sounds a select when pressed, and a move that can’t be made while disabled', async () => {
+    renderWithNavigation(
+      <>
+        <Button focusId="download">Download</Button>
+        <Button focusId="surprise" aria-disabled>
+          Surprise me
+        </Button>
+      </>
+    )
+    const user = userEvent.setup()
+
+    await user.click(screen.getByRole('button', { name: 'Download' }))
+    await user.click(screen.getByRole('button', { name: 'Surprise me' }))
+
+    expect(getPlayedSounds()).toEqual(['select', 'cant-move'])
+  })
+
   it('calls onPress on confirm while focused', async () => {
     const onPress = vi.fn()
     renderWithNavigation(
@@ -35,6 +53,36 @@ describe('Button', () => {
     )
 
     await userEvent.setup().keyboard('{Enter}')
+
+    expect(onPress).toHaveBeenCalledOnce()
+  })
+
+  it('does nothing when unavailable, but can still be focused', async () => {
+    const onPress = vi.fn()
+    renderWithNavigation(
+      <Button focusId="add" aria-disabled onPress={onPress}>
+        Add
+      </Button>
+    )
+    const user = userEvent.setup()
+
+    await user.click(screen.getByRole('button', { name: 'Add' }))
+    await user.keyboard('{Enter}')
+
+    expect(onPress).not.toHaveBeenCalled()
+    expect(screen.getByRole('button', { name: 'Add' })).toHaveFocus()
+    expect(screen.getByRole('button', { name: 'Add' })).toHaveAttribute('aria-disabled', 'true')
+  })
+
+  it('works the same as a destructive button', async () => {
+    const onPress = vi.fn()
+    render(
+      <Button focusId="remove" variant="danger" onPress={onPress}>
+        Remove
+      </Button>
+    )
+
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Remove' }))
 
     expect(onPress).toHaveBeenCalledOnce()
   })

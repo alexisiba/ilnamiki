@@ -6,5 +6,7 @@ export interface ButtonProps extends Omit<
 > {
   /** Unique within its focus group; lets focus be remembered and restored. */
   focusId: string
+  /** `danger` for actions that destroy something, e.g. removing an emulator. */
+  variant?: 'default' | 'danger'
   onPress?: () => void
 }

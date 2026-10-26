@@ -1,6 +1,54 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatLastPlayed } from './HomeScreen.utils'
+import type { InstalledPlatform, LastPlayedGame } from '@shared/api'
+
+import { formatLastPlayed, toContinueGame } from './HomeScreen.utils'
+
+const CRASH: LastPlayedGame = {
+  id: 'g1',
+  title: 'Crash Bandicoot',
+  platformId: 'playstation',
+  lastPlayedAt: 1_800_000_000_000,
+  playtimeMs: (2 * 60 + 15) * 60 * 1000 + 40 * 1000
+}
+
+const platform = (id: string, name: string): InstalledPlatform => ({
+  id,
+  name,
+  manufacturer: null,
+  cores: []
+})
+
+describe('toContinueGame', () => {
+  it('names the console as the catalog does and shows its render', () => {
+    const game = toContinueGame(CRASH, [platform('playstation', 'Sony - PlayStation')])
+
+    expect(game).toMatchObject({
+      title: 'Crash Bandicoot',
+      platform: 'PlayStation',
+      description: null,
+      lastPlayedAt: new Date(1_800_000_000_000)
+    })
+    expect(game.imageUrl).toEqual(expect.stringContaining('ps1'))
+  })
+
+  it('rounds the playtime to minutes', () => {
+    expect(toContinueGame(CRASH, []).playtimeMinutes).toBe(2 * 60 + 16)
+  })
+
+  it('names a console the catalog doesn’t know as its cores do, with Home’s artwork', () => {
+    const game = toContinueGame({ ...CRASH, platformId: 'quake_3' }, [
+      platform('quake_3', 'Quake III')
+    ])
+
+    expect(game.platform).toBe('Quake III')
+    expect(game.imageUrl).toEqual(expect.stringContaining('consoles'))
+  })
+
+  it('names a console no emulator plays anymore by its id', () => {
+    expect(toContinueGame({ ...CRASH, platformId: 'quake_3' }, []).platform).toBe('quake_3')
+  })
+})
 
 // Thursday, 22 October 2026, 18:00 local time.
 const NOW = new Date(2026, 9, 22, 18, 0)

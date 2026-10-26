@@ -1,18 +1,21 @@
-import atari2600Image from '@renderer/assets/images/consoles/atari.png'
-import gameBoyAdvanceImage from '@renderer/assets/images/consoles/gba.png'
-import gameBoyImage from '@renderer/assets/images/consoles/gb.png'
-import gameCubeImage from '@renderer/assets/images/consoles/gc.png'
-import nintendo64Image from '@renderer/assets/images/consoles/n64.png'
-import nesImage from '@renderer/assets/images/consoles/nes.png'
-import playStationImage from '@renderer/assets/images/consoles/ps1.png'
-import pspImage from '@renderer/assets/images/consoles/psp.png'
-import xboxImage from '@renderer/assets/images/consoles/xbox.png'
+import atari2600Image from '@renderer/assets/images/consoles/atari.webp'
+import gameBoyAdvanceImage from '@renderer/assets/images/consoles/gba.webp'
+import gameBoyImage from '@renderer/assets/images/consoles/gb.webp'
+import gameCubeImage from '@renderer/assets/images/consoles/gc.webp'
+import nintendo64Image from '@renderer/assets/images/consoles/n64.webp'
+import nesImage from '@renderer/assets/images/consoles/nes.webp'
+import playStationImage from '@renderer/assets/images/consoles/ps1.webp'
+import pspImage from '@renderer/assets/images/consoles/psp.webp'
+import xboxImage from '@renderer/assets/images/consoles/xbox.webp'
 import type { GameConsole } from '@renderer/types/console'
 
-/** Sample consoles until the real library exists, in release order. */
+/**
+ * Sample consoles for a console's games screen, until it reads the real library, in release
+ * order. Their ids are the platforms' ids, so the library's real consoles open them.
+ */
 export const SAMPLE_CONSOLES: GameConsole[] = [
   {
-    id: 'atari-2600',
+    id: 'atari_2600',
     name: 'Atari 2600',
     manufacturer: 'Atari',
     releaseYear: 1977,
@@ -28,7 +31,7 @@ export const SAMPLE_CONSOLES: GameConsole[] = [
     gameCount: 56
   },
   {
-    id: 'gb',
+    id: 'game_boy',
     name: 'Game Boy',
     manufacturer: 'Nintendo',
     releaseYear: 1989,
@@ -36,7 +39,7 @@ export const SAMPLE_CONSOLES: GameConsole[] = [
     gameCount: 21
   },
   {
-    id: 'ps1',
+    id: 'playstation',
     name: 'PlayStation',
     manufacturer: 'Sony',
     releaseYear: 1994,
@@ -44,7 +47,7 @@ export const SAMPLE_CONSOLES: GameConsole[] = [
     gameCount: 24
   },
   {
-    id: 'n64',
+    id: 'nintendo_64',
     name: 'Nintendo 64',
     manufacturer: 'Nintendo',
     releaseYear: 1996,
@@ -52,7 +55,7 @@ export const SAMPLE_CONSOLES: GameConsole[] = [
     gameCount: 17
   },
   {
-    id: 'gba',
+    id: 'game_boy_advance',
     name: 'Game Boy Advance',
     manufacturer: 'Nintendo',
     releaseYear: 2001,
@@ -60,7 +63,7 @@ export const SAMPLE_CONSOLES: GameConsole[] = [
     gameCount: 33
   },
   {
-    id: 'gc',
+    id: 'gamecube',
     name: 'GameCube',
     manufacturer: 'Nintendo',
     releaseYear: 2001,
@@ -76,7 +79,7 @@ export const SAMPLE_CONSOLES: GameConsole[] = [
     gameCount: 9
   },
   {
-    id: 'psp',
+    id: 'playstation_portable',
     name: 'PSP',
     manufacturer: 'Sony',
     releaseYear: 2004,

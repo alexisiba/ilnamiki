@@ -1,0 +1,6 @@
+/* Why some platforms aren't in the select. */
+.note {
+  font-size: var(--body-md-size);
+  line-height: var(--body-md-line-height);
+  color: var(--color-text-muted);
+}

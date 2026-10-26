@@ -6,6 +6,7 @@ import { describe, expect, it, vi } from 'vitest'
 import type { InputAction } from '@renderer/core/input'
 import { setActiveInputDevice } from '@renderer/core/input/activeDevice'
 import { emitInput } from '@renderer/core/input/inputBus'
+import { getPlayedSounds } from '@renderer/test/audio'
 import { renderWithNavigation } from '@renderer/test/renderWithNavigation'
 
 import { OnScreenKeyboard } from './OnScreenKeyboard'
@@ -98,6 +99,19 @@ describe('OnScreenKeyboard', () => {
     expect(typed()).toBe('k')
   })
 
+  it('sounds a key press for each key pressed, by pointer, confirm or shortcut', async () => {
+    renderWithNavigation(<TypingTest />)
+    const user = userEvent.setup()
+
+    await user.click(key('m'))
+    await user.pointer({ target: key('k'), coords: { x: 10, y: 10 } })
+    await user.keyboard('{Enter}')
+    holdDown('secondary', 0)
+    await Promise.resolve()
+
+    expect(getPlayedSounds()).toEqual(['key-press', 'key-press', 'key-press'])
+  })
+
   it('deletes the last character with the Delete key and with the secondary action', async () => {
     renderWithNavigation(<TypingTest initialValue="mgs2" />)
     const user = userEvent.setup()
@@ -105,7 +119,7 @@ describe('OnScreenKeyboard', () => {
     await user.click(key('Delete'))
     expect(typed()).toBe('mgs')
 
-    await user.keyboard('x')
+    holdDown('secondary', 0)
     expect(typed()).toBe('mg')
   })
 
@@ -151,7 +165,7 @@ describe('OnScreenKeyboard', () => {
     expect(key('Caps Lock')).toHaveAttribute('aria-pressed', 'true')
     expect(key('Q')).toBeInTheDocument()
 
-    await user.keyboard('q')
+    holdDown('prevSection', 0)
     expect(key('Caps Lock')).toHaveAttribute('aria-pressed', 'false')
     expect(key('q')).toBeInTheDocument()
   })
@@ -173,10 +187,87 @@ describe('OnScreenKeyboard', () => {
 
     await user.click(key('Search'))
     await user.pointer({ target: key('k'), coords: { x: 10, y: 10 } })
-    await user.keyboard('m')
+    holdDown('menu', 0)
 
     expect(onSubmit).toHaveBeenCalledTimes(2)
     expect(key('k')).toHaveFocus()
+  })
+
+  describe('with a physical keyboard', () => {
+    const isPressed = (name: string): boolean => key(name).hasAttribute('data-pressed')
+
+    it('shows the matching key pressed exactly while it is held', async () => {
+      renderWithNavigation(<TypingTest />)
+      const user = userEvent.setup()
+
+      await user.keyboard('{a>}{ >}')
+      expect(isPressed('a')).toBe(true)
+      expect(isPressed('Space')).toBe(true)
+
+      await user.keyboard('{/a}')
+      expect(isPressed('a')).toBe(false)
+      expect(isPressed('Space')).toBe(true)
+    })
+
+    it('releases a key pressed with Shift and let go after it', async () => {
+      renderWithNavigation(<TypingTest />)
+      const user = userEvent.setup()
+
+      await user.keyboard('{Shift>}{a>}{/Shift}{/a}')
+
+      expect(isPressed('a')).toBe(false)
+    })
+
+    it('releases every key when the window loses focus', async () => {
+      renderWithNavigation(<TypingTest />)
+
+      await userEvent.setup().keyboard('{a>}')
+      act(() => window.dispatchEvent(new FocusEvent('blur')))
+
+      expect(isPressed('a')).toBe(false)
+    })
+
+    it('types and deletes while a key is focused, without acting or clicking it', async () => {
+      renderWithNavigation(<TypingTest initialValue="z" />)
+      const user = userEvent.setup()
+
+      await user.pointer({ target: key('k'), coords: { x: 10, y: 10 } })
+      await user.keyboard('{Backspace}Mq x2')
+
+      expect(typed()).toBe('Mq x2')
+      expect(key('Caps Lock')).toHaveAttribute('aria-pressed', 'false')
+      expect(key('k')).toHaveFocus()
+      // The physical keyboard makes its own sound.
+      expect(getPlayedSounds()).toEqual([])
+    })
+
+    it('leaves typing in a text field to the field', async () => {
+      renderWithNavigation(
+        <>
+          <input aria-label="Field" />
+          <TypingTest />
+        </>
+      )
+      const user = userEvent.setup()
+
+      await user.click(screen.getByRole('textbox', { name: 'Field' }))
+      await user.keyboard('{m>}')
+
+      expect(screen.getByRole('textbox', { name: 'Field' })).toHaveValue('m')
+      expect(typed()).toBe('')
+      expect(isPressed('m')).toBe(true)
+    })
+
+    it('turns Caps Lock on and off with the physical Caps Lock', async () => {
+      renderWithNavigation(<TypingTest />)
+      const user = userEvent.setup()
+
+      await user.keyboard('{CapsLock}')
+      expect(key('Caps Lock')).toHaveAttribute('aria-pressed', 'true')
+
+      await user.keyboard('{CapsLock}')
+      expect(key('Caps Lock')).toHaveAttribute('aria-pressed', 'false')
+    })
   })
 
   it('submits on confirm in a text field', async () => {

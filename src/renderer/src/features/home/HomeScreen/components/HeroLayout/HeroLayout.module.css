@@ -1,0 +1,76 @@
+.hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: var(--layout-hero-height);
+}
+
+/* Artwork on the right, fading into the app background on every edge. */
+.artwork {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 70%;
+  height: 100%;
+  object-fit: cover;
+  mask-image:
+    linear-gradient(to right, transparent, black 45%, black 85%, transparent),
+    linear-gradient(to bottom, transparent, black 20%, black 75%, transparent);
+  mask-composite: intersect;
+}
+
+.content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  max-width: var(--layout-hero-content-width);
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: var(--font-label);
+  font-size: var(--label-md-size);
+  font-weight: var(--label-md-weight);
+  line-height: var(--label-md-line-height);
+  letter-spacing: var(--label-md-tracking);
+  font-variant-ligatures: none;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.eyebrowIcon {
+  width: var(--icon-size-xs);
+  height: var(--icon-size-xs);
+  fill: currentColor;
+}
+
+/* Detailed icons get lost when small and filled: larger, drawn as lines. */
+.eyebrowIconOutline {
+  flex-shrink: 0;
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+  stroke-width: var(--icon-stroke);
+}
+
+.title {
+  color: var(--color-text-focus);
+}
+
+.description {
+  font-size: var(--body-lg-size);
+  line-height: var(--body-lg-line-height);
+  color: var(--color-text-muted);
+}
+
+.details {
+  margin-top: var(--space-sm);
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+}

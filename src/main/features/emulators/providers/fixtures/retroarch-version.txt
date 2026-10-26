@@ -1,0 +1,4 @@
+Setting $HOME to /home/player/Emulators/RetroArch-Linux-x86_64.AppImage.home
+RetroArch - Frontend for libretro
+Version: 1.22.2 (Git b40db22) Sep 25 2026
+Compiler: GCC (9.4.0) 64-bit

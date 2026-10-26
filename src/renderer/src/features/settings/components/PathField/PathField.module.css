@@ -1,0 +1,40 @@
+.row {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+/* Square, as tall as the field beside it. */
+.browse {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  background: var(--color-surface-high);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius);
+  color: var(--color-text);
+  transition:
+    background-color var(--duration-focus) var(--ease-focus),
+    color var(--duration-focus) var(--ease-focus),
+    box-shadow var(--duration-focus) var(--ease-focus);
+}
+
+/* This style is the focus indicator. */
+.browse:focus {
+  outline: none;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-on-accent);
+  box-shadow: 0 0 30px var(--color-primary-glow);
+}
+
+.browseIcon {
+  width: var(--icon-size-md);
+  height: var(--icon-size-md);
+  stroke-width: var(--icon-stroke);
+}
+
+.error {
+  font-size: var(--body-md-size);
+  line-height: var(--body-md-line-height);
+  color: var(--color-error);
+}

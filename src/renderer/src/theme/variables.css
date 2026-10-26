@@ -46,6 +46,8 @@
   --color-on-info-container: #d3e4ff;
   --color-error: #ffb4ab;
   --color-error-container: #93000a;
+  /* Red halo of a focused destructive button. */
+  --color-error-glow: rgba(255, 180, 171, 0.35);
   --color-on-error-container: #ffdad6;
 
   /* Typography: families */
@@ -125,6 +127,10 @@
   --layout-content-max-width: 2400px;
   --layout-hero-height: 600px;
   --layout-hero-content-width: 800px;
+  /* Settings category column: narrow, fits each category name in one or two lines. */
+  --layout-settings-nav-width: 320px;
+  /* Lists that open over the screen to choose one option (e.g. a platform). */
+  --layout-select-width: 640px;
   --layout-scroll-fade: 64px;
   --layout-focus-bleed: 2rem;
   --card-sm-width: 320px;
@@ -140,8 +146,18 @@
   /* On-screen keyboard: ten keys and their gaps match the panel width. */
   --key-width: 88px;
   --key-height: 72px;
+  /* Switches: a pill-shaped track whose knob slides from one end to the other. */
+  --switch-width: 88px;
+  --switch-height: 48px;
+  --switch-padding: 5px;
+  --switch-knob-size: 36px;
   --indicator-dot-size: 8px;
   --indicator-line-width: 32px;
+  /* Status dots beside an item (e.g. a game found playable or damaged), with a soft glow. */
+  --status-dot-size: 14px;
+  --status-dot-glow-size: 10px;
+  /* Progress bars: a thin pill-shaped track. */
+  --progress-height: 12px;
 
   /* Icons */
   --icon-size-xs: 14px;

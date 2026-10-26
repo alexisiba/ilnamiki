@@ -1,1 +1,161 @@
-{}
+{
+  "trail": "{{section}} › {{category}}",
+  "categories": {
+    "label": "Settings categories",
+    "emulators": "Emulators",
+    "platforms": "Installed platforms",
+    "gameFolders": "Game folders"
+  },
+  "gameFolders": {
+    "games_one": "{{count}} game",
+    "games_other": "{{count}} games",
+    "add": "Add folder",
+    "unavailable": "Folder not available",
+    "failed": {
+      "title": "The game folders couldn't be loaded",
+      "description": "Close Ilnamiki and open it again."
+    },
+    "empty": {
+      "title": "No game folders configured",
+      "noCores": "It looks like you don't have any cores installed yet. Set up an emulator to install your first core.",
+      "setUpEmulator": "Set up an emulator",
+      "noFolders": "Add your first game folder with the Add folder button."
+    }
+  },
+  "platforms": {
+    "cores_one": "Core: {{cores}}",
+    "cores_other": "Cores: {{cores}}",
+    "extensions": "Extensions: {{extensions}}",
+    "empty": {
+      "title": "No platforms installed",
+      "description": "Set up an emulator to add your first platform.",
+      "setUpEmulator": "Set up an emulator"
+    },
+    "failed": {
+      "title": "The platforms couldn't be loaded",
+      "description": "Close Ilnamiki and open it again."
+    }
+  },
+  "emulators": {
+    "version": "Version {{version}}",
+    "empty": {
+      "title": "No emulators configured",
+      "description": "Select Add emulator and choose the emulator's executable file to start playing."
+    },
+    "failed": {
+      "title": "The emulators couldn't be loaded",
+      "description": "Close Ilnamiki and open it again. You can still add an emulator."
+    },
+    "add": "Add emulator"
+  },
+  "form": {
+    "keyboardNote": "You'll need a keyboard and mouse to fill in this form.",
+    "pickError": "The picker couldn't open. Try again."
+  },
+  "addEmulator": {
+    "title": "Add emulator",
+    "name": "Emulator name",
+    "path": "Application path",
+    "browse": "Choose the application",
+    "back": "Back",
+    "add": "Add emulator"
+  },
+  "emulatorProblems": {
+    "notFound": "There's no file at this path.",
+    "notAFile": "This path is a folder. Choose the emulator's application file.",
+    "notExecutable": "This file isn't allowed to run. Allow it to run as a program and try again.",
+    "unsupportedFormat": "Only AppImages are supported for now.",
+    "alreadyAdded": "This emulator is already added.",
+    "unknownEmulator": "This emulator is no longer in Ilnamiki.",
+    "relativePath": "Enter the full path to the application.",
+    "failed": "The emulator couldn't be saved. Try again."
+  },
+  "emulatorDetails": {
+    "path": "Application path",
+    "changePath": "Change path",
+    "back": "Back",
+    "open": "Open emulator",
+    "openProblems": {
+      "unknownEmulator": "This emulator is no longer in Ilnamiki.",
+      "alreadyRunning": "An emulator or a game is already open. Close it first.",
+      "notStarted": "The emulator couldn't open. Check that its application is still at this path.",
+      "failed": "The emulator couldn't open. Try again."
+    },
+    "removal": {
+      "title": "Remove from Ilnamiki",
+      "description": "Its application stays on your computer."
+    },
+    "remove": "Remove emulator",
+    "notFound": "This emulator is no longer in Ilnamiki.",
+    "confirmRemove": {
+      "title": "Remove {{name}}?",
+      "description": "It will no longer be in Ilnamiki. Its application stays on your computer.",
+      "cancel": "Cancel",
+      "confirm": "Remove"
+    }
+  },
+  "addGameFolder": {
+    "title": "Add game folder",
+    "path": "Folder path",
+    "browse": "Choose the folder",
+    "platform": "Platform",
+    "selectPlatform": "Select a platform",
+    "onePerPlatform": "Each platform can have one folder. Platforms that already have one aren't listed.",
+    "cancel": "Cancel",
+    "scan": "Scan",
+    "problems": {
+      "relativePath": "Write the folder's full path, from the root.",
+      "notFound": "There's no folder at this path.",
+      "notAFolder": "This path is a file. Choose a folder.",
+      "notReadable": "Ilnamiki isn't allowed to read this folder.",
+      "unknownPlatform": "No installed core plays this platform anymore. Choose another one.",
+      "alreadyAdded": "This folder is already added.",
+      "platformHasFolder": "This platform already has a folder.",
+      "unknownFolder": "This folder is no longer in Ilnamiki.",
+      "failed": "The folder couldn't be scanned. Try again."
+    }
+  },
+  "gameFolderDetails": {
+    "path": "Folder path",
+    "changePath": "Change path",
+    "games": "Games",
+    "noGames": "No games were saved from this folder.",
+    "gamesFailed": "The games couldn't be loaded. Try again later.",
+    "back": "Back",
+    "rescan": "Scan again",
+    "remove": "Remove folder",
+    "confirmRemove": {
+      "title": "Remove the {{platform}} folder?",
+      "description": "Its games will no longer be in your library. The files stay on your computer, and adding the folder again brings the games back.",
+      "cancel": "Cancel",
+      "confirm": "Remove"
+    },
+    "notFound": "This folder is no longer in Ilnamiki."
+  },
+  "folderScan": {
+    "scanning": "Scanning folder",
+    "found": "Games found",
+    "folder": "{{path}} · {{platform}}",
+    "percent": "{{percent}} %",
+    "games_one": "{{count}} game",
+    "games_other": "{{count}} games",
+    "damaged_one": "{{count}} damaged",
+    "damaged_other": "{{count}} damaged",
+    "noGames": "No games available in this folder.",
+    "noPlayableGames": "No playable games in this folder.",
+    "missingFiles_one": "Missing “{{files}}”. Check that the file is in the folder.",
+    "missingFiles_other": "Missing {{count}} files: {{files}}. Check that they're in the folder.",
+    "emptyIndex": "It doesn't point to any file. Check that it's the right file.",
+    "back": "Back",
+    "save": "Save folder",
+    "saveChanges": "Save changes",
+    "saveProblems": {
+      "unknownScan": "This scan is no longer valid. Go back and scan the folder again.",
+      "alreadyAdded": "This folder was added in the meantime.",
+      "platformHasFolder": "This platform got a folder in the meantime.",
+      "noGames": "There are no playable games to save.",
+      "unknownFolder": "This folder is no longer in Ilnamiki.",
+      "failed": "The folder couldn't be saved. Try again."
+    }
+  }
+}

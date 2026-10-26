@@ -1,11 +1,64 @@
-import { act, render, screen } from '@testing-library/react'
+import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import {
+  mockEmulators,
+  mockFolderGames,
+  mockGameFolders,
+  mockLastPlayedGame,
+  mockPlatforms
+} from '@renderer/test/api'
+import { getPlayedSounds, isMusicPlaying } from '@renderer/test/audio'
 import { connectGamepad } from '@renderer/test/gamepad'
 
 import { APP_ROUTES } from './App.routes'
+
+// One emulator, RetroArch, and one console in the library: the NES, with a folder of two games,
+// one of them played, so Home shows its sample shelves, whose cards these tests move between.
+beforeEach(() => {
+  mockLastPlayedGame({
+    id: 'g1',
+    title: 'Contra (USA)',
+    platformId: 'nes',
+    lastPlayedAt: 1_800_000_000_000,
+    playtimeMs: 30 * 60 * 1000
+  })
+  mockEmulators([
+    {
+      id: 'a1',
+      kind: 'retroarch',
+      name: 'RetroArch',
+      executablePath: '/home/player/Emulators/RetroArch-Linux-x86_64.AppImage',
+      version: '1.22.2',
+      iconDataUrl: null,
+      addedAt: 1
+    }
+  ])
+  mockFolderGames([
+    { id: 'g1', title: 'Contra (USA)', filePath: '/home/player/Games/NES/Contra (USA).nes' },
+    { id: 'g2', title: 'Metroid (USA)', filePath: '/home/player/Games/NES/Metroid (USA).nes' }
+  ])
+  mockPlatforms([
+    {
+      id: 'nes',
+      name: 'Nintendo Entertainment System',
+      manufacturer: 'Nintendo',
+      cores: [{ id: 'mesen', name: 'Mesen', emulatorId: 'a1', extensions: ['nes'] }]
+    }
+  ])
+  mockGameFolders([
+    {
+      id: 'f1',
+      path: '/home/player/Games/NES',
+      platformId: 'nes',
+      gameCount: 56,
+      isAvailable: true,
+      addedAt: 1
+    }
+  ])
+})
 
 function renderApp(): ReturnType<typeof createMemoryRouter> {
   const router = createMemoryRouter(APP_ROUTES)
@@ -108,7 +161,7 @@ describe('App', () => {
   it('restores the focused game when coming back to home', async () => {
     renderApp()
     const user = userEvent.setup()
-    const card = screen.getByRole('button', { name: 'Donkey Kong 64' })
+    const card = await screen.findByRole('button', { name: 'Donkey Kong 64' })
 
     await user.pointer({ target: card, coords: { x: 100, y: 500 } })
     await user.keyboard('ee')
@@ -120,7 +173,7 @@ describe('App', () => {
   it('opens a game’s details from its card, still inside the home section', async () => {
     renderApp()
 
-    await userEvent.setup().click(screen.getByRole('button', { name: 'Donkey Kong 64' }))
+    await userEvent.setup().click(await screen.findByRole('button', { name: 'Donkey Kong 64' }))
 
     expect(screen.getByRole('heading', { level: 1, name: 'Donkey Kong 64' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Play' })).toHaveFocus()
@@ -130,7 +183,7 @@ describe('App', () => {
   it('goes back from a game’s details to home, with focus on its card', async () => {
     renderApp()
     const user = userEvent.setup()
-    const card = screen.getByRole('button', { name: 'Donkey Kong 64' })
+    const card = await screen.findByRole('button', { name: 'Donkey Kong 64' })
 
     await user.pointer({ target: card, coords: { x: 100, y: 500 } })
     await user.keyboard('{Enter}')
@@ -138,6 +191,7 @@ describe('App', () => {
 
     expect(screen.queryByRole('button', { name: 'Play' })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Donkey Kong 64' })).toHaveFocus()
+    expect(getPlayedSounds()).toEqual(['select', 'back'])
   })
 
   it('opens a console’s games from the library and goes back to it', async () => {
@@ -145,12 +199,12 @@ describe('App', () => {
     const user = userEvent.setup()
 
     await user.click(screen.getByRole('link', { name: 'Library' }))
-    await user.click(screen.getByRole('button', { name: 'NES' }))
+    await user.click(await screen.findByRole('button', { name: 'NES' }))
     await user.keyboard('{Enter}')
 
     expect(router.state.location.pathname).toBe('/library/nes')
     expect(screen.getByRole('heading', { level: 1, name: 'NES' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Play now' })).toHaveFocus()
+    expect(await screen.findByRole('button', { name: 'Play now' })).toHaveFocus()
     expect(currentSection()).toHaveTextContent('Library')
 
     await user.keyboard('{Escape}')
@@ -165,15 +219,17 @@ describe('App', () => {
     const user = userEvent.setup()
 
     await user.click(screen.getByRole('link', { name: 'Library' }))
-    await user.click(screen.getByRole('button', { name: 'NES' }))
-    await user.keyboard('{Enter}{ArrowRight}')
+    await user.click(await screen.findByRole('button', { name: 'NES' }))
+    await user.keyboard('{Enter}')
+    await screen.findByRole('button', { name: 'Play now' })
+    await user.keyboard('{ArrowRight}')
     await user.keyboard('q')
     expect(currentSection()).toHaveTextContent('Home')
 
     await user.keyboard('e')
 
     expect(router.state.location.pathname).toBe('/library/nes')
-    expect(screen.getByRole('button', { name: 'Donkey Kong 64' })).toHaveAttribute(
+    expect(await screen.findByRole('button', { name: 'Metroid (USA)' })).toHaveAttribute(
       'aria-current',
       'true'
     )
@@ -185,7 +241,7 @@ describe('App', () => {
     const user = userEvent.setup()
 
     await user.click(screen.getByRole('link', { name: 'Library' }))
-    await user.click(screen.getByRole('button', { name: 'NES' }))
+    await user.click(await screen.findByRole('button', { name: 'NES' }))
     await user.keyboard('{Enter}')
     await user.click(screen.getByRole('link', { name: 'Home' }))
     await user.click(screen.getByRole('link', { name: 'Library' }))
@@ -198,9 +254,9 @@ describe('App', () => {
     const user = userEvent.setup()
 
     await user.click(screen.getByRole('link', { name: 'Library' }))
-    await user.click(screen.getByRole('button', { name: 'NES' }))
+    await user.click(await screen.findByRole('button', { name: 'NES' }))
     await user.keyboard('{Enter}')
-    await user.click(screen.getByRole('button', { name: 'Donkey Kong 64' }))
+    await user.click(await screen.findByRole('button', { name: 'Metroid (USA)' }))
     await user.keyboard('q')
     await user.click(screen.getByRole('button', { name: 'Donkey Kong 64' }))
     await user.keyboard('e{Escape}')
@@ -214,14 +270,119 @@ describe('App', () => {
     const user = userEvent.setup()
 
     await user.click(screen.getByRole('link', { name: 'Library' }))
-    await user.click(screen.getByRole('button', { name: 'NES' }))
+    await user.click(await screen.findByRole('button', { name: 'NES' }))
     await user.keyboard('{Enter}')
+    await screen.findByRole('button', { name: 'Play now' })
     await user.keyboard('y')
     await user.keyboard('qe{ArrowRight}{Escape}')
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(router.state.location.pathname).toBe('/library/nes')
     expect(screen.getByRole('button', { name: 'Play now' })).toHaveFocus()
+  })
+
+  it('goes back to the screen that opened a game, even in another section', async () => {
+    const router = renderApp()
+    const user = userEvent.setup()
+    await user.click(screen.getByRole('link', { name: 'Library' }))
+    await user.click(await screen.findByRole('button', { name: 'NES' }))
+    await user.keyboard('{Enter}')
+
+    // As search opens a game over the screen it was opened from.
+    await act(() =>
+      router.navigate('/games/dk-64', {
+        state: { backTo: { pathname: '/library/nes', state: router.state.location.state } }
+      })
+    )
+    await user.keyboard('{Escape}')
+
+    expect(router.state.location.pathname).toBe('/library/nes')
+    expect(currentSection()).toHaveTextContent('Library')
+
+    // That screen still knows what opened it.
+    await user.keyboard('{Escape}')
+
+    expect(router.state.location.pathname).toBe('/library')
+  })
+
+  it('comes back from a screen inside Settings to the categories, on the button that opened it', async () => {
+    renderApp()
+    const user = userEvent.setup()
+    await user.click(screen.getByRole('link', { name: 'Settings' }))
+    await user.click(screen.getByRole('button', { name: 'Add emulator' }))
+    expect(screen.queryByRole('tablist')).not.toBeInTheDocument()
+
+    await user.keyboard('{Escape}')
+
+    expect(screen.getByRole('tablist')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Add emulator' })).toHaveFocus()
+  })
+
+  it('enters a Settings category on confirm and leaves it on back, as the guide says', async () => {
+    renderApp()
+    const user = userEvent.setup()
+    const guide = (): HTMLElement => screen.getByRole('contentinfo', { name: 'Controls' })
+    await user.click(screen.getByRole('link', { name: 'Settings' }))
+    expect(within(guide()).queryByText('Back')).not.toBeInTheDocument()
+
+    await user.keyboard('{Enter}')
+    expect(await screen.findByRole('button', { name: /RetroArch/ })).toHaveFocus()
+    expect(within(guide()).getByText('Back')).toBeInTheDocument()
+
+    await user.keyboard('{Escape}')
+    expect(screen.getByRole('tab', { name: 'Emulators' })).toHaveFocus()
+    expect(within(guide()).queryByText('Back')).not.toBeInTheDocument()
+    expect(getPlayedSounds().at(-1)).toBe('back')
+  })
+
+  describe('a screen inside Settings, with focus left on Back', () => {
+    async function leaveFocusOnBack(): Promise<ReturnType<typeof userEvent.setup>> {
+      const user = userEvent.setup()
+      await user.click(screen.getByRole('link', { name: 'Settings' }))
+      await user.click(await screen.findByRole('button', { name: /RetroArch/ }))
+      await user.pointer({
+        target: await screen.findByRole('button', { name: 'Back' }),
+        coords: { x: 10, y: 10 }
+      })
+      expect(screen.getByRole('button', { name: 'Back' })).toHaveFocus()
+      return user
+    }
+
+    it('starts on its initial focus when it is opened again', async () => {
+      renderApp()
+      const user = await leaveFocusOnBack()
+
+      await user.keyboard('{Escape}')
+      await user.click(screen.getByRole('button', { name: /RetroArch/ }))
+
+      expect(await screen.findByRole('button', { name: 'Open emulator' })).toHaveFocus()
+    })
+
+    it('keeps focus where it was left when coming back to it from another section', async () => {
+      renderApp()
+      const user = await leaveFocusOnBack()
+
+      await user.click(screen.getByRole('link', { name: 'Home' }))
+      await user.click(screen.getByRole('link', { name: 'Settings' }))
+
+      expect(await screen.findByRole('button', { name: 'Back' })).toHaveFocus()
+    })
+  })
+
+  it('opens the emulators in Settings from Home while there are none, whichever was left', async () => {
+    mockEmulators([])
+    const router = renderApp()
+    const user = userEvent.setup()
+    // Settings left on another category.
+    await user.click(screen.getByRole('link', { name: 'Settings' }))
+    await user.click(screen.getByRole('tab', { name: 'Game folders' }))
+    await user.click(screen.getByRole('link', { name: 'Home' }))
+
+    await user.click(await screen.findByRole('button', { name: 'Set up an emulator' }))
+
+    expect(router.state.location.pathname).toBe('/settings')
+    expect(screen.getByRole('tab', { name: 'Emulators' })).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByRole('tab', { name: 'Emulators' })).toHaveFocus()
   })
 
   it('stays on a section’s root on back', async () => {
@@ -232,5 +393,16 @@ describe('App', () => {
     await user.keyboard('{Escape}')
 
     expect(router.state.location.pathname).toBe('/library')
+    // Back did nothing, so it makes no sound.
+    expect(getPlayedSounds()).toEqual(['switch-tab'])
+  })
+
+  it('plays the background music while it is open', () => {
+    const { unmount } = render(<RouterProvider router={createMemoryRouter(APP_ROUTES)} />)
+    expect(isMusicPlaying()).toBe(true)
+
+    unmount()
+
+    expect(isMusicPlaying()).toBe(false)
   })
 })

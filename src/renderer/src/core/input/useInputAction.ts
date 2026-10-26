@@ -3,6 +3,7 @@ import { useContext, useEffect, useEffectEvent } from 'react'
 import { isDirection, type InputAction, type InputPhase } from './input'
 import { subscribeToInput } from './inputBus'
 import { InputScopeContext, isActiveScope } from './inputScope'
+import { isActionEnabled } from './screenActions'
 
 export interface UseInputActionOptions {
   /**
@@ -16,8 +17,9 @@ export interface UseInputActionOptions {
 
 /**
  * Calls `onAction` with the semantic action of every mapped input while mounted, as long as
- * its input scope is the active one (see `InputScope`). `phase` tells presses from the repeats
- * and releases asked for in the options.
+ * its input scope is the active one (see `InputScope`) and the screen hasn't turned the action
+ * off (see `useScreenActions`). `phase` tells presses from the repeats and releases asked for
+ * in the options.
  */
 export function useInputAction(
   onAction: (action: InputAction, phase: InputPhase) => void,
@@ -29,7 +31,7 @@ export function useInputAction(
   useEffect(
     () =>
       subscribeToInput((action, _device, phase) => {
-        if (!isActiveScope(scope)) return
+        if (!isActiveScope(scope) || !isActionEnabled(action, scope)) return
         if (phase === 'repeat' && !repeat && !isDirection(action)) return
         if (phase === 'release' && !release) return
         handleAction(action, phase)

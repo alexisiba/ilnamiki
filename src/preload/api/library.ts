@@ -1,0 +1,23 @@
+import { ipcRenderer, type IpcRendererEvent } from 'electron'
+
+import { LIBRARY_CHANNELS, type LibraryApi, type ScanProgress } from '@shared/api'
+
+export const libraryApi: LibraryApi = {
+  pickFolder: () => ipcRenderer.invoke(LIBRARY_CHANNELS.pickFolder),
+  scanFolder: (request) => ipcRenderer.invoke(LIBRARY_CHANNELS.scanFolder, request),
+  cancelScan: () => ipcRenderer.invoke(LIBRARY_CHANNELS.cancelScan),
+  onScanProgress: (listener) => {
+    const handle = (_event: IpcRendererEvent, progress: ScanProgress): void => listener(progress)
+    ipcRenderer.on(LIBRARY_CHANNELS.scanProgress, handle)
+    return () => {
+      ipcRenderer.removeListener(LIBRARY_CHANNELS.scanProgress, handle)
+    }
+  },
+  addFolder: (scanId) => ipcRenderer.invoke(LIBRARY_CHANNELS.addFolder, scanId),
+  listFolders: () => ipcRenderer.invoke(LIBRARY_CHANNELS.listFolders),
+  listFolderGames: (folderId) => ipcRenderer.invoke(LIBRARY_CHANNELS.listFolderGames, folderId),
+  rescanFolder: (folderId, path) =>
+    ipcRenderer.invoke(LIBRARY_CHANNELS.rescanFolder, folderId, path),
+  updateFolder: (scanId) => ipcRenderer.invoke(LIBRARY_CHANNELS.updateFolder, scanId),
+  removeFolder: (folderId) => ipcRenderer.invoke(LIBRARY_CHANNELS.removeFolder, folderId)
+}

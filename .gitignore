@@ -7,3 +7,10 @@ out
 
 # Scratch files for local checks (driver scripts, screenshots)
 .tmp
+
+# SQLite databases hold someone's local data, never project files
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3

@@ -2,6 +2,7 @@ import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
+import { getPlayedSounds } from '@renderer/test/audio'
 import { setRect } from '@renderer/test/layout'
 import { renderWithNavigation } from '@renderer/test/renderWithNavigation'
 import type { GameConsole } from '@renderer/types/console'
@@ -66,6 +67,34 @@ describe('ConsoleCarousel', () => {
     )
   })
 
+  it('leaves out what isn’t known about a console, and the line when nothing is', () => {
+    const unknown: GameConsole = {
+      id: 'quake_3',
+      name: 'Quake III',
+      manufacturer: 'id Software',
+      releaseYear: null,
+      imageUrl: null,
+      gameCount: 2
+    }
+    renderWithNavigation(
+      <ConsoleCarousel
+        consoles={[unknown, { ...unknown, id: 'other', name: 'Other', manufacturer: null }]}
+        onOpenConsole={vi.fn()}
+      />
+    )
+
+    expect(consoleButton('Quake III')).toHaveAccessibleDescription('id Software 2 games installed')
+  })
+
+  it('shows a console without a render as an unavailable image, still named by the console', () => {
+    renderWithNavigation(
+      <ConsoleCarousel consoles={[{ ...CONSOLES[0], imageUrl: null }]} onOpenConsole={vi.fn()} />
+    )
+
+    expect(consoleButton('PlayStation')).toBeInTheDocument()
+    expect(screen.queryByRole('img')).not.toBeInTheDocument()
+  })
+
   it('selects the next console on right', async () => {
     renderCarousel()
 
@@ -75,6 +104,24 @@ describe('ConsoleCarousel', () => {
     expect(consoleButton('GameCube')).toHaveAttribute('aria-current', 'true')
     expect(screen.getByText('Nintendo · 2001')).toBeInTheDocument()
     expect(screen.getByText('1 game installed')).toBeInTheDocument()
+  })
+
+  it('sounds a slide, not a move, when the selection changes', async () => {
+    renderCarousel()
+
+    await userEvent.setup().keyboard('{ArrowRight}{ArrowRight}')
+
+    expect(getPlayedSounds()).toEqual(['carousel-slide', 'cant-move'])
+  })
+
+  it('sounds a slide when a console beside the selection is clicked, and a select when it opens', async () => {
+    renderCarousel()
+    const user = userEvent.setup()
+
+    await user.click(consoleButton('GameCube'))
+    await user.click(consoleButton('GameCube'))
+
+    expect(getPlayedSounds()).toEqual(['carousel-slide', 'select'])
   })
 
   it('stays on the first console on left instead of wrapping', async () => {

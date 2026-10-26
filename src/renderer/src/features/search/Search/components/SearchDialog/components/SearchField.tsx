@@ -10,7 +10,7 @@ import styles from '../SearchDialog.module.css'
  * The search text, typed straight onto the blurred screen without a box around it, from a
  * physical keyboard or the on-screen one. It is focused when search opens.
  */
-export function SearchField({ value, onChange }: SearchFieldProps): React.JSX.Element {
+export function SearchField({ value, onChange, onActivate }: SearchFieldProps): React.JSX.Element {
   const { t } = useTranslation('search')
   const { ref } = useFocusable<HTMLInputElement>({ id: 'field', autoFocus: true })
 
@@ -25,6 +25,8 @@ export function SearchField({ value, onChange }: SearchFieldProps): React.JSX.El
         placeholder={t('placeholder')}
         value={value}
         onChange={(event) => onChange(event.target.value)}
+        // Confirm clicks the focused field too.
+        onClick={onActivate}
       />
     </div>
   )

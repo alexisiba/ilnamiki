@@ -1,6 +1,3 @@
-/** Sample game shown in the hero until the library exists. Set to `null` to see the empty state. */
-export const SAMPLE_LAST_PLAYED_GAME_ID: string | null = 'tloz-oot-n64'
-
 /** Sample "Play again" shelf until the library exists, most recent first. */
 export const SAMPLE_RECENT_GAME_IDS = [
   'dk-64',

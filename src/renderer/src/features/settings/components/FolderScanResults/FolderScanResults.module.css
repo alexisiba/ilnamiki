@@ -1,0 +1,202 @@
+/* The header and progress or summary at the top, the list taking the room, the actions last. */
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  min-height: 0;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.title {
+  font-size: var(--headline-sm-size);
+  font-weight: var(--headline-sm-weight);
+  line-height: var(--headline-sm-line-height);
+  letter-spacing: var(--headline-sm-tracking);
+  color: var(--color-text-focus);
+}
+
+.folder {
+  font-size: var(--body-md-size);
+  line-height: var(--body-md-line-height);
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.progress {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  max-width: var(--layout-panel-width);
+}
+
+/* A track in the raised surface, filled in Info: a background task in progress. */
+.bar {
+  flex: 1;
+  height: var(--progress-height);
+  appearance: none;
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-highest);
+  overflow: hidden;
+}
+
+.bar::-webkit-progress-bar {
+  background: var(--color-surface-highest);
+  border-radius: var(--radius-full);
+}
+
+.bar::-webkit-progress-value {
+  background: var(--color-info);
+  border-radius: var(--radius-full);
+  transition: width var(--duration-focus) var(--ease-focus);
+}
+
+.percent {
+  min-width: 4ch;
+  font-family: var(--font-label);
+  font-size: var(--label-md-size);
+  font-weight: var(--label-md-weight);
+  line-height: var(--label-md-line-height);
+  letter-spacing: var(--label-md-tracking);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+  text-align: end;
+}
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.counts {
+  font-family: var(--font-label);
+  font-size: var(--label-md-size);
+  font-weight: var(--label-md-weight);
+  line-height: var(--label-md-line-height);
+  letter-spacing: var(--label-md-tracking);
+  font-variant-ligatures: none;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.warning {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--body-md-size);
+  line-height: var(--body-md-line-height);
+  color: var(--color-warning);
+}
+
+.warningIcon {
+  flex-shrink: 0;
+  width: var(--icon-size-md);
+  height: var(--icon-size-md);
+  stroke-width: var(--icon-stroke);
+}
+
+.list {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-height: 0;
+  /*
+   * The list scrolls vertically, which also clips: pad it so the focus glow is not cut, and
+   * keep that padding when scrolling to the focused row, so the first and last rows scroll
+   * all the way to the list's edges.
+   */
+  margin: calc(-1 * var(--space-sm));
+  padding: var(--space-sm);
+  overflow-y: auto;
+  scroll-padding-block: var(--space-sm);
+}
+
+.game {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  width: 100%;
+  padding: var(--space-xs) var(--space-md);
+  background: var(--color-surface-high);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-align: start;
+  transition:
+    border-color var(--duration-focus) var(--ease-focus),
+    box-shadow var(--duration-focus) var(--ease-focus);
+}
+
+/* This style is the focus indicator. */
+.game:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-focus);
+}
+
+.gameTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--body-lg-size);
+  line-height: var(--body-lg-line-height);
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.game:focus .gameTitle {
+  color: var(--color-text-focus);
+}
+
+.playableDot,
+.damagedDot {
+  flex-shrink: 0;
+  width: var(--status-dot-size);
+  height: var(--status-dot-size);
+  border-radius: var(--radius-full);
+}
+
+/* Success: the game can be played. Never cyan, which is kept for focus. */
+.playableDot {
+  background: var(--color-success);
+  box-shadow: 0 0 var(--status-dot-glow-size) var(--color-success-glow);
+}
+
+.damagedDot {
+  background: var(--color-error);
+  box-shadow: 0 0 var(--status-dot-glow-size) var(--color-error-glow);
+}
+
+/* Lined up with the title, past the dot. */
+.hint {
+  padding-inline-start: calc(var(--status-dot-size) + var(--space-sm));
+  font-size: var(--body-md-size);
+  line-height: var(--body-md-line-height);
+  color: var(--color-error);
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-xs);
+  margin-top: auto;
+}
+
+.error {
+  font-size: var(--body-md-size);
+  line-height: var(--body-md-line-height);
+  color: var(--color-error);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+}

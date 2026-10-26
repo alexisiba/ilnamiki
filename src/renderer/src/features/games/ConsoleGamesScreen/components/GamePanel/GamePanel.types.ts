@@ -1,7 +1,7 @@
-import type { Game } from '@renderer/types/game'
+import type { LibraryGame } from '@renderer/types/game'
 
 export interface GamePanelProps {
-  game: Game
+  game: LibraryGame
   /** Id of the element that describes Play now (the selected game). */
   describedBy: string
 }

@@ -1,11 +1,14 @@
 import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { useState } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 
+import { getPlayedSounds } from '@renderer/test/audio'
 import { setRect } from '@renderer/test/layout'
 
 import { FocusGroup } from '../FocusGroup'
 import { useFocusable } from '../useFocusable'
+import { useGroupFocus } from '../useGroupFocus'
 import { useLastFocusedId } from '../useLastFocusedId'
 import { useRememberedState } from '../useRememberedState'
 import { NavigationProvider } from './NavigationProvider'
@@ -120,6 +123,34 @@ describe('NavigationProvider', () => {
     expect(item('top3')).toHaveFocus()
   })
 
+  it('sounds a move, or that focus can’t move, on each direction pressed', async () => {
+    renderRows({ autoFocus: 'top2' })
+    const user = userEvent.setup()
+
+    await user.keyboard('{ArrowRight}{ArrowRight}{ArrowRight}{ArrowDown}')
+
+    expect(getPlayedSounds()).toEqual(['move', 'cant-move', 'cant-move', 'move'])
+  })
+
+  it('sounds a select when the focused item is confirmed or clicked', async () => {
+    renderRows()
+    const user = userEvent.setup()
+
+    await user.keyboard('{Enter}')
+    await user.click(item('top2'))
+
+    expect(getPlayedSounds()).toEqual(['select', 'select'])
+  })
+
+  it('stays silent while the pointer moves focus', async () => {
+    renderRows()
+
+    await userEvent.setup().hover(item('top3'))
+
+    expect(item('top3')).toHaveFocus()
+    expect(getPlayedSounds()).toEqual([])
+  })
+
   it('returns to the last focused item of a group when entering it again', async () => {
     renderRows()
     const user = userEvent.setup()
@@ -127,6 +158,127 @@ describe('NavigationProvider', () => {
     await user.keyboard('{ArrowRight}{ArrowRight}{ArrowDown}{ArrowLeft}{ArrowLeft}{ArrowUp}')
 
     expect(item('top3')).toHaveFocus()
+  })
+
+  describe('in a group that moves by rows', () => {
+    /** A details screen: open; a path with change on its right; remove; back and save. */
+    function renderDetailsScreen(): void {
+      render(
+        <NavigationProvider>
+          <FocusGroup id="details" movement="rows">
+            {['open', 'change', 'remove', 'back', 'save'].map((id) => (
+              <Item key={id} id={id} />
+            ))}
+          </FocusGroup>
+        </NavigationProvider>
+      )
+      setRect(item('open'), { left: 0, top: 0, width: 260, height: 60 })
+      setRect(item('change'), { left: 1200, top: 120, width: 240, height: 60 })
+      setRect(item('remove'), { left: 0, top: 240, width: 300, height: 60 })
+      setRect(item('back'), { left: 1000, top: 400, width: 160, height: 60 })
+      setRect(item('save'), { left: 1200, top: 400, width: 240, height: 60 })
+    }
+
+    it('goes up and down row by row, to each row’s first item', async () => {
+      renderDetailsScreen()
+      const user = userEvent.setup()
+
+      for (const name of ['change', 'remove', 'back']) {
+        await user.keyboard('{ArrowDown}')
+        expect(item(name)).toHaveFocus()
+      }
+      for (const name of ['remove', 'change', 'open']) {
+        await user.keyboard('{ArrowUp}')
+        expect(item(name)).toHaveFocus()
+      }
+    })
+
+    it('moves left and right only within the row', async () => {
+      renderDetailsScreen()
+      const user = userEvent.setup()
+
+      await user.keyboard('{ArrowRight}')
+      expect(item('open')).toHaveFocus()
+
+      await user.keyboard('{ArrowDown}{ArrowDown}{ArrowDown}{ArrowRight}')
+      expect(item('save')).toHaveFocus()
+      await user.keyboard('{ArrowRight}{ArrowDown}')
+      expect(item('save')).toHaveFocus()
+      await user.keyboard('{ArrowLeft}')
+      expect(item('back')).toHaveFocus()
+    })
+
+    it('returns to the item last focused in a row when coming back to it', async () => {
+      renderDetailsScreen()
+      const user = userEvent.setup()
+
+      await user.keyboard('{ArrowDown}{ArrowDown}{ArrowDown}{ArrowRight}{ArrowUp}')
+      expect(item('remove')).toHaveFocus()
+
+      await user.keyboard('{ArrowDown}')
+      expect(item('save')).toHaveFocus()
+    })
+  })
+
+  it('moves sideways into a column whose items are not level with the focused one', async () => {
+    // A column with one item at the top, beside a list of two rows.
+    render(
+      <NavigationProvider>
+        <FocusGroup id="column">
+          <Item id="category" />
+        </FocusGroup>
+        <FocusGroup id="list">
+          <Item id="row1" />
+          <Item id="row2" />
+        </FocusGroup>
+      </NavigationProvider>
+    )
+    setRect(item('category').parentElement!, { left: 0, top: 0, width: 200, height: 400 })
+    setRect(item('category'), { left: 0, top: 0, width: 200, height: 100 })
+    setRect(item('row1'), { left: 240, top: 0, width: 400, height: 100 })
+    setRect(item('row2'), { left: 240, top: 300, width: 400, height: 100 })
+
+    await userEvent.setup().keyboard('{ArrowRight}{ArrowDown}{ArrowLeft}')
+
+    expect(item('category')).toHaveFocus()
+  })
+
+  it('moves focus into a group on request, to the item asked for', async () => {
+    function FocusTopThird(): React.JSX.Element {
+      const focusTop = useGroupFocus('top')
+      return <Item id="focus top3" onClick={() => focusTop('top3')} />
+    }
+    render(
+      <NavigationProvider>
+        <Rows />
+        <FocusTopThird />
+      </NavigationProvider>
+    )
+    layOutRows()
+
+    await userEvent.setup().click(item('focus top3'))
+
+    expect(item('top3')).toHaveFocus()
+  })
+
+  it('moves focus into a group on request, to its last focused item', async () => {
+    function FocusTop(): React.JSX.Element {
+      const focusTop = useGroupFocus('top')
+      return <Item id="focus top" onClick={() => focusTop()} />
+    }
+    render(
+      <NavigationProvider>
+        <Rows />
+        <FocusTop />
+      </NavigationProvider>
+    )
+    layOutRows()
+    const user = userEvent.setup()
+
+    await user.keyboard('{ArrowRight}')
+    await user.click(item('focus top'))
+
+    expect(item('top2')).toHaveFocus()
   })
 
   it('clicks the focused item on confirm', async () => {
@@ -285,6 +437,70 @@ describe('NavigationProvider', () => {
       </NavigationProvider>
     )
     expect(item('bottom2')).toHaveFocus()
+  })
+
+  it('keeps moving through items that re-register as they take focus, after a restore', async () => {
+    // Like Settings' categories: focusing a tab selects it, and only the selected one is
+    // auto-focused, so the tabs register again whenever focus moves between them.
+    function Tab({
+      id,
+      selected,
+      onFocus
+    }: {
+      id: string
+      selected: boolean
+      onFocus: () => void
+    }): React.JSX.Element {
+      const { ref } = useFocusable<HTMLButtonElement>({ id, autoFocus: selected })
+      return (
+        <button ref={ref} type="button" onFocus={onFocus}>
+          {id}
+        </button>
+      )
+    }
+    function Tabs(): React.JSX.Element {
+      const [selected, setSelected] = useState('tab1')
+      return (
+        <FocusGroup id="tabs">
+          {['tab1', 'tab2', 'tab3'].map((id) => (
+            <Tab key={id} id={id} selected={id === selected} onFocus={() => setSelected(id)} />
+          ))}
+        </FocusGroup>
+      )
+    }
+    const layOutTabs = (): void => {
+      ;['tab1', 'tab2', 'tab3'].forEach((id, index) => {
+        setRect(item(id), { left: 0, top: index * 80, width: 300, height: 70 })
+      })
+    }
+    const user = userEvent.setup()
+    const { rerender } = render(
+      <NavigationProvider scope="settings">
+        <Tabs />
+      </NavigationProvider>
+    )
+    // Leaving the screen with a tab focused, and coming back, restores that tab.
+    rerender(
+      <NavigationProvider scope="home">
+        <Item id="home" />
+      </NavigationProvider>
+    )
+    rerender(
+      <NavigationProvider scope="settings">
+        <Tabs />
+      </NavigationProvider>
+    )
+    layOutTabs()
+    expect(item('tab1')).toHaveFocus()
+
+    await user.keyboard('{ArrowDown}')
+    expect(item('tab2')).toHaveFocus()
+
+    await user.keyboard('{ArrowDown}')
+    expect(item('tab3')).toHaveFocus()
+
+    await user.keyboard('{ArrowUp}')
+    expect(item('tab2')).toHaveFocus()
   })
 
   it('scrolls the initial item through its group from the first render', () => {

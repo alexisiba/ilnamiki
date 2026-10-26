@@ -1,27 +1,48 @@
-import { Outlet, useLocation, useNavigate } from 'react-router'
+import { useEffect } from 'react'
+import { NavigationType, Outlet, useLocation, useNavigationType } from 'react-router'
 
 import { ButtonGuide } from '@renderer/components/ButtonGuide'
 import { TopBar } from '@renderer/components/TopBar'
+import { playUiSound, preloadUiSounds, startBackgroundMusic } from '@renderer/core/audio'
 import { useInputAction } from '@renderer/core/input'
-import { getSectionPath, isSectionRoot, NavigationProvider } from '@renderer/core/navigation'
+import {
+  isSectionRoot,
+  NavigationProvider,
+  takeBackStep,
+  useGoBack
+} from '@renderer/core/navigation'
 import { Search } from '@renderer/features/search'
 import styles from './App.module.css'
 
 function App(): React.JSX.Element {
   const { pathname } = useLocation()
-  const navigate = useNavigate()
+  // Only opening a screen stacks it (see useOpenScreen): coming back, by back or a section's
+  // tab, replaces the screen instead.
+  const openedAnew = useNavigationType() === NavigationType.Push
+  const goBack = useGoBack()
 
-  // Back returns one level, from a screen inside a section to the section's root. It does not
-  // follow the history: tabs return to the screen a section was left on, so the previous
-  // entry may belong to another section. A section's root has nothing to go back to.
+  // Back returns one level: a step back inside the screen when it has one, else to the screen
+  // that opened it. It does not follow the history: tabs return to the screen a section was
+  // left on, so the previous entry may belong to another section. A section's root has
+  // nothing to go back to.
   useInputAction((action) => {
-    if (action === 'back' && !isSectionRoot(pathname)) {
-      navigate(getSectionPath(pathname), { replace: true })
+    if (action !== 'back') return
+    if (takeBackStep()) {
+      playUiSound('back')
+      return
     }
+    if (isSectionRoot(pathname)) return
+    playUiSound('back')
+    goBack()
   })
 
+  useEffect(() => {
+    preloadUiSounds()
+    return startBackgroundMusic()
+  }, [])
+
   return (
-    <NavigationProvider scope={pathname}>
+    <NavigationProvider scope={pathname} restoreFocus={!openedAnew}>
       <div className={styles.app}>
         <TopBar />
         <main className={styles.screen}>

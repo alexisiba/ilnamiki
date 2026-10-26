@@ -1,15 +1,17 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
-import { InputScope, useInputAction } from '@renderer/core/input'
+import { InputScope, useDefaultActions } from '@renderer/core/input'
 
 import { SearchDialog } from './components/SearchDialog'
 
-/** Opens search on its action, from any screen. */
+/** Opens search on its action, the tertiary action's default on screens that keep it. */
 export function Search(): React.JSX.Element | null {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
 
-  useInputAction((action) => {
-    if (action === 'tertiary') setOpen(true)
+  useDefaultActions({
+    tertiary: { label: t('buttonGuide.search'), onPress: () => setOpen(true) }
   })
 
   if (!open) return null
