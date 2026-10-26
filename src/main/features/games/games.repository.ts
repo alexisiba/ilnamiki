@@ -1,6 +1,12 @@
 import type { DatabaseSync } from 'node:sqlite'
 
-import type { CoreRef, GameDetails, LastPlayedGame, RecentlyAddedGame } from '@shared/api'
+import type {
+  CoreRef,
+  GameDetails,
+  LastPlayedGame,
+  RecentlyAddedGame,
+  RecentlyPlayedGame
+} from '@shared/api'
 
 /** A game in a folder, with what it takes to play it. */
 export interface PlayableGameRecord {
@@ -51,6 +57,11 @@ export interface GamesRepository {
    * platform turned off are left out.
    */
   findLastPlayed(): LastPlayedGame | null
+  /**
+   * The `limit` games played most recently after the one `findLastPlayed` finds, newest first,
+   * left out as it leaves them out.
+   */
+  listRecentlyPlayed(limit: number): RecentlyPlayedGame[]
   /**
    * The `limit` games in a folder added last, newest first; games added together by title.
    * Games of a platform turned off are left out.
@@ -109,6 +120,20 @@ const toPlayable = (row: PlayableRow): PlayableGameRecord => ({
 /** The platforms the user turned off, whose games are left out of Home. */
 const DISABLED_PLATFORMS = 'SELECT platform_id FROM platform_settings WHERE is_enabled = 0'
 
+/**
+ * The games in a folder that were played, of platforms that are on, with when each was last
+ * played and its total playtime, last played first. The last played game and the ones played
+ * before it read it in the same order, so neither shows a game the other does.
+ */
+const PLAYED_GAMES = `SELECT games.id, games.title, games.platform_id,
+    MAX(play_sessions.ended_at) AS last_played_at,
+    SUM(play_sessions.ended_at - play_sessions.started_at) AS playtime_ms
+  FROM play_sessions
+  JOIN games ON games.id = play_sessions.game_id
+  WHERE games.folder_id IS NOT NULL AND games.platform_id NOT IN (${DISABLED_PLATFORMS})
+  GROUP BY games.id
+  ORDER BY last_played_at DESC, games.id`
+
 /** The SQL of playing the library's games, over `db`. */
 export function createGamesRepository(db: DatabaseSync): GamesRepository {
   return {
@@ -147,19 +172,7 @@ export function createGamesRepository(db: DatabaseSync): GamesRepository {
     },
 
     findLastPlayed() {
-      const row = db
-        .prepare(
-          `SELECT games.id, games.title, games.platform_id,
-              MAX(play_sessions.ended_at) AS last_played_at,
-              SUM(play_sessions.ended_at - play_sessions.started_at) AS playtime_ms
-            FROM play_sessions
-            JOIN games ON games.id = play_sessions.game_id
-            WHERE games.folder_id IS NOT NULL AND games.platform_id NOT IN (${DISABLED_PLATFORMS})
-            GROUP BY games.id
-            ORDER BY last_played_at DESC
-            LIMIT 1`
-        )
-        .get() as LastPlayedRow | undefined
+      const row = db.prepare(`${PLAYED_GAMES} LIMIT 1`).get() as LastPlayedRow | undefined
       if (!row) return null
       return {
         id: row.id,
@@ -168,6 +181,18 @@ export function createGamesRepository(db: DatabaseSync): GamesRepository {
         lastPlayedAt: row.last_played_at,
         playtimeMs: row.playtime_ms
       }
+    },
+
+    listRecentlyPlayed(limit) {
+      const rows = db
+        .prepare(`${PLAYED_GAMES} LIMIT ? OFFSET 1`)
+        .all(limit) as unknown as LastPlayedRow[]
+      return rows.map((row) => ({
+        id: row.id,
+        title: row.title,
+        platformId: row.platform_id,
+        lastPlayedAt: row.last_played_at
+      }))
     },
 
     listRecentlyAdded(limit) {

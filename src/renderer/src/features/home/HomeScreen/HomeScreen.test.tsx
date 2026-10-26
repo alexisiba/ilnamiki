@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { act, render, screen, within } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -17,7 +17,8 @@ import {
   mockGameFolders,
   mockLastPlayedGame,
   mockPlatforms,
-  mockRecentlyAddedGames
+  mockRecentlyAddedGames,
+  mockRecentlyPlayedGames
 } from '@renderer/test/api'
 
 import { HomeScreen } from './HomeScreen'
@@ -219,6 +220,57 @@ describe('HomeScreen', () => {
     expect(await screen.findByText('Ready to play')).toBeInTheDocument()
     await vi.waitFor(() => expect(window.api.games.listRecentlyAdded).toHaveBeenCalled())
     expect(screen.queryByRole('heading', { name: 'Recently added' })).not.toBeInTheDocument()
+  })
+
+  it('shows the games played before the last one, with when each was played', async () => {
+    mockEmulators([RETROARCH])
+    mockPlatforms([NINTENDO_64])
+    mockGameFolders([N64_FOLDER])
+    mockLastPlayedGame(OCARINA)
+    mockRecentlyPlayedGames([
+      {
+        id: 'g2',
+        title: 'Super Mario 64 (USA)',
+        platformId: 'nintendo_64',
+        lastPlayedAt: new Date(2020, 0, 15).getTime()
+      }
+    ])
+    renderHome()
+
+    const playAgain = await screen.findByRole('heading', { level: 2, name: 'Play again' })
+    const card = within(playAgain.closest('section') as HTMLElement).getByRole('button')
+    expect(card).toHaveAccessibleName('Super Mario 64 (USA)')
+    expect(card).toHaveAccessibleDescription('Nintendo 64 Jan 15, 2020')
+  })
+
+  it('leaves the games played before out while only one game was played', async () => {
+    mockEmulators([RETROARCH])
+    mockPlatforms([NINTENDO_64])
+    mockGameFolders([N64_FOLDER])
+    mockLastPlayedGame(OCARINA)
+    renderHome()
+
+    expect(
+      await screen.findByRole('heading', { level: 1, name: OCARINA.title })
+    ).toBeInTheDocument()
+    await vi.waitFor(() => expect(window.api.games.listRecentlyPlayed).toHaveBeenCalled())
+    expect(screen.queryByRole('heading', { name: 'Play again' })).not.toBeInTheDocument()
+  })
+
+  it('reads the games played before again when a game ends', async () => {
+    mockEmulators([RETROARCH])
+    mockPlatforms([NINTENDO_64])
+    mockGameFolders([N64_FOLDER])
+    mockLastPlayedGame(OCARINA)
+    renderHome()
+    await screen.findByRole('heading', { level: 1, name: OCARINA.title })
+
+    mockRecentlyPlayedGames([
+      { id: 'g2', title: 'Super Mario 64 (USA)', platformId: 'nintendo_64', lastPlayedAt: 1 }
+    ])
+    act(() => emitGameEnded('g2'))
+
+    expect(await screen.findByRole('heading', { name: 'Play again' })).toBeInTheDocument()
   })
 
   it('shows the game just played once the first game ends', async () => {

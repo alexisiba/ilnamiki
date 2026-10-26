@@ -15,6 +15,7 @@ export {
   launchGame,
   launchRandomGame,
   listRecentlyAddedGames,
+  listRecentlyPlayedGames,
   setGameCore,
   subscribeToGameEnded
 } from './games'
@@ -50,3 +51,4 @@ export { useLastPlayedGame } from './useLastPlayedGame'
 export { useNetworkStatus } from './useNetworkStatus'
 export { usePlatforms } from './usePlatforms'
 export { useRecentlyAddedGames, type RecentlyAddedGamesState } from './useRecentlyAddedGames'
+export { useRecentlyPlayedGames, type RecentlyPlayedGamesState } from './useRecentlyPlayedGames'

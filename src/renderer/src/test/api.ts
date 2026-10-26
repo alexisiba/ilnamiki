@@ -18,6 +18,7 @@ import type {
   NetworkStatus,
   OpenEmulatorResult,
   RecentlyAddedGame,
+  RecentlyPlayedGame,
   ScanFolderResult,
   UpdateFolderResult
 } from '@shared/api'
@@ -53,6 +54,7 @@ export function mockApi(): void {
     games: {
       getLastPlayed: vi.fn(async (): Promise<LastPlayedGame | null> => null),
       listRecentlyAdded: vi.fn(async (): Promise<RecentlyAddedGame[]> => []),
+      listRecentlyPlayed: vi.fn(async (): Promise<RecentlyPlayedGame[]> => []),
       getDetails: vi.fn(async (): Promise<GameDetails | null> => null),
       getPlayer: vi.fn(async (): Promise<GamePlayer | null> => null),
       setCore: vi.fn(async (): Promise<void> => undefined),
@@ -304,6 +306,14 @@ export function mockGamePlayer(player: GamePlayer | null | Error): void {
   vi.mocked(window.api.games.getPlayer).mockImplementation(async () => {
     if (player instanceof Error) throw player
     return player
+  })
+}
+
+/** Makes `window.api.games.listRecentlyPlayed` resolve with `games`, or reject with an error. */
+export function mockRecentlyPlayedGames(games: RecentlyPlayedGame[] | Error): void {
+  vi.mocked(window.api.games.listRecentlyPlayed).mockImplementation(async () => {
+    if (games instanceof Error) throw games
+    return games
   })
 }
 

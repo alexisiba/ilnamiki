@@ -10,7 +10,8 @@ import type {
   LastPlayedGame,
   LaunchGameResult,
   LaunchRandomGameResult,
-  RecentlyAddedGame
+  RecentlyAddedGame,
+  RecentlyPlayedGame
 } from '@shared/api'
 
 import { getDatabase } from '../../core/database'
@@ -29,6 +30,9 @@ import { isPlaySession } from './games.sessions'
 
 /** Most games `listRecentlyAdded` returns, as the contract promises. */
 const RECENTLY_ADDED_LIMIT = 20
+
+/** Most games `listRecentlyPlayed` returns, as the contract promises. */
+const RECENTLY_PLAYED_LIMIT = 20
 
 async function isFile(path: string): Promise<boolean> {
   try {
@@ -132,6 +136,11 @@ export const gamesService = {
   /** The game of the library played most recently, or null when none was played. */
   getLastPlayed(): LastPlayedGame | null {
     return createGamesRepository(getDatabase()).findLastPlayed()
+  },
+
+  /** The 20 games played most recently at most after the last played one, newest first. */
+  listRecentlyPlayed(): RecentlyPlayedGame[] {
+    return createGamesRepository(getDatabase()).listRecentlyPlayed(RECENTLY_PLAYED_LIMIT)
   },
 
   /** The 20 games most recently added to the library at most, newest first. */

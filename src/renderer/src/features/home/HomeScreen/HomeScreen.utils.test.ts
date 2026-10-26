@@ -2,7 +2,12 @@ import { describe, expect, it } from 'vitest'
 
 import type { InstalledPlatform, LastPlayedGame } from '@shared/api'
 
-import { formatLastPlayed, toContinueGame, toRecentlyAddedShelfGame } from './HomeScreen.utils'
+import {
+  formatLastPlayed,
+  toContinueGame,
+  toRecentlyAddedShelfGame,
+  toRecentlyPlayedShelfGame
+} from './HomeScreen.utils'
 
 const CRASH: LastPlayedGame = {
   id: 'g1',
@@ -61,6 +66,26 @@ describe('toRecentlyAddedShelfGame', () => {
     )
 
     expect(game).toMatchObject({ id: 'g1', title: 'Crash Bandicoot', platform: 'PlayStation' })
+    expect(game.imageUrl).toEqual(expect.stringContaining('no-image'))
+  })
+})
+
+describe('toRecentlyPlayedShelfGame', () => {
+  it('shows the generic game image and when the game was last played', () => {
+    const lastPlayedAt = new Date(2026, 9, 21, 9, 0).getTime()
+    const game = toRecentlyPlayedShelfGame(
+      { id: 'g1', title: 'Crash Bandicoot', platformId: 'playstation', lastPlayedAt },
+      [platform('playstation', 'Sony - PlayStation')],
+      new Date(2026, 9, 22, 18, 0),
+      'en'
+    )
+
+    expect(game).toMatchObject({
+      id: 'g1',
+      title: 'Crash Bandicoot',
+      platform: 'PlayStation',
+      caption: 'yesterday'
+    })
     expect(game.imageUrl).toEqual(expect.stringContaining('no-image'))
   })
 })

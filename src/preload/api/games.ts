@@ -4,6 +4,7 @@ import { GAMES_CHANNELS, type GameEnded, type GamesApi } from '@shared/api'
 
 export const gamesApi: GamesApi = {
   getLastPlayed: () => ipcRenderer.invoke(GAMES_CHANNELS.getLastPlayed),
+  listRecentlyPlayed: () => ipcRenderer.invoke(GAMES_CHANNELS.listRecentlyPlayed),
   listRecentlyAdded: () => ipcRenderer.invoke(GAMES_CHANNELS.listRecentlyAdded),
   getDetails: (gameId) => ipcRenderer.invoke(GAMES_CHANNELS.getDetails, gameId),
   getPlayer: (gameId) => ipcRenderer.invoke(GAMES_CHANNELS.getPlayer, gameId),

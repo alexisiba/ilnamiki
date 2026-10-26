@@ -5,8 +5,14 @@ import type {
   GamePlayer,
   LaunchGameResult,
   LaunchRandomGameResult,
-  RecentlyAddedGame
+  RecentlyAddedGame,
+  RecentlyPlayedGame
 } from '@shared/api'
+
+/** The 20 games played most recently at most after the last played one, newest first. */
+export function listRecentlyPlayedGames(): Promise<RecentlyPlayedGame[]> {
+  return window.api.games.listRecentlyPlayed()
+}
 
 /**
  * Which cores can play the game `gameId` and which one playing it uses, or null when it isn't

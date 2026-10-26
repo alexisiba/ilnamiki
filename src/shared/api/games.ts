@@ -82,6 +82,17 @@ export interface GamePlayer {
   playsWith: { core: CoreRef; reason: GameCoreReason } | null
 }
 
+/** A game of the library that was played, as a row of games played before shows it. */
+export interface RecentlyPlayedGame {
+  id: string
+  /** Title shown in the app, never empty. */
+  title: string
+  /** Platform it belongs to, e.g. "nintendo_64". */
+  platformId: string
+  /** When it was last played: when its latest session ended, in epoch ms. */
+  lastPlayedAt: number
+}
+
 /** A game of the library, as added from its folder. */
 export interface RecentlyAddedGame {
   id: string
@@ -100,6 +111,12 @@ export interface GamesApi {
    * Games removed from the library, or of a platform turned off, are left out.
    */
   getLastPlayed(): Promise<LastPlayedGame | null>
+  /**
+   * The 20 games played most recently at most after the one `getLastPlayed` returns, newest
+   * first. Empty while fewer than two games were played. Games removed from the library, or
+   * of a platform turned off, are left out, as `getLastPlayed` leaves them out.
+   */
+  listRecentlyPlayed(): Promise<RecentlyPlayedGame[]>
   /**
    * The 20 games most recently added to the library at most, newest first; games added
    * together (from the same folder) by title. Empty when the library has none. Games removed
@@ -139,6 +156,7 @@ export interface GamesApi {
 
 export const GAMES_CHANNELS = {
   getLastPlayed: 'games:get-last-played',
+  listRecentlyPlayed: 'games:list-recently-played',
   listRecentlyAdded: 'games:list-recently-added',
   getDetails: 'games:get-details',
   getPlayer: 'games:get-player',

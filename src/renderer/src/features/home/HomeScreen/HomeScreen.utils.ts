@@ -1,4 +1,9 @@
-import type { InstalledPlatform, LastPlayedGame, RecentlyAddedGame } from '@shared/api'
+import type {
+  InstalledPlatform,
+  LastPlayedGame,
+  RecentlyAddedGame,
+  RecentlyPlayedGame
+} from '@shared/api'
 
 import consolesArtwork from '@renderer/assets/images/consoles/consoles.webp'
 import noImage from '@renderer/assets/images/games/no-image.webp'
@@ -45,6 +50,25 @@ export function toRecentlyAddedShelfGame(
     title: game.title,
     platform: getPlatformName(game.platformId, platforms),
     imageUrl: noImage
+  }
+}
+
+/**
+ * A game played before the last one as its shelf shows it: as a recently added game, with
+ * when it was last played below its title.
+ */
+export function toRecentlyPlayedShelfGame(
+  game: RecentlyPlayedGame,
+  platforms: InstalledPlatform[],
+  now: Date,
+  locale: string
+): ShelfGame {
+  return {
+    id: game.id,
+    title: game.title,
+    platform: getPlatformName(game.platformId, platforms),
+    imageUrl: noImage,
+    caption: formatLastPlayed(new Date(game.lastPlayedAt), now, locale)
   }
 }
 

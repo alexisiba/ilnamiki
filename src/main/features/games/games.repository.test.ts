@@ -217,6 +217,50 @@ describe('games repository', () => {
     expect(repository.listRecentlyAdded(1).map(({ id }) => id)).toEqual(['g4'])
   })
 
+  it('lists the games played before the last played one, newest first', () => {
+    const insert = db.prepare(
+      `INSERT INTO games (id, folder_id, platform_id, file_path, title, added_at, removed_at)
+        VALUES (?, 'f1', 'playstation', ?, ?, 1, NULL)`
+    )
+    insert.run('g4', '/home/player/Games/PS1/Tekken.cue', 'Tekken')
+    const repository = createGamesRepository(db)
+    repository.addPlaySession(session('s1', 'g1', 1_000 * MINUTE_MS, 30))
+    repository.addPlaySession(session('s2', 'g3', 2_000 * MINUTE_MS, 15))
+    repository.addPlaySession(session('s3', 'g4', 3_000 * MINUTE_MS, 15))
+    repository.addPlaySession(session('s4', 'g1', 4_000 * MINUTE_MS, 45))
+
+    expect(repository.findLastPlayed()?.id).toBe('g1')
+    expect(repository.listRecentlyPlayed(10)).toEqual([
+      { id: 'g4', title: 'Tekken', platformId: 'playstation', lastPlayedAt: 3_000 * MINUTE_MS },
+      { id: 'g3', title: 'Game', platformId: 'playstation', lastPlayedAt: 2_000 * MINUTE_MS }
+    ])
+    expect(repository.listRecentlyPlayed(1).map(({ id }) => id)).toEqual(['g4'])
+  })
+
+  it('lists no game played before while one game at most was played', () => {
+    const repository = createGamesRepository(db)
+    expect(repository.listRecentlyPlayed(10)).toEqual([])
+
+    repository.addPlaySession(session('s1', 'g1', 1_000 * MINUTE_MS, 30))
+    repository.addPlaySession(session('s2', 'g1', 2_000 * MINUTE_MS, 30))
+    expect(repository.listRecentlyPlayed(10)).toEqual([])
+  })
+
+  it('leaves removed games and platforms turned off out of the games played before', () => {
+    const repository = createGamesRepository(db)
+    repository.addPlaySession(session('s1', 'g1', 1_000 * MINUTE_MS, 30))
+    repository.addPlaySession(session('s2', 'g2', 2_000 * MINUTE_MS, 30))
+    repository.addPlaySession(session('s3', 'g3', 3_000 * MINUTE_MS, 30))
+
+    // g2 is removed: g3 is the last played game and g1 the only one before it.
+    expect(repository.listRecentlyPlayed(10).map(({ id }) => id)).toEqual(['g1'])
+
+    db.prepare(
+      "INSERT INTO platform_settings (platform_id, is_enabled, updated_at) VALUES ('playstation', 0, 1)"
+    ).run()
+    expect(repository.listRecentlyPlayed(10)).toEqual([])
+  })
+
   it('finds no last played game while none was played', () => {
     expect(createGamesRepository(db).findLastPlayed()).toBeNull()
   })

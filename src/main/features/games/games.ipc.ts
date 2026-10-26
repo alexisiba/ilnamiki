@@ -23,6 +23,7 @@ function endIn(event: IpcMainInvokeEvent): (gameId: string) => void {
 /** Answers the renderer's `games` requests, after checking what it sends. */
 export function registerGamesIpc(): void {
   ipcMain.handle(GAMES_CHANNELS.getLastPlayed, () => gamesService.getLastPlayed())
+  ipcMain.handle(GAMES_CHANNELS.listRecentlyPlayed, () => gamesService.listRecentlyPlayed())
   ipcMain.handle(GAMES_CHANNELS.listRecentlyAdded, () => gamesService.listRecentlyAdded())
 
   // An id that can't be a game's (e.g. typed in a path) names no game of the library.

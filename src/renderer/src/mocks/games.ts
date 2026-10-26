@@ -105,7 +105,3 @@ export const SAMPLE_GAMES: Game[] = [
     playtimeMinutes: 112 * 60 + 25
   }
 ]
-
-export function getSampleGame(id: string): Game | undefined {
-  return SAMPLE_GAMES.find((game) => game.id === id)
-}
