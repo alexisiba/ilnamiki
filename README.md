@@ -25,3 +25,73 @@ It is built for retro and emulation enthusiasts who want to play their game coll
 or monitor with the experience of a real console, without dealing with menus, file explorers or
 emulator configuration screens every time they want to play.
 
+## Why
+
+Emulators are great at running games, but getting from "I have an emulator and some games" to
+playing from the couch usually means config files, exact folder names and menus built for a
+desk. Ilnamiki wants that whole path, from the first run to playing, to happen with a gamepad,
+the way a console does it.
+
+## Status
+
+Ilnamiki is in early development. It runs on **Linux** and plays games through
+[RetroArch](https://www.retroarch.com/). What works today:
+
+- A guided first run: add an emulator, see the platforms its cores play and add a folder of
+  games for each one.
+- A library of consoles and their games, played in full screen with RetroArch.
+- Play sessions, so Home offers to continue the last game played.
+- Gamepad, keyboard and mouse input, with sounds and music behind the menus.
+- English and Spanish.
+
+Game metadata and artwork, more emulators and other systems will come later.
+
+Ilnamiki doesn't include any games, BIOS files or emulators: you bring your own.
+
+## Running it locally
+
+### Requirements
+
+- Linux
+- [Node.js](https://nodejs.org/) 24 or later
+- [pnpm](https://pnpm.io/)
+- [RetroArch](https://www.retroarch.com/) as an AppImage, with the cores of the systems you
+  want to play, to play games
+
+### Install
+
+```bash
+git clone https://github.com/alexisiba/ilnamiki.git
+cd ilnamiki
+pnpm install
+```
+
+### Run
+
+```bash
+pnpm dev
+```
+
+This opens the app in development mode, reloading as the code changes.
+
+### Other commands
+
+| Command | What it does |
+|---|---|
+| `pnpm test` | Runs the tests |
+| `pnpm lint` | Checks the code with ESLint |
+| `pnpm typecheck` | Checks the types |
+| `pnpm build:linux` | Builds the Linux packages into `dist/` |
+
+## Contributing
+
+Ilnamiki is open source and open to anyone who wants to use it, learn from it or help build
+it. Criticism, ideas and suggestions are just as welcome as code: open an
+[issue](https://github.com/alexisiba/ilnamiki/issues) to share them, or a pull request to
+propose a change.
+
+This README will grow as the project does.
+
+## License
+
+[GPL-3.0-or-later](LICENSE)
