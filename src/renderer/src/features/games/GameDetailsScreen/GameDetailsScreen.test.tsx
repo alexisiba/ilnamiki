@@ -7,6 +7,7 @@ import type { GameDetails, InstalledPlatform } from '@shared/api'
 
 import { GAME_DETAILS_PATH, NavigationProvider } from '@renderer/core/navigation'
 import { emitGameEnded, mockGameDetails, mockLaunchGame, mockPlatforms } from '@renderer/test/api'
+import { setRect } from '@renderer/test/layout'
 
 import { GameDetailsScreen } from './GameDetailsScreen'
 
@@ -54,7 +55,7 @@ function renderDetailsOf(gameId: string): void {
   render(<RouterProvider router={router} />)
 }
 
-const play = (): Promise<HTMLElement> => screen.findByRole('button', { name: 'Play' })
+const play = (): Promise<HTMLElement> => screen.findByRole('button', { name: 'Play now' })
 
 describe('GameDetailsScreen', () => {
   beforeEach(() => {
@@ -103,7 +104,7 @@ describe('GameDetailsScreen', () => {
     expect(screen.queryByText('Not played yet')).not.toBeInTheDocument()
   })
 
-  it('focuses the Play action', async () => {
+  it('focuses Play now', async () => {
     mockGameDetails(CRASH)
     renderDetailsOf('g1')
 
@@ -121,7 +122,7 @@ describe('GameDetailsScreen', () => {
     expect(images[0].src).toContain('no-bg-image')
   })
 
-  it('starts the game with Play, which reads Playing until it ends', async () => {
+  it('starts the game with Play now, which reads Playing until it ends', async () => {
     mockGameDetails(CRASH)
     mockLaunchGame({ ok: true })
     renderDetailsOf('g1')
@@ -139,7 +140,39 @@ describe('GameDetailsScreen', () => {
     expect(await screen.findByText('Total playtime: 18 h 40 min')).toBeInTheDocument()
   })
 
-  it('says why the game couldn’t start, describing Play', async () => {
+  it('opens the game’s options with Options, beside Play now', async () => {
+    mockGameDetails(CRASH)
+    renderDetailsOf('g1')
+    const user = userEvent.setup()
+    const playNow = await play()
+    const options = screen.getByRole('button', { name: 'Options' })
+    setRect(playNow, { left: 0, top: 0, width: 240, height: 60 })
+    setRect(options, { left: 256, top: 0, width: 160, height: 60 })
+
+    await user.keyboard('{ArrowRight}')
+    expect(options).toHaveFocus()
+
+    await user.keyboard('{Enter}')
+
+    expect(await screen.findByRole('dialog', { name: 'Crash Bandicoot (USA)' })).toBeInTheDocument()
+    expect(window.api.games.getPlayer).toHaveBeenCalledWith('g1')
+  })
+
+  it('opens the game’s options with the secondary action, keeping focus behind', async () => {
+    mockGameDetails(CRASH)
+    renderDetailsOf('g1')
+    const user = userEvent.setup()
+    const playNow = await play()
+
+    await user.keyboard('x')
+    expect(await screen.findByRole('dialog', { name: 'Crash Bandicoot (USA)' })).toBeInTheDocument()
+
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(playNow).toHaveFocus()
+  })
+
+  it('says why the game couldn’t start, describing Play now', async () => {
     mockGameDetails(CRASH)
     mockLaunchGame({ ok: false, problem: 'missing-file' })
     renderDetailsOf('g1')
@@ -155,7 +188,8 @@ describe('GameDetailsScreen', () => {
     renderDetailsOf('unknown-game')
 
     expect(await screen.findByText('This game is not in your library.')).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Play' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Play now' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Options' })).not.toBeInTheDocument()
   })
 
   it('says so when the game can’t be read', async () => {

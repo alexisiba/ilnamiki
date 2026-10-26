@@ -31,7 +31,7 @@ describe('choosePlayingCore', () => {
     ).toEqual({ core: ref('snes9x'), reason: 'game' })
   })
 
-  it('plays with the last session’s core over the platform’s, so saves are found', () => {
+  it('plays with the last session’s core over the platform’s, so progress is found', () => {
     expect(
       choosePlayingCore({
         game: null,

@@ -206,7 +206,8 @@ isn't installed anymore is passed over for the next:
 
 1. The core chosen for the game (`games.emulator_id`, `games.core`).
 2. The core of its latest session with an emulator the user still has (`play_sessions`), so it
-   opens where the user left it: RetroArch keeps saves per core.
+   finds its progress: save states only load in the core that made them, and RetroArch may
+   keep saves apart by core (when set to sort them by core).
 3. The core chosen for its platform (`platform_settings.default_emulator_id`, `default_core`).
 4. Its platform's first installed core, by name.
 

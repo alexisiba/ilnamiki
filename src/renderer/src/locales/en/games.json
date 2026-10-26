@@ -3,7 +3,8 @@
     "noMetadata": "No metadata",
     "noDescription": "No description",
     "neverPlayed": "Not played yet",
-    "play": "Play",
+    "play": "Play now",
+    "options": "Options",
     "notFound": "This game is not in your library.",
     "failed": "The game couldn't be loaded. Try again later."
   },

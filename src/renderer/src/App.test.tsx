@@ -195,7 +195,7 @@ describe('App', () => {
       await screen.findByRole('heading', { level: 1, name: 'Metroid (USA)' })
     ).toBeInTheDocument()
     expect(window.api.games.getDetails).toHaveBeenCalledWith('g2')
-    expect(screen.getByRole('button', { name: 'Play' })).toHaveFocus()
+    expect(screen.getByRole('button', { name: 'Play now' })).toHaveFocus()
     expect(currentSection()).toHaveTextContent('Home')
   })
 
@@ -208,7 +208,7 @@ describe('App', () => {
     await user.keyboard('{Enter}')
     await user.keyboard('{Escape}')
 
-    expect(screen.queryByRole('button', { name: 'Play' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Play now' })).not.toBeInTheDocument()
     expect(await screen.findByRole('button', { name: 'Metroid (USA)' })).toHaveFocus()
     expect(getPlayedSounds()).toEqual(['select', 'back'])
   })

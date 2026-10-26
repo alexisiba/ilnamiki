@@ -64,8 +64,8 @@ export interface GameDetails {
 /**
  * Why a game plays with the core it does, in the order they are tried:
  * - `game`: the user chose it for this game.
- * - `last-session`: the game was last played with it, so it opens where the user left it
- *   (RetroArch keeps saves per core).
+ * - `last-session`: the game was last played with it, so its progress is found: save states
+ *   only load in the core that made them, and RetroArch may keep saves apart by core.
  * - `platform-default`: the user chose it for the game's platform.
  * - `first-installed`: nothing was chosen; the platform's first core, by name.
  * A core that isn't installed anymore is passed over for the next.

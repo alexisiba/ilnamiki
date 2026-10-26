@@ -63,8 +63,27 @@
   color: var(--color-text-muted);
 }
 
+/* Play now, then Options beside it. */
 .play {
+  display: flex;
+  gap: var(--space-sm);
   margin-top: var(--space-md);
+}
+
+/* Play now's label, then its icon on the right. */
+.buttonContent {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--space-xs) * 1.5);
+  white-space: nowrap;
+}
+
+/* Play is a solid shape: filled reads better than outlined at a distance. */
+.playIcon {
+  flex-shrink: 0;
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+  fill: currentColor;
 }
 
 .problem {

@@ -3,7 +3,8 @@
     "noMetadata": "Sin metadatos",
     "noDescription": "Sin descripción",
     "neverPlayed": "Aún no se ha jugado",
-    "play": "Jugar",
+    "play": "Jugar ahora",
+    "options": "Opciones",
     "notFound": "Este juego no está en tu biblioteca.",
     "failed": "No se pudo cargar el juego. Inténtalo más tarde."
   },
