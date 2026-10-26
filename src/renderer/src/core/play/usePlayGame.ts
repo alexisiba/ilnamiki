@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { pauseBackgroundMusic, resumeBackgroundMusic } from '@renderer/core/audio'
 import { launchGame, subscribeToGameEnded } from '@renderer/core/ipc'
-
-import type { PlayProblem } from './GamePanel.utils'
+import type { PlayProblem } from '@renderer/utils/playProblems'
 
 export interface PlayGameState {
   /** Whether the game is starting or being played, until its emulator closes. */

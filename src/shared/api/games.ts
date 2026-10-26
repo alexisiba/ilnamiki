@@ -39,7 +39,8 @@ export interface GamesApi {
    */
   getLastPlayed(): Promise<LastPlayedGame | null>
   /**
-   * Starts the game in full screen with its platform's emulator, or says why it can't.
+   * Starts the game in full screen with the emulator and core it was last played with, or
+   * its platform's when it was never played or those are gone, or says why it can't.
    * Resolves once the emulator has started; `onGameEnded` says when it closes.
    */
   launch(gameId: string): Promise<LaunchGameResult>

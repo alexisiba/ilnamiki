@@ -64,6 +64,32 @@ describe('games repository', () => {
     expect(repository.findPlayable('missing')).toBeUndefined()
   })
 
+  it('finds the emulator and core a game was last played with', () => {
+    db.prepare(
+      `INSERT INTO emulators (id, kind, name, executable_path, created_at, updated_at)
+        VALUES ('e2', 'retroarch', 'RetroArch Nightly', '/home/player/Nightly.AppImage', 1, 1)`
+    ).run()
+    const repository = createGamesRepository(db)
+    repository.addPlaySession(session('s1', 'g1', 1_000 * MINUTE_MS, 30))
+    repository.addPlaySession({
+      ...session('s2', 'g1', 3_000 * MINUTE_MS, 30),
+      emulatorId: 'e2',
+      core: 'swanstation'
+    })
+    repository.addPlaySession(session('s3', 'g3', 4_000 * MINUTE_MS, 30))
+
+    expect(repository.findLastPlayer('g1')).toEqual({ emulatorId: 'e2', core: 'swanstation' })
+  })
+
+  it('finds no last player for a game never played, or whose emulator was deleted', () => {
+    const repository = createGamesRepository(db)
+    repository.addPlaySession(session('s1', 'g1', 1_000 * MINUTE_MS, 30))
+
+    expect(repository.findLastPlayer('g3')).toBeUndefined()
+    db.prepare("DELETE FROM emulators WHERE id = 'e1'").run()
+    expect(repository.findLastPlayer('g1')).toBeUndefined()
+  })
+
   it('finds no last played game while none was played', () => {
     expect(createGamesRepository(db).findLastPlayed()).toBeNull()
   })

@@ -2,10 +2,10 @@ import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@renderer/components/Button'
+import { usePlayGame } from '@renderer/core/play'
+import { playProblemMessageKey } from '@renderer/utils/playProblems'
 
-import { usePlayGame } from './GamePanel.hooks'
 import type { GamePanelProps } from './GamePanel.types'
-import { playProblemMessageKey } from './GamePanel.utils'
 import styles from './GamePanel.module.css'
 
 /**
@@ -33,12 +33,12 @@ export function GamePanel({ game, describedBy }: GamePanelProps): React.JSX.Elem
           aria-disabled={playing}
           onPress={play}
         >
-          {playing ? t('consoleGames.playing') : t('consoleGames.playNow')}
+          {playing ? t('play.playing', { ns: 'common' }) : t('consoleGames.playNow')}
         </Button>
       </div>
       {problem && (
         <p id={problemId} role="alert" className={styles.problem}>
-          {t(playProblemMessageKey(problem))}
+          {t(playProblemMessageKey(problem), { ns: 'common' })}
         </p>
       )}
     </div>

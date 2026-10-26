@@ -25,9 +25,21 @@ export interface PlaySessionRecord {
   createdAt: number
 }
 
+/** The emulator, and its core, a game was played with. */
+export interface GamePlayerRecord {
+  emulatorId: string
+  /** e.g. "mupen64plus_next"; null for emulators without cores. */
+  core: string | null
+}
+
 export interface GamesRepository {
   /** The game `id` while it is in a folder; removed games can't be played. */
   findPlayable(id: string): PlayableGameRecord | undefined
+  /**
+   * The emulator and core the game `gameId` was last played with, or undefined when it was
+   * never played with an emulator the user still has.
+   */
+  findLastPlayer(gameId: string): GamePlayerRecord | undefined
   /** The game in a folder played most recently, or null when none was played. */
   findLastPlayed(): LastPlayedGame | null
   addPlaySession(session: PlaySessionRecord): void
@@ -51,6 +63,18 @@ export function createGamesRepository(db: DatabaseSync): GamesRepository {
         )
         .get(id) as { id: string; platform_id: string; file_path: string } | undefined
       return row && { id: row.id, platformId: row.platform_id, filePath: row.file_path }
+    },
+
+    findLastPlayer(gameId) {
+      const row = db
+        .prepare(
+          `SELECT emulator_id, core FROM play_sessions
+            WHERE game_id = ? AND emulator_id IS NOT NULL
+            ORDER BY ended_at DESC, created_at DESC
+            LIMIT 1`
+        )
+        .get(gameId) as { emulator_id: string; core: string | null } | undefined
+      return row && { emulatorId: row.emulator_id, core: row.core }
     },
 
     findLastPlayed() {

@@ -7,8 +7,12 @@ import type { LastPlayedGame, LaunchGameResult } from '@shared/api'
 
 import { getDatabase } from '../../core/database'
 import { freeEmulatorTurn, startEmulator, takeEmulatorTurn } from '../../core/emulatorProcess'
-import { findPlatformPlayer, type PlatformPlayer } from '../../core/installedPlatforms'
-import { createGamesRepository } from './games.repository'
+import {
+  findCorePlayer,
+  findPlatformPlayer,
+  type PlatformPlayer
+} from '../../core/installedPlatforms'
+import { createGamesRepository, type PlayableGameRecord } from './games.repository'
 import { retroArchLaunchArgs, retroArchOverridesText } from './games.retroarch'
 import { isPlaySession } from './games.sessions'
 
@@ -30,6 +34,20 @@ async function writeRetroArchOverrides(): Promise<string> {
   const path = join(folder, 'overrides.cfg')
   await writeFile(path, retroArchOverridesText(), 'utf8')
   return path
+}
+
+/**
+ * How to play `game`: with the emulator and core it was last played with, so it opens where
+ * the user left it (RetroArch keeps saves per core), or with its platform's while it was
+ * never played or those aren't installed anymore. Null when nothing installed plays it.
+ */
+async function findGamePlayer(game: PlayableGameRecord): Promise<PlatformPlayer | null> {
+  const last = createGamesRepository(getDatabase()).findLastPlayer(game.id)
+  if (last?.core) {
+    const player = await findCorePlayer(last.emulatorId, last.core)
+    if (player) return player
+  }
+  return findPlatformPlayer(game.platformId)
 }
 
 /**
@@ -63,9 +81,9 @@ export const gamesService = {
   },
 
   /**
-   * Starts the game `gameId` in full screen with its platform's first installed core, or
-   * says why it can't. When the emulator closes, the time played is recorded and `onEnded`
-   * is called.
+   * Starts the game `gameId` in full screen with the emulator and core it was last played
+   * with, or its platform's first installed core, or says why it can't. When the emulator
+   * closes, the time played is recorded and `onEnded` is called.
    */
   async launch(gameId: string, onEnded: () => void): Promise<LaunchGameResult> {
     if (!takeEmulatorTurn()) return { ok: false, problem: 'already-playing' }
@@ -76,7 +94,7 @@ export const gamesService = {
       if (!game) return { ok: false, problem: 'unknown-game' }
       if (!(await isFile(game.filePath))) return { ok: false, problem: 'missing-file' }
 
-      const player = await findPlatformPlayer(game.platformId)
+      const player = await findGamePlayer(game)
       if (!player) return { ok: false, problem: 'no-core' }
 
       const args = retroArchLaunchArgs({

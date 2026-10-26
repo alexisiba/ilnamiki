@@ -43,6 +43,17 @@
     "networkEthernetNoInternet": "Ethernet connected, no internet",
     "networkNone": "No network connection"
   },
+  "play": {
+    "playing": "Playing",
+    "problems": {
+      "unknownGame": "This game is no longer in your library.",
+      "missingFile": "The game's file isn't there anymore. Check its folder in Settings.",
+      "noCore": "No installed core plays this console. Set up an emulator in Settings.",
+      "alreadyPlaying": "Another game is being played. Close it first.",
+      "notStarted": "The emulator couldn't be started. Check it in Settings.",
+      "failed": "The game couldn't be started. Try again."
+    }
+  },
   "playStats": {
     "lastPlayed": "Last played {{time}}",
     "playtime": "Total playtime: {{duration}}"

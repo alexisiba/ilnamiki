@@ -24,6 +24,7 @@ describe('toContinueGame', () => {
     const game = toContinueGame(CRASH, [platform('playstation', 'Sony - PlayStation')])
 
     expect(game).toMatchObject({
+      id: 'g1',
       title: 'Crash Bandicoot',
       platform: 'PlayStation',
       description: null,

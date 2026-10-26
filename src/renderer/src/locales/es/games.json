@@ -10,15 +10,6 @@
     "gamesInstalled_other": "{{count}} juegos instalados",
     "noDescription": "Sin descripción",
     "playNow": "Jugar ahora",
-    "playing": "Jugando",
-    "playProblems": {
-      "unknownGame": "Este juego ya no está en tu biblioteca.",
-      "missingFile": "El archivo del juego ya no está. Revisa su carpeta en Ajustes.",
-      "noCore": "Ningún núcleo instalado juega esta consola. Configura un emulador en Ajustes.",
-      "alreadyPlaying": "Se está jugando otro juego. Ciérralo primero.",
-      "notStarted": "No se pudo iniciar el emulador. Revísalo en Ajustes.",
-      "failed": "No se pudo iniciar el juego. Inténtalo de nuevo."
-    },
     "notFound": "Esta consola no está en tu biblioteca.",
     "gamesFailed": "No se pudieron cargar los juegos. Inténtalo más tarde."
   }

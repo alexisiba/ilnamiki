@@ -22,6 +22,7 @@ export function toContinueGame(game: LastPlayedGame, platforms: InstalledPlatfor
   const installed = platforms.find((platform) => platform.id === game.platformId)
 
   return {
+    id: game.id,
     title: game.title,
     platform: known?.name ?? installed?.name ?? game.platformId,
     description: null,
