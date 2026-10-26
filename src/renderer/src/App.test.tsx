@@ -318,6 +318,40 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: 'Add emulator' })).toHaveFocus()
   })
 
+  describe('a screen inside Settings, with focus left on Back', () => {
+    async function leaveFocusOnBack(): Promise<ReturnType<typeof userEvent.setup>> {
+      const user = userEvent.setup()
+      await user.click(screen.getByRole('link', { name: 'Settings' }))
+      await user.click(await screen.findByRole('button', { name: /RetroArch/ }))
+      await user.pointer({
+        target: await screen.findByRole('button', { name: 'Back' }),
+        coords: { x: 10, y: 10 }
+      })
+      expect(screen.getByRole('button', { name: 'Back' })).toHaveFocus()
+      return user
+    }
+
+    it('starts on its initial focus when it is opened again', async () => {
+      renderApp()
+      const user = await leaveFocusOnBack()
+
+      await user.keyboard('{Escape}')
+      await user.click(screen.getByRole('button', { name: /RetroArch/ }))
+
+      expect(await screen.findByRole('button', { name: 'Open emulator' })).toHaveFocus()
+    })
+
+    it('keeps focus where it was left when coming back to it from another section', async () => {
+      renderApp()
+      const user = await leaveFocusOnBack()
+
+      await user.click(screen.getByRole('link', { name: 'Home' }))
+      await user.click(screen.getByRole('link', { name: 'Settings' }))
+
+      expect(await screen.findByRole('button', { name: 'Back' })).toHaveFocus()
+    })
+  })
+
   it('opens the emulators in Settings from Home while there are none, whichever was left', async () => {
     mockEmulators([])
     const router = renderApp()

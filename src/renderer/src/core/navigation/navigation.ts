@@ -22,8 +22,11 @@ export interface FocusGroup {
 }
 
 export interface Navigation {
-  /** Sets the current screen; focus is remembered and restored per scope. */
-  setScope: (scope: string) => void
+  /**
+   * Sets the current screen; focus is remembered per scope, and restored when it opens unless
+   * `restore` is false (a screen opened anew). Nothing changes while the scope stays the same.
+   */
+  setScope: (scope: string, restore?: boolean) => void
   registerItem: (item: FocusItem) => () => void
   registerGroup: (group: FocusGroup) => () => void
   /** Moves focus in `direction`: whether it found somewhere to go. */
@@ -172,10 +175,10 @@ export function createNavigation(): Navigation {
   }
 
   return {
-    setScope(nextScope) {
+    setScope(nextScope, restore = true) {
       if (nextScope === scope) return
       scope = nextScope
-      restoreKey = scopeMemory.get(scope)
+      restoreKey = restore ? scopeMemory.get(scope) : undefined
       claim = CLAIM.none
     },
 

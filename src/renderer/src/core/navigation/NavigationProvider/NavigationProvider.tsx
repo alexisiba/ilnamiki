@@ -13,12 +13,13 @@ const isDirection = (action: InputAction): action is Direction =>
 /** Owns the app's focus: moves it with directions and clicks the focused item on confirm. */
 export function NavigationProvider({
   scope = '',
+  restoreFocus = true,
   children
 }: NavigationProviderProps): React.JSX.Element {
   const [navigation] = useState(createNavigation)
 
   // A layout effect runs before the new screen's items register in their passive effects.
-  useLayoutEffect(() => navigation.setScope(scope), [navigation, scope])
+  useLayoutEffect(() => navigation.setScope(scope, restoreFocus), [navigation, scope, restoreFocus])
 
   useInputAction((action, phase) => {
     if (isDirection(action)) {

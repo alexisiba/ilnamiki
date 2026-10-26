@@ -86,6 +86,11 @@ When a request would push the UI toward "web" or "streaming", say so before impl
 - **There is always exactly one focused element**, and it is obvious from across the room.
 - **Focus is never lost.** After closing a dialog, switching views or returning to a screen,
   focus goes back to a sensible place (usually where it was).
+- **Focus is kept when returning, not when opening.** Coming back to a screen (back, a
+  section's tab) shows it with focus where it was left. Opening a screen anew starts on its
+  initial focus, even if it was shown before, so a stale focus (e.g. on Back) is never
+  confirmed by mistake. `useOpenScreen` is the only navigation that stacks history, which is
+  how the app tells the two apart; everything else replaces the current entry.
 - **Navigation is spatial.** Directional input moves focus to what is visually in that
   direction, handled by the shared navigation layer, not hand-wired per feature.
   - Shelves, grids and carousels keep the default (`FocusGroup` `movement="spatial"`): down

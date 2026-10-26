@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Outlet, useLocation } from 'react-router'
+import { NavigationType, Outlet, useLocation, useNavigationType } from 'react-router'
 
 import { ButtonGuide } from '@renderer/components/ButtonGuide'
 import { TopBar } from '@renderer/components/TopBar'
@@ -16,6 +16,9 @@ import styles from './App.module.css'
 
 function App(): React.JSX.Element {
   const { pathname } = useLocation()
+  // Only opening a screen stacks it (see useOpenScreen): coming back, by back or a section's
+  // tab, replaces the screen instead.
+  const openedAnew = useNavigationType() === NavigationType.Push
   const goBack = useGoBack()
 
   // Back returns one level: a step back inside the screen when it has one, else to the screen
@@ -39,7 +42,7 @@ function App(): React.JSX.Element {
   }, [])
 
   return (
-    <NavigationProvider scope={pathname}>
+    <NavigationProvider scope={pathname} restoreFocus={!openedAnew}>
       <div className={styles.app}>
         <TopBar />
         <main className={styles.screen}>
