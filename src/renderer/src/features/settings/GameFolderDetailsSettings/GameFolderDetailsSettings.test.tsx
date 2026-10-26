@@ -30,7 +30,8 @@ const PLAYSTATION: InstalledPlatform = {
   id: 'playstation',
   name: 'PlayStation',
   manufacturer: 'Sony',
-  cores: [{ id: 'swanstation', name: 'SwanStation', emulatorId: 'a1', extensions: [] }]
+  cores: [{ id: 'swanstation', name: 'SwanStation', emulatorId: 'a1', extensions: [] }],
+  isEnabled: true
 }
 
 const PS1_PATH = '/home/player/Games/PS1'

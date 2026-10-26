@@ -26,6 +26,8 @@
     "cores_one": "Core: {{cores}}",
     "cores_other": "Cores: {{cores}}",
     "extensions": "Extensions: {{extensions}}",
+    "enabled": "On",
+    "disabled": "Off",
     "empty": {
       "title": "No platforms installed",
       "description": "Set up an emulator to add your first platform.",
@@ -37,6 +39,9 @@
     }
   },
   "platformDetails": {
+    "enabled": "Platform on",
+    "enabledHint": "While it is off, its games don't show in your library or on Home. Nothing is deleted.",
+    "enableFailed": "The change couldn't be saved. Try again.",
     "extensions": "Extensions",
     "noExtensions": "Its cores don't say which extensions they play.",
     "cores": "Cores",

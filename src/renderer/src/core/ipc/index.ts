@@ -33,7 +33,7 @@ export {
   subscribeToScanProgress
 } from './library'
 export { getNetworkStatus } from './network'
-export { refreshPlatforms, type PlatformsState } from './platforms'
+export { refreshPlatforms, setPlatformEnabled, type PlatformsState } from './platforms'
 export { useControllerStatus } from './useControllerStatus'
 export { useEmulators } from './useEmulators'
 export { useFolderGames, type FolderGamesState } from './useFolderGames'

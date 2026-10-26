@@ -13,7 +13,8 @@ const platform = (id: string, emulatorIds: string[]): InstalledPlatform => ({
     name: `Core ${index}`,
     emulatorId,
     extensions: []
-  }))
+  })),
+  isEnabled: true
 })
 
 describe('countLinkedPlatforms', () => {

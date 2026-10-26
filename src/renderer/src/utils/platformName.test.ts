@@ -8,7 +8,8 @@ const platform = (id: string, name: string): InstalledPlatform => ({
   id,
   name,
   manufacturer: null,
-  cores: []
+  cores: [],
+  isEnabled: true
 })
 
 describe('getPlatformName', () => {

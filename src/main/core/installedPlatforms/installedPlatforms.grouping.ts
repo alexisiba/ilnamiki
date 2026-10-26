@@ -7,9 +7,13 @@ const byName = (a: { name: string }, b: { name: string }): number =>
 
 /**
  * The platforms the emulators' cores play, each with its cores, both by name. A platform takes
- * its name from the first core found for it, and its manufacturer from the first that says.
+ * its name from the first core found for it, and its manufacturer from the first that says;
+ * it is on unless it is among `disabledPlatformIds`.
  */
-export function groupByPlatform(emulators: EmulatorCores[]): InstalledPlatform[] {
+export function groupByPlatform(
+  emulators: EmulatorCores[],
+  disabledPlatformIds: ReadonlySet<string> = new Set()
+): InstalledPlatform[] {
   const platforms = new Map<string, InstalledPlatform>()
   for (const { emulatorId, cores } of emulators) {
     for (const detected of cores) {
@@ -21,7 +25,8 @@ export function groupByPlatform(emulators: EmulatorCores[]): InstalledPlatform[]
           id: platformId,
           name: detected.platformName,
           manufacturer: detected.platformManufacturer,
-          cores: [core]
+          cores: [core],
+          isEnabled: !disabledPlatformIds.has(platformId)
         })
         continue
       }

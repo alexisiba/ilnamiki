@@ -35,7 +35,8 @@ const platform = (id: string, name: string): InstalledPlatform => ({
   id,
   name,
   manufacturer: null,
-  cores: [{ id: `${id}-core`, name: 'Core', emulatorId: RETROARCH.id, extensions: [] }]
+  cores: [{ id: `${id}-core`, name: 'Core', emulatorId: RETROARCH.id, extensions: [] }],
+  isEnabled: true
 })
 
 const PLATFORMS = [platform('nes', 'NES'), platform('snes', 'SNES')]

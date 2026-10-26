@@ -19,7 +19,7 @@ structure: what each table is for, what each field means and how tables relate.
 | Journal | WAL (`ilnamiki.db-wal` and `ilnamiki.db-shm` exist while the app runs) |
 | Foreign keys | Enforced on every connection |
 | Schema version | Kept in `PRAGMA user_version`; the number of the last migration applied |
-| Current version | **3**: `emulators`, `library_folders`, `games`, `play_sessions` |
+| Current version | **4**: `emulators`, `library_folders`, `games`, `play_sessions`, `platform_settings` |
 
 ## What is stored and what isn't
 
@@ -80,6 +80,11 @@ erDiagram
         TEXT title
         INTEGER added_at
         INTEGER removed_at
+    }
+    platform_settings {
+        TEXT platform_id PK
+        INTEGER is_enabled
+        INTEGER updated_at
     }
     play_sessions {
         TEXT id PK
@@ -166,6 +171,20 @@ progress when Ilnamiki itself closes is lost.
 
 Indexes: `play_sessions_game_id_index`, to sum and date a game's sessions;
 `play_sessions_ended_at_index`, to find the game played last.
+
+### `platform_settings`
+
+Migration 4. What the user set for a platform. Only platforms the user changed have a row:
+a platform without one is on, so a platform that appears when a core is installed starts on
+without anything being written. Platforms themselves aren't stored; they are read live from
+the installed cores. While a platform is off, its games are left out of the library, Home and
+random picks; nothing about them is deleted.
+
+| Field | Type | Null | Meaning |
+|---|---|---|---|
+| `platform_id` | `TEXT` | no | Primary key: the platform's id from the installed cores (e.g. `nintendo_64`), never empty |
+| `is_enabled` | `INTEGER` | no | Whether the platform is on: `0` or `1` (`CHECK`) |
+| `updated_at` | `INTEGER` | no | When the user last changed it |
 
 ## Planned tables
 

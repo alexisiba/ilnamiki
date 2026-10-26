@@ -22,14 +22,16 @@ const SUPER_NES: InstalledPlatform = {
   cores: [
     { id: 'bsnes', name: 'bsnes', emulatorId: 'a1', extensions: ['sfc', 'bs'] },
     { id: 'snes9x', name: 'Snes9x', emulatorId: 'a1', extensions: ['smc', 'sfc'] }
-  ]
+  ],
+  isEnabled: true
 }
 
 const PLAYSTATION: InstalledPlatform = {
   id: 'playstation',
   name: 'PlayStation',
   manufacturer: null,
-  cores: [{ id: 'swanstation', name: 'SwanStation', emulatorId: 'a1', extensions: [] }]
+  cores: [{ id: 'swanstation', name: 'SwanStation', emulatorId: 'a1', extensions: [] }],
+  isEnabled: false
 }
 
 function renderDetails(platformId: string = SUPER_NES.id): void {
@@ -102,14 +104,61 @@ describe('PlatformDetailsSettings', () => {
     expect(screen.queryByText('Sony')).not.toBeInTheDocument()
   })
 
-  it('focuses Back, which returns to the list', async () => {
+  it('focuses the switch, on while the platform is on, saying what off means', async () => {
     mockPlatforms([SUPER_NES])
     renderDetails()
 
-    const back = await screen.findByRole('button', { name: 'Back' })
-    expect(back).toHaveFocus()
+    const enabled = await screen.findByRole('switch', { name: 'Platform on' })
+    expect(enabled).toHaveFocus()
+    expect(enabled).toBeChecked()
+    expect(enabled).toHaveAccessibleDescription(
+      "While it is off, its games don't show in your library or on Home. Nothing is deleted."
+    )
+  })
 
-    await userEvent.setup().click(back)
+  it('shows the switch off while the platform is off', async () => {
+    mockPlatforms([PLAYSTATION])
+    renderDetails(PLAYSTATION.id)
+
+    expect(await screen.findByRole('switch', { name: 'Platform on' })).not.toBeChecked()
+  })
+
+  it('turns the platform off and on again, keeping it in main', async () => {
+    mockPlatforms([SUPER_NES])
+    renderDetails()
+    const user = userEvent.setup()
+    const enabled = await screen.findByRole('switch', { name: 'Platform on' })
+
+    await user.click(enabled)
+
+    expect(window.api.platforms.setEnabled).toHaveBeenLastCalledWith('super_nes', false)
+    expect(enabled).not.toBeChecked()
+
+    await user.click(enabled)
+
+    expect(window.api.platforms.setEnabled).toHaveBeenLastCalledWith('super_nes', true)
+    expect(enabled).toBeChecked()
+  })
+
+  it('keeps the switch as it was when the change can’t be kept, saying so', async () => {
+    mockPlatforms([SUPER_NES])
+    vi.mocked(window.api.platforms.setEnabled).mockRejectedValue(new Error('No database'))
+    renderDetails()
+    const enabled = await screen.findByRole('switch', { name: 'Platform on' })
+
+    await userEvent.setup().click(enabled)
+
+    const message = "The change couldn't be saved. Try again."
+    expect(await screen.findByRole('alert')).toHaveTextContent(message)
+    expect(enabled).toBeChecked()
+    expect(enabled).toHaveAccessibleDescription(expect.stringContaining(message))
+  })
+
+  it('returns to the list with Back', async () => {
+    mockPlatforms([SUPER_NES])
+    renderDetails()
+
+    await userEvent.setup().click(await screen.findByRole('button', { name: 'Back' }))
 
     expect(screen.getByText('Settings screen')).toBeInTheDocument()
   })
@@ -121,7 +170,7 @@ describe('PlatformDetailsSettings', () => {
     expect(
       await screen.findByRole('heading', { name: 'This platform is no longer installed.' })
     ).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Back' })).toHaveFocus()
   })
 
   it('shows nothing until the platforms are read', () => {

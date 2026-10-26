@@ -92,7 +92,8 @@ export function mockApi(): void {
       }))
     },
     platforms: {
-      list: vi.fn(async (): Promise<InstalledPlatform[]> => [])
+      list: vi.fn(async (): Promise<InstalledPlatform[]> => []),
+      setEnabled: vi.fn(async (): Promise<void> => undefined)
     }
   }
 }

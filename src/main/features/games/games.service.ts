@@ -151,7 +151,7 @@ export const gamesService = {
 
   /**
    * Starts a game picked at random among the library's games, of every folder, that an
-   * installed core plays, as `launch` starts it; a game whose file isn't there, or whose core
+   * installed core plays and whose platform is on, as `launch` starts it; a game whose file isn't there, or whose core
    * can't be found, is passed over for another. Says which game started, or why none did. When its emulator closes, the time
    * played is recorded and `onEnded` is called with the game's id.
    */
@@ -160,7 +160,11 @@ export const gamesService = {
 
     let started = false
     try {
-      const playablePlatformIds = new Set((await listInstalledPlatforms()).map(({ id }) => id))
+      const playablePlatformIds = new Set(
+        (await listInstalledPlatforms())
+          .filter((platform) => platform.isEnabled)
+          .map((platform) => platform.id)
+      )
       const games = onPlayablePlatforms(
         createGamesRepository(getDatabase()).listPlayable(),
         playablePlatformIds

@@ -153,6 +153,31 @@ describe('games repository', () => {
     expect(repository.findDetails('missing')).toBeNull()
   })
 
+  it('leaves the games of a platform turned off out of the last played and recently added', () => {
+    db.prepare(
+      `INSERT INTO library_folders (id, path, platform_id, created_at, updated_at)
+        VALUES ('f2', '/home/player/Games/NES', 'nes', 1, 1)`
+    ).run()
+    db.prepare(
+      `INSERT INTO games (id, folder_id, platform_id, file_path, title, added_at, removed_at)
+        VALUES ('g4', 'f2', 'nes', '/home/player/Games/NES/Contra.nes', 'Contra', 9, NULL)`
+    ).run()
+    const repository = createGamesRepository(db)
+    repository.addPlaySession(session('s1', 'g1', 1_000 * MINUTE_MS, 30))
+    repository.addPlaySession(session('s2', 'g4', 2_000 * MINUTE_MS, 30))
+    db.prepare(
+      "INSERT INTO platform_settings (platform_id, is_enabled, updated_at) VALUES ('nes', 0, 1)"
+    ).run()
+
+    expect(repository.findLastPlayed()?.id).toBe('g1')
+    expect(repository.listRecentlyAdded(10).map(({ id }) => id)).toEqual(['g1', 'g3'])
+
+    db.prepare("UPDATE platform_settings SET is_enabled = 1 WHERE platform_id = 'nes'").run()
+
+    expect(repository.findLastPlayed()?.id).toBe('g4')
+    expect(repository.listRecentlyAdded(1).map(({ id }) => id)).toEqual(['g4'])
+  })
+
   it('finds no last played game while none was played', () => {
     expect(createGamesRepository(db).findLastPlayed()).toBeNull()
   })

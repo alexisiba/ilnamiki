@@ -1,7 +1,7 @@
-/* The name, the extensions and the cores at the top; Back at the bottom. */
+/* The name, the switch, the extensions and the cores at the top; Back at the bottom. */
 .content {
   display: grid;
-  grid-template-rows: auto auto auto 1fr;
+  grid-template-rows: auto auto auto auto 1fr;
   align-content: start;
   gap: var(--space-lg);
   min-height: 0;
@@ -36,6 +36,104 @@
   font-variant-ligatures: none;
   text-transform: uppercase;
   color: var(--color-text-muted);
+}
+
+.enabled {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+/* The whole row is the switch: its label and what it means, and the toggle on the right. */
+.switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface-high);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-align: start;
+  transition:
+    border-color var(--duration-focus) var(--ease-focus),
+    box-shadow var(--duration-focus) var(--ease-focus);
+}
+
+/* This style is the focus indicator. */
+.switch:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-focus);
+}
+
+.switchText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.switchLabel {
+  font-size: var(--body-lg-size);
+  line-height: var(--body-lg-line-height);
+  color: var(--color-text);
+}
+
+.switch:focus .switchLabel {
+  color: var(--color-text-focus);
+}
+
+.switchHint {
+  font-size: var(--body-md-size);
+  line-height: var(--body-md-line-height);
+  color: var(--color-text-muted);
+}
+
+/* Off: a dim track with the knob on the left. On: a cyan track with the knob on the right. */
+.toggle {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  width: var(--switch-width);
+  height: var(--switch-height);
+  padding: var(--switch-padding);
+  background: var(--color-surface-highest);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  transition:
+    background-color var(--duration-focus) var(--ease-focus),
+    border-color var(--duration-focus) var(--ease-focus);
+}
+
+.knob {
+  width: var(--switch-knob-size);
+  height: var(--switch-knob-size);
+  background: var(--color-text-muted);
+  border-radius: var(--radius-full);
+  transition:
+    transform var(--duration-focus) var(--ease-focus),
+    background-color var(--duration-focus) var(--ease-focus);
+}
+
+.switch[aria-checked='true'] .toggle {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.switch[aria-checked='true'] .knob {
+  background: var(--color-on-accent);
+  /* Across the track: its inner width minus the knob. */
+  transform: translateX(
+    calc(var(--switch-width) - 2 * var(--switch-padding) - 2px - var(--switch-knob-size))
+  );
+}
+
+.problem {
+  font-size: var(--body-md-size);
+  line-height: var(--body-md-line-height);
+  color: var(--color-error);
 }
 
 .section {

@@ -55,7 +55,8 @@ const NINTENDO_64: InstalledPlatform = {
   manufacturer: 'Nintendo',
   cores: [
     { id: 'mupen64plus_next', name: 'Mupen64Plus-Next', emulatorId: RETROARCH.id, extensions: [] }
-  ]
+  ],
+  isEnabled: true
 }
 
 const N64_FOLDER: GameFolder = {
@@ -120,6 +121,30 @@ describe('HomeScreen', () => {
     expect(await screen.findByRole('heading', { name: 'Add your games' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Go to Settings' })).toHaveFocus()
     expect(screen.getByText('1 console linked')).toBeInTheDocument()
+  })
+
+  it('offers to add a folder of games again while every platform is off', async () => {
+    mockEmulators([RETROARCH])
+    mockPlatforms([{ ...NINTENDO_64, isEnabled: false }])
+    mockGameFolders([N64_FOLDER])
+    renderHome()
+
+    expect(await screen.findByRole('heading', { name: 'Add your games' })).toBeInTheDocument()
+  })
+
+  it('counts only the games and consoles of the platforms that are on', async () => {
+    mockEmulators([RETROARCH])
+    mockPlatforms([NINTENDO_64, { ...NINTENDO_64, id: 'nes', name: 'NES', isEnabled: false }])
+    mockGameFolders([
+      N64_FOLDER,
+      { ...N64_FOLDER, id: 'f2', path: '/home/player/Games/NES', platformId: 'nes' }
+    ])
+    renderHome()
+
+    expect(
+      await screen.findByRole('heading', { name: '12 games ready to play' })
+    ).toBeInTheDocument()
+    expect(screen.getByText('1 console')).toBeInTheDocument()
   })
 
   it('shows the games of every folder ready to play while none was played', async () => {

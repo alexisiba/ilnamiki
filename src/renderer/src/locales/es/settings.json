@@ -26,6 +26,8 @@
     "cores_one": "Núcleo: {{cores}}",
     "cores_other": "Núcleos: {{cores}}",
     "extensions": "Extensiones: {{extensions}}",
+    "enabled": "Encendida",
+    "disabled": "Apagada",
     "empty": {
       "title": "No hay plataformas instaladas",
       "description": "Configura un emulador para asociar tu primera plataforma.",
@@ -37,6 +39,9 @@
     }
   },
   "platformDetails": {
+    "enabled": "Plataforma encendida",
+    "enabledHint": "Mientras esté apagada, sus juegos no aparecen en tu biblioteca ni en Inicio. No se borra nada.",
+    "enableFailed": "No se pudo guardar el cambio. Inténtalo de nuevo.",
     "extensions": "Extensiones",
     "noExtensions": "Sus núcleos no indican qué extensiones juegan.",
     "cores": "Núcleos",

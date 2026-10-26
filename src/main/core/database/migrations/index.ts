@@ -68,5 +68,16 @@ export const MIGRATIONS: Migration[] = [
       CREATE INDEX play_sessions_game_id_index ON play_sessions (game_id);
       CREATE INDEX play_sessions_ended_at_index ON play_sessions (ended_at);
     `
+  },
+  {
+    version: 4,
+    name: 'Create the platform settings table',
+    up: `
+      CREATE TABLE platform_settings (
+        platform_id TEXT PRIMARY KEY CHECK (length(platform_id) > 0),
+        is_enabled INTEGER NOT NULL CHECK (is_enabled IN (0, 1)),
+        updated_at INTEGER NOT NULL
+      ) STRICT;
+    `
   }
 ]

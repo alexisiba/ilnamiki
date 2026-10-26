@@ -46,7 +46,8 @@ beforeEach(() => {
       id: 'nes',
       name: 'Nintendo Entertainment System',
       manufacturer: 'Nintendo',
-      cores: [{ id: 'mesen', name: 'Mesen', emulatorId: 'a1', extensions: ['nes'] }]
+      cores: [{ id: 'mesen', name: 'Mesen', emulatorId: 'a1', extensions: ['nes'] }],
+      isEnabled: true
     }
   ])
   mockGameFolders([

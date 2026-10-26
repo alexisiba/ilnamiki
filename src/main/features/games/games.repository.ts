@@ -42,10 +42,14 @@ export interface GamesRepository {
    * never played with an emulator the user still has.
    */
   findLastPlayer(gameId: string): GamePlayerRecord | undefined
-  /** The game in a folder played most recently, or null when none was played. */
+  /**
+   * The game in a folder played most recently, or null when none was played; games of a
+   * platform turned off are left out.
+   */
   findLastPlayed(): LastPlayedGame | null
   /**
    * The `limit` games in a folder added last, newest first; games added together by title.
+   * Games of a platform turned off are left out.
    */
   listRecentlyAdded(limit: number): RecentlyAddedGame[]
   /** The game `id` while it is in a folder, with its play history; null otherwise. */
@@ -76,6 +80,9 @@ interface RecentlyAddedRow {
   platform_id: string
   added_at: number
 }
+
+/** The platforms the user turned off, whose games are left out of Home. */
+const DISABLED_PLATFORMS = 'SELECT platform_id FROM platform_settings WHERE is_enabled = 0'
 
 /** The SQL of playing the library's games, over `db`. */
 export function createGamesRepository(db: DatabaseSync): GamesRepository {
@@ -122,7 +129,7 @@ export function createGamesRepository(db: DatabaseSync): GamesRepository {
               SUM(play_sessions.ended_at - play_sessions.started_at) AS playtime_ms
             FROM play_sessions
             JOIN games ON games.id = play_sessions.game_id
-            WHERE games.folder_id IS NOT NULL
+            WHERE games.folder_id IS NOT NULL AND games.platform_id NOT IN (${DISABLED_PLATFORMS})
             GROUP BY games.id
             ORDER BY last_played_at DESC
             LIMIT 1`
@@ -142,7 +149,7 @@ export function createGamesRepository(db: DatabaseSync): GamesRepository {
       const rows = db
         .prepare(
           `SELECT id, title, platform_id, added_at FROM games
-            WHERE folder_id IS NOT NULL
+            WHERE folder_id IS NOT NULL AND platform_id NOT IN (${DISABLED_PLATFORMS})
             ORDER BY added_at DESC, title COLLATE NOCASE, file_path
             LIMIT ?`
         )

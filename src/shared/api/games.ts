@@ -74,13 +74,13 @@ export interface RecentlyAddedGame {
 export interface GamesApi {
   /**
    * The game of the library played most recently, or null when none of its games was played.
-   * Games removed from the library are left out.
+   * Games removed from the library, or of a platform turned off, are left out.
    */
   getLastPlayed(): Promise<LastPlayedGame | null>
   /**
    * The 20 games most recently added to the library at most, newest first; games added
    * together (from the same folder) by title. Empty when the library has none. Games removed
-   * from the library are left out.
+   * from the library, or of a platform turned off, are left out.
    */
   listRecentlyAdded(): Promise<RecentlyAddedGame[]>
   /**
@@ -96,7 +96,7 @@ export interface GamesApi {
   launch(gameId: string): Promise<LaunchGameResult>
   /**
    * Starts a game of the library picked at random, among those of every folder that an
-   * installed core plays and whose file is still there, with the emulator and core `launch`
+   * installed core plays, whose platform is on and whose file is still there, with the emulator and core `launch`
    * would use; or says why none started. Resolves once the emulator has started; `onGameEnded` says when it closes.
    */
   launchRandom(): Promise<LaunchRandomGameResult>

@@ -9,13 +9,14 @@ import { FocusGroup, useGoBack } from '@renderer/core/navigation'
 
 import { SettingsEmptyState } from '../components/SettingsEmptyState'
 import { getPlatformExtensions } from '../utils/platformExtensions'
+import { PlatformEnabledSwitch } from './components/PlatformEnabledSwitch'
 import styles from './PlatformDetailsSettings.module.css'
 
 /**
  * An installed platform's details, a screen inside Settings opened from the platforms list:
- * its name and maker, the extensions its cores play (saying so when they don't say), the
- * cores that play it, and Back at the bottom, focused, as nothing here changes yet. Says so
- * when the platform is no longer installed.
+ * its name and maker, the switch that turns it on or off, focused, the extensions its cores
+ * play (saying so when they don't say), the cores that play it, and Back at the bottom; focus
+ * moves row by row. Says so when the platform is no longer installed.
  */
 export function PlatformDetailsSettings(): React.JSX.Element | null {
   const { t } = useTranslation('settings')
@@ -27,8 +28,8 @@ export function PlatformDetailsSettings(): React.JSX.Element | null {
   const extensionsId = useId()
   const coresId = useId()
 
-  const back = (
-    <Button focusId="back" autoFocus onPress={returnToList}>
+  const back = (autoFocus: boolean): React.JSX.Element => (
+    <Button focusId="back" autoFocus={autoFocus} onPress={returnToList}>
       {t('platformDetails.back')}
     </Button>
   )
@@ -41,7 +42,7 @@ export function PlatformDetailsSettings(): React.JSX.Element | null {
         <SettingsEmptyState
           icon={TriangleAlert}
           title={t('platformDetails.notFound')}
-          action={back}
+          action={back(true)}
         />
       </FocusGroup>
     )
@@ -55,6 +56,7 @@ export function PlatformDetailsSettings(): React.JSX.Element | null {
         <h2 className={styles.title}>{platform.name}</h2>
         {platform.manufacturer && <p className={styles.maker}>{platform.manufacturer}</p>}
       </div>
+      <PlatformEnabledSwitch platform={platform} />
       <section className={styles.section} aria-labelledby={extensionsId}>
         <h3 id={extensionsId} className={styles.label}>
           {t('platformDetails.extensions')}
@@ -83,7 +85,7 @@ export function PlatformDetailsSettings(): React.JSX.Element | null {
           ))}
         </ul>
       </section>
-      <div className={styles.actions}>{back}</div>
+      <div className={styles.actions}>{back(false)}</div>
     </FocusGroup>
   )
 }

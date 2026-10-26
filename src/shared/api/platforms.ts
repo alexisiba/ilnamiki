@@ -23,6 +23,11 @@ export interface InstalledPlatform {
   manufacturer: string | null
   /** The cores that play it, by name; never empty. */
   cores: InstalledCore[]
+  /**
+   * Whether the user has it on. Every platform starts on; while off, its games are left out of
+   * the library, Home and random picks, and nothing about them is deleted.
+   */
+  isEnabled: boolean
 }
 
 /** The platforms the user's emulators can play. */
@@ -32,8 +37,11 @@ export interface PlatformsApi {
    * when no emulator has a core installed or its cores can't be read.
    */
   list(): Promise<InstalledPlatform[]>
+  /** Turns the platform `platformId` on or off, keeping the choice. */
+  setEnabled(platformId: string, enabled: boolean): Promise<void>
 }
 
 export const PLATFORMS_CHANNELS = {
-  list: 'platforms:list'
+  list: 'platforms:list',
+  setEnabled: 'platforms:set-enabled'
 } as const

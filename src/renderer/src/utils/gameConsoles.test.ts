@@ -8,7 +8,8 @@ const platform = (id: string, name: string, manufacturer: string | null): Instal
   id,
   name,
   manufacturer,
-  cores: [{ id: `${id}-core`, name: 'Core', emulatorId: 'a1', extensions: [] }]
+  cores: [{ id: `${id}-core`, name: 'Core', emulatorId: 'a1', extensions: [] }],
+  isEnabled: true
 })
 
 const folder = (platformId: string, gameCount: number): GameFolder => ({
@@ -33,6 +34,17 @@ describe('toGameConsoles', () => {
     expect(consoles.map(({ id, gameCount }) => ({ id, gameCount }))).toEqual([
       { id: 'playstation', gameCount: 24 }
     ])
+  })
+
+  it('leaves out the platforms turned off, with their games', () => {
+    const platforms = [
+      platform('playstation', 'PlayStation', 'Sony'),
+      { ...platform('nintendo_64', 'Nintendo 64', 'Nintendo'), isEnabled: false }
+    ]
+
+    const consoles = toGameConsoles(platforms, [folder('playstation', 2), folder('nintendo_64', 5)])
+
+    expect(consoles.map(({ id }) => id)).toEqual(['playstation'])
   })
 
   it('leaves out folders of platforms no installed core plays', () => {

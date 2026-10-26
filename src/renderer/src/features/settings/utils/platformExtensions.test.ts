@@ -11,7 +11,8 @@ const SUPER_NES: InstalledPlatform = {
   cores: [
     { id: 'bsnes', name: 'bsnes', emulatorId: 'a1', extensions: ['sfc', 'bs'] },
     { id: 'snes9x', name: 'Snes9x', emulatorId: 'a1', extensions: ['smc', 'sfc'] }
-  ]
+  ],
+  isEnabled: true
 }
 
 describe('getPlatformExtensions', () => {

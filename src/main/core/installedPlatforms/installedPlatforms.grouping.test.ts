@@ -38,8 +38,21 @@ describe('groupByPlatform', () => {
         cores: [
           { id: 'bsnes', name: 'bsnes', emulatorId: 'retroarch', extensions: ['sfc', 'bs'] },
           { id: 'snes9x', name: 'Snes9x', emulatorId: 'retroarch', extensions: ['smc', 'sfc'] }
-        ]
+        ],
+        isEnabled: true
       }
+    ])
+  })
+
+  it('turns off the platforms the user turned off, and only those', () => {
+    const platforms = groupByPlatform(
+      [{ emulatorId: 'retroarch', cores: [SNES9X, MUPEN] }],
+      new Set(['nintendo_64'])
+    )
+
+    expect(platforms.map(({ id, isEnabled }) => [id, isEnabled])).toEqual([
+      ['nintendo_64', false],
+      ['super_nes', true]
     ])
   })
 

@@ -36,7 +36,8 @@ const toShelfGame = ({ id, title, platform, imageUrl }: Game): ShelfGame => ({
  * consoles; while no folder has games, how to add one; while no game was played, the games
  * ready to play; and otherwise the last played game and the games played before (sample games
  * for now). Once there are games, the ones added last follow, as soon as they are read.
- * A game removed from the library doesn't count as played.
+ * A game removed from the library doesn't count as played, and the games of a platform
+ * turned off don't count at all.
  * Until what a check needs is read nothing shows, so no view flashes.
  */
 export function HomeScreen(): React.JSX.Element | null {
@@ -70,7 +71,13 @@ export function HomeScreen(): React.JSX.Element | null {
 
   if (gameFolders.status === 'loading') return null
 
-  const gameCount = gameFolders.folders.reduce((total, folder) => total + folder.gameCount, 0)
+  const disabledPlatformIds = new Set(
+    platforms.platforms.filter((platform) => !platform.isEnabled).map((platform) => platform.id)
+  )
+  // The games of a platform turned off don't count, so with every platform off it asks again.
+  const gameCount = gameFolders.folders
+    .filter((folder) => !disabledPlatformIds.has(folder.platformId))
+    .reduce((total, folder) => total + folder.gameCount, 0)
 
   if (gameCount === 0) {
     return (
@@ -101,7 +108,7 @@ export function HomeScreen(): React.JSX.Element | null {
         <ReadyHero
           gameCount={gameCount}
           emulatorCount={emulators.emulators.length}
-          platformCount={platforms.platforms.length}
+          platformCount={platforms.platforms.length - disabledPlatformIds.size}
         />
         {recentlyAddedShelf}
       </div>

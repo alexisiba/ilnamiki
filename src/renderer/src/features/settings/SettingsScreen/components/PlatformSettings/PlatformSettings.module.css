@@ -21,11 +21,14 @@
 }
 
 .item {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
   width: 100%;
-  padding: var(--space-sm) var(--space-md);
+  /* Room on the right for the status dot, so a long name never runs under it. */
+  padding: var(--space-sm) calc(var(--space-md) * 2 + var(--status-dot-size)) var(--space-sm)
+    var(--space-md);
   background: var(--color-surface-high);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -48,6 +51,29 @@
   font-weight: var(--headline-sm-weight);
   line-height: var(--headline-sm-line-height);
   color: var(--color-text);
+}
+
+/*
+ * At the top right: filled and glowing while the platform is on, a grey hollow ring while it
+ * is off, so the two differ in shape and not only in color.
+ */
+.enabledDot,
+.disabledDot {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  width: var(--status-dot-size);
+  height: var(--status-dot-size);
+  border-radius: var(--radius-full);
+}
+
+.enabledDot {
+  background: var(--color-success);
+  box-shadow: 0 0 var(--status-dot-glow-size) var(--color-success-glow);
+}
+
+.disabledDot {
+  border: 2px solid var(--color-text-muted);
 }
 
 .item:focus .name {

@@ -22,13 +22,15 @@ const PLATFORMS: InstalledPlatform[] = [
         emulatorId: 'a1',
         extensions: ['n64', 'v64', 'z64']
       }
-    ]
+    ],
+    isEnabled: true
   },
   {
     id: 'playstation',
     name: 'PlayStation',
     manufacturer: 'Sony',
-    cores: [{ id: 'swanstation', name: 'SwanStation', emulatorId: 'a1', extensions: [] }]
+    cores: [{ id: 'swanstation', name: 'SwanStation', emulatorId: 'a1', extensions: [] }],
+    isEnabled: false
   }
 ]
 
@@ -39,7 +41,8 @@ const SUPER_NES: InstalledPlatform = {
   cores: [
     { id: 'bsnes', name: 'bsnes', emulatorId: 'a1', extensions: ['sfc', 'bs'] },
     { id: 'snes9x', name: 'Snes9x', emulatorId: 'a1', extensions: ['smc', 'sfc'] }
-  ]
+  ],
+  isEnabled: true
 }
 
 const platformItem = (name: string): HTMLElement => screen.getByRole('button', { name })
@@ -108,7 +111,7 @@ describe('PlatformSettings', () => {
     expect(screen.getAllByRole('button')).toHaveLength(2)
     expect(screen.queryByRole('switch')).not.toBeInTheDocument()
     expect(platformItem('Nintendo 64')).toHaveAccessibleDescription(
-      'Core: Mupen64Plus-Next Extensions: n64 · v64 · z64'
+      'Core: Mupen64Plus-Next Extensions: n64 · v64 · z64 On'
     )
   })
 
@@ -117,7 +120,7 @@ describe('PlatformSettings', () => {
     await renderPlatforms()
 
     expect(platformItem('Super Nintendo')).toHaveAccessibleDescription(
-      'Cores: bsnes · Snes9x Extensions: sfc · bs · smc'
+      'Cores: bsnes · Snes9x Extensions: sfc · bs · smc On'
     )
   })
 
@@ -125,8 +128,16 @@ describe('PlatformSettings', () => {
     mockPlatforms(PLATFORMS)
     await renderPlatforms()
 
-    expect(platformItem('PlayStation')).toHaveAccessibleDescription('Core: SwanStation')
+    expect(platformItem('PlayStation')).toHaveAccessibleDescription('Core: SwanStation Off')
     expect(screen.getAllByText(/^Extensions:/)).toHaveLength(1)
+  })
+
+  it('says whether each platform is on or off, as its dot shows', async () => {
+    mockPlatforms(PLATFORMS)
+    await renderPlatforms()
+
+    expect(platformItem('Nintendo 64')).toHaveAccessibleDescription(/On$/)
+    expect(platformItem('PlayStation')).toHaveAccessibleDescription(/Off$/)
   })
 
   it('opens a platform’s details when clicked', async () => {
