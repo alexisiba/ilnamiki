@@ -55,6 +55,25 @@
       "failed": "The game couldn't be started. Try again."
     }
   },
+  "gameOptions": {
+    "open": "Game options",
+    "title": "Options",
+    "close": "Close",
+    "core": "Core",
+    "playsWith": "Plays with {{core}} · {{reason}}",
+    "reasons": {
+      "game": "chosen for this game",
+      "lastSession": "last played with it",
+      "platformDefault": "the console's default",
+      "firstInstalled": "the console's first core"
+    },
+    "automatic": "Automatic",
+    "automaticHint": "The core it was last played with, or the console's default",
+    "noCores": "No installed core plays this console.",
+    "notFound": "This game is no longer in your library.",
+    "failed": "The options couldn't be loaded. Try again later.",
+    "saveFailed": "The core couldn't be saved. Try again."
+  },
   "playStats": {
     "lastPlayed": "Last played {{time}}",
     "playtime": "Total playtime: {{duration}}"
@@ -85,6 +104,7 @@
     "back": "Back",
     "close": "Close",
     "search": "Search",
+    "options": "Options",
     "switchTab": "Switch tab"
   }
 }

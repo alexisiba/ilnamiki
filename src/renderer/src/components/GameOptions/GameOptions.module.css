@@ -1,0 +1,177 @@
+/* A sheet across the screen's height on the right, over the blurred screen. */
+.dialog {
+  width: var(--layout-select-width);
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0 0 0 auto;
+  padding: 0;
+  background: none;
+  border: none;
+  color: inherit;
+  transition: transform var(--duration-slide) var(--ease-focus);
+}
+
+.dialog::backdrop {
+  background: var(--color-surface-glass);
+  backdrop-filter: blur(var(--blur-glass));
+  transition: opacity var(--duration-slide) var(--ease-focus);
+}
+
+/* Slides in from the right edge as it opens, while the screen behind dims. */
+@starting-style {
+  .dialog[open] {
+    transform: translateX(100%);
+  }
+
+  .dialog[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  height: 100%;
+  padding: var(--layout-margin-top) var(--space-xl);
+  background: var(--color-surface-glass-strong);
+  border-left: 1px solid var(--color-border-strong);
+  overflow-y: auto;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.eyebrow,
+.label {
+  font-family: var(--font-label);
+  font-size: var(--label-md-size);
+  font-weight: var(--label-md-weight);
+  line-height: var(--label-md-line-height);
+  letter-spacing: var(--label-md-tracking);
+  font-variant-ligatures: none;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.title {
+  font-size: var(--headline-sm-size);
+  font-weight: var(--headline-sm-weight);
+  line-height: var(--headline-sm-line-height);
+  letter-spacing: var(--headline-sm-tracking);
+  color: var(--color-text-focus);
+  overflow-wrap: anywhere;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.playsWith {
+  font-size: var(--body-lg-size);
+  line-height: var(--body-lg-line-height);
+  color: var(--color-text);
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+/* A row per choice: the radio mark on the left, its label (and hint) beside it. */
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface-high);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-align: start;
+  transition:
+    border-color var(--duration-focus) var(--ease-focus),
+    box-shadow var(--duration-focus) var(--ease-focus);
+}
+
+/* This style is the focus indicator. */
+.option:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-focus);
+}
+
+.optionText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.optionLabel {
+  font-size: var(--body-lg-size);
+  line-height: var(--body-lg-line-height);
+  color: var(--color-text);
+}
+
+.option:focus .optionLabel {
+  color: var(--color-text-focus);
+}
+
+.optionHint {
+  font-size: var(--body-md-size);
+  line-height: var(--body-md-line-height);
+  color: var(--color-text-muted);
+}
+
+/* An empty ring; chosen, a filled dot inside, so it doesn't rely on color alone. */
+.radio {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: var(--status-dot-size);
+  height: var(--status-dot-size);
+  padding: 3px;
+  border: 2px solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  box-sizing: content-box;
+}
+
+.radioMark {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-full);
+}
+
+.option[aria-checked='true'] .radio {
+  border-color: var(--color-primary);
+}
+
+.option[aria-checked='true'] .radioMark {
+  background: var(--color-primary);
+}
+
+.message {
+  font-size: var(--body-md-size);
+  line-height: var(--body-md-line-height);
+  color: var(--color-text-muted);
+}
+
+.problem {
+  font-size: var(--body-md-size);
+  line-height: var(--body-md-line-height);
+  color: var(--color-error);
+}
+
+/* Close at the bottom of the sheet, however little is above it. */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: auto;
+}

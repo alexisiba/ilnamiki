@@ -35,6 +35,38 @@
   border-radius: var(--radius-lg);
 }
 
+/* Drawn as the buttons are, square around its icon; it lights up under the pointer. */
+.more {
+  display: grid;
+  place-items: center;
+  padding: var(--space-sm);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  color: var(--color-text);
+  transition:
+    background-color var(--duration-focus) var(--ease-focus),
+    border-color var(--duration-focus) var(--ease-focus);
+}
+
+.more:hover {
+  background: var(--color-surface-highest);
+  border-color: var(--color-primary);
+}
+
+/* The three dots, then the button that opens the options. */
+.moreContent {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.moreIcon {
+  display: block;
+  width: var(--icon-size-md);
+  height: var(--icon-size-md);
+  stroke-width: var(--icon-stroke);
+}
+
 .description {
   font-size: var(--body-md-size);
   line-height: var(--body-md-line-height);
@@ -54,7 +86,9 @@
   color: var(--color-error);
 }
 
-/* A grid cell stretches the button across the panel. */
+/* Play now across the panel, the options button at its own width beside it. */
 .play {
   display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-sm);
 }

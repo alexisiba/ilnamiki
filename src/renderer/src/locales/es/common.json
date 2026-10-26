@@ -55,6 +55,25 @@
       "failed": "No se pudo iniciar el juego. Inténtalo de nuevo."
     }
   },
+  "gameOptions": {
+    "open": "Opciones del juego",
+    "title": "Opciones",
+    "close": "Cerrar",
+    "core": "Núcleo",
+    "playsWith": "Se juega con {{core}} · {{reason}}",
+    "reasons": {
+      "game": "elegido para este juego",
+      "lastSession": "con el que jugaste la última vez",
+      "platformDefault": "el predeterminado de la consola",
+      "firstInstalled": "el primer núcleo de la consola"
+    },
+    "automatic": "Automático",
+    "automaticHint": "El núcleo con el que jugaste la última vez, o el predeterminado de la consola",
+    "noCores": "Ningún núcleo instalado juega esta consola.",
+    "notFound": "Este juego ya no está en tu biblioteca.",
+    "failed": "No se pudieron cargar las opciones. Inténtalo más tarde.",
+    "saveFailed": "No se pudo guardar el núcleo. Inténtalo de nuevo."
+  },
   "playStats": {
     "lastPlayed": "Última sesión {{time}}",
     "playtime": "Tiempo total: {{duration}}"
@@ -85,6 +104,7 @@
     "back": "Atrás",
     "close": "Cerrar",
     "search": "Buscar",
+    "options": "Opciones",
     "switchTab": "Cambiar pestaña"
   }
 }
