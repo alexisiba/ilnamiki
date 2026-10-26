@@ -16,6 +16,8 @@ Related sources of truth:
 - **`component-structure` skill**: folder and file conventions for components.
 - **`a11y` skill**: accessibility rules every user-facing component must follow from its first
   version; **`a11y-review` skill** to audit them.
+- **`ui-audio` skill**: how sound effects and music are played, and which sound each
+  interaction makes.
 
 If these sources and the code disagree, stop and ask the user which one is right.
 
@@ -127,6 +129,9 @@ When a request would push the UI toward "web" or "streaming", say so before impl
   with the whole d-pad) uses the matching Lucide icon (`GamepadDirectional`).
 - **Motion supports navigation**, it doesn't decorate it: short, smooth, and respectful of
   reduced-motion preferences.
+- **Sound answers the input**, like a console menu: moving, confirming, going back and
+  switching tabs each make their sound, and music plays behind the menus. How and when is
+  defined in the `ui-audio` skill.
 - Specific fonts, colors, sizes and effects are defined in `DESIGN.md` and the tokens, and may
   change. Follow whatever they currently say rather than memorizing values.
 
@@ -180,5 +185,6 @@ When a request would push the UI toward "web" or "streaming", say so before impl
 - [ ] No hard-coded design values or user-facing strings; new strings exist in every language.
 - [ ] The parent only composes; each part owns its logic, and nothing was extracted without
       a reason.
+- [ ] Interactions play their sound as the `ui-audio` skill says.
 - [ ] It meets the `a11y` checklist.
 - [ ] It feels like a console, not a website or a streaming app.

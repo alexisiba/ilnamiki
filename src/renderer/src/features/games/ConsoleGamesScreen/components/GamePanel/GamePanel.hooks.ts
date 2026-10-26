@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 
+import { pauseBackgroundMusic, resumeBackgroundMusic } from '@renderer/core/audio'
 import { launchGame, subscribeToGameEnded } from '@renderer/core/ipc'
 
 import type { PlayProblem } from './GamePanel.utils'
@@ -21,7 +22,9 @@ export function usePlayGame(gameId: string): PlayGameState {
   useEffect(
     () =>
       subscribeToGameEnded((ended) => {
-        if (ended.gameId === gameId) setPlaying(false)
+        if (ended.gameId !== gameId) return
+        setPlaying(false)
+        resumeBackgroundMusic()
       }),
     [gameId]
   )
@@ -32,7 +35,11 @@ export function usePlayGame(gameId: string): PlayGameState {
     setProblem(undefined)
     try {
       const result = await launchGame(gameId)
-      if (result.ok) return
+      if (result.ok) {
+        // The emulator has its own sound.
+        pauseBackgroundMusic()
+        return
+      }
       setProblem(result.problem)
     } catch {
       setProblem('failed')

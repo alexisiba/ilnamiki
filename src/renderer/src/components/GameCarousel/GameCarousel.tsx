@@ -2,6 +2,7 @@ import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Carousel } from '@renderer/components/Carousel'
+import { playUiSound } from '@renderer/core/audio'
 import { FocusGroup } from '@renderer/core/navigation'
 
 import { FocusableGameCarouselItem } from './components/FocusableGameCarouselItem'
@@ -21,6 +22,12 @@ export function GameCarousel(props: GameCarouselProps): React.JSX.Element | null
   const selected = games[selectedIndex]
 
   if (!selected) return null
+
+  const select = (index: number): void => {
+    // Focus coming back to the selected game (e.g. when shown) doesn't slide anything.
+    if (index !== selectedIndex) playUiSound('carousel-slide')
+    onSelect(index)
+  }
 
   // Only what is known about the game; without any of it, the line is left out.
   const facts = [
@@ -58,7 +65,7 @@ export function GameCarousel(props: GameCarouselProps): React.JSX.Element | null
             key={game.id}
             game={game}
             selected={index === selectedIndex}
-            onSelect={() => onSelect(index)}
+            onSelect={() => select(index)}
           />
         ) : (
           <FocusableGameCarouselItem
@@ -67,7 +74,7 @@ export function GameCarousel(props: GameCarouselProps): React.JSX.Element | null
             selected={index === selectedIndex}
             focusOnShow={Boolean(props.focusOnShow) && index === selectedIndex}
             describedBy={index === selectedIndex && hasFacts ? factsId : undefined}
-            onSelect={() => onSelect(index)}
+            onSelect={() => select(index)}
             onOpen={() => props.onOpen(game)}
           />
         )

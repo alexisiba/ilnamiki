@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 
+import { playUiSound } from '@renderer/core/audio'
 import { useFocusable } from '@renderer/core/navigation'
 
 import type { FocusableGameCarouselItemProps } from '../GameCarousel.types'
@@ -19,7 +20,12 @@ export function FocusableGameCarouselItem({
   onSelect,
   onOpen
 }: FocusableGameCarouselItemProps): React.JSX.Element {
-  const { ref, focus } = useFocusable<HTMLButtonElement>({ id: game.id, focusOnHover: false })
+  // Only opening it sounds: a click that selects it slides the carousel instead.
+  const { ref, focus } = useFocusable<HTMLButtonElement>({
+    id: game.id,
+    focusOnHover: false,
+    sound: false
+  })
   // Read before the press focuses (and so selects) the game, in the capture phase.
   const pressedWhileSelected = useRef(false)
 
@@ -31,7 +37,9 @@ export function FocusableGameCarouselItem({
 
   const handleClick = (event: React.MouseEvent): void => {
     // A confirm clicks the element without a pointer press (detail 0).
-    if (event.detail === 0 || pressedWhileSelected.current) onOpen()
+    if (event.detail !== 0 && !pressedWhileSelected.current) return
+    playUiSound('select')
+    onOpen()
   }
 
   return (

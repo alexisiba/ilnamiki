@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { FolderGame, GameFolder, InstalledPlatform } from '@shared/api'
 
+import { startBackgroundMusic } from '@renderer/core/audio'
 import { CONSOLE_GAMES_PATH, NavigationProvider } from '@renderer/core/navigation'
 import {
   emitGameEnded,
@@ -13,6 +14,7 @@ import {
   mockLaunchGame,
   mockPlatforms
 } from '@renderer/test/api'
+import { getPlayedSounds, isMusicPlaying } from '@renderer/test/audio'
 
 import { ConsoleGamesScreen } from './ConsoleGamesScreen'
 
@@ -135,6 +137,16 @@ describe('ConsoleGamesScreen', () => {
     expect(selectedGame()).toHaveAccessibleName('Tekken 3 (USA)')
   })
 
+  it('sounds a slide each time the selected game changes, and none at either end', async () => {
+    renderGamesOf('playstation')
+    await playNow()
+    const user = userEvent.setup()
+
+    await user.keyboard('{ArrowLeft}' + '{ArrowRight}'.repeat(4))
+
+    expect(getPlayedSounds().filter((sound) => sound === 'carousel-slide')).toHaveLength(2)
+  })
+
   it('selects a game when it is clicked, keeping focus on Play now', async () => {
     renderGamesOf('playstation')
     await playNow()
@@ -163,6 +175,18 @@ describe('ConsoleGamesScreen', () => {
       act(() => emitGameEnded('g2'))
 
       expect(await playNow()).toHaveAttribute('aria-disabled', 'false')
+    })
+
+    it('pauses the background music while the game is played', async () => {
+      mockLaunchGame({ ok: true })
+      startBackgroundMusic()
+      renderGamesOf('playstation')
+
+      await userEvent.setup().click(await playNow())
+      expect(isMusicPlaying()).toBe(false)
+
+      act(() => emitGameEnded('g1'))
+      expect(isMusicPlaying()).toBe(true)
     })
 
     it('starts the game once while it is starting or being played', async () => {

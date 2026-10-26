@@ -15,8 +15,13 @@ export function Button({
   children,
   ...buttonProps
 }: ButtonProps): React.JSX.Element {
-  const { ref } = useFocusable<HTMLButtonElement>({ id: focusId, autoFocus })
   const disabled = buttonProps['aria-disabled'] === true || buttonProps['aria-disabled'] === 'true'
+  // Pressing it while disabled sounds like a move that can't be made.
+  const { ref } = useFocusable<HTMLButtonElement>({
+    id: focusId,
+    autoFocus,
+    sound: disabled ? 'cant-move' : 'select'
+  })
 
   return (
     <button

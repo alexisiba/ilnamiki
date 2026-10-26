@@ -1,6 +1,7 @@
 import { useId, useLayoutEffect, useRef } from 'react'
 
 import { Button } from '@renderer/components/Button'
+import { playUiSound } from '@renderer/core/audio'
 import { useInputAction } from '@renderer/core/input'
 import { FocusGroup, NavigationProvider } from '@renderer/core/navigation'
 
@@ -35,7 +36,9 @@ export function ConfirmDialogContent({
   }, [])
 
   useInputAction((action) => {
-    if (action === 'back') onCancel()
+    if (action !== 'back') return
+    playUiSound('back')
+    onCancel()
   })
 
   return (

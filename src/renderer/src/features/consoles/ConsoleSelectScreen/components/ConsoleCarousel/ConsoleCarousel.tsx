@@ -2,6 +2,7 @@ import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Carousel } from '@renderer/components/Carousel'
+import { playUiSound } from '@renderer/core/audio'
 import { FocusGroup, useLastFocusedId } from '@renderer/core/navigation'
 
 import { ConsoleCarouselItem } from './components/ConsoleCarouselItem'
@@ -35,6 +36,12 @@ export function ConsoleCarousel({
   // Only what is known: either can be missing, and then the line too.
   const facts = [selected.manufacturer, selected.releaseYear].filter((fact) => fact !== null)
 
+  const select = (index: number): void => {
+    // Focus coming back to the selected console (e.g. when shown) doesn't slide anything.
+    if (index !== selectedIndex) playUiSound('carousel-slide')
+    setSelectedIndex(index)
+  }
+
   const details = (
     <div id={detailsId} className={styles.details}>
       {facts.length > 0 && <p className={styles.facts}>{facts.join(' · ')}</p>}
@@ -60,7 +67,7 @@ export function ConsoleCarousel({
             selected={index === selectedIndex}
             autoFocus={index === 0}
             describedBy={index === selectedIndex ? detailsId : undefined}
-            onFocus={() => setSelectedIndex(index)}
+            onFocus={() => select(index)}
             onOpen={() => onOpenConsole(gameConsole.id)}
           />
         ))}

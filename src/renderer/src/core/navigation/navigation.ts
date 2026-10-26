@@ -26,7 +26,8 @@ export interface Navigation {
   setScope: (scope: string) => void
   registerItem: (item: FocusItem) => () => void
   registerGroup: (group: FocusGroup) => () => void
-  move: (direction: Direction) => void
+  /** Moves focus in `direction`: whether it found somewhere to go. */
+  move: (direction: Direction) => boolean
   confirm: () => void
   /** Focuses `element` when the pointer actually moves over it. */
   pointerMove: (element: HTMLElement, event: PointerEvent) => void
@@ -105,13 +106,17 @@ export function createNavigation(): Navigation {
     return item.autoFocus ? CLAIM.autoFocus : CLAIM.first
   }
 
-  /** Focuses the best initial item: restored, else auto-focused, else the first one. */
-  const focusInitial = (): void => {
+  /**
+   * Focuses the best initial item: restored, else auto-focused, else the first one. Returns
+   * whether there was one.
+   */
+  const focusInitial = (): boolean => {
     let best: FocusItem | undefined
     for (const item of items.values()) {
       if (!best || claimOf(item) > claimOf(best)) best = item
     }
     if (best) focus(best, 'instant')
+    return best !== undefined
   }
 
   const focusedItem = (): FocusItem | undefined =>
@@ -202,10 +207,7 @@ export function createNavigation(): Navigation {
     move(direction) {
       const current = focusedItem()
       takeControl()
-      if (!current) {
-        focusInitial()
-        return
-      }
+      if (!current) return focusInitial()
 
       const from = rectOf(current)
       const others = [...items.values()].filter((item) => item !== current)
@@ -237,6 +239,7 @@ export function createNavigation(): Navigation {
       }
 
       if (target) focus(target, 'auto')
+      return target !== undefined
     },
 
     confirm() {

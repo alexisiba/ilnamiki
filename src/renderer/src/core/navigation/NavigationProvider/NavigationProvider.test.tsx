@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 
+import { getPlayedSounds } from '@renderer/test/audio'
 import { setRect } from '@renderer/test/layout'
 
 import { FocusGroup } from '../FocusGroup'
@@ -120,6 +121,34 @@ describe('NavigationProvider', () => {
 
     await user.keyboard('{ArrowUp}')
     expect(item('top3')).toHaveFocus()
+  })
+
+  it('sounds a move, or that focus can’t move, on each direction pressed', async () => {
+    renderRows({ autoFocus: 'top2' })
+    const user = userEvent.setup()
+
+    await user.keyboard('{ArrowRight}{ArrowRight}{ArrowRight}{ArrowDown}')
+
+    expect(getPlayedSounds()).toEqual(['move', 'cant-move', 'cant-move', 'move'])
+  })
+
+  it('sounds a select when the focused item is confirmed or clicked', async () => {
+    renderRows()
+    const user = userEvent.setup()
+
+    await user.keyboard('{Enter}')
+    await user.click(item('top2'))
+
+    expect(getPlayedSounds()).toEqual(['select', 'select'])
+  })
+
+  it('stays silent while the pointer moves focus', async () => {
+    renderRows()
+
+    await userEvent.setup().hover(item('top3'))
+
+    expect(item('top3')).toHaveFocus()
+    expect(getPlayedSounds()).toEqual([])
   })
 
   it('returns to the last focused item of a group when entering it again', async () => {

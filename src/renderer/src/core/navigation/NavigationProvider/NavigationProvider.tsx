@@ -1,5 +1,6 @@
 import { useLayoutEffect, useState } from 'react'
 
+import { playUiSound } from '@renderer/core/audio'
 import { useInputAction, type Direction, type InputAction } from '@renderer/core/input'
 
 import { createNavigation } from '../navigation'
@@ -19,8 +20,12 @@ export function NavigationProvider({
   // A layout effect runs before the new screen's items register in their passive effects.
   useLayoutEffect(() => navigation.setScope(scope), [navigation, scope])
 
-  useInputAction((action) => {
-    if (isDirection(action)) navigation.move(action)
+  useInputAction((action, phase) => {
+    if (isDirection(action)) {
+      // Held against an edge, only the press says so, not every repeat.
+      if (navigation.move(action)) playUiSound('move')
+      else if (phase === 'press') playUiSound('cant-move')
+    }
     if (action === 'confirm') navigation.confirm()
   })
 

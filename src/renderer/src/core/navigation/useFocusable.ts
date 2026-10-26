@@ -1,5 +1,7 @@
 import { useCallback, useContext, useEffect, useRef, type RefObject } from 'react'
 
+import { playUiSound, type UiSound } from '@renderer/core/audio'
+
 import { FocusGroupContext, NavigationContext } from './NavigationContext'
 
 export interface UseFocusableOptions {
@@ -12,6 +14,11 @@ export interface UseFocusableOptions {
    * element away from the pointer (e.g. a carousel); pressing it focuses it instead.
    */
   focusOnHover?: boolean
+  /**
+   * Sound played when the element is confirmed or clicked: `select` by default. `false` for
+   * elements that play their own, e.g. only when the click does something.
+   */
+  sound?: UiSound | false
 }
 
 export interface UseFocusable<T extends HTMLElement> {
@@ -27,7 +34,8 @@ export interface UseFocusable<T extends HTMLElement> {
 export function useFocusable<T extends HTMLElement>({
   id,
   autoFocus = false,
-  focusOnHover = true
+  focusOnHover = true,
+  sound = 'select'
 }: UseFocusableOptions): UseFocusable<T> {
   const navigation = useContext(NavigationContext)
   const groupId = useContext(FocusGroupContext)
@@ -53,6 +61,16 @@ export function useFocusable<T extends HTMLElement>({
       unregister()
     }
   }, [navigation, groupId, id, autoFocus, focusOnHover])
+
+  // Apart from the registration, so changing the sound doesn't register the item again.
+  useEffect(() => {
+    const element = ref.current
+    if (!element || sound === false) return
+
+    const handleClick = (): void => playUiSound(sound)
+    element.addEventListener('click', handleClick)
+    return () => element.removeEventListener('click', handleClick)
+  }, [sound])
 
   const focus = useCallback(() => {
     if (navigation && ref.current) navigation.focusElement(ref.current)

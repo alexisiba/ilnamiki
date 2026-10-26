@@ -1,5 +1,7 @@
 import { Link } from 'react-router'
 
+import { playUiSound } from '@renderer/core/audio'
+
 import type { TopBarTabProps } from '../TopBar.types'
 import styles from '../TopBar.module.css'
 
@@ -14,6 +16,9 @@ export function TopBarTab({ label, path, active }: TopBarTabProps): React.JSX.El
       replace
       aria-current={active ? 'page' : undefined}
       className={active ? `${styles.tab} ${styles.tabActive}` : styles.tab}
+      onClick={() => {
+        if (!active) playUiSound('switch-tab')
+      }}
     >
       {label}
     </Link>

@@ -1,6 +1,7 @@
 import { ImageOff } from 'lucide-react'
 import { useRef } from 'react'
 
+import { playUiSound } from '@renderer/core/audio'
 import { useFocusable } from '@renderer/core/navigation'
 
 import type { ConsoleCarouselItemProps } from '../ConsoleCarousel.types'
@@ -19,17 +20,21 @@ export function ConsoleCarouselItem({
   onFocus,
   onOpen
 }: ConsoleCarouselItemProps): React.JSX.Element {
+  // Only opening it sounds: a click that selects it slides the carousel instead.
   const { ref } = useFocusable<HTMLButtonElement>({
     id: gameConsole.id,
     autoFocus,
-    focusOnHover: false
+    focusOnHover: false,
+    sound: false
   })
   // Read before the press focuses (and so selects) the console, in the capture phase.
   const pressedWhileSelected = useRef(false)
 
   const handleClick = (event: React.MouseEvent): void => {
     // A confirm clicks the element without a pointer press (detail 0).
-    if (event.detail === 0 || pressedWhileSelected.current) onOpen()
+    if (event.detail !== 0 && !pressedWhileSelected.current) return
+    playUiSound('select')
+    onOpen()
   }
 
   return (

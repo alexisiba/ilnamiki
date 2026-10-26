@@ -2,6 +2,7 @@ import { useEffect, useId, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useOutlet } from 'react-router'
 
+import { playUiSound } from '@renderer/core/audio'
 import { useInputAction } from '@renderer/core/input'
 import {
   ADD_EMULATOR_PATH,
@@ -61,6 +62,7 @@ export function SettingsScreen(): React.JSX.Element {
       isSectionRoot(pathname) &&
       panelRef.current?.contains(document.activeElement)
     ) {
+      playUiSound('back')
       focusCategories()
     }
   })

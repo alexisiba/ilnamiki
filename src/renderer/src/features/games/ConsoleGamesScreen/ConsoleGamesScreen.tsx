@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 
 import { GameCarousel } from '@renderer/components/GameCarousel'
+import { playUiSound } from '@renderer/core/audio'
 import { useInputAction } from '@renderer/core/input'
 import { useFolderGames, useGameFolders, usePlatforms } from '@renderer/core/ipc'
 import { useRememberedState } from '@renderer/core/navigation'
@@ -35,10 +36,17 @@ export function ConsoleGamesScreen(): React.JSX.Element | null {
   const statusId = useId()
   const game = games[selectedIndex]
 
+  const selectGame = (index: number): void => {
+    // At either end there is no other game to switch to.
+    if (index === selectedIndex) return
+    playUiSound('carousel-slide')
+    setSelectedIndex(index)
+  }
+
   // Focus stays on Play now, so left and right switch games instead of moving focus.
   useInputAction((action) => {
-    if (action === 'left') setSelectedIndex(Math.max(selectedIndex - 1, 0))
-    if (action === 'right') setSelectedIndex(Math.min(selectedIndex + 1, games.length - 1))
+    if (action === 'left') selectGame(Math.max(selectedIndex - 1, 0))
+    if (action === 'right') selectGame(Math.min(selectedIndex + 1, games.length - 1))
   })
 
   if (!gameConsole && (platforms.status === 'loading' || folders.status === 'loading')) {

@@ -10,6 +10,7 @@ import {
   mockLastPlayedGame,
   mockPlatforms
 } from '@renderer/test/api'
+import { getPlayedSounds, isMusicPlaying } from '@renderer/test/audio'
 import { connectGamepad } from '@renderer/test/gamepad'
 
 import { APP_ROUTES } from './App.routes'
@@ -190,6 +191,7 @@ describe('App', () => {
 
     expect(screen.queryByRole('button', { name: 'Play' })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Donkey Kong 64' })).toHaveFocus()
+    expect(getPlayedSounds()).toEqual(['select', 'back'])
   })
 
   it('opens a console’s games from the library and goes back to it', async () => {
@@ -340,5 +342,16 @@ describe('App', () => {
     await user.keyboard('{Escape}')
 
     expect(router.state.location.pathname).toBe('/library')
+    // Back did nothing, so it makes no sound.
+    expect(getPlayedSounds()).toEqual(['switch-tab'])
+  })
+
+  it('plays the background music while it is open', () => {
+    const { unmount } = render(<RouterProvider router={createMemoryRouter(APP_ROUTES)} />)
+    expect(isMusicPlaying()).toBe(true)
+
+    unmount()
+
+    expect(isMusicPlaying()).toBe(false)
   })
 })

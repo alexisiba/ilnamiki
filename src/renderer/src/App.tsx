@@ -1,7 +1,9 @@
+import { useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router'
 
 import { ButtonGuide } from '@renderer/components/ButtonGuide'
 import { TopBar } from '@renderer/components/TopBar'
+import { playUiSound, preloadUiSounds, startBackgroundMusic } from '@renderer/core/audio'
 import { useInputAction } from '@renderer/core/input'
 import {
   isSectionRoot,
@@ -22,9 +24,19 @@ function App(): React.JSX.Element {
   // nothing to go back to.
   useInputAction((action) => {
     if (action !== 'back') return
-    if (takeBackStep()) return
-    if (!isSectionRoot(pathname)) goBack()
+    if (takeBackStep()) {
+      playUiSound('back')
+      return
+    }
+    if (isSectionRoot(pathname)) return
+    playUiSound('back')
+    goBack()
   })
+
+  useEffect(() => {
+    preloadUiSounds()
+    return startBackgroundMusic()
+  }, [])
 
   return (
     <NavigationProvider scope={pathname}>

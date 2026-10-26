@@ -6,6 +6,7 @@ import { describe, expect, it, vi } from 'vitest'
 import type { InputAction } from '@renderer/core/input'
 import { setActiveInputDevice } from '@renderer/core/input/activeDevice'
 import { emitInput } from '@renderer/core/input/inputBus'
+import { getPlayedSounds } from '@renderer/test/audio'
 import { renderWithNavigation } from '@renderer/test/renderWithNavigation'
 
 import { OnScreenKeyboard } from './OnScreenKeyboard'
@@ -96,6 +97,19 @@ describe('OnScreenKeyboard', () => {
     await user.keyboard('{Enter}')
 
     expect(typed()).toBe('k')
+  })
+
+  it('sounds a key press for each key pressed, by pointer, confirm or shortcut', async () => {
+    renderWithNavigation(<TypingTest />)
+    const user = userEvent.setup()
+
+    await user.click(key('m'))
+    await user.pointer({ target: key('k'), coords: { x: 10, y: 10 } })
+    await user.keyboard('{Enter}')
+    holdDown('secondary', 0)
+    await Promise.resolve()
+
+    expect(getPlayedSounds()).toEqual(['key-press', 'key-press', 'key-press'])
   })
 
   it('deletes the last character with the Delete key and with the secondary action', async () => {
@@ -223,6 +237,8 @@ describe('OnScreenKeyboard', () => {
       expect(typed()).toBe('Mq x2')
       expect(key('Caps Lock')).toHaveAttribute('aria-pressed', 'false')
       expect(key('k')).toHaveFocus()
+      // The physical keyboard makes its own sound.
+      expect(getPlayedSounds()).toEqual([])
     })
 
     it('leaves typing in a text field to the field', async () => {

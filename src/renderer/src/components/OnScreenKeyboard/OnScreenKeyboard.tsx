@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { playUiSound } from '@renderer/core/audio'
 import { useInputAction, type InputAction } from '@renderer/core/input'
 import { FocusGroup } from '@renderer/core/navigation'
 
@@ -52,6 +53,7 @@ export function OnScreenKeyboard({
   })
 
   const pressKey = (keyboardKey: KeyboardKey, heldBy?: InputAction): void => {
+    playUiSound('key-press')
     if (heldBy) setHeld({ key: keyId(keyboardKey), action: heldBy })
     if (keyboardKey.kind === 'capsLock') setCapsLock(!capsLock)
     else if (keyboardKey.kind === 'action') onSubmit()

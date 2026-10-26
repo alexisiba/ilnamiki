@@ -33,7 +33,8 @@ export function KeyboardKeyButton({
   onBlur
 }: KeyboardKeyButtonProps): React.JSX.Element {
   const { t } = useTranslation()
-  const { ref } = useFocusable<HTMLButtonElement>({ id: keyId(keyboardKey) })
+  // Pressing the key plays its own sound (see OnScreenKeyboard).
+  const { ref } = useFocusable<HTMLButtonElement>({ id: keyId(keyboardKey), sound: false })
   const isCapsLock = keyboardKey.kind === 'capsLock'
   const shortcut = KEY_SHORTCUTS.find(({ key }) => key.kind === keyboardKey.kind)
 

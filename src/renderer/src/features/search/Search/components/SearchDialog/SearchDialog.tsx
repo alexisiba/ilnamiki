@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { OnScreenKeyboard } from '@renderer/components/OnScreenKeyboard'
+import { playUiSound } from '@renderer/core/audio'
 import { useInputAction } from '@renderer/core/input'
 import { getGameDetailsPath, NavigationProvider, useOpenScreen } from '@renderer/core/navigation'
 import { SAMPLE_GAMES } from '@renderer/mocks/games'
@@ -45,7 +46,9 @@ export function SearchDialog({ onClose }: SearchDialogProps): React.JSX.Element 
   }, [])
 
   useInputAction((action) => {
-    if (action === 'back') onClose()
+    if (action !== 'back') return
+    playUiSound('back')
+    onClose()
   })
 
   const type = (value: string): void => {

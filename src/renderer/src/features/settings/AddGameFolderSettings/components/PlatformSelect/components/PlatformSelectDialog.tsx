@@ -1,6 +1,7 @@
 import { useId, useLayoutEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { playUiSound } from '@renderer/core/audio'
 import { useInputAction } from '@renderer/core/input'
 import { FocusGroup, NavigationProvider } from '@renderer/core/navigation'
 
@@ -39,7 +40,9 @@ export function PlatformSelectDialog({
   }, [])
 
   useInputAction((action) => {
-    if (action === 'back') onClose()
+    if (action !== 'back') return
+    playUiSound('back')
+    onClose()
   })
 
   return (
