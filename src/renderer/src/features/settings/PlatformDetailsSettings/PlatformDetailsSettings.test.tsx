@@ -87,13 +87,74 @@ describe('PlatformDetailsSettings', () => {
     expect(within(section('Extensions')).queryByRole('list')).not.toBeInTheDocument()
   })
 
-  it('lists the cores that play it', async () => {
-    mockPlatforms([SUPER_NES])
-    renderDetails()
+  it('names its only core, with nothing to pick', async () => {
+    mockPlatforms([PLAYSTATION])
+    renderDetails(PLAYSTATION.id)
     await screen.findByRole('heading', { level: 2 })
 
-    const cores = within(section('Cores')).getAllByRole('listitem')
-    expect(cores.map((item) => item.textContent)).toEqual(['bsnes', 'Snes9x'])
+    expect(within(section('Core')).getByText('SwanStation')).toBeInTheDocument()
+    expect(screen.queryByRole('radiogroup')).not.toBeInTheDocument()
+  })
+
+  it('offers its cores to pick the default from, saying which games it applies to', async () => {
+    mockPlatforms([SUPER_NES])
+    renderDetails()
+
+    const cores = await screen.findByRole('radiogroup', { name: 'Default core' })
+    expect(
+      within(cores)
+        .getAllByRole('radio')
+        .map((core) => core.textContent)
+    ).toEqual(['bsnes', 'Snes9x'])
+    expect(cores).toHaveAccessibleDescription(
+      "Games of this platform you haven't played yet, and those you add later, play with the core you pick. Games you've already played keep theirs."
+    )
+  })
+
+  it('marks the first core while none was picked', async () => {
+    mockPlatforms([SUPER_NES])
+    renderDetails()
+
+    expect(await screen.findByRole('radio', { name: 'bsnes' })).toBeChecked()
+    expect(screen.getByRole('radio', { name: 'Snes9x' })).not.toBeChecked()
+  })
+
+  it('marks the core picked as the default', async () => {
+    mockPlatforms([{ ...SUPER_NES, defaultCore: { emulatorId: 'a1', coreId: 'snes9x' } }])
+    renderDetails()
+
+    expect(await screen.findByRole('radio', { name: 'Snes9x' })).toBeChecked()
+    expect(screen.getByRole('radio', { name: 'bsnes' })).not.toBeChecked()
+  })
+
+  it('keeps the core picked as the default in main, marking it', async () => {
+    mockPlatforms([SUPER_NES])
+    renderDetails()
+    const snes9x = await screen.findByRole('radio', { name: 'Snes9x' })
+
+    await userEvent.setup().click(snes9x)
+
+    expect(window.api.platforms.setDefaultCore).toHaveBeenCalledWith('super_nes', {
+      emulatorId: 'a1',
+      coreId: 'snes9x'
+    })
+    expect(snes9x).toBeChecked()
+    expect(screen.getByRole('radio', { name: 'bsnes' })).not.toBeChecked()
+  })
+
+  it('keeps the mark where it was when the core can’t be kept, saying so', async () => {
+    mockPlatforms([SUPER_NES])
+    vi.mocked(window.api.platforms.setDefaultCore).mockRejectedValue(new Error('No database'))
+    renderDetails()
+
+    await userEvent.setup().click(await screen.findByRole('radio', { name: 'Snes9x' }))
+
+    const message = "The core couldn't be saved. Try again."
+    expect(await screen.findByRole('alert')).toHaveTextContent(message)
+    expect(screen.getByRole('radio', { name: 'bsnes' })).toBeChecked()
+    expect(screen.getByRole('radiogroup')).toHaveAccessibleDescription(
+      expect.stringContaining(message)
+    )
   })
 
   it('leaves the maker out when no core says it', async () => {

@@ -44,7 +44,10 @@
     "enableFailed": "The change couldn't be saved. Try again.",
     "extensions": "Extensions",
     "noExtensions": "Its cores don't say which extensions they play.",
-    "cores": "Cores",
+    "core": "Core",
+    "defaultCore": "Default core",
+    "defaultCoreHint": "Games of this platform you haven't played yet, and those you add later, play with the core you pick. Games you've already played keep theirs.",
+    "defaultCoreFailed": "The core couldn't be saved. Try again.",
     "back": "Back",
     "notFound": "This platform is no longer installed."
   },
