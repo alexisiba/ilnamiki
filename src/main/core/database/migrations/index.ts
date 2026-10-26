@@ -79,5 +79,20 @@ export const MIGRATIONS: Migration[] = [
         updated_at INTEGER NOT NULL
       ) STRICT;
     `
+  },
+  {
+    version: 5,
+    name: 'Add the cores chosen for platforms and games',
+    up: `
+      ALTER TABLE platform_settings
+        ADD COLUMN default_emulator_id TEXT REFERENCES emulators (id) ON DELETE SET NULL;
+      ALTER TABLE platform_settings
+        ADD COLUMN default_core TEXT CHECK (length(default_core) > 0);
+
+      ALTER TABLE games
+        ADD COLUMN emulator_id TEXT REFERENCES emulators (id) ON DELETE SET NULL;
+      ALTER TABLE games
+        ADD COLUMN core TEXT CHECK (length(core) > 0);
+    `
   }
 ]

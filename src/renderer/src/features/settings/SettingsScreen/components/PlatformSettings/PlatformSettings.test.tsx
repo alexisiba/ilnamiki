@@ -23,14 +23,16 @@ const PLATFORMS: InstalledPlatform[] = [
         extensions: ['n64', 'v64', 'z64']
       }
     ],
-    isEnabled: true
+    isEnabled: true,
+    defaultCore: null
   },
   {
     id: 'playstation',
     name: 'PlayStation',
     manufacturer: 'Sony',
     cores: [{ id: 'swanstation', name: 'SwanStation', emulatorId: 'a1', extensions: [] }],
-    isEnabled: false
+    isEnabled: false,
+    defaultCore: null
   }
 ]
 
@@ -42,7 +44,8 @@ const SUPER_NES: InstalledPlatform = {
     { id: 'bsnes', name: 'bsnes', emulatorId: 'a1', extensions: ['sfc', 'bs'] },
     { id: 'snes9x', name: 'Snes9x', emulatorId: 'a1', extensions: ['smc', 'sfc'] }
   ],
-  isEnabled: true
+  isEnabled: true,
+  defaultCore: null
 }
 
 const platformItem = (name: string): HTMLElement => screen.getByRole('button', { name })

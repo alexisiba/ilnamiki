@@ -56,7 +56,8 @@ const NINTENDO_64: InstalledPlatform = {
   cores: [
     { id: 'mupen64plus_next', name: 'Mupen64Plus-Next', emulatorId: RETROARCH.id, extensions: [] }
   ],
-  isEnabled: true
+  isEnabled: true,
+  defaultCore: null
 }
 
 const N64_FOLDER: GameFolder = {

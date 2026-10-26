@@ -26,14 +26,16 @@ const PLATFORMS: InstalledPlatform[] = [
     name: 'Nintendo 64',
     manufacturer: 'Nintendo',
     cores: [{ id: 'mupen64plus_next', name: 'Mupen64Plus-Next', emulatorId: 'a1', extensions: [] }],
-    isEnabled: true
+    isEnabled: true,
+    defaultCore: null
   },
   {
     id: 'playstation',
     name: 'PlayStation',
     manufacturer: 'Sony',
     cores: [{ id: 'swanstation', name: 'SwanStation', emulatorId: 'a1', extensions: [] }],
-    isEnabled: true
+    isEnabled: true,
+    defaultCore: null
   }
 ]
 

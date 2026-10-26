@@ -28,7 +28,7 @@ export async function listInstalledPlatforms(): Promise<InstalledPlatform[]> {
         cores: await reader.readRetroArchCores(emulator.executablePath)
       }))
     ),
-    createPlatformSettingsRepository(db).listDisabled()
+    createPlatformSettingsRepository(db).list()
   )
 }
 
@@ -61,15 +61,4 @@ export async function findCorePlayer(
     coreId,
     coreLibraryPath
   }
-}
-
-/**
- * How to play the platform `platformId`: with its first installed core, by name (the one
- * listed first), until the user can choose one. Null when no installed core plays it.
- */
-export async function findPlatformPlayer(platformId: string): Promise<PlatformPlayer | null> {
-  const platform = (await listInstalledPlatforms()).find(({ id }) => id === platformId)
-  const core = platform?.cores[0]
-  if (!core) return null
-  return findCorePlayer(core.emulatorId, core.id)
 }

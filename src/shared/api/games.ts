@@ -1,3 +1,5 @@
+import type { CoreRef, InstalledCore } from './platforms'
+
 /** Why a game couldn't be started. */
 export type LaunchGameProblem =
   /** The game isn't in the library (e.g. it was removed with its folder). */
@@ -59,6 +61,27 @@ export interface GameDetails {
   playtimeMs: number
 }
 
+/**
+ * Why a game plays with the core it does, in the order they are tried:
+ * - `game`: the user chose it for this game.
+ * - `last-session`: the game was last played with it, so it opens where the user left it
+ *   (RetroArch keeps saves per core).
+ * - `platform-default`: the user chose it for the game's platform.
+ * - `first-installed`: nothing was chosen; the platform's first core, by name.
+ * A core that isn't installed anymore is passed over for the next.
+ */
+export type GameCoreReason = 'game' | 'last-session' | 'platform-default' | 'first-installed'
+
+/** Which cores can play a game, and which one playing it uses. */
+export interface GamePlayer {
+  /** The installed cores that play its platform, by name; empty when none does. */
+  cores: InstalledCore[]
+  /** The core the user chose for this game, one of `cores`; null while they chose none. */
+  chosenCore: CoreRef | null
+  /** The core playing it uses now, and why; null when no installed core plays it. */
+  playsWith: { core: CoreRef; reason: GameCoreReason } | null
+}
+
 /** A game of the library, as added from its folder. */
 export interface RecentlyAddedGame {
   id: string
@@ -89,9 +112,19 @@ export interface GamesApi {
    */
   getDetails(gameId: string): Promise<GameDetails | null>
   /**
-   * Starts the game in full screen with the emulator and core it was last played with, or
-   * its platform's when it was never played or those are gone, or says why it can't.
-   * Resolves once the emulator has started; `onGameEnded` says when it closes.
+   * Which cores can play the game `gameId` and which one `launch` would use, or null when it
+   * isn't in the library.
+   */
+  getPlayer(gameId: string): Promise<GamePlayer | null>
+  /**
+   * Keeps `core`, one of the installed cores of the game's platform, as the one it plays with,
+   * over every other reason; null forgets the choice. Rejects when the game isn't in the
+   * library or `core` doesn't play its platform.
+   */
+  setCore(gameId: string, core: CoreRef | null): Promise<void>
+  /**
+   * Starts the game in full screen with the core `getPlayer` says it plays with, or says why
+   * it can't. Resolves once the emulator has started; `onGameEnded` says when it closes.
    */
   launch(gameId: string): Promise<LaunchGameResult>
   /**
@@ -108,6 +141,8 @@ export const GAMES_CHANNELS = {
   getLastPlayed: 'games:get-last-played',
   listRecentlyAdded: 'games:list-recently-added',
   getDetails: 'games:get-details',
+  getPlayer: 'games:get-player',
+  setCore: 'games:set-core',
   launch: 'games:launch',
   launchRandom: 'games:launch-random',
   gameEnded: 'games:game-ended'

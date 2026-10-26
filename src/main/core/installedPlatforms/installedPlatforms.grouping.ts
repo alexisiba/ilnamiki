@@ -1,5 +1,7 @@
 import type { InstalledCore, InstalledPlatform } from '@shared/api'
 
+import type { PlatformSettingsRecord } from '../platformSettings'
+import { isAmongCores } from './installedPlatforms.cores'
 import type { EmulatorCores } from './installedPlatforms.types'
 
 const byName = (a: { name: string }, b: { name: string }): number =>
@@ -7,12 +9,13 @@ const byName = (a: { name: string }, b: { name: string }): number =>
 
 /**
  * The platforms the emulators' cores play, each with its cores, both by name. A platform takes
- * its name from the first core found for it, and its manufacturer from the first that says;
- * it is on unless it is among `disabledPlatformIds`.
+ * its name from the first core found for it, and its manufacturer from the first that says.
+ * What the user set for it in `settings` applies: it is on unless turned off, and its default
+ * core is the one chosen while that core is still among its cores.
  */
 export function groupByPlatform(
   emulators: EmulatorCores[],
-  disabledPlatformIds: ReadonlySet<string> = new Set()
+  settings: PlatformSettingsRecord[] = []
 ): InstalledPlatform[] {
   const platforms = new Map<string, InstalledPlatform>()
   for (const { emulatorId, cores } of emulators) {
@@ -26,12 +29,22 @@ export function groupByPlatform(
           name: detected.platformName,
           manufacturer: detected.platformManufacturer,
           cores: [core],
-          isEnabled: !disabledPlatformIds.has(platformId)
+          isEnabled: true,
+          defaultCore: null
         })
         continue
       }
       platform.cores.push(core)
       platform.manufacturer ??= detected.platformManufacturer
+    }
+  }
+
+  for (const setting of settings) {
+    const platform = platforms.get(setting.platformId)
+    if (!platform) continue
+    platform.isEnabled = setting.isEnabled
+    if (setting.defaultCore && isAmongCores(setting.defaultCore, platform.cores)) {
+      platform.defaultCore = setting.defaultCore
     }
   }
 

@@ -13,6 +13,14 @@ export interface InstalledCore {
   extensions: string[]
 }
 
+/** Which core: one of an emulator's, as `InstalledCore` names it. */
+export interface CoreRef {
+  /** The emulator it is installed in. */
+  emulatorId: string
+  /** e.g. "mupen64plus_next". */
+  coreId: string
+}
+
 /** A platform at least one installed core plays. Its data comes from the emulators. */
 export interface InstalledPlatform {
   /** Stable platform id, e.g. "nintendo_64". */
@@ -28,6 +36,11 @@ export interface InstalledPlatform {
    * the library, Home and random picks, and nothing about them is deleted.
    */
   isEnabled: boolean
+  /**
+   * The core the user chose to play its games with, one of `cores`; null while they chose none
+   * or the one chosen isn't installed anymore, and its first core is used.
+   */
+  defaultCore: CoreRef | null
 }
 
 /** The platforms the user's emulators can play. */
@@ -39,9 +52,16 @@ export interface PlatformsApi {
   list(): Promise<InstalledPlatform[]>
   /** Turns the platform `platformId` on or off, keeping the choice. */
   setEnabled(platformId: string, enabled: boolean): Promise<void>
+  /**
+   * Keeps `core`, one of the platform's installed cores, as the one its games play with,
+   * unless a game was played or set to play with another; null goes back to its first core.
+   * Rejects when `core` doesn't play the platform.
+   */
+  setDefaultCore(platformId: string, core: CoreRef | null): Promise<void>
 }
 
 export const PLATFORMS_CHANNELS = {
   list: 'platforms:list',
-  setEnabled: 'platforms:set-enabled'
+  setEnabled: 'platforms:set-enabled',
+  setDefaultCore: 'platforms:set-default-core'
 } as const

@@ -53,14 +53,53 @@ describe('games repository', () => {
     expect(createGamesRepository(db).findPlayable('g1')).toEqual({
       id: 'g1',
       platformId: 'playstation',
-      filePath: '/home/player/Games/PS1/Crash.cue'
+      filePath: '/home/player/Games/PS1/Crash.cue',
+      chosenCore: null
     })
+  })
+
+  it('keeps the core chosen for a game, and forgets it with null', () => {
+    const repository = createGamesRepository(db)
+    const swanStation = { emulatorId: 'e1', coreId: 'swanstation' }
+
+    repository.setChosenCore('g1', swanStation)
+    expect(repository.findPlayable('g1')?.chosenCore).toEqual(swanStation)
+    expect(repository.findPlayable('g3')?.chosenCore).toBeNull()
+
+    repository.setChosenCore('g1', null)
+    expect(repository.findPlayable('g1')?.chosenCore).toBeNull()
+  })
+
+  it('forgets the core chosen for a game when its emulator is deleted', () => {
+    const repository = createGamesRepository(db)
+    repository.setChosenCore('g1', { emulatorId: 'e1', coreId: 'swanstation' })
+
+    db.prepare("DELETE FROM emulators WHERE id = 'e1'").run()
+
+    expect(repository.findPlayable('g1')?.chosenCore).toBeNull()
+  })
+
+  it('refuses a game’s core of an unknown emulator, or an empty one', () => {
+    const update = db.prepare("UPDATE games SET emulator_id = ?, core = ? WHERE id = 'g1'")
+
+    expect(() => update.run('missing', 'swanstation')).toThrow(/FOREIGN KEY/)
+    expect(() => update.run('e1', '')).toThrow(/CHECK/)
   })
 
   it('lists every game in a folder, leaving removed ones out', () => {
     expect(createGamesRepository(db).listPlayable()).toEqual([
-      { id: 'g1', platformId: 'playstation', filePath: '/home/player/Games/PS1/Crash.cue' },
-      { id: 'g3', platformId: 'playstation', filePath: '/home/player/Games/PS1/Spyro.cue' }
+      {
+        id: 'g1',
+        platformId: 'playstation',
+        filePath: '/home/player/Games/PS1/Crash.cue',
+        chosenCore: null
+      },
+      {
+        id: 'g3',
+        platformId: 'playstation',
+        filePath: '/home/player/Games/PS1/Spyro.cue',
+        chosenCore: null
+      }
     ])
   })
 

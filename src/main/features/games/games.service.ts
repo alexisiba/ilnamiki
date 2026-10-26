@@ -4,7 +4,9 @@ import { mkdir, stat, writeFile } from 'fs/promises'
 import { join } from 'path'
 
 import type {
+  CoreRef,
   GameDetails,
+  GamePlayer,
   LastPlayedGame,
   LaunchGameResult,
   LaunchRandomGameResult,
@@ -15,10 +17,11 @@ import { getDatabase } from '../../core/database'
 import { freeEmulatorTurn, startEmulator, takeEmulatorTurn } from '../../core/emulatorProcess'
 import {
   findCorePlayer,
-  findPlatformPlayer,
+  isAmongCores,
   listInstalledPlatforms,
   type PlatformPlayer
 } from '../../core/installedPlatforms'
+import { choosePlayingCore } from './games.player'
 import { inRandomOrder, onPlayablePlatforms } from './games.random'
 import { createGamesRepository, type PlayableGameRecord } from './games.repository'
 import { retroArchLaunchArgs, retroArchOverridesText } from './games.retroarch'
@@ -48,17 +51,32 @@ async function writeRetroArchOverrides(): Promise<string> {
 }
 
 /**
- * How to play `game`: with the emulator and core it was last played with, so it opens where
- * the user left it (RetroArch keeps saves per core), or with its platform's while it was
- * never played or those aren't installed anymore. Null when nothing installed plays it.
+ * Which installed cores play `game`'s platform, which one the user chose for it (while still
+ * installed), and which one playing it uses, by `choosePlayingCore`'s order.
  */
-async function findGamePlayer(game: PlayableGameRecord): Promise<PlatformPlayer | null> {
+async function resolveGamePlayer(game: PlayableGameRecord): Promise<GamePlayer> {
+  const platform = (await listInstalledPlatforms()).find(({ id }) => id === game.platformId)
+  const installed = platform?.cores ?? []
   const last = createGamesRepository(getDatabase()).findLastPlayer(game.id)
-  if (last?.core) {
-    const player = await findCorePlayer(last.emulatorId, last.core)
-    if (player) return player
+  const chosenCore =
+    game.chosenCore && isAmongCores(game.chosenCore, installed) ? game.chosenCore : null
+
+  return {
+    cores: installed,
+    chosenCore,
+    playsWith: choosePlayingCore({
+      game: chosenCore,
+      lastSession: last?.core ? { emulatorId: last.emulatorId, coreId: last.core } : null,
+      platformDefault: platform?.defaultCore ?? null,
+      installed
+    })
   }
-  return findPlatformPlayer(game.platformId)
+}
+
+/** How to start `game`: the application and core library of the core it plays with. */
+async function findGamePlayer(game: PlayableGameRecord): Promise<PlatformPlayer | null> {
+  const { playsWith } = await resolveGamePlayer(game)
+  return playsWith && findCorePlayer(playsWith.core.emulatorId, playsWith.core.coreId)
 }
 
 /**
@@ -126,10 +144,33 @@ export const gamesService = {
     return createGamesRepository(getDatabase()).findDetails(gameId)
   },
 
+  /** Which cores can play the game `gameId` and which one it plays with, or null. */
+  async getPlayer(gameId: string): Promise<GamePlayer | null> {
+    const game = createGamesRepository(getDatabase()).findPlayable(gameId)
+    return game ? resolveGamePlayer(game) : null
+  },
+
   /**
-   * Starts the game `gameId` in full screen with the emulator and core it was last played
-   * with, or its platform's first installed core, or says why it can't. When the emulator
-   * closes, the time played is recorded and `onEnded` is called.
+   * Keeps `core` as the one the game `gameId` plays with, or forgets the choice with null.
+   * Throws when the game isn't in the library or `core` doesn't play its platform.
+   */
+  async setCore(gameId: string, core: CoreRef | null): Promise<void> {
+    const repository = createGamesRepository(getDatabase())
+    const game = repository.findPlayable(gameId)
+    if (!game) throw new Error(`The game ${gameId} isn't in the library`)
+    if (core) {
+      const { cores } = await resolveGamePlayer(game)
+      if (!isAmongCores(core, cores)) {
+        throw new Error(`The core ${core.coreId} doesn't play ${game.platformId}`)
+      }
+    }
+    repository.setChosenCore(gameId, core)
+  },
+
+  /**
+   * Starts the game `gameId` in full screen with the core `getPlayer` says it plays with, or
+   * says why it can't. When the emulator closes, the time played is recorded and `onEnded`
+   * is called.
    */
   async launch(gameId: string, onEnded: () => void): Promise<LaunchGameResult> {
     if (!takeEmulatorTurn()) return { ok: false, problem: 'already-playing' }

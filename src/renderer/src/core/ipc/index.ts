@@ -11,9 +11,11 @@ export {
 } from './emulators'
 export {
   getGameDetails,
+  getGamePlayer,
   launchGame,
   launchRandomGame,
   listRecentlyAddedGames,
+  setGameCore,
   subscribeToGameEnded
 } from './games'
 export {
@@ -33,7 +35,12 @@ export {
   subscribeToScanProgress
 } from './library'
 export { getNetworkStatus } from './network'
-export { refreshPlatforms, setPlatformEnabled, type PlatformsState } from './platforms'
+export {
+  refreshPlatforms,
+  setPlatformDefaultCore,
+  setPlatformEnabled,
+  type PlatformsState
+} from './platforms'
 export { useControllerStatus } from './useControllerStatus'
 export { useEmulators } from './useEmulators'
 export { useFolderGames, type FolderGamesState } from './useFolderGames'

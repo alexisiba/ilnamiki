@@ -1,10 +1,25 @@
 import type {
+  CoreRef,
   GameDetails,
   GameEnded,
+  GamePlayer,
   LaunchGameResult,
   LaunchRandomGameResult,
   RecentlyAddedGame
 } from '@shared/api'
+
+/**
+ * Which cores can play the game `gameId` and which one playing it uses, or null when it isn't
+ * in the library.
+ */
+export function getGamePlayer(gameId: string): Promise<GamePlayer | null> {
+  return window.api.games.getPlayer(gameId)
+}
+
+/** Keeps `core` as the one the game `gameId` plays with, or forgets the choice with null. */
+export function setGameCore(gameId: string, core: CoreRef | null): Promise<void> {
+  return window.api.games.setCore(gameId, core)
+}
 
 /** What the library knows about the game `gameId`, or null when it isn't in the library. */
 export function getGameDetails(gameId: string): Promise<GameDetails | null> {

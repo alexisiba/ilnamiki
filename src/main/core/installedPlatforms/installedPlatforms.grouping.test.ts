@@ -39,7 +39,8 @@ describe('groupByPlatform', () => {
           { id: 'bsnes', name: 'bsnes', emulatorId: 'retroarch', extensions: ['sfc', 'bs'] },
           { id: 'snes9x', name: 'Snes9x', emulatorId: 'retroarch', extensions: ['smc', 'sfc'] }
         ],
-        isEnabled: true
+        isEnabled: true,
+        defaultCore: null
       }
     ])
   })
@@ -47,13 +48,37 @@ describe('groupByPlatform', () => {
   it('turns off the platforms the user turned off, and only those', () => {
     const platforms = groupByPlatform(
       [{ emulatorId: 'retroarch', cores: [SNES9X, MUPEN] }],
-      new Set(['nintendo_64'])
+      [{ platformId: 'nintendo_64', isEnabled: false, defaultCore: null }]
     )
 
     expect(platforms.map(({ id, isEnabled }) => [id, isEnabled])).toEqual([
       ['nintendo_64', false],
       ['super_nes', true]
     ])
+  })
+
+  it('keeps the default core chosen for a platform while it is still one of its cores', () => {
+    const chosen = (emulatorId: string, coreId: string): ReturnType<typeof groupByPlatform> =>
+      groupByPlatform(
+        [{ emulatorId: 'retroarch', cores: [SNES9X, BSNES] }],
+        [{ platformId: 'super_nes', isEnabled: true, defaultCore: { emulatorId, coreId } }]
+      )
+
+    expect(chosen('retroarch', 'snes9x')[0].defaultCore).toEqual({
+      emulatorId: 'retroarch',
+      coreId: 'snes9x'
+    })
+    expect(chosen('retroarch', 'mesen')[0].defaultCore).toBeNull()
+    expect(chosen('other', 'snes9x')[0].defaultCore).toBeNull()
+  })
+
+  it('ignores what was set for a platform no installed core plays', () => {
+    const platforms = groupByPlatform(
+      [{ emulatorId: 'retroarch', cores: [SNES9X] }],
+      [{ platformId: 'nes', isEnabled: false, defaultCore: null }]
+    )
+
+    expect(platforms.map(({ id }) => id)).toEqual(['super_nes'])
   })
 
   it('takes the manufacturer from the first core that says it', () => {

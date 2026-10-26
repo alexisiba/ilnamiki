@@ -23,7 +23,8 @@ const SUPER_NES: InstalledPlatform = {
     { id: 'bsnes', name: 'bsnes', emulatorId: 'a1', extensions: ['sfc', 'bs'] },
     { id: 'snes9x', name: 'Snes9x', emulatorId: 'a1', extensions: ['smc', 'sfc'] }
   ],
-  isEnabled: true
+  isEnabled: true,
+  defaultCore: null
 }
 
 const PLAYSTATION: InstalledPlatform = {
@@ -31,7 +32,8 @@ const PLAYSTATION: InstalledPlatform = {
   name: 'PlayStation',
   manufacturer: null,
   cores: [{ id: 'swanstation', name: 'SwanStation', emulatorId: 'a1', extensions: [] }],
-  isEnabled: false
+  isEnabled: false,
+  defaultCore: null
 }
 
 function renderDetails(platformId: string = SUPER_NES.id): void {

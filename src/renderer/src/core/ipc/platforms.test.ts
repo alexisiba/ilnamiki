@@ -8,6 +8,7 @@ import { addEmulator, removeEmulator } from './emulators'
 import {
   getPlatformsState,
   refreshPlatforms,
+  setPlatformDefaultCore,
   setPlatformEnabled,
   subscribeToPlatforms
 } from './platforms'
@@ -17,7 +18,8 @@ const NINTENDO_64: InstalledPlatform = {
   name: 'Nintendo 64',
   manufacturer: 'Nintendo',
   cores: [{ id: 'mupen64plus_next', name: 'Mupen64Plus-Next', emulatorId: 'a1', extensions: [] }],
-  isEnabled: true
+  isEnabled: true,
+  defaultCore: null
 }
 
 const RETROARCH: Emulator = {
@@ -42,6 +44,30 @@ describe('platforms store', () => {
     expect(window.api.platforms.setEnabled).toHaveBeenCalledWith('nintendo_64', false)
     expect(getPlatformsState().platforms).toEqual([{ ...NINTENDO_64, isEnabled: false }])
     expect(listener).toHaveBeenCalled()
+  })
+
+  it('keeps a platform’s default core in main and shows it, without reading them again', async () => {
+    mockPlatforms([NINTENDO_64])
+    await refreshPlatforms()
+    const core = { emulatorId: 'a1', coreId: 'mupen64plus_next' }
+
+    await setPlatformDefaultCore('nintendo_64', core)
+
+    expect(window.api.platforms.setDefaultCore).toHaveBeenCalledWith('nintendo_64', core)
+    expect(getPlatformsState().platforms).toEqual([{ ...NINTENDO_64, defaultCore: core }])
+    expect(window.api.platforms.list).toHaveBeenCalledOnce()
+  })
+
+  it('changes no default core when main can’t keep it', async () => {
+    mockPlatforms([NINTENDO_64])
+    await refreshPlatforms()
+    vi.mocked(window.api.platforms.setDefaultCore).mockRejectedValue(new Error('No database'))
+
+    await expect(
+      setPlatformDefaultCore('nintendo_64', { emulatorId: 'a1', coreId: 'mupen64plus_next' })
+    ).rejects.toThrow('No database')
+
+    expect(getPlatformsState().platforms).toEqual([NINTENDO_64])
   })
 
   it('changes nothing when main can’t keep a platform on or off', async () => {

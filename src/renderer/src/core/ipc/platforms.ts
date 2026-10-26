@@ -1,4 +1,4 @@
-import type { InstalledPlatform } from '@shared/api'
+import type { CoreRef, InstalledPlatform } from '@shared/api'
 
 /** The installed platforms shown across the app, as last read from main. */
 export interface PlatformsState {
@@ -37,6 +37,24 @@ export async function setPlatformEnabled(platformId: string, enabled: boolean): 
     ...state,
     platforms: state.platforms.map((platform) =>
       platform.id === platformId ? { ...platform, isEnabled: enabled } : platform
+    )
+  })
+}
+
+/**
+ * Keeps `core` in main as the one the games of the platform `platformId` play with (null
+ * goes back to its first core), then shows it so to every subscriber, without reading the
+ * platforms again. Rejects when main can't keep it, changing nothing.
+ */
+export async function setPlatformDefaultCore(
+  platformId: string,
+  core: CoreRef | null
+): Promise<void> {
+  await window.api.platforms.setDefaultCore(platformId, core)
+  setState({
+    ...state,
+    platforms: state.platforms.map((platform) =>
+      platform.id === platformId ? { ...platform, defaultCore: core } : platform
     )
   })
 }

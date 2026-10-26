@@ -3,8 +3,9 @@ import { ipcMain } from 'electron'
 import { PLATFORMS_CHANNELS } from '@shared/api'
 
 import { getDatabase } from '../../core/database'
-import { listInstalledPlatforms } from '../../core/installedPlatforms'
+import { listInstalledPlatforms, parseCoreRef } from '../../core/installedPlatforms'
 import { createPlatformSettingsRepository } from '../../core/platformSettings'
+import { platformsService } from './platforms.service'
 import { parsePlatformId } from './platforms.validation'
 
 /** Answers the renderer's `platforms` requests, after checking what it sends. */
@@ -17,5 +18,14 @@ export function registerPlatformsIpc(): void {
       throw new Error('platforms.setEnabled needs a platform id and whether it is on')
     }
     createPlatformSettingsRepository(getDatabase()).setEnabled(platformId, enabled, Date.now())
+  })
+
+  ipcMain.handle(PLATFORMS_CHANNELS.setDefaultCore, (_event, id: unknown, value: unknown) => {
+    const platformId = parsePlatformId(id)
+    const core = value === null ? null : parseCoreRef(value)
+    if (platformId === null || (value !== null && core === null)) {
+      throw new Error('platforms.setDefaultCore needs a platform id and a core, or null')
+    }
+    return platformsService.setDefaultCore(platformId, core)
   })
 }

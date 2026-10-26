@@ -1,6 +1,6 @@
 import type { DatabaseSync } from 'node:sqlite'
 
-import type { GameDetails, LastPlayedGame, RecentlyAddedGame } from '@shared/api'
+import type { CoreRef, GameDetails, LastPlayedGame, RecentlyAddedGame } from '@shared/api'
 
 /** A game in a folder, with what it takes to play it. */
 export interface PlayableGameRecord {
@@ -8,6 +8,8 @@ export interface PlayableGameRecord {
   platformId: string
   /** Absolute path of the file the emulator opens. */
   filePath: string
+  /** The core the user chose for it; null while they chose none or its emulator is gone. */
+  chosenCore: CoreRef | null
 }
 
 /** A time a game was played, from when its emulator started until it closed. */
@@ -37,6 +39,8 @@ export interface GamesRepository {
   findPlayable(id: string): PlayableGameRecord | undefined
   /** Every game in a folder, of every platform; removed games can't be played. */
   listPlayable(): PlayableGameRecord[]
+  /** Keeps the core the game `id` plays with, or forgets it with null. */
+  setChosenCore(id: string, core: CoreRef | null): void
   /**
    * The emulator and core the game `gameId` was last played with, or undefined when it was
    * never played with an emulator the user still has.
@@ -81,6 +85,27 @@ interface RecentlyAddedRow {
   added_at: number
 }
 
+interface PlayableRow {
+  id: string
+  platform_id: string
+  file_path: string
+  emulator_id: string | null
+  core: string | null
+}
+
+const PLAYABLE_COLUMNS = 'id, platform_id, file_path, emulator_id, core'
+
+const toPlayable = (row: PlayableRow): PlayableGameRecord => ({
+  id: row.id,
+  platformId: row.platform_id,
+  filePath: row.file_path,
+  // Its emulator deleted, the core is forgotten with it.
+  chosenCore:
+    row.emulator_id !== null && row.core !== null
+      ? { emulatorId: row.emulator_id, coreId: row.core }
+      : null
+})
+
 /** The platforms the user turned off, whose games are left out of Home. */
 const DISABLED_PLATFORMS = 'SELECT platform_id FROM platform_settings WHERE is_enabled = 0'
 
@@ -89,24 +114,24 @@ export function createGamesRepository(db: DatabaseSync): GamesRepository {
   return {
     findPlayable(id) {
       const row = db
-        .prepare(
-          'SELECT id, platform_id, file_path FROM games WHERE id = ? AND folder_id IS NOT NULL'
-        )
-        .get(id) as { id: string; platform_id: string; file_path: string } | undefined
-      return row && { id: row.id, platformId: row.platform_id, filePath: row.file_path }
+        .prepare(`SELECT ${PLAYABLE_COLUMNS} FROM games WHERE id = ? AND folder_id IS NOT NULL`)
+        .get(id) as PlayableRow | undefined
+      return row && toPlayable(row)
     },
 
     listPlayable() {
       const rows = db
-        .prepare(
-          'SELECT id, platform_id, file_path FROM games WHERE folder_id IS NOT NULL ORDER BY id'
-        )
-        .all() as unknown as { id: string; platform_id: string; file_path: string }[]
-      return rows.map((row) => ({
-        id: row.id,
-        platformId: row.platform_id,
-        filePath: row.file_path
-      }))
+        .prepare(`SELECT ${PLAYABLE_COLUMNS} FROM games WHERE folder_id IS NOT NULL ORDER BY id`)
+        .all() as unknown as PlayableRow[]
+      return rows.map(toPlayable)
+    },
+
+    setChosenCore(id, core) {
+      db.prepare('UPDATE games SET emulator_id = ?, core = ? WHERE id = ?').run(
+        core?.emulatorId ?? null,
+        core?.coreId ?? null,
+        id
+      )
     },
 
     findLastPlayer(gameId) {

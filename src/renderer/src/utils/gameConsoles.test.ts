@@ -9,7 +9,8 @@ const platform = (id: string, name: string, manufacturer: string | null): Instal
   name,
   manufacturer,
   cores: [{ id: `${id}-core`, name: 'Core', emulatorId: 'a1', extensions: [] }],
-  isEnabled: true
+  isEnabled: true,
+  defaultCore: null
 })
 
 const folder = (platformId: string, gameCount: number): GameFolder => ({

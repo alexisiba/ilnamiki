@@ -23,7 +23,8 @@ const PLAYSTATION: InstalledPlatform = {
   name: 'Sony - PlayStation',
   manufacturer: 'Sony',
   cores: [{ id: 'swanstation', name: 'SwanStation', emulatorId: 'a1', extensions: [] }],
-  isEnabled: true
+  isEnabled: true,
+  defaultCore: null
 }
 
 const PS1_FOLDER: GameFolder = {

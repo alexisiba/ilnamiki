@@ -19,7 +19,7 @@ structure: what each table is for, what each field means and how tables relate.
 | Journal | WAL (`ilnamiki.db-wal` and `ilnamiki.db-shm` exist while the app runs) |
 | Foreign keys | Enforced on every connection |
 | Schema version | Kept in `PRAGMA user_version`; the number of the last migration applied |
-| Current version | **4**: `emulators`, `library_folders`, `games`, `play_sessions`, `platform_settings` |
+| Current version | **5**: `emulators`, `library_folders`, `games`, `play_sessions`, `platform_settings` |
 
 ## What is stored and what isn't
 
@@ -52,6 +52,8 @@ erDiagram
     library_folders |o--o{ games : "found in"
     games ||--o{ play_sessions : "played in"
     emulators |o--o{ play_sessions : "played with"
+    emulators |o--o{ games : "chosen for"
+    emulators |o--o{ platform_settings : "default for"
 
     emulators {
         TEXT id PK
@@ -80,11 +82,15 @@ erDiagram
         TEXT title
         INTEGER added_at
         INTEGER removed_at
+        TEXT emulator_id FK
+        TEXT core
     }
     platform_settings {
         TEXT platform_id PK
         INTEGER is_enabled
         INTEGER updated_at
+        TEXT default_emulator_id FK
+        TEXT default_core
     }
     play_sessions {
         TEXT id PK
@@ -146,6 +152,8 @@ if the same file is added again.
 | `title` | `TEXT` | no | Title shown in the app, never empty: the file's name without its extension, for now |
 | `added_at` | `INTEGER` | no | When it was first found |
 | `removed_at` | `INTEGER` | yes | When it was removed (e.g. with its folder); `NULL` while it is in a folder |
+| `emulator_id` | `TEXT` | yes | Migration 5. → `emulators.id`: the emulator of the core the user chose for this game; `NULL` while they chose none. Deleting the emulator sets it back to `NULL` (`SET NULL`) |
+| `core` | `TEXT` | yes | Migration 5. The core the user chose for this game (e.g. `snes9x`), never empty; the choice counts only while `emulator_id` is set too |
 
 Unique: (`platform_id`, `file_path`), which is how a removed game is recognized when it comes
 back. A `CHECK` keeps `folder_id` and `removed_at` consistent: exactly one of them is set.
@@ -185,57 +193,41 @@ random picks; nothing about them is deleted.
 | `platform_id` | `TEXT` | no | Primary key: the platform's id from the installed cores (e.g. `nintendo_64`), never empty |
 | `is_enabled` | `INTEGER` | no | Whether the platform is on: `0` or `1` (`CHECK`) |
 | `updated_at` | `INTEGER` | no | When the user last changed it |
+| `default_emulator_id` | `TEXT` | yes | Migration 5. → `emulators.id`: the emulator of the core the platform's games play with; `NULL` while the user chose none. Deleting the emulator sets it back to `NULL` (`SET NULL`) |
+| `default_core` | `TEXT` | yes | Migration 5. The core the platform's games play with (e.g. `bsnes`), never empty; the choice counts only while `default_emulator_id` is set too |
+
+Neither table checks that its emulator and core are both set or both `NULL`: deleting an
+emulator clears only the emulator, so a core left alone is read as no choice.
+
+### Which core a game plays with
+
+Computed when a game is shown or started, never stored, from these in order; a core that
+isn't installed anymore is passed over for the next:
+
+1. The core chosen for the game (`games.emulator_id`, `games.core`).
+2. The core of its latest session with an emulator the user still has (`play_sessions`), so it
+   opens where the user left it: RetroArch keeps saves per core.
+3. The core chosen for its platform (`platform_settings.default_emulator_id`, `default_core`).
+4. Its platform's first installed core, by name.
 
 ## Planned tables
 
 A first draft of where the schema is heading, so each migration fits the next. **None of
 these exist yet**: each one is designed for real, and may change, when the feature that needs
-it is built, and moves to [Tables](#tables) once its migration exists. `emulators` and
-`games` (above) are shown only for their relations and planned columns.
+it is built, and moves to [Tables](#tables) once its migration exists. The cores chosen for
+platforms and games, first planned as a `platform_emulators` table and columns of `games`,
+were built in migration 5 (see `platform_settings` and `games` above).
 
 ```mermaid
 erDiagram
-    emulators ||--o{ platform_emulators : "plays"
-    emulators ||--o{ games : "forced for"
-
-    platform_emulators {
-        TEXT platform_id PK
-        TEXT emulator_id PK, FK
-        TEXT core
-        INTEGER is_default
-    }
-    games {
-        TEXT emulator_id FK
-        TEXT core
-    }
     settings {
         TEXT key PK
         TEXT value
     }
 ```
 
-### `platform_emulators` (planned)
-
-Which emulator, and which core of it, plays each platform.
-
-| Field | Type | Null | Meaning |
-|---|---|---|---|
-| `platform_id` | `TEXT` | no | Platform from the app's catalog (e.g. `nintendo_64`) |
-| `emulator_id` | `TEXT` | no | → `emulators.id`; deleting the emulator removes its rows here |
-| `core` | `TEXT` | yes | Core to load for multi-system emulators (e.g. `mupen64plus_next`); `NULL` for emulators without cores |
-| `is_default` | `INTEGER` | no | Whether it is the one used when a game doesn't choose; one per platform |
-
-Primary key: (`platform_id`, `emulator_id`).
-
-### Planned columns of `games`
-
-| Field | Type | Null | Meaning |
-|---|---|---|---|
-| `emulator_id` | `TEXT` | yes | → `emulators.id`; emulator forced for this game, `NULL` to use the platform's default. Deleting the emulator sets it back to `NULL` |
-| `core` | `TEXT` | yes | Core forced for this game; `NULL` to use the platform's |
-
-Metadata (description, genre, year, players, artwork paths) will be added when the source of
-that metadata is decided.
+Metadata of `games` (description, genre, year, players, artwork paths) will be added when the
+source of that metadata is decided.
 
 ### `settings` (planned)
 

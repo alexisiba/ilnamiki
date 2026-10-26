@@ -17,7 +17,8 @@ const platform = (id: string, name: string): InstalledPlatform => ({
   name,
   manufacturer: null,
   cores: [],
-  isEnabled: true
+  isEnabled: true,
+  defaultCore: null
 })
 
 describe('toContinueGame', () => {
