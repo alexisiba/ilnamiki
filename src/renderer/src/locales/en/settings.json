@@ -36,6 +36,13 @@
       "description": "Close Ilnamiki and open it again."
     }
   },
+  "platformDetails": {
+    "extensions": "Extensions",
+    "noExtensions": "Its cores don't say which extensions they play.",
+    "cores": "Cores",
+    "back": "Back",
+    "notFound": "This platform is no longer installed."
+  },
   "emulators": {
     "version": "Version {{version}}",
     "empty": {

@@ -12,12 +12,15 @@ import type { PlatformSettingsProps } from './PlatformSettings.types'
 import styles from './PlatformSettings.module.css'
 
 /**
- * The platforms the emulators' installed cores play, each one turned on or off, or, when
+ * The platforms the emulators' installed cores play, each one opening its details, or, when
  * there are none, how to get one: by setting up an emulator. Until they are read nothing
  * shows, so the empty view never flashes; when they can't be read, it says so. It has no
  * heading of its own: the selected category already names it.
  */
-export function PlatformSettings({ onSetUpEmulator }: PlatformSettingsProps): React.JSX.Element {
+export function PlatformSettings({
+  onSetUpEmulator,
+  onOpen
+}: PlatformSettingsProps): React.JSX.Element {
   const { t } = useTranslation('settings')
   const { status, platforms } = usePlatforms()
 
@@ -28,7 +31,7 @@ export function PlatformSettings({ onSetUpEmulator }: PlatformSettingsProps): Re
         <ul className={styles.list}>
           {platforms.map((platform) => (
             <li key={platform.id}>
-              <PlatformListItem platform={platform} />
+              <PlatformListItem platform={platform} onOpen={() => onOpen(platform.id)} />
             </li>
           ))}
         </ul>

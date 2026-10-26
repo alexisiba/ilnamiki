@@ -22,9 +22,8 @@
 
 .item {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-md);
+  flex-direction: column;
+  gap: var(--space-xs);
   width: 100%;
   padding: var(--space-sm) var(--space-md);
   background: var(--color-surface-high);
@@ -41,13 +40,6 @@
   outline: none;
   border-color: var(--color-primary);
   box-shadow: var(--shadow-focus);
-}
-
-.info {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-  min-width: 0;
 }
 
 .name {
@@ -72,43 +64,4 @@
   font-variant-ligatures: none;
   text-transform: uppercase;
   color: var(--color-text-muted);
-}
-
-/* Off: a dim track with the knob on the left. On: a cyan track with the knob on the right. */
-.toggle {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  width: var(--switch-width);
-  height: var(--switch-height);
-  padding: var(--switch-padding);
-  background: var(--color-surface-highest);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-full);
-  transition:
-    background-color var(--duration-focus) var(--ease-focus),
-    border-color var(--duration-focus) var(--ease-focus);
-}
-
-.knob {
-  width: var(--switch-knob-size);
-  height: var(--switch-knob-size);
-  background: var(--color-text-muted);
-  border-radius: var(--radius-full);
-  transition:
-    transform var(--duration-focus) var(--ease-focus),
-    background-color var(--duration-focus) var(--ease-focus);
-}
-
-.item[aria-checked='true'] .toggle {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-}
-
-.item[aria-checked='true'] .knob {
-  background: var(--color-on-accent);
-  /* Across the track: its inner width minus the knob. */
-  transform: translateX(
-    calc(var(--switch-width) - 2 * var(--switch-padding) - 2px - var(--switch-knob-size))
-  );
 }

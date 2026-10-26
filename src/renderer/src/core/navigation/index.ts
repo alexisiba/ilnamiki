@@ -11,8 +11,10 @@ export {
   getEmulatorDetailsPath,
   getGameDetailsPath,
   getGameFolderDetailsPath,
+  getPlatformDetailsPath,
   getSectionPath,
   isSectionRoot,
+  PLATFORM_DETAILS_PATH,
   SECTION_PATHS
 } from './sections'
 export { takeBackStep } from './backNavigation'

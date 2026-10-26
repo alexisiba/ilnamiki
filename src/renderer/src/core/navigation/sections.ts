@@ -29,6 +29,13 @@ export function getEmulatorDetailsPath(emulatorId: string): string {
   return `${SECTION_PATHS.settings}/emulators/${encodeURIComponent(emulatorId)}`
 }
 
+/** Route of an installed platform's details, inside the Settings section. */
+export const PLATFORM_DETAILS_PATH = `${SECTION_PATHS.settings}/platforms/:platformId`
+
+export function getPlatformDetailsPath(platformId: string): string {
+  return `${SECTION_PATHS.settings}/platforms/${encodeURIComponent(platformId)}`
+}
+
 /** Route of the form that adds a game folder, inside the Settings section. */
 export const ADD_GAME_FOLDER_PATH = `${SECTION_PATHS.settings}/game-folders/new`
 

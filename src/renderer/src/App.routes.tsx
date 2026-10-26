@@ -7,6 +7,7 @@ import {
   EMULATOR_DETAILS_PATH,
   GAME_DETAILS_PATH,
   GAME_FOLDER_DETAILS_PATH,
+  PLATFORM_DETAILS_PATH,
   SECTION_PATHS
 } from '@renderer/core/navigation'
 import { ConsoleSelectScreen } from '@renderer/features/consoles'
@@ -17,6 +18,7 @@ import {
   AddGameFolderSettings,
   EmulatorDetailsSettings,
   GameFolderDetailsSettings,
+  PlatformDetailsSettings,
   SettingsScreen
 } from '@renderer/features/settings'
 import App from './App'
@@ -37,6 +39,7 @@ export const APP_ROUTES: RouteObject[] = [
         children: [
           { path: ADD_EMULATOR_PATH, element: <AddEmulatorSettings /> },
           { path: EMULATOR_DETAILS_PATH, element: <EmulatorDetailsSettings /> },
+          { path: PLATFORM_DETAILS_PATH, element: <PlatformDetailsSettings /> },
           { path: ADD_GAME_FOLDER_PATH, element: <AddGameFolderSettings /> },
           { path: GAME_FOLDER_DETAILS_PATH, element: <GameFolderDetailsSettings /> }
         ]
