@@ -1,9 +1,11 @@
-import type { InstalledPlatform, LastPlayedGame } from '@shared/api'
+import type { InstalledPlatform, LastPlayedGame, RecentlyAddedGame } from '@shared/api'
 
 import consolesArtwork from '@renderer/assets/images/consoles/consoles.webp'
+import noImage from '@renderer/assets/images/games/no-image.webp'
 import { findCatalogPlatform } from '@renderer/utils/platformCatalog/platformCatalog'
 
 import type { ContinueGame } from './components/ContinueHero'
+import type { ShelfGame } from './components/GameShelf'
 
 const MINUTE_MS = 60 * 1000
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -18,18 +20,37 @@ const startOfDay = (date: Date): number =>
  * console is named as the app's catalog names it, or as its cores do.
  */
 export function toContinueGame(game: LastPlayedGame, platforms: InstalledPlatform[]): ContinueGame {
-  const known = findCatalogPlatform(game.platformId)
-  const installed = platforms.find((platform) => platform.id === game.platformId)
-
   return {
     id: game.id,
     title: game.title,
-    platform: known?.name ?? installed?.name ?? game.platformId,
+    platform: platformName(game.platformId, platforms),
     description: null,
-    imageUrl: known?.imageUrl ?? consolesArtwork,
+    imageUrl: findCatalogPlatform(game.platformId)?.imageUrl ?? consolesArtwork,
     lastPlayedAt: new Date(game.lastPlayedAt),
     playtimeMinutes: Math.round(game.playtimeMs / MINUTE_MS)
   }
+}
+
+/**
+ * A recently added game as its shelf shows it: until games have artwork, with the generic
+ * game image, and its console named as in the hero.
+ */
+export function toRecentlyAddedShelfGame(
+  game: RecentlyAddedGame,
+  platforms: InstalledPlatform[]
+): ShelfGame {
+  return {
+    id: game.id,
+    title: game.title,
+    platform: platformName(game.platformId, platforms),
+    imageUrl: noImage
+  }
+}
+
+/** The console `platformId` as the app's catalog names it, or as its cores do, or its id. */
+function platformName(platformId: string, platforms: InstalledPlatform[]): string {
+  const installed = platforms.find((platform) => platform.id === platformId)
+  return findCatalogPlatform(platformId)?.name ?? installed?.name ?? platformId
 }
 
 /**

@@ -9,7 +9,7 @@ export {
   removeEmulator,
   type EmulatorsState
 } from './emulators'
-export { launchGame, subscribeToGameEnded } from './games'
+export { launchGame, listRecentlyAddedGames, subscribeToGameEnded } from './games'
 export {
   addGameFolder,
   refreshGameFolders,
@@ -35,3 +35,4 @@ export { useGameFolders } from './useGameFolders'
 export { useLastPlayedGame } from './useLastPlayedGame'
 export { useNetworkStatus } from './useNetworkStatus'
 export { usePlatforms } from './usePlatforms'
+export { useRecentlyAddedGames, type RecentlyAddedGamesState } from './useRecentlyAddedGames'

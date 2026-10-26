@@ -1,8 +1,14 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
 
-import type { Emulator, GameFolder, InstalledPlatform, LastPlayedGame } from '@shared/api'
+import type {
+  Emulator,
+  GameFolder,
+  InstalledPlatform,
+  LastPlayedGame,
+  RecentlyAddedGame
+} from '@shared/api'
 
 import { NavigationProvider, SECTION_PATHS } from '@renderer/core/navigation'
 import {
@@ -10,7 +16,8 @@ import {
   mockEmulators,
   mockGameFolders,
   mockLastPlayedGame,
-  mockPlatforms
+  mockPlatforms,
+  mockRecentlyAddedGames
 } from '@renderer/test/api'
 
 import { HomeScreen } from './HomeScreen'
@@ -66,6 +73,17 @@ const OCARINA: LastPlayedGame = {
   platformId: 'nintendo_64',
   lastPlayedAt: 1_800_000_000_000,
   playtimeMs: 90 * 60 * 1000
+}
+
+const RECENTLY_ADDED: RecentlyAddedGame[] = [
+  { id: 'g2', title: 'Super Mario 64 (USA)', platformId: 'nintendo_64', addedAt: 2 },
+  { id: 'g1', title: OCARINA.title, platformId: 'nintendo_64', addedAt: 1 }
+]
+
+/** The section under the "Recently added" heading. */
+const recentlyAddedShelf = async (): Promise<HTMLElement> => {
+  const heading = await screen.findByRole('heading', { level: 2, name: 'Recently added' })
+  return heading.closest('section') as HTMLElement
 }
 
 const setUpTitle = (): Promise<HTMLElement> =>
@@ -135,6 +153,46 @@ describe('HomeScreen', () => {
     expect(screen.getByText('Total playtime: 1 h 30 min')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Continue playing' })).toHaveFocus()
     expect(screen.queryByText('Ready to play')).not.toBeInTheDocument()
+  })
+
+  it('shows the games added last, with their console, below the games ready to play', async () => {
+    mockEmulators([RETROARCH])
+    mockPlatforms([NINTENDO_64])
+    mockGameFolders([N64_FOLDER])
+    mockRecentlyAddedGames(RECENTLY_ADDED)
+    renderHome()
+
+    const [newest, oldest] = within(await recentlyAddedShelf()).getAllByRole('button')
+    expect(newest).toHaveAccessibleName('Super Mario 64 (USA)')
+    expect(newest).toHaveAccessibleDescription('Nintendo 64')
+    expect(oldest).toHaveAccessibleName(OCARINA.title)
+    expect(screen.getByRole('button', { name: 'Explore library' })).toHaveFocus()
+  })
+
+  it('shows the games added last below the last played game', async () => {
+    mockEmulators([RETROARCH])
+    mockPlatforms([NINTENDO_64])
+    mockGameFolders([N64_FOLDER])
+    mockLastPlayedGame(OCARINA)
+    mockRecentlyAddedGames(RECENTLY_ADDED)
+    renderHome()
+
+    expect(
+      within(await recentlyAddedShelf()).getByRole('button', { name: 'Super Mario 64 (USA)' })
+    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Continue playing' })).toHaveFocus()
+  })
+
+  it('leaves the games added last out when they can’t be read', async () => {
+    mockEmulators([RETROARCH])
+    mockPlatforms([NINTENDO_64])
+    mockGameFolders([N64_FOLDER])
+    mockRecentlyAddedGames(new Error('No main'))
+    renderHome()
+
+    expect(await screen.findByText('Ready to play')).toBeInTheDocument()
+    await vi.waitFor(() => expect(window.api.games.listRecentlyAdded).toHaveBeenCalled())
+    expect(screen.queryByRole('heading', { name: 'Recently added' })).not.toBeInTheDocument()
   })
 
   it('shows the game just played once the first game ends', async () => {

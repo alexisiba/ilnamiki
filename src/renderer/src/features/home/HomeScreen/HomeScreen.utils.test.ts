@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { InstalledPlatform, LastPlayedGame } from '@shared/api'
 
-import { formatLastPlayed, toContinueGame } from './HomeScreen.utils'
+import { formatLastPlayed, toContinueGame, toRecentlyAddedShelfGame } from './HomeScreen.utils'
 
 const CRASH: LastPlayedGame = {
   id: 'g1',
@@ -48,6 +48,18 @@ describe('toContinueGame', () => {
 
   it('names a console no emulator plays anymore by its id', () => {
     expect(toContinueGame({ ...CRASH, platformId: 'quake_3' }, []).platform).toBe('quake_3')
+  })
+})
+
+describe('toRecentlyAddedShelfGame', () => {
+  it('names the console as the catalog does and shows the generic game image', () => {
+    const game = toRecentlyAddedShelfGame(
+      { id: 'g1', title: 'Crash Bandicoot', platformId: 'playstation', addedAt: 1 },
+      [platform('playstation', 'Sony - PlayStation')]
+    )
+
+    expect(game).toMatchObject({ id: 'g1', title: 'Crash Bandicoot', platform: 'PlayStation' })
+    expect(game.imageUrl).toEqual(expect.stringContaining('no-image'))
   })
 })
 

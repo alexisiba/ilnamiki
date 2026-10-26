@@ -1,4 +1,9 @@
-import type { GameEnded, LaunchGameResult } from '@shared/api'
+import type { GameEnded, LaunchGameResult, RecentlyAddedGame } from '@shared/api'
+
+/** The 20 games most recently added to the library at most, newest first. */
+export function listRecentlyAddedGames(): Promise<RecentlyAddedGame[]> {
+  return window.api.games.listRecentlyAdded()
+}
 
 /**
  * Starts a game in full screen with the emulator and core it was last played with (or its

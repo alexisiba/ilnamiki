@@ -1,6 +1,6 @@
 import type { DatabaseSync } from 'node:sqlite'
 
-import type { LastPlayedGame } from '@shared/api'
+import type { LastPlayedGame, RecentlyAddedGame } from '@shared/api'
 
 /** A game in a folder, with what it takes to play it. */
 export interface PlayableGameRecord {
@@ -42,6 +42,10 @@ export interface GamesRepository {
   findLastPlayer(gameId: string): GamePlayerRecord | undefined
   /** The game in a folder played most recently, or null when none was played. */
   findLastPlayed(): LastPlayedGame | null
+  /**
+   * The `limit` games in a folder added last, newest first; games added together by title.
+   */
+  listRecentlyAdded(limit: number): RecentlyAddedGame[]
   addPlaySession(session: PlaySessionRecord): void
 }
 
@@ -51,6 +55,13 @@ interface LastPlayedRow {
   platform_id: string
   last_played_at: number
   playtime_ms: number
+}
+
+interface RecentlyAddedRow {
+  id: string
+  title: string
+  platform_id: string
+  added_at: number
 }
 
 /** The SQL of playing the library's games, over `db`. */
@@ -99,6 +110,23 @@ export function createGamesRepository(db: DatabaseSync): GamesRepository {
         lastPlayedAt: row.last_played_at,
         playtimeMs: row.playtime_ms
       }
+    },
+
+    listRecentlyAdded(limit) {
+      const rows = db
+        .prepare(
+          `SELECT id, title, platform_id, added_at FROM games
+            WHERE folder_id IS NOT NULL
+            ORDER BY added_at DESC, title COLLATE NOCASE, file_path
+            LIMIT ?`
+        )
+        .all(limit) as unknown as RecentlyAddedRow[]
+      return rows.map((row) => ({
+        id: row.id,
+        title: row.title,
+        platformId: row.platform_id,
+        addedAt: row.added_at
+      }))
     },
 
     addPlaySession(session) {

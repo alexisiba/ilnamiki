@@ -9,6 +9,7 @@ import { parseGameId } from './games.validation'
 /** Answers the renderer's `games` requests, after checking what it sends. */
 export function registerGamesIpc(): void {
   ipcMain.handle(GAMES_CHANNELS.getLastPlayed, () => gamesService.getLastPlayed())
+  ipcMain.handle(GAMES_CHANNELS.listRecentlyAdded, () => gamesService.listRecentlyAdded())
 
   // The end goes to the window that started the game, which comes back in front.
   ipcMain.handle(GAMES_CHANNELS.launch, (event, value: unknown) => {

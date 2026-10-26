@@ -90,6 +90,31 @@ describe('games repository', () => {
     expect(repository.findLastPlayer('g1')).toBeUndefined()
   })
 
+  it('lists the games added last, newest first and those added together by title', () => {
+    const insert = db.prepare(
+      `INSERT INTO games (id, folder_id, platform_id, file_path, title, added_at, removed_at)
+        VALUES (?, 'f1', 'playstation', ?, ?, ?, NULL)`
+    )
+    insert.run('g4', '/home/player/Games/PS1/Tekken.cue', 'tekken', 5)
+    insert.run('g5', '/home/player/Games/PS1/Ape Escape.cue', 'Ape Escape', 5)
+    insert.run('g6', '/home/player/Games/PS1/Medievil.cue', 'MediEvil', 3)
+
+    expect(createGamesRepository(db).listRecentlyAdded(10)).toEqual([
+      { id: 'g5', title: 'Ape Escape', platformId: 'playstation', addedAt: 5 },
+      { id: 'g4', title: 'tekken', platformId: 'playstation', addedAt: 5 },
+      { id: 'g6', title: 'MediEvil', platformId: 'playstation', addedAt: 3 },
+      { id: 'g1', title: 'Game', platformId: 'playstation', addedAt: 1 },
+      { id: 'g3', title: 'Game', platformId: 'playstation', addedAt: 1 }
+    ])
+  })
+
+  it('lists at most as many recently added games as asked, leaving removed ones out', () => {
+    const repository = createGamesRepository(db)
+
+    expect(repository.listRecentlyAdded(1).map(({ id }) => id)).toEqual(['g1'])
+    expect(repository.listRecentlyAdded(10).map(({ id }) => id)).not.toContain('g2')
+  })
+
   it('finds no last played game while none was played', () => {
     expect(createGamesRepository(db).findLastPlayed()).toBeNull()
   })

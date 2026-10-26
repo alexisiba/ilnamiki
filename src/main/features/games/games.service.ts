@@ -3,7 +3,7 @@ import { app } from 'electron'
 import { mkdir, stat, writeFile } from 'fs/promises'
 import { join } from 'path'
 
-import type { LastPlayedGame, LaunchGameResult } from '@shared/api'
+import type { LastPlayedGame, LaunchGameResult, RecentlyAddedGame } from '@shared/api'
 
 import { getDatabase } from '../../core/database'
 import { freeEmulatorTurn, startEmulator, takeEmulatorTurn } from '../../core/emulatorProcess'
@@ -15,6 +15,9 @@ import {
 import { createGamesRepository, type PlayableGameRecord } from './games.repository'
 import { retroArchLaunchArgs, retroArchOverridesText } from './games.retroarch'
 import { isPlaySession } from './games.sessions'
+
+/** Most games `listRecentlyAdded` returns, as the contract promises. */
+const RECENTLY_ADDED_LIMIT = 20
 
 async function isFile(path: string): Promise<boolean> {
   try {
@@ -78,6 +81,11 @@ export const gamesService = {
   /** The game of the library played most recently, or null when none was played. */
   getLastPlayed(): LastPlayedGame | null {
     return createGamesRepository(getDatabase()).findLastPlayed()
+  },
+
+  /** The 20 games most recently added to the library at most, newest first. */
+  listRecentlyAdded(): RecentlyAddedGame[] {
+    return createGamesRepository(getDatabase()).listRecentlyAdded(RECENTLY_ADDED_LIMIT)
   },
 
   /**
