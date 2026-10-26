@@ -40,12 +40,32 @@ interface BackStep {
 
 /** Steps back of the screens mounted, newest last. */
 const backSteps: BackStep[] = []
+const listeners = new Set<() => void>()
+
+const notify = (): void => {
+  for (const listener of [...listeners]) listener()
+}
 
 /** Adds a step back, which back takes until the returned function removes it. */
 export function addBackStep(step: BackStep): () => void {
   backSteps.push(step)
+  notify()
   return () => {
     backSteps.splice(backSteps.indexOf(step), 1)
+    notify()
+  }
+}
+
+/** Whether back has a step to take inside the current screen. */
+export function hasBackStep(): boolean {
+  return backSteps.length > 0
+}
+
+/** Calls `listener` whenever steps back are added or removed. Returns the unsubscribe function. */
+export function subscribeToBackSteps(listener: () => void): () => void {
+  listeners.add(listener)
+  return () => {
+    listeners.delete(listener)
   }
 }
 

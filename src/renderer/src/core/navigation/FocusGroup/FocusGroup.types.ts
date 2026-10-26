@@ -17,6 +17,12 @@ export interface FocusGroupProps {
    * in the row (else its first), and left and right only within the row.
    */
   movement?: 'spatial' | 'rows'
+  /**
+   * Whether directions keep focus inside the group: at its edges focus stays instead of
+   * moving to another group. For groups entered and left with confirm and back instead,
+   * e.g. a list of categories and the content beside it.
+   */
+  contained?: boolean
   className?: string
   children: ReactNode
 }

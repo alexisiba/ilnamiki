@@ -7,17 +7,21 @@ import { SettingsNavTab } from './components/SettingsNavTab'
 import type { SettingsNavProps } from './SettingsNav.types'
 import styles from './SettingsNav.module.css'
 
-/** The settings categories as vertical tabs: focusing one selects it. */
+/**
+ * The settings categories as vertical tabs: focusing one selects it and shows its content,
+ * confirming or clicking it enters that content. Directions stay in the list.
+ */
 export function SettingsNav({
   selectedId,
   panelId,
   getTabId,
-  onSelect
+  onSelect,
+  onEnter
 }: SettingsNavProps): React.JSX.Element {
   const { t } = useTranslation('settings')
 
   return (
-    <FocusGroup id={SETTINGS_NAV_GROUP_ID}>
+    <FocusGroup id={SETTINGS_NAV_GROUP_ID} contained>
       <div
         role="tablist"
         aria-orientation="vertical"
@@ -32,6 +36,7 @@ export function SettingsNav({
             tabId={getTabId(category.id)}
             panelId={panelId}
             onSelect={() => onSelect(category.id)}
+            onEnter={onEnter}
           />
         ))}
       </div>

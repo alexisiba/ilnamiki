@@ -3,7 +3,7 @@ import { useLocation } from 'react-router'
 
 import { ButtonHint } from '@renderer/components/ButtonHint'
 import { useActionEnabled, useContextualActions } from '@renderer/core/input'
-import { isSectionRoot } from '@renderer/core/navigation'
+import { isSectionRoot, useHasBackStep } from '@renderer/core/navigation'
 
 import type { ButtonGuideProps } from './ButtonGuide.types'
 import styles from './ButtonGuide.module.css'
@@ -46,7 +46,9 @@ function ScreenHints(): React.JSX.Element {
     useActionEnabled('right')
   ].includes(true)
   const canConfirm = useActionEnabled('confirm')
-  const canGoBack = useActionEnabled('back') && !isSectionRoot(pathname)
+  // A section's root has nothing to go back to, unless it has a step back of its own.
+  const hasBackStep = useHasBackStep()
+  const canGoBack = useActionEnabled('back') && (!isSectionRoot(pathname) || hasBackStep)
   const contextualActions = useContextualActions()
   const canSwitchTab = {
     prevSection: useActionEnabled('prevSection'),

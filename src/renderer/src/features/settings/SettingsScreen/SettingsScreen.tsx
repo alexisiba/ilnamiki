@@ -1,16 +1,15 @@
-import { useEffect, useId, useRef } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useOutlet } from 'react-router'
 
-import { playUiSound } from '@renderer/core/audio'
-import { useInputAction } from '@renderer/core/input'
 import {
   ADD_EMULATOR_PATH,
   ADD_GAME_FOLDER_PATH,
   getEmulatorDetailsPath,
   getGameFolderDetailsPath,
   getRequestedSettingsCategory,
-  isSectionRoot,
+  useBackStep,
+  useEnterGroup,
   useGroupFocus,
   useOpenScreen,
   useRememberedState
@@ -21,19 +20,23 @@ import { GameFolderSettings } from './components/GameFolderSettings'
 import { PlatformSettings } from './components/PlatformSettings'
 import { SettingsInnerScreen } from './components/SettingsInnerScreen'
 import { SettingsNav } from './components/SettingsNav'
-import { SETTINGS_CATEGORIES, SETTINGS_NAV_GROUP_ID } from './SettingsScreen.constants'
+import {
+  SETTINGS_CATEGORIES,
+  SETTINGS_NAV_GROUP_ID,
+  SETTINGS_PANEL_GROUP_ID
+} from './SettingsScreen.constants'
 import type { SettingsCategoryId } from './SettingsScreen.types'
 import styles from './SettingsScreen.module.css'
 
 /**
  * Settings: a narrow list of categories and, beside it, the content of the one in focus.
- * Screens inside Settings (e.g. adding an emulator) take the whole width instead, so another
- * category can't be reached until back leaves them. Back returns from a category's content
- * to the list.
+ * Directions stay in the list or in the content: confirming a category enters its content,
+ * and back returns from it to the list. Screens inside Settings (e.g. adding an emulator)
+ * take the whole width instead, so another category can't be reached until back leaves them.
  */
 export function SettingsScreen(): React.JSX.Element {
   const { t } = useTranslation()
-  const { pathname, state, key } = useLocation()
+  const { state, key } = useLocation()
   const openScreen = useOpenScreen()
   // The screen inside Settings being shown, if any.
   const outlet = useOutlet()
@@ -42,10 +45,12 @@ export function SettingsScreen(): React.JSX.Element {
     SETTINGS_CATEGORIES[0].id
   )
   const focusCategories = useGroupFocus(SETTINGS_NAV_GROUP_ID)
+  const enterPanel = useEnterGroup(SETTINGS_PANEL_GROUP_ID)
+  /** Whether focus is in the category's content, which back leaves for the categories. */
+  const [inPanel, setInPanel] = useState(false)
   const requestedCategory = SETTINGS_CATEGORIES.find(
     ({ id }) => id === getRequestedSettingsCategory(state)
   )?.id
-  const panelRef = useRef<HTMLDivElement>(null)
   const idPrefix = useId()
   const panelId = `${idPrefix}-panel`
   const getTabId = (id: SettingsCategoryId): string => `${idPrefix}-${id}-tab`
@@ -55,17 +60,9 @@ export function SettingsScreen(): React.JSX.Element {
     if (requestedCategory) focusCategories(requestedCategory)
   }, [key, requestedCategory, focusCategories])
 
-  // Inside a screen of Settings, back returns to the category's content instead (see App).
-  useInputAction((action) => {
-    if (
-      action === 'back' &&
-      isSectionRoot(pathname) &&
-      panelRef.current?.contains(document.activeElement)
-    ) {
-      playUiSound('back')
-      focusCategories()
-    }
-  })
+  // From a category's content, back returns to the categories: a step inside Settings. Inside
+  // a screen of Settings, back leaves that screen instead.
+  useBackStep(!outlet && inPanel ? () => focusCategories() : undefined)
 
   return (
     <div className={styles.screen}>
@@ -78,14 +75,18 @@ export function SettingsScreen(): React.JSX.Element {
             selectedId={categoryId}
             panelId={panelId}
             getTabId={getTabId}
-            onSelect={setCategoryId}
+            onSelect={(id) => {
+              setCategoryId(id)
+              setInPanel(false)
+            }}
+            onEnter={enterPanel}
           />
           <div
-            ref={panelRef}
             id={panelId}
             role="tabpanel"
             aria-labelledby={getTabId(categoryId)}
             className={styles.panel}
+            onFocus={() => setInPanel(true)}
           >
             {categoryId === 'emulators' && (
               <EmulatorSettings

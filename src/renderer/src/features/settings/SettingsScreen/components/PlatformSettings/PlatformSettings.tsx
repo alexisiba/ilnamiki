@@ -6,6 +6,7 @@ import { usePlatforms } from '@renderer/core/ipc'
 import { FocusGroup } from '@renderer/core/navigation'
 
 import { SettingsEmptyState } from '../../../components/SettingsEmptyState'
+import { SETTINGS_PANEL_GROUP_ID } from '../../SettingsScreen.constants'
 import { PlatformListItem } from './components/PlatformListItem'
 import type { PlatformSettingsProps } from './PlatformSettings.types'
 import styles from './PlatformSettings.module.css'
@@ -21,7 +22,7 @@ export function PlatformSettings({ onSetUpEmulator }: PlatformSettingsProps): Re
   const { status, platforms } = usePlatforms()
 
   return (
-    <FocusGroup id="settings-platforms" className={styles.content}>
+    <FocusGroup id={SETTINGS_PANEL_GROUP_ID} contained className={styles.content}>
       {/* The list stays when a later read fails; only an empty one gives way to the error. */}
       {platforms.length > 0 && (
         <ul className={styles.list}>

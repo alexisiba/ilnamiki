@@ -6,6 +6,7 @@ import { useEmulators } from '@renderer/core/ipc'
 import { FocusGroup } from '@renderer/core/navigation'
 
 import { SettingsEmptyState } from '../../../components/SettingsEmptyState'
+import { SETTINGS_PANEL_GROUP_ID } from '../../SettingsScreen.constants'
 import { EmulatorListItem } from './components/EmulatorListItem'
 import type { EmulatorSettingsProps } from './EmulatorSettings.types'
 import styles from './EmulatorSettings.module.css'
@@ -21,7 +22,7 @@ export function EmulatorSettings({ onAdd, onOpen }: EmulatorSettingsProps): Reac
   const { status, emulators } = useEmulators()
 
   return (
-    <FocusGroup id="settings-emulators" className={styles.content}>
+    <FocusGroup id={SETTINGS_PANEL_GROUP_ID} contained className={styles.content}>
       {/* The list stays when a later read fails; only an empty one gives way to the error. */}
       {emulators.length > 0 && (
         <ul className={styles.list}>

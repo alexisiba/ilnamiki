@@ -6,6 +6,7 @@ import { useGameFolders, usePlatforms } from '@renderer/core/ipc'
 import { FocusGroup } from '@renderer/core/navigation'
 
 import { SettingsEmptyState } from '../../../components/SettingsEmptyState'
+import { SETTINGS_PANEL_GROUP_ID } from '../../SettingsScreen.constants'
 import { GameFolderListItem } from './components/GameFolderListItem'
 import type { GameFolderSettingsProps } from './GameFolderSettings.types'
 import styles from './GameFolderSettings.module.css'
@@ -35,7 +36,7 @@ export function GameFolderSettings({
     platforms.platforms.find(({ id }) => id === platformId)?.name ?? platformId
 
   return (
-    <FocusGroup id="settings-game-folders" className={styles.content}>
+    <FocusGroup id={SETTINGS_PANEL_GROUP_ID} contained className={styles.content}>
       {/* The list stays when a later read fails; only an empty one gives way to the error. */}
       {folders.length > 0 && (
         <ul className={styles.list}>

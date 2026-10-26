@@ -6,6 +6,8 @@ export interface SettingsNavProps {
   panelId: string
   getTabId: (id: SettingsCategoryId) => string
   onSelect: (id: SettingsCategoryId) => void
+  /** Moves focus into the selected category's content. */
+  onEnter: () => void
 }
 
 export interface SettingsNavTabProps {
@@ -14,4 +16,6 @@ export interface SettingsNavTabProps {
   tabId: string
   panelId: string
   onSelect: () => void
+  /** Moves focus into the content; the tab is already selected, since it has focus. */
+  onEnter: () => void
 }

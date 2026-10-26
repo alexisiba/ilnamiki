@@ -1,9 +1,16 @@
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { describe, expect, it } from 'vitest'
 
-import { ADD_EMULATOR_PATH, NavigationProvider, SECTION_PATHS } from '@renderer/core/navigation'
+import {
+  ADD_EMULATOR_PATH,
+  NavigationProvider,
+  SECTION_PATHS,
+  takeBackStep
+} from '@renderer/core/navigation'
+import { hasBackStep } from '@renderer/core/navigation/backNavigation'
+import { getPlayedSounds } from '@renderer/test/audio'
 import { setRect } from '@renderer/test/layout'
 
 import { SettingsScreen } from './SettingsScreen'
@@ -73,16 +80,43 @@ describe('SettingsScreen', () => {
     ).toBeInTheDocument()
   })
 
-  it('moves into the content on right and back to the category on left', async () => {
+  it('enters the content only on confirm, not on right', async () => {
     renderSettings()
     layOut()
     const user = userEvent.setup()
 
     await user.keyboard('{ArrowRight}')
+    expect(emulatorsTab()).toHaveFocus()
+
+    await user.keyboard('{Enter}')
     expect(addEmulator()).toHaveFocus()
+    expect(getPlayedSounds()).toEqual(['cant-move', 'select'])
+  })
+
+  it('enters the content of the category clicked', async () => {
+    renderSettings()
+    const user = userEvent.setup()
+
+    await user.click(platformsTab())
+
+    expect(await screen.findByRole('button', { name: 'Set up an emulator' })).toHaveFocus()
+  })
+
+  it('stays in the content on left, until back returns to the category', async () => {
+    renderSettings()
+    layOut()
+    const user = userEvent.setup()
+    await user.keyboard('{Enter}')
+    expect(hasBackStep()).toBe(true)
 
     await user.keyboard('{ArrowLeft}')
+    expect(addEmulator()).toHaveFocus()
+
+    act(() => {
+      takeBackStep()
+    })
     expect(emulatorsTab()).toHaveFocus()
+    expect(hasBackStep()).toBe(false)
   })
 
   it('lists the categories in order', () => {
@@ -148,17 +182,6 @@ describe('SettingsScreen', () => {
     expect(emulatorsTab()).toHaveFocus()
     expect(emulatorsTab()).toHaveAttribute('aria-selected', 'true')
     expect(screen.getByRole('heading', { name: 'No emulators configured' })).toBeInTheDocument()
-  })
-
-  it('returns to the category on back from the content', async () => {
-    renderSettings()
-    layOut()
-    const user = userEvent.setup()
-
-    await user.keyboard('{ArrowRight}')
-    await user.keyboard('{Escape}')
-
-    expect(emulatorsTab()).toHaveFocus()
   })
 
   it('opens the form to add an emulator across the whole width, in place of the categories', async () => {

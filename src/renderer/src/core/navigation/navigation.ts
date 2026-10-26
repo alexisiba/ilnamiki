@@ -19,6 +19,8 @@ export interface FocusGroup {
   scrollAlign: 'nearest' | 'start'
   /** How directions move between its items (see `FocusGroupProps.movement`). */
   movement: 'spatial' | 'rows'
+  /** Whether directions keep focus inside it (see `FocusGroupProps.contained`). */
+  contained: boolean
 }
 
 export interface Navigation {
@@ -43,6 +45,8 @@ export interface Navigation {
    * focused item, else its first one.
    */
   focusGroup: (groupId: string, itemId?: string) => void
+  /** Moves focus to the first item of the group `groupId`, as when entering it anew. */
+  enterGroup: (groupId: string) => void
   /** Id of the item last focused in a group, the one focus returns to when entering it again. */
   lastFocusedIn: (groupId: string) => string | undefined
   /** Keeps a screen's state while the app runs, so the screen looks the same when it returns. */
@@ -217,12 +221,13 @@ export function createNavigation(): Navigation {
       const inGroup = others.filter((item) => item.groupId === current.groupId)
 
       const { groupId } = current
+      const group = groupId === undefined ? undefined : groups.get(groupId)
       let target =
-        groupId !== undefined && groups.get(groupId)?.movement === 'rows'
+        groupId !== undefined && group?.movement === 'rows'
           ? findByRows(current, groupId, direction)
           : findNextInDirection(from, toCandidates(inGroup), direction)
 
-      if (!target) {
+      if (!target && !group?.contained) {
         // Leaving the group: prefer what is straight ahead. Vertically, fall back to anything
         // in that direction; horizontally, to a group straight ahead (e.g. a side column),
         // and otherwise stop at the edge of the row.
@@ -286,6 +291,17 @@ export function createNavigation(): Navigation {
 
       takeControl()
       focus(item, 'auto')
+    },
+
+    enterGroup(groupId) {
+      // In document order: items register as they appear, e.g. a list read after its button.
+      const [first] = itemsIn(groupId).sort((a, b) =>
+        a.element.compareDocumentPosition(b.element) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1
+      )
+      if (!first) return
+
+      takeControl()
+      focus(first, 'auto')
     },
 
     lastFocusedIn(groupId) {

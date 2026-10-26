@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react'
+import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -316,6 +316,23 @@ describe('App', () => {
 
     expect(screen.getByRole('tablist')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Add emulator' })).toHaveFocus()
+  })
+
+  it('enters a Settings category on confirm and leaves it on back, as the guide says', async () => {
+    renderApp()
+    const user = userEvent.setup()
+    const guide = (): HTMLElement => screen.getByRole('contentinfo', { name: 'Controls' })
+    await user.click(screen.getByRole('link', { name: 'Settings' }))
+    expect(within(guide()).queryByText('Back')).not.toBeInTheDocument()
+
+    await user.keyboard('{Enter}')
+    expect(await screen.findByRole('button', { name: /RetroArch/ })).toHaveFocus()
+    expect(within(guide()).getByText('Back')).toBeInTheDocument()
+
+    await user.keyboard('{Escape}')
+    expect(screen.getByRole('tab', { name: 'Emulators' })).toHaveFocus()
+    expect(within(guide()).queryByText('Back')).not.toBeInTheDocument()
+    expect(getPlayedSounds().at(-1)).toBe('back')
   })
 
   describe('a screen inside Settings, with focus left on Back', () => {

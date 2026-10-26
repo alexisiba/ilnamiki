@@ -95,6 +95,10 @@ When a request would push the UI toward "web" or "streaming", say so before impl
   direction, handled by the shared navigation layer, not hand-wired per feature.
   - Shelves, grids and carousels keep the default (`FocusGroup` `movement="spatial"`): down
     keeps the column.
+  - A list beside the content of its selected item (e.g. Settings' categories) is not
+    crossed with directions: moving through the list only previews the content. Both sides
+    use `contained` focus groups, confirm (or a click) enters the content with
+    `useEnterGroup`, and back returns to the list as a step back (`useBackStep`).
   - Screens read top to bottom, such as forms and details screens inside Settings, use
     `movement="rows"`: up and down go row by row, to the item last focused in the row (else
     its first), and left and right stay in the row, so no button is skipped or hard to reach.

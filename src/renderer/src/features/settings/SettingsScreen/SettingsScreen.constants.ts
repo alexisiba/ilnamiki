@@ -7,3 +7,6 @@ export const SETTINGS_CATEGORIES = [
 
 /** Focus group of the categories list, so focus can return to it. */
 export const SETTINGS_NAV_GROUP_ID = 'settings-categories'
+
+/** Focus group of the selected category's content, entered on confirm. */
+export const SETTINGS_PANEL_GROUP_ID = 'settings-panel'
