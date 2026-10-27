@@ -7,6 +7,10 @@ describe('findModuleByDesktopId', () => {
     expect(findModuleByDesktopId('com.libretro.RetroArch')?.kind).toBe('retroarch')
   })
 
+  it('recognizes Eden by its desktop entry', () => {
+    expect(findModuleByDesktopId('dev.eden_emu.eden')?.kind).toBe('eden')
+  })
+
   it('recognizes nothing else', () => {
     expect(findModuleByDesktopId('org.example.Editor')).toBeUndefined()
   })
