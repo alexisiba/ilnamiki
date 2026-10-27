@@ -1,6 +1,8 @@
 import { spawn } from 'child_process'
 import type { BrowserWindow } from 'electron'
 
+import type { EmulatorStart } from '../emulators'
+
 /**
  * Whether an emulator Ilnamiki starts is starting or running, to play a game or to be set up:
  * one runs at a time, so another waits for it to close.
@@ -24,16 +26,19 @@ export function freeEmulatorTurn(): void {
 }
 
 /**
- * Starts `executablePath` with `args`, resolving whether it started. Once it has, the turn is
- * freed and `onExit` called when it ends, however it ends.
+ * Starts the emulator as `start` says, with its variables added to Ilnamiki's environment,
+ * resolving whether it started. Once it has, the turn is freed and `onExit` called when it
+ * ends, however it ends.
  */
 export function startEmulator(
-  executablePath: string,
-  args: string[],
+  { command, env }: EmulatorStart,
   onExit: () => void
 ): Promise<boolean> {
   return new Promise((resolve) => {
-    const child = spawn(executablePath, args, { stdio: 'ignore' })
+    const child = spawn(command.file, command.args, {
+      stdio: 'ignore',
+      env: { ...process.env, ...env }
+    })
     child.once('spawn', () => {
       child.once('exit', () => {
         busy = false

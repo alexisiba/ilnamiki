@@ -1,11 +1,12 @@
 {
   "name": "ilnamiki",
+  "desktopName": "ilnamiki.desktop",
   "version": "1.0.0",
-  "description": "An Electron application with React and TypeScript",
+  "description": "A console-style emulator frontend for the living room",
   "main": "./out/main/index.js",
-  "author": "example.com",
+  "author": "Alexis Bolaños <alexis.isidoro.ba@gmail.com>",
   "license": "GPL-3.0-or-later",
-  "homepage": "https://electron-vite.org",
+  "homepage": "https://github.com/alexisiba/ilnamiki",
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint --cache .",

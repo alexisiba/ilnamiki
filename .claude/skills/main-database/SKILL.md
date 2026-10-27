@@ -25,7 +25,7 @@ kept another way.
 ### Goes in the database
 
 - **User decisions and configuration:** what the user set up or chose (emulators they added,
-  which emulator and core each platform uses, folders they want scanned, per-item overrides,
+  which emulator each platform plays with, folders they want scanned, per-item overrides,
   app preferences).
 - **History that can't be rebuilt:** things that happened (play sessions, when something was
   added or last used). Once lost, they are gone.
@@ -39,7 +39,7 @@ kept another way.
 ### Kept another way
 
 - **Live system state, read when needed:** what is on disk or in the system right now and
-  changes outside Ilnamiki (cores installed in an emulator, whether a file exists, connected
+  changes outside Ilnamiki (the options an emulator has, whether a file exists, connected
   hardware). Copying it into the database only creates a second version that goes out of
   date.
 - **Static catalogs that ship with the app, in code:** reference data Ilnamiki defines and

@@ -1,7 +1,8 @@
-import { ImageOff } from 'lucide-react'
 import { useRef } from 'react'
 
+import noConsoleImage from '@renderer/assets/images/consoles/no-console-image.webp'
 import { playUiSound } from '@renderer/core/audio'
+import { usePlatformPhoto } from '@renderer/core/ipc'
 import { useFocusable } from '@renderer/core/navigation'
 
 import type { ConsoleCarouselItemProps } from '../ConsoleCarousel.types'
@@ -29,6 +30,9 @@ export function ConsoleCarouselItem({
   })
   // Read before the press focuses (and so selects) the console, in the capture phase.
   const pressedWhileSelected = useRef(false)
+  // The photo downloaded by main, else, once main answers it has none, a generic console.
+  const photo = usePlatformPhoto(gameConsole.id)
+  const imageUrl = photo.url ?? (photo.status === 'ready' ? noConsoleImage : null)
 
   const handleClick = (event: React.MouseEvent): void => {
     // A confirm clicks the element without a pointer press (detail 0).
@@ -50,13 +54,11 @@ export function ConsoleCarouselItem({
       }}
       onClick={handleClick}
     >
-      {gameConsole.imageUrl ? (
-        <img className={styles.image} src={gameConsole.imageUrl} alt="" />
+      {imageUrl ? (
+        <img className={styles.image} src={imageUrl} alt="" />
       ) : (
-        // No render of this console ships with the app yet.
-        <span className={styles.noImage}>
-          <ImageOff className={styles.noImageIcon} aria-hidden />
-        </span>
+        // Empty while the photo is asked for, so the generic console doesn't flash first.
+        <span className={styles.imagePending} />
       )}
       <span className={styles.name}>{gameConsole.name}</span>
     </button>

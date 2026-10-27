@@ -20,11 +20,12 @@ export function PlatformSelect({
   descriptionId,
   platforms,
   value,
-  onChange
+  onChange,
+  autoFocus = false
 }: PlatformSelectProps): React.JSX.Element {
   const { t } = useTranslation('settings')
   const [open, setOpen] = useState(false)
-  const { ref } = useFocusable<HTMLButtonElement>({ id: 'platform' })
+  const { ref } = useFocusable<HTMLButtonElement>({ id: 'platform', autoFocus })
   const valueId = useId()
   const selected = platforms.find((platform) => platform.id === value)
 

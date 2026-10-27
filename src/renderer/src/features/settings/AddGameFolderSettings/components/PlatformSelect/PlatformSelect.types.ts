@@ -11,6 +11,8 @@ export interface PlatformSelectProps {
   /** Id of the selected platform; `undefined` while none is. */
   value: string | undefined
   onChange: (platformId: string) => void
+  /** Takes focus when it mounts. */
+  autoFocus?: boolean
 }
 
 export interface PlatformSelectDialogProps {

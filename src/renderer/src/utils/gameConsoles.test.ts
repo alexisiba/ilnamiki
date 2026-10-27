@@ -8,7 +8,11 @@ const platform = (id: string, name: string, manufacturer: string | null): Instal
   id,
   name,
   manufacturer,
-  cores: [{ id: `${id}-core`, name: 'Core', emulatorId: 'a1', extensions: [] }]
+  emulators: [
+    { emulatorId: 'a1', emulatorName: 'Emulator', optionId: null, optionName: null, extensions: [] }
+  ],
+  isEnabled: true,
+  defaultEmulator: null
 })
 
 const folder = (platformId: string, gameCount: number): GameFolder => ({
@@ -35,11 +39,22 @@ describe('toGameConsoles', () => {
     ])
   })
 
-  it('leaves out folders of platforms no installed core plays', () => {
+  it('leaves out the platforms turned off, with their games', () => {
+    const platforms = [
+      platform('playstation', 'PlayStation', 'Sony'),
+      { ...platform('nintendo_64', 'Nintendo 64', 'Nintendo'), isEnabled: false }
+    ]
+
+    const consoles = toGameConsoles(platforms, [folder('playstation', 2), folder('nintendo_64', 5)])
+
+    expect(consoles.map(({ id }) => id)).toEqual(['playstation'])
+  })
+
+  it('leaves out folders of platforms no emulator plays', () => {
     expect(toGameConsoles([], [folder('playstation', 24)])).toEqual([])
   })
 
-  it('names a known platform as the catalog does, with its year and render', () => {
+  it('names a known platform as the catalog does, with its year', () => {
     const multiSystem = platform('nes', 'Nintendo Entertainment System / Game Boy / …', 'Various')
 
     expect(toGameConsoles([multiSystem], [folder('nes', 56)])).toEqual([
@@ -48,13 +63,12 @@ describe('toGameConsoles', () => {
         name: 'NES',
         manufacturer: 'Nintendo',
         releaseYear: 1983,
-        imageUrl: expect.stringContaining('nes'),
         gameCount: 56
       }
     ])
   })
 
-  it('keeps what the cores say about a platform the catalog doesn’t know', () => {
+  it('keeps what the emulators say about a platform the catalog doesn’t know', () => {
     expect(
       toGameConsoles([platform('quake_3', 'Quake III', 'id Software')], [folder('quake_3', 1)])
     ).toEqual([
@@ -63,7 +77,6 @@ describe('toGameConsoles', () => {
         name: 'Quake III',
         manufacturer: 'id Software',
         releaseYear: null,
-        imageUrl: null,
         gameCount: 1
       }
     ])

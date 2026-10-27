@@ -143,7 +143,7 @@ describe('SettingsScreen', () => {
     ).toBeInTheDocument()
   })
 
-  it('takes the user to the emulators from the empty game folders, with no core installed', async () => {
+  it('takes the user to the emulators from the empty game folders, with no platform played', async () => {
     renderSettings()
     layOut()
     const user = userEvent.setup()

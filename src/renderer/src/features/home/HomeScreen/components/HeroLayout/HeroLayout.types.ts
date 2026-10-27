@@ -20,4 +20,6 @@ export interface HeroLayoutProps {
   details: ReactNode
   /** The hero's buttons; one of them is focused when Home shows. */
   actions: ReactNode
+  /** Shown below the actions (e.g. why one of them failed); optional. */
+  message?: ReactNode
 }

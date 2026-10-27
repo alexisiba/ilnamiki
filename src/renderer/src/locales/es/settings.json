@@ -17,15 +17,17 @@
     },
     "empty": {
       "title": "No hay carpetas de juegos configuradas",
-      "noCores": "Parece que aún no tienes ningún núcleo instalado. Configura un emulador para instalar tu primer núcleo.",
+      "noEmulators": "Parece que ninguno de tus emuladores puede jugar una consola todavía. Configura un emulador para agregar tu primera consola.",
       "setUpEmulator": "Configurar emulador",
       "noFolders": "Agrega tu primera carpeta de juegos con el botón Agregar carpeta."
     }
   },
   "platforms": {
-    "cores_one": "Núcleo: {{cores}}",
-    "cores_other": "Núcleos: {{cores}}",
+    "emulators_one": "Emulador: {{emulators}}",
+    "emulators_other": "Emuladores: {{emulators}}",
     "extensions": "Extensiones: {{extensions}}",
+    "enabled": "Encendida",
+    "disabled": "Apagada",
     "empty": {
       "title": "No hay plataformas instaladas",
       "description": "Configura un emulador para asociar tu primera plataforma.",
@@ -35,6 +37,19 @@
       "title": "No se pudieron cargar las plataformas",
       "description": "Cierra Ilnamiki y vuelve a abrirlo."
     }
+  },
+  "platformDetails": {
+    "enabled": "Plataforma encendida",
+    "enabledHint": "Mientras esté apagada, sus juegos no aparecen en tu biblioteca ni en Inicio. No se borra nada.",
+    "enableFailed": "No se pudo guardar el cambio. Inténtalo de nuevo.",
+    "extensions": "Extensiones",
+    "noExtensions": "Sus emuladores no indican qué extensiones juegan.",
+    "emulator": "Emulador",
+    "defaultEmulator": "Emulador por defecto",
+    "defaultEmulatorHint": "Los juegos de esta plataforma que aún no hayas jugado, y los que agregues después, se juegan con el emulador que elijas. Los que ya jugaste conservan el suyo.",
+    "defaultEmulatorFailed": "No se pudo guardar el emulador. Inténtalo de nuevo.",
+    "back": "Volver",
+    "notFound": "Esta plataforma ya no está instalada."
   },
   "emulators": {
     "version": "Versión {{version}}",
@@ -100,7 +115,9 @@
     "browse": "Elegir la carpeta",
     "platform": "Plataforma",
     "selectPlatform": "Selecciona una plataforma",
-    "onePerPlatform": "Cada plataforma puede tener una carpeta. Las que ya tienen una no aparecen en la lista.",
+    "onePerPlatform": "Cada plataforma puede tener solo una carpeta.",
+    "extensions": "Extensiones aceptadas",
+    "noExtensions": "Sus emuladores no indican qué extensiones juegan.",
     "cancel": "Cancelar",
     "scan": "Escanear",
     "problems": {
@@ -108,7 +125,7 @@
       "notFound": "No hay ninguna carpeta en esta ruta.",
       "notAFolder": "Esta ruta es un archivo. Elige una carpeta.",
       "notReadable": "Ilnamiki no tiene permiso para leer esta carpeta.",
-      "unknownPlatform": "Ningún núcleo instalado juega ya esta plataforma. Elige otra.",
+      "unknownPlatform": "Ninguno de tus emuladores juega ya esta plataforma. Elige otra.",
       "alreadyAdded": "Esta carpeta ya está agregada.",
       "platformHasFolder": "Esta plataforma ya tiene una carpeta.",
       "unknownFolder": "Esta carpeta ya no está en Ilnamiki.",

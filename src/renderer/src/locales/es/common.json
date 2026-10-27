@@ -43,6 +43,37 @@
     "networkEthernetNoInternet": "Ethernet conectado, sin internet",
     "networkNone": "Sin conexión de red"
   },
+  "play": {
+    "playing": "Jugando",
+    "problems": {
+      "unknownGame": "Este juego ya no está en tu biblioteca.",
+      "missingFile": "El archivo del juego ya no está. Revisa su carpeta en Ajustes.",
+      "noEmulator": "Ninguno de tus emuladores juega esta consola. Configura un emulador en Ajustes.",
+      "noGames": "Ningún juego de tu biblioteca se puede jugar ahora. Revisa tus carpetas de juegos en Ajustes.",
+      "alreadyPlaying": "Se está jugando otro juego. Ciérralo primero.",
+      "notStarted": "No se pudo iniciar el emulador. Revísalo en Ajustes.",
+      "failed": "No se pudo iniciar el juego. Inténtalo de nuevo."
+    }
+  },
+  "gameOptions": {
+    "open": "Opciones del juego",
+    "title": "Opciones",
+    "close": "Cerrar",
+    "emulator": "Emulador",
+    "playsWith": "Se juega con {{emulator}} · {{reason}}",
+    "reasons": {
+      "game": "elegido para este juego",
+      "lastSession": "con el que jugaste la última vez",
+      "platformDefault": "el predeterminado de la consola",
+      "firstInstalled": "el primer emulador de la consola"
+    },
+    "automatic": "Automático",
+    "automaticHint": "El emulador con el que jugaste la última vez, o el predeterminado de la consola",
+    "noEmulators": "Ninguno de tus emuladores juega esta consola.",
+    "notFound": "Este juego ya no está en tu biblioteca.",
+    "failed": "No se pudieron cargar las opciones. Inténtalo más tarde.",
+    "saveFailed": "No se pudo guardar el emulador. Inténtalo de nuevo."
+  },
   "playStats": {
     "lastPlayed": "Última sesión {{time}}",
     "playtime": "Tiempo total: {{duration}}"
@@ -73,6 +104,7 @@
     "back": "Atrás",
     "close": "Cerrar",
     "search": "Buscar",
+    "options": "Opciones",
     "switchTab": "Cambiar pestaña"
   }
 }

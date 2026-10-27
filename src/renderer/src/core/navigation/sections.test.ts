@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
-import { getConsoleGamesPath, getGameDetailsPath, getSectionPath, isSectionRoot } from './sections'
+import {
+  getConsoleGamesPath,
+  getGameDetailsPath,
+  getPlatformDetailsPath,
+  getSectionPath,
+  isSectionRoot
+} from './sections'
 
 describe('getSectionPath', () => {
   it.each([
@@ -46,5 +52,16 @@ describe('getGameDetailsPath', () => {
 
   it('encodes ids that are not URL-safe', () => {
     expect(getGameDetailsPath('a b/c')).toBe('/games/a%20b%2Fc')
+  })
+})
+
+describe('getPlatformDetailsPath', () => {
+  it('builds the details path of a platform, inside Settings', () => {
+    expect(getPlatformDetailsPath('super_nes')).toBe('/settings/platforms/super_nes')
+    expect(getSectionPath(getPlatformDetailsPath('super_nes'))).toBe('/settings')
+  })
+
+  it('encodes ids that are not URL-safe', () => {
+    expect(getPlatformDetailsPath('a b/c')).toBe('/settings/platforms/a%20b%2Fc')
   })
 })

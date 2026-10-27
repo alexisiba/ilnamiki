@@ -19,13 +19,13 @@ structure: what each table is for, what each field means and how tables relate.
 | Journal | WAL (`ilnamiki.db-wal` and `ilnamiki.db-shm` exist while the app runs) |
 | Foreign keys | Enforced on every connection |
 | Schema version | Kept in `PRAGMA user_version`; the number of the last migration applied |
-| Current version | **3**: `emulators`, `library_folders`, `games`, `play_sessions` |
+| Current version | **5**: `emulators`, `library_folders`, `games`, `play_sessions`, `platform_settings` |
 
 ## What is stored and what isn't
 
 | Stored in the database | Kept another way |
 |---|---|
-| What the user sets up or chooses (emulators, which emulator plays each platform, folders to scan, preferences) | **Live system state**, read when needed: installed emulator cores, whether files exist, connected hardware |
+| What the user sets up or chooses (emulators, which emulator plays each platform, folders to scan, preferences) | **Live system state**, read when needed: the options each emulator has, whether files exist, connected hardware |
 | History that can't be rebuilt (play sessions, when things were added) | **Static catalogs, in code**: platforms and their details, known emulators and how to launch them. The database stores only their ids |
 | Caches of slow work, with what tells when they're stale (scan results, what was detected about an emulator file) | **Binary content, as files** in the app's data folder: artwork, icons. The database stores their path |
 | Data that is searched, sorted or related (the game library) | **Derived values, computed by queries**: total playtime, last played, counts |
@@ -52,6 +52,8 @@ erDiagram
     library_folders |o--o{ games : "found in"
     games ||--o{ play_sessions : "played in"
     emulators |o--o{ play_sessions : "played with"
+    emulators |o--o{ games : "chosen for"
+    emulators |o--o{ platform_settings : "default for"
 
     emulators {
         TEXT id PK
@@ -80,12 +82,21 @@ erDiagram
         TEXT title
         INTEGER added_at
         INTEGER removed_at
+        TEXT emulator_id FK
+        TEXT emulator_option
+    }
+    platform_settings {
+        TEXT platform_id PK
+        INTEGER is_enabled
+        INTEGER updated_at
+        TEXT default_emulator_id FK
+        TEXT default_emulator_option
     }
     play_sessions {
         TEXT id PK
         TEXT game_id FK
         TEXT emulator_id FK
-        TEXT core
+        TEXT emulator_option
         INTEGER started_at
         INTEGER ended_at
         INTEGER created_at
@@ -100,7 +111,7 @@ version, icon) is a cache: it is read when the emulator is added.
 | Field | Type | Null | Meaning |
 |---|---|---|---|
 | `id` | `TEXT` | no | Primary key |
-| `kind` | `TEXT` | no | Which known emulator it is: `retroarch`, or `unknown` when Ilnamiki doesn't recognize it |
+| `kind` | `TEXT` | no | Which known emulator it is: `retroarch`, `eden`, or `unknown` when Ilnamiki doesn't recognize it |
 | `name` | `TEXT` | no | Name shown in the app, never empty: detected from the application's desktop entry, then editable by the user |
 | `executable_path` | `TEXT` | no | Absolute path to the emulator's application (an AppImage for now); unique, so an application is added once |
 | `version` | `TEXT` | yes | Version the application reports (e.g. `1.22.2`); `NULL` when it reports none or isn't recognized |
@@ -141,6 +152,8 @@ if the same file is added again.
 | `title` | `TEXT` | no | Title shown in the app, never empty: the file's name without its extension, for now |
 | `added_at` | `INTEGER` | no | When it was first found |
 | `removed_at` | `INTEGER` | yes | When it was removed (e.g. with its folder); `NULL` while it is in a folder |
+| `emulator_id` | `TEXT` | yes | Migration 5. → `emulators.id`: the emulator the user chose for this game; `NULL` while they chose none. Deleting the emulator sets it back to `NULL` (`SET NULL`) |
+| `emulator_option` | `TEXT` | yes | Migration 5. Which of the chosen emulator's options plays the game (e.g. `snes9x`, a RetroArch core), never empty; `NULL` for an emulator without options. Read only while `emulator_id` is set |
 
 Unique: (`platform_id`, `file_path`), which is how a removed game is recognized when it comes
 back. A `CHECK` keeps `folder_id` and `removed_at` consistent: exactly one of them is set.
@@ -159,7 +172,7 @@ progress when Ilnamiki itself closes is lost.
 | `id` | `TEXT` | no | Primary key |
 | `game_id` | `TEXT` | no | → `games.id`. Games are never deleted (only marked removed), so a game's sessions stay and show again when it comes back; a played game can't be deleted (`RESTRICT`) |
 | `emulator_id` | `TEXT` | yes | → `emulators.id`: the emulator it was played with; `NULL` once that emulator is deleted (`SET NULL`), the session staying |
-| `core` | `TEXT` | yes | Core it was played with (e.g. `mupen64plus_next`), never empty; `NULL` for emulators without cores |
+| `emulator_option` | `TEXT` | yes | Which of the emulator's options it was played with (e.g. `mupen64plus_next`), never empty; `NULL` for an emulator without options |
 | `started_at` | `INTEGER` | no | When the emulator started |
 | `ended_at` | `INTEGER` | no | When it closed; never before `started_at` (`CHECK`) |
 | `created_at` | `INTEGER` | no | When the session was saved, so rows keep the order they were added in |
@@ -167,56 +180,57 @@ progress when Ilnamiki itself closes is lost.
 Indexes: `play_sessions_game_id_index`, to sum and date a game's sessions;
 `play_sessions_ended_at_index`, to find the game played last.
 
+### `platform_settings`
+
+Migration 4. What the user set for a platform. Only platforms the user changed have a row:
+a platform without one is on, so a platform that appears when an emulator starts playing it
+starts on without anything being written. Platforms themselves aren't stored; they are read
+live from the emulators. While a platform is off, its games are left out of the library, Home
+and random picks; nothing about them is deleted.
+
+| Field | Type | Null | Meaning |
+|---|---|---|---|
+| `platform_id` | `TEXT` | no | Primary key: the platform's id as the emulators and the platform catalog name it (e.g. `nintendo_64`), never empty |
+| `is_enabled` | `INTEGER` | no | Whether the platform is on: `0` or `1` (`CHECK`) |
+| `updated_at` | `INTEGER` | no | When the user last changed it |
+| `default_emulator_id` | `TEXT` | yes | Migration 5. → `emulators.id`: the emulator the platform's games play with; `NULL` while the user chose none. Deleting the emulator sets it back to `NULL` (`SET NULL`) |
+| `default_emulator_option` | `TEXT` | yes | Migration 5. Which of that emulator's options the platform's games play with (e.g. `bsnes`), never empty; `NULL` for an emulator without options. Read only while `default_emulator_id` is set |
+
+Neither table checks the option against its emulator: an option's meaning is known only to
+the emulator's module, and deleting an emulator clears only the emulator, so an option left
+alone is read as no choice.
+
+### Which emulator a game plays with
+
+Computed when a game is shown or started, never stored, from these in order; an emulator (or
+option) that doesn't play the platform anymore is passed over for the next:
+
+1. The emulator chosen for the game (`games.emulator_id`, `games.emulator_option`).
+2. The emulator of its latest session with an emulator the user still has (`play_sessions`),
+   so it finds its progress: save states only load in the emulator that made them, and
+   RetroArch may keep saves apart by option (when set to sort them by core).
+3. The emulator chosen for its platform (`platform_settings.default_emulator_id`,
+   `default_emulator_option`).
+4. Its platform's first emulator, by emulator name and then option name.
+
 ## Planned tables
 
 A first draft of where the schema is heading, so each migration fits the next. **None of
 these exist yet**: each one is designed for real, and may change, when the feature that needs
-it is built, and moves to [Tables](#tables) once its migration exists. `emulators` and
-`games` (above) are shown only for their relations and planned columns.
+it is built, and moves to [Tables](#tables) once its migration exists. The emulators chosen
+for platforms and games, first planned as a `platform_emulators` table and columns of `games`,
+were built in migration 5 (see `platform_settings` and `games` above).
 
 ```mermaid
 erDiagram
-    emulators ||--o{ platform_emulators : "plays"
-    emulators ||--o{ games : "forced for"
-
-    platform_emulators {
-        TEXT platform_id PK
-        TEXT emulator_id PK, FK
-        TEXT core
-        INTEGER is_default
-    }
-    games {
-        TEXT emulator_id FK
-        TEXT core
-    }
     settings {
         TEXT key PK
         TEXT value
     }
 ```
 
-### `platform_emulators` (planned)
-
-Which emulator, and which core of it, plays each platform.
-
-| Field | Type | Null | Meaning |
-|---|---|---|---|
-| `platform_id` | `TEXT` | no | Platform from the app's catalog (e.g. `nintendo_64`) |
-| `emulator_id` | `TEXT` | no | → `emulators.id`; deleting the emulator removes its rows here |
-| `core` | `TEXT` | yes | Core to load for multi-system emulators (e.g. `mupen64plus_next`); `NULL` for emulators without cores |
-| `is_default` | `INTEGER` | no | Whether it is the one used when a game doesn't choose; one per platform |
-
-Primary key: (`platform_id`, `emulator_id`).
-
-### Planned columns of `games`
-
-| Field | Type | Null | Meaning |
-|---|---|---|---|
-| `emulator_id` | `TEXT` | yes | → `emulators.id`; emulator forced for this game, `NULL` to use the platform's default. Deleting the emulator sets it back to `NULL` |
-| `core` | `TEXT` | yes | Core forced for this game; `NULL` to use the platform's |
-
-Metadata (description, genre, year, players, artwork paths) will be added when the source of
-that metadata is decided.
+Metadata of `games` (description, genre, year, players, artwork paths) will be added when the
+source of that metadata is decided.
 
 ### `settings` (planned)
 

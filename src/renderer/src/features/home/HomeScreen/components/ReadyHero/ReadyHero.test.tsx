@@ -1,9 +1,12 @@
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { describe, expect, it } from 'vitest'
 
+import { startBackgroundMusic } from '@renderer/core/audio'
 import { NavigationProvider, SECTION_PATHS } from '@renderer/core/navigation'
+import { emitGameEnded, mockLaunchRandomGame } from '@renderer/test/api'
+import { isMusicPlaying } from '@renderer/test/audio'
 
 import { ReadyHero } from './ReadyHero'
 import type { ReadyHeroProps } from './ReadyHero.types'
@@ -67,15 +70,51 @@ describe('ReadyHero', () => {
     expect(screen.getByText('Library screen')).toBeInTheDocument()
   })
 
-  it('shows surprise me as not available yet', async () => {
+  it('starts a game picked at random with Surprise me, which reads Playing until it ends', async () => {
+    mockLaunchRandomGame({ ok: true, gameId: 'g7' })
+    startBackgroundMusic()
     const router = renderReadyHero()
 
-    const surprise = screen.getByRole('button', { name: 'Surprise me' })
-    expect(surprise).toHaveAttribute('aria-disabled', 'true')
+    await userEvent.click(screen.getByRole('button', { name: 'Surprise me' }))
 
-    await userEvent.click(surprise)
-
+    expect(window.api.games.launchRandom).toHaveBeenCalledOnce()
+    expect(screen.getByRole('button', { name: 'Playing' })).toHaveAttribute('aria-disabled', 'true')
+    expect(isMusicPlaying()).toBe(false)
     expect(router.state.location.pathname).toBe(SECTION_PATHS.home)
+
+    // Only the end of the game it started counts.
+    act(() => emitGameEnded('g1'))
+    expect(screen.getByRole('button', { name: 'Playing' })).toBeInTheDocument()
+
+    act(() => emitGameEnded('g7'))
+    expect(screen.getByRole('button', { name: 'Surprise me' })).toHaveAttribute(
+      'aria-disabled',
+      'false'
+    )
+    expect(isMusicPlaying()).toBe(true)
+  })
+
+  it('starts one game while it is starting or being played', async () => {
+    mockLaunchRandomGame('pending')
+    renderReadyHero()
+    const user = userEvent.setup()
+    await user.click(screen.getByRole('button', { name: 'Surprise me' }))
+
+    await user.click(screen.getByRole('button', { name: 'Playing' }))
+
+    expect(window.api.games.launchRandom).toHaveBeenCalledOnce()
+  })
+
+  it('says why no game started, describing Surprise me', async () => {
+    mockLaunchRandomGame({ ok: false, problem: 'no-games' })
+    renderReadyHero()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Surprise me' }))
+
+    const message =
+      'No game of your library can be played now. Check your game folders in Settings.'
+    expect(await screen.findByRole('alert')).toHaveTextContent(message)
+    expect(screen.getByRole('button', { name: 'Surprise me' })).toHaveAccessibleDescription(message)
   })
 
   it('treats the artwork as decorative', () => {

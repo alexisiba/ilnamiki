@@ -1,35 +1,36 @@
 import { useTranslation } from 'react-i18next'
 
-import { useEmulators, useGameFolders, useLastPlayedGame, usePlatforms } from '@renderer/core/ipc'
+import {
+  useEmulators,
+  useGameFolders,
+  useLastPlayedGame,
+  usePlatforms,
+  useRecentlyAddedGames,
+  useRecentlyPlayedGames
+} from '@renderer/core/ipc'
 import { getGameDetailsPath, useOpenScreen } from '@renderer/core/navigation'
-import { getSampleGame } from '@renderer/mocks/games'
-import type { Game } from '@renderer/types/game'
 
 import { ContinueHero } from './components/ContinueHero'
 import { EmulatorSetup } from './components/EmulatorSetup'
 import { GameSetup } from './components/GameSetup'
-import { GameShelf, type ShelfGame } from './components/GameShelf'
+import { GameShelf } from './components/GameShelf'
 import { PlatformSetup } from './components/PlatformSetup'
 import { ReadyHero } from './components/ReadyHero'
-import { SAMPLE_RECENT_GAME_IDS, SAMPLE_RECENTLY_ADDED_GAME_IDS } from './HomeScreen.constants'
-import { formatLastPlayed, toContinueGame } from './HomeScreen.utils'
+import {
+  toContinueGame,
+  toRecentlyAddedShelfGame,
+  toRecentlyPlayedShelfGame
+} from './HomeScreen.utils'
 import styles from './HomeScreen.module.css'
-
-const gamesWithIds = (ids: string[]): Game[] => ids.flatMap((id) => getSampleGame(id) ?? [])
-
-const toShelfGame = ({ id, title, platform, imageUrl }: Game): ShelfGame => ({
-  id,
-  title,
-  platform,
-  imageUrl
-})
 
 /**
  * Home, checking in order what is needed to play: while the user has no emulator, how to set
  * up the first one; while their emulators play no platform, how to set one up for the
  * consoles; while no folder has games, how to add one; while no game was played, the games
- * ready to play; and otherwise the last played game and the rows of games (sample games for
- * now). A game removed from the library doesn't count as played.
+ * ready to play; and otherwise the last played game and, once two games were played, the games
+ * played before it. Once there are games, the ones added last follow, as soon as they are read.
+ * A game removed from the library doesn't count as played, and the games of a platform
+ * turned off don't count at all.
  * Until what a check needs is read nothing shows, so no view flashes.
  */
 export function HomeScreen(): React.JSX.Element | null {
@@ -39,6 +40,8 @@ export function HomeScreen(): React.JSX.Element | null {
   const platforms = usePlatforms()
   const gameFolders = useGameFolders()
   const lastPlayed = useLastPlayedGame()
+  const recentlyAdded = useRecentlyAddedGames()
+  const recentlyPlayed = useRecentlyPlayedGames()
 
   if (emulators.status === 'loading') return null
 
@@ -62,7 +65,13 @@ export function HomeScreen(): React.JSX.Element | null {
 
   if (gameFolders.status === 'loading') return null
 
-  const gameCount = gameFolders.folders.reduce((total, folder) => total + folder.gameCount, 0)
+  const disabledPlatformIds = new Set(
+    platforms.platforms.filter((platform) => !platform.isEnabled).map((platform) => platform.id)
+  )
+  // The games of a platform turned off don't count, so with every platform off it asks again.
+  const gameCount = gameFolders.folders
+    .filter((folder) => !disabledPlatformIds.has(folder.platformId))
+    .reduce((total, folder) => total + folder.gameCount, 0)
 
   if (gameCount === 0) {
     return (
@@ -74,44 +83,50 @@ export function HomeScreen(): React.JSX.Element | null {
 
   if (lastPlayed.status === 'loading') return null
 
+  const openGame = (gameId: string): void => {
+    openScreen(getGameDetailsPath(gameId))
+  }
+
+  const recentlyAddedShelf = recentlyAdded.games.length > 0 && (
+    <GameShelf
+      id="home-recently-added"
+      title={t('recentlyAdded.title')}
+      games={recentlyAdded.games.map((game) => toRecentlyAddedShelfGame(game, platforms.platforms))}
+      onSelectGame={openGame}
+    />
+  )
+
   if (!lastPlayed.game) {
     return (
       <div className={styles.content}>
         <ReadyHero
           gameCount={gameCount}
           emulatorCount={emulators.emulators.length}
-          platformCount={platforms.platforms.length}
+          platformCount={platforms.platforms.length - disabledPlatformIds.size}
         />
+        {recentlyAddedShelf}
       </div>
     )
   }
 
-  const openGame = (gameId: string): void => {
-    openScreen(getGameDetailsPath(gameId))
-  }
-
   const now = new Date()
-  const recentGames = gamesWithIds(SAMPLE_RECENT_GAME_IDS).map((game) => ({
-    ...toShelfGame(game),
-    caption: formatLastPlayed(game.lastPlayedAt, now, i18n.language)
-  }))
-  const recentlyAddedGames = gamesWithIds(SAMPLE_RECENTLY_ADDED_GAME_IDS).map(toShelfGame)
+  const recentlyPlayedGames = recentlyPlayed.games.map((game) =>
+    toRecentlyPlayedShelfGame(game, platforms.platforms, now, i18n.language)
+  )
 
   return (
     <div className={styles.content}>
       <ContinueHero game={toContinueGame(lastPlayed.game, platforms.platforms)} />
-      <GameShelf
-        id="home-recently-played"
-        title={t('recentlyPlayed.title')}
-        games={recentGames}
-        onSelectGame={openGame}
-      />
-      <GameShelf
-        id="home-recently-added"
-        title={t('recentlyAdded.title')}
-        games={recentlyAddedGames}
-        onSelectGame={openGame}
-      />
+      {/* The last played game is the hero's, so this shows from the second game played. */}
+      {recentlyPlayedGames.length > 0 && (
+        <GameShelf
+          id="home-recently-played"
+          title={t('recentlyPlayed.title')}
+          games={recentlyPlayedGames}
+          onSelectGame={openGame}
+        />
+      )}
+      {recentlyAddedShelf}
     </div>
   )
 }

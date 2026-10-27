@@ -9,7 +9,16 @@ export {
   removeEmulator,
   type EmulatorsState
 } from './emulators'
-export { launchGame, subscribeToGameEnded } from './games'
+export {
+  getGameDetails,
+  getGamePlayer,
+  launchGame,
+  launchRandomGame,
+  listRecentlyAddedGames,
+  listRecentlyPlayedGames,
+  setGameEmulator,
+  subscribeToGameEnded
+} from './games'
 export {
   addGameFolder,
   refreshGameFolders,
@@ -27,11 +36,20 @@ export {
   subscribeToScanProgress
 } from './library'
 export { getNetworkStatus } from './network'
-export { refreshPlatforms, type PlatformsState } from './platforms'
+export {
+  refreshPlatforms,
+  setPlatformDefaultEmulator,
+  setPlatformEnabled,
+  type PlatformsState
+} from './platforms'
 export { useControllerStatus } from './useControllerStatus'
 export { useEmulators } from './useEmulators'
 export { useFolderGames, type FolderGamesState } from './useFolderGames'
+export { useGameDetails, type GameDetailsState } from './useGameDetails'
 export { useGameFolders } from './useGameFolders'
 export { useLastPlayedGame } from './useLastPlayedGame'
 export { useNetworkStatus } from './useNetworkStatus'
+export { usePlatformPhoto, type PlatformPhotoState } from './usePlatformPhoto'
 export { usePlatforms } from './usePlatforms'
+export { useRecentlyAddedGames, type RecentlyAddedGamesState } from './useRecentlyAddedGames'
+export { useRecentlyPlayedGames, type RecentlyPlayedGamesState } from './useRecentlyPlayedGames'

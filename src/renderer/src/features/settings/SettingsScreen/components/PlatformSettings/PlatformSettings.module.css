@@ -21,12 +21,14 @@
 }
 
 .item {
+  position: relative;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-md);
+  flex-direction: column;
+  gap: var(--space-xs);
   width: 100%;
-  padding: var(--space-sm) var(--space-md);
+  /* Room on the right for the status dot, so a long name never runs under it. */
+  padding: var(--space-sm) calc(var(--space-md) * 2 + var(--status-dot-size)) var(--space-sm)
+    var(--space-md);
   background: var(--color-surface-high);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -43,13 +45,6 @@
   box-shadow: var(--shadow-focus);
 }
 
-.info {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-  min-width: 0;
-}
-
 .name {
   font-family: var(--font-headline);
   font-size: var(--headline-sm-size);
@@ -58,11 +53,34 @@
   color: var(--color-text);
 }
 
+/*
+ * At the top right: filled and glowing while the platform is on, a grey hollow ring while it
+ * is off, so the two differ in shape and not only in color.
+ */
+.enabledDot,
+.disabledDot {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  width: var(--status-dot-size);
+  height: var(--status-dot-size);
+  border-radius: var(--radius-full);
+}
+
+.enabledDot {
+  background: var(--color-success);
+  box-shadow: 0 0 var(--status-dot-glow-size) var(--color-success-glow);
+}
+
+.disabledDot {
+  border: 2px solid var(--color-text-muted);
+}
+
 .item:focus .name {
   color: var(--color-text-focus);
 }
 
-/* The core and the extensions, one line each. */
+/* The emulators and the extensions, one line each. */
 .detail {
   font-family: var(--font-label);
   font-size: var(--label-md-size);
@@ -72,43 +90,4 @@
   font-variant-ligatures: none;
   text-transform: uppercase;
   color: var(--color-text-muted);
-}
-
-/* Off: a dim track with the knob on the left. On: a cyan track with the knob on the right. */
-.toggle {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  width: var(--switch-width);
-  height: var(--switch-height);
-  padding: var(--switch-padding);
-  background: var(--color-surface-highest);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-full);
-  transition:
-    background-color var(--duration-focus) var(--ease-focus),
-    border-color var(--duration-focus) var(--ease-focus);
-}
-
-.knob {
-  width: var(--switch-knob-size);
-  height: var(--switch-knob-size);
-  background: var(--color-text-muted);
-  border-radius: var(--radius-full);
-  transition:
-    transform var(--duration-focus) var(--ease-focus),
-    background-color var(--duration-focus) var(--ease-focus);
-}
-
-.item[aria-checked='true'] .toggle {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-}
-
-.item[aria-checked='true'] .knob {
-  background: var(--color-on-accent);
-  /* Across the track: its inner width minus the knob. */
-  transform: translateX(
-    calc(var(--switch-width) - 2 * var(--switch-padding) - 2px - var(--switch-knob-size))
-  );
 }

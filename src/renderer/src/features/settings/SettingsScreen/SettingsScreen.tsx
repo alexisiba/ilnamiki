@@ -7,6 +7,7 @@ import {
   ADD_GAME_FOLDER_PATH,
   getEmulatorDetailsPath,
   getGameFolderDetailsPath,
+  getPlatformDetailsPath,
   getRequestedSettingsCategory,
   useBackStep,
   useEnterGroup,
@@ -98,6 +99,7 @@ export function SettingsScreen(): React.JSX.Element {
               <PlatformSettings
                 // Focusing the category selects it, which shows the emulators.
                 onSetUpEmulator={() => focusCategories('emulators')}
+                onOpen={(platformId) => openScreen(getPlatformDetailsPath(platformId))}
               />
             )}
             {categoryId === 'gameFolders' && (

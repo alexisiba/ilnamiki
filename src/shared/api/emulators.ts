@@ -1,5 +1,5 @@
 /** Which known emulator an application is, or `unknown` when Ilnamiki doesn't recognize it. */
-export type EmulatorKind = 'retroarch' | 'unknown'
+export type EmulatorKind = 'retroarch' | 'eden' | 'unknown'
 
 /** An emulator the user added. */
 export interface Emulator {

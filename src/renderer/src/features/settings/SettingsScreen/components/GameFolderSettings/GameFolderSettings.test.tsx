@@ -7,6 +7,8 @@ import type { GameFolder, InstalledPlatform } from '@shared/api'
 import { getGameFoldersState } from '@renderer/core/ipc/gameFolders'
 import { getPlatformsState } from '@renderer/core/ipc/platforms'
 import { mockGameFolders, mockPlatforms } from '@renderer/test/api'
+import { setRect } from '@renderer/test/layout'
+import { renderWithNavigation } from '@renderer/test/renderWithNavigation'
 
 import { GameFolderSettings } from './GameFolderSettings'
 import type { GameFolderSettingsProps } from './GameFolderSettings.types'
@@ -15,7 +17,17 @@ const NINTENDO_64: InstalledPlatform = {
   id: 'nintendo_64',
   name: 'Nintendo 64',
   manufacturer: 'Nintendo',
-  cores: [{ id: 'mupen64plus_next', name: 'Mupen64Plus-Next', emulatorId: 'a1', extensions: [] }]
+  emulators: [
+    {
+      emulatorId: 'a1',
+      emulatorName: 'RetroArch',
+      optionId: 'mupen64plus_next',
+      optionName: 'Mupen64Plus-Next',
+      extensions: []
+    }
+  ],
+  isEnabled: true,
+  defaultEmulator: null
 }
 
 const FOLDERS: GameFolder[] = [
@@ -66,7 +78,7 @@ describe('GameFolderSettings', () => {
     expect(within(first).getByRole('button')).toHaveAccessibleDescription('17 games')
   })
 
-  it('names a folder by its platform’s id when no installed core plays it anymore', async () => {
+  it('names a folder by its platform’s id when no emulator plays it anymore', async () => {
     mockGameFolders(FOLDERS)
     mockPlatforms([NINTENDO_64])
     await renderGameFolders()
@@ -138,12 +150,12 @@ describe('GameFolderSettings', () => {
     ).toBeInTheDocument()
   })
 
-  describe('without folders or installed cores', () => {
-    it('says there are no folders and that a core is needed first', async () => {
+  describe('without folders or platforms', () => {
+    it('says there are no folders and that an emulator needs setting up first', async () => {
       await renderGameFolders()
 
       expect(emptyTitle()).toBeInTheDocument()
-      expect(screen.getByText(/don't have any cores installed yet/)).toBeInTheDocument()
+      expect(screen.getByText(/none of your emulators can play a console yet/)).toBeInTheDocument()
       expect(screen.queryByRole('list')).not.toBeInTheDocument()
     })
 
@@ -164,7 +176,7 @@ describe('GameFolderSettings', () => {
     })
   })
 
-  describe('without folders but with installed cores', () => {
+  describe('without folders but with platforms', () => {
     it('says there are no folders and how to add the first one', async () => {
       mockPlatforms([NINTENDO_64])
       await renderGameFolders()
@@ -184,11 +196,65 @@ describe('GameFolderSettings', () => {
     })
   })
 
-  it('keeps Add folder with the list even when no core is installed', async () => {
+  it('keeps Add folder with the list even when no emulator plays a platform', async () => {
     mockGameFolders(FOLDERS)
     await renderGameFolders()
 
     expect(addFolder()).toBeInTheDocument()
     expect(emptyTitle()).not.toBeInTheDocument()
+  })
+
+  describe('moving through a list that scrolls', () => {
+    const folderItem = (name: string): HTMLElement => screen.getByRole('button', { name })
+
+    /**
+     * Renders the folders in a list that scrolls: the second folder is partly below the list's
+     * edge, farther down than Add folder just below the list, at its right.
+     */
+    async function renderScrolledFolders(): Promise<void> {
+      mockGameFolders(FOLDERS)
+      mockPlatforms([NINTENDO_64])
+      renderWithNavigation(
+        <GameFolderSettings onSetUpEmulator={vi.fn()} onAdd={vi.fn()} onOpen={vi.fn()} />
+      )
+      await vi.waitFor(() => expect(addFolder()).toBeInTheDocument())
+      const list = screen.getByRole('list')
+      Object.defineProperty(list, 'scrollHeight', { value: 300 })
+      Object.defineProperty(list, 'clientHeight', { value: 150 })
+      setRect(list, { left: 0, top: 0, width: 800, height: 150 })
+      setRect(folderItem('Nintendo 64'), { left: 0, top: 0, width: 800, height: 140 })
+      setRect(folderItem('playstation_2'), { left: 0, top: 156, width: 800, height: 140 })
+      setRect(addFolder()!, { left: 600, top: 150, width: 200, height: 50 })
+    }
+
+    it('goes down to the next folder, though it is out of view and Add folder is closer', async () => {
+      await renderScrolledFolders()
+      expect(folderItem('Nintendo 64')).toHaveFocus()
+
+      await userEvent.setup().keyboard('{ArrowDown}')
+
+      expect(folderItem('playstation_2')).toHaveFocus()
+    })
+
+    it('goes down to Add folder only from the last folder', async () => {
+      await renderScrolledFolders()
+      const user = userEvent.setup()
+      await user.keyboard('{ArrowDown}')
+      // The list scrolled the last folder into view, right above Add folder.
+      setRect(folderItem('Nintendo 64'), { left: 0, top: -140, width: 800, height: 140 })
+      setRect(folderItem('playstation_2'), { left: 0, top: 4, width: 800, height: 140 })
+
+      await user.keyboard('{ArrowDown}')
+
+      expect(addFolder()).toHaveFocus()
+    })
+
+    it('goes right to Add folder from any folder', async () => {
+      await renderScrolledFolders()
+
+      await userEvent.setup().keyboard('{ArrowRight}')
+
+      expect(addFolder()).toHaveFocus()
+    })
   })
 })

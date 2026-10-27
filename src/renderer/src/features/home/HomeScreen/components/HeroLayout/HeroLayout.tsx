@@ -17,7 +17,8 @@ export function HeroLayout({
   title,
   description,
   details,
-  actions
+  actions,
+  message
 }: HeroLayoutProps): React.JSX.Element {
   return (
     <FocusGroup id={id} as="section" className={styles.hero}>
@@ -37,6 +38,7 @@ export function HeroLayout({
         {description && <p className={styles.description}>{description}</p>}
         <div className={styles.details}>{details}</div>
         <div className={styles.actions}>{actions}</div>
+        {message}
       </div>
     </FocusGroup>
   )

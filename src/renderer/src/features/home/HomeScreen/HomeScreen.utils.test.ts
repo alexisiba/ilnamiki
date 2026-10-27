@@ -2,7 +2,12 @@ import { describe, expect, it } from 'vitest'
 
 import type { InstalledPlatform, LastPlayedGame } from '@shared/api'
 
-import { formatLastPlayed, toContinueGame } from './HomeScreen.utils'
+import {
+  formatLastPlayed,
+  toContinueGame,
+  toRecentlyAddedShelfGame,
+  toRecentlyPlayedShelfGame
+} from './HomeScreen.utils'
 
 const CRASH: LastPlayedGame = {
   id: 'g1',
@@ -16,37 +21,71 @@ const platform = (id: string, name: string): InstalledPlatform => ({
   id,
   name,
   manufacturer: null,
-  cores: []
+  emulators: [],
+  isEnabled: true,
+  defaultEmulator: null
 })
 
 describe('toContinueGame', () => {
-  it('names the console as the catalog does and shows its render', () => {
+  it('names the console as the catalog does and shows a generic screenshot', () => {
     const game = toContinueGame(CRASH, [platform('playstation', 'Sony - PlayStation')])
 
     expect(game).toMatchObject({
+      id: 'g1',
       title: 'Crash Bandicoot',
       platform: 'PlayStation',
       description: null,
       lastPlayedAt: new Date(1_800_000_000_000)
     })
-    expect(game.imageUrl).toEqual(expect.stringContaining('ps1'))
+    expect(game.imageUrl).toEqual(expect.stringContaining('no-bg-image'))
   })
 
   it('rounds the playtime to minutes', () => {
     expect(toContinueGame(CRASH, []).playtimeMinutes).toBe(2 * 60 + 16)
   })
 
-  it('names a console the catalog doesn’t know as its cores do, with Home’s artwork', () => {
+  it('names a console the catalog doesn’t know as its emulators do', () => {
     const game = toContinueGame({ ...CRASH, platformId: 'quake_3' }, [
       platform('quake_3', 'Quake III')
     ])
 
     expect(game.platform).toBe('Quake III')
-    expect(game.imageUrl).toEqual(expect.stringContaining('consoles'))
   })
 
   it('names a console no emulator plays anymore by its id', () => {
     expect(toContinueGame({ ...CRASH, platformId: 'quake_3' }, []).platform).toBe('quake_3')
+  })
+})
+
+describe('toRecentlyAddedShelfGame', () => {
+  it('names the console as the catalog does and shows the generic game image', () => {
+    const game = toRecentlyAddedShelfGame(
+      { id: 'g1', title: 'Crash Bandicoot', platformId: 'playstation', addedAt: 1 },
+      [platform('playstation', 'Sony - PlayStation')]
+    )
+
+    expect(game).toMatchObject({ id: 'g1', title: 'Crash Bandicoot', platform: 'PlayStation' })
+    expect(game.imageUrl).toEqual(expect.stringContaining('no-image'))
+  })
+})
+
+describe('toRecentlyPlayedShelfGame', () => {
+  it('shows the generic game image and when the game was last played', () => {
+    const lastPlayedAt = new Date(2026, 9, 21, 9, 0).getTime()
+    const game = toRecentlyPlayedShelfGame(
+      { id: 'g1', title: 'Crash Bandicoot', platformId: 'playstation', lastPlayedAt },
+      [platform('playstation', 'Sony - PlayStation')],
+      new Date(2026, 9, 22, 18, 0),
+      'en'
+    )
+
+    expect(game).toMatchObject({
+      id: 'g1',
+      title: 'Crash Bandicoot',
+      platform: 'PlayStation',
+      caption: 'yesterday'
+    })
+    expect(game.imageUrl).toEqual(expect.stringContaining('no-image'))
   })
 })
 

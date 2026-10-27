@@ -1,0 +1,1 @@
+export { PlatformDetailsSettings } from './PlatformDetailsSettings'

@@ -4,7 +4,9 @@ import type {
   AddEmulatorResult,
   AddFolderResult,
   FolderGame,
+  GameDetails,
   GameFolder,
+  GamePlayer,
   ChangeEmulatorPathResult,
   ControllerStatus,
   Emulator,
@@ -12,8 +14,11 @@ import type {
   InstalledPlatform,
   LastPlayedGame,
   LaunchGameResult,
+  LaunchRandomGameResult,
   NetworkStatus,
   OpenEmulatorResult,
+  RecentlyAddedGame,
+  RecentlyPlayedGame,
   ScanFolderResult,
   UpdateFolderResult
 } from '@shared/api'
@@ -48,7 +53,16 @@ export function mockApi(): void {
     },
     games: {
       getLastPlayed: vi.fn(async (): Promise<LastPlayedGame | null> => null),
-      launch: vi.fn(async (): Promise<LaunchGameResult> => ({ ok: false, problem: 'no-core' })),
+      listRecentlyAdded: vi.fn(async (): Promise<RecentlyAddedGame[]> => []),
+      listRecentlyPlayed: vi.fn(async (): Promise<RecentlyPlayedGame[]> => []),
+      getDetails: vi.fn(async (): Promise<GameDetails | null> => null),
+      getPlayer: vi.fn(async (): Promise<GamePlayer | null> => null),
+      setEmulator: vi.fn(async (): Promise<void> => undefined),
+      launch: vi.fn(async (): Promise<LaunchGameResult> => ({ ok: false, problem: 'no-emulator' })),
+      launchRandom: vi.fn(async (): Promise<LaunchRandomGameResult> => ({
+        ok: false,
+        problem: 'no-games'
+      })),
       onGameEnded: vi.fn((): (() => void) => () => undefined)
     },
     library: {
@@ -83,7 +97,10 @@ export function mockApi(): void {
       }))
     },
     platforms: {
-      list: vi.fn(async (): Promise<InstalledPlatform[]> => [])
+      list: vi.fn(async (): Promise<InstalledPlatform[]> => []),
+      setEnabled: vi.fn(async (): Promise<void> => undefined),
+      setDefaultEmulator: vi.fn(async (): Promise<void> => undefined),
+      getPhoto: vi.fn(async (): Promise<string | null> => null)
     }
   }
 }
@@ -241,6 +258,18 @@ export function mockLaunchGame(result: LaunchGameResult | Error | 'pending'): vo
   })
 }
 
+/**
+ * Makes `window.api.games.launchRandom` resolve with `result`, reject with an error, or, with
+ * `'pending'`, never answer, as an emulator still starting.
+ */
+export function mockLaunchRandomGame(result: LaunchRandomGameResult | Error | 'pending'): void {
+  vi.mocked(window.api.games.launchRandom).mockImplementation(() => {
+    if (result === 'pending') return new Promise(() => {})
+    if (result instanceof Error) return Promise.reject(result)
+    return Promise.resolve(result)
+  })
+}
+
 /** Sends that the game `gameId` ended to every listener of `window.api.games.onGameEnded`. */
 export function emitGameEnded(gameId: string): void {
   for (const [listener] of vi.mocked(window.api.games.onGameEnded).mock.calls) {
@@ -259,11 +288,60 @@ export function mockLastPlayedGame(game: LastPlayedGame | null | Error): void {
   })
 }
 
+/**
+ * Makes `window.api.games.getDetails` resolve with `game` (null when it isn't in the library),
+ * or reject with an error.
+ */
+export function mockGameDetails(game: GameDetails | null | Error): void {
+  vi.mocked(window.api.games.getDetails).mockImplementation(async () => {
+    if (game instanceof Error) throw game
+    return game
+  })
+}
+
+/**
+ * Makes `window.api.games.getPlayer` resolve with `player` (null when the game isn't in the
+ * library), or reject with an error.
+ */
+export function mockGamePlayer(player: GamePlayer | null | Error): void {
+  vi.mocked(window.api.games.getPlayer).mockImplementation(async () => {
+    if (player instanceof Error) throw player
+    return player
+  })
+}
+
+/** Makes `window.api.games.listRecentlyPlayed` resolve with `games`, or reject with an error. */
+export function mockRecentlyPlayedGames(games: RecentlyPlayedGame[] | Error): void {
+  vi.mocked(window.api.games.listRecentlyPlayed).mockImplementation(async () => {
+    if (games instanceof Error) throw games
+    return games
+  })
+}
+
+/** Makes `window.api.games.listRecentlyAdded` resolve with `games`, or reject with an error. */
+export function mockRecentlyAddedGames(games: RecentlyAddedGame[] | Error): void {
+  vi.mocked(window.api.games.listRecentlyAdded).mockImplementation(async () => {
+    if (games instanceof Error) throw games
+    return games
+  })
+}
+
 /** Makes `window.api.platforms.list` resolve with `platforms`, or reject with an error. */
 export function mockPlatforms(platforms: InstalledPlatform[] | Error): void {
   vi.mocked(window.api.platforms.list).mockImplementation(async () => {
     if (platforms instanceof Error) throw platforms
     return platforms
+  })
+}
+
+/**
+ * Makes `window.api.platforms.getPhoto` resolve with the URL in `photos` for each platform id
+ * (null for the others), or reject with an error.
+ */
+export function mockPlatformPhotos(photos: Record<string, string> | Error): void {
+  vi.mocked(window.api.platforms.getPhoto).mockImplementation(async (platformId) => {
+    if (photos instanceof Error) throw photos
+    return photos[platformId] ?? null
   })
 }
 

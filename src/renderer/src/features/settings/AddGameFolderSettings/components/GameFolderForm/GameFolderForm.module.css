@@ -1,4 +1,23 @@
-/* Why some platforms aren't in the select. */
+/* The chosen platform's extensions, laid out like a field. */
+.extensions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+/* Styled like the fields' labels. */
+.extensionsLabel {
+  font-family: var(--font-label);
+  font-size: var(--label-md-size);
+  font-weight: var(--label-md-weight);
+  line-height: var(--label-md-line-height);
+  letter-spacing: var(--label-md-tracking);
+  font-variant-ligatures: none;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* Why some platforms aren't in the select, and that a platform's emulators name no extensions. */
 .note {
   font-size: var(--body-md-size);
   line-height: var(--body-md-line-height);

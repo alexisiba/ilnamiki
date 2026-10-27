@@ -1,5 +1,5 @@
 /**
- * A platform an installed core plays, with its cores, as main reports it. Its data comes from
- * the emulators and is never translated.
+ * A platform the user's emulators play, with those emulators, as main reports it. Its data
+ * comes from the emulators and is never translated.
  */
-export type { InstalledCore, InstalledPlatform } from '@shared/api'
+export type { InstalledPlatform, PlatformEmulator } from '@shared/api'

@@ -19,6 +19,8 @@ export interface DesktopEntry {
   name: string | null
   /** `Icon`: an icon name (e.g. "com.libretro.RetroArch") or a path; null without one. */
   icon: string | null
+  /** `X-AppImage-Version`, the version its AppImage declares (e.g. "v0.2.1"); null without one. */
+  version: string | null
 }
 
 /**
@@ -26,7 +28,7 @@ export interface DesktopEntry {
  * groups (e.g. actions) are ignored.
  */
 export function parseDesktopEntry(text: string): DesktopEntry {
-  const entry: DesktopEntry = { name: null, icon: null }
+  const entry: DesktopEntry = { name: null, icon: null, version: null }
   let inMainGroup = false
 
   for (const rawLine of text.split('\n')) {
@@ -44,6 +46,7 @@ export function parseDesktopEntry(text: string): DesktopEntry {
     if (!value) continue
     if (key === 'Name') entry.name = value
     if (key === 'Icon') entry.icon = value
+    if (key === 'X-AppImage-Version') entry.version = value
   }
 
   return entry

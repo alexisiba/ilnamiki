@@ -17,15 +17,17 @@
     },
     "empty": {
       "title": "No game folders configured",
-      "noCores": "It looks like you don't have any cores installed yet. Set up an emulator to install your first core.",
+      "noEmulators": "It looks like none of your emulators can play a console yet. Set up an emulator to add your first console.",
       "setUpEmulator": "Set up an emulator",
       "noFolders": "Add your first game folder with the Add folder button."
     }
   },
   "platforms": {
-    "cores_one": "Core: {{cores}}",
-    "cores_other": "Cores: {{cores}}",
+    "emulators_one": "Emulator: {{emulators}}",
+    "emulators_other": "Emulators: {{emulators}}",
     "extensions": "Extensions: {{extensions}}",
+    "enabled": "On",
+    "disabled": "Off",
     "empty": {
       "title": "No platforms installed",
       "description": "Set up an emulator to add your first platform.",
@@ -35,6 +37,19 @@
       "title": "The platforms couldn't be loaded",
       "description": "Close Ilnamiki and open it again."
     }
+  },
+  "platformDetails": {
+    "enabled": "Platform on",
+    "enabledHint": "While it is off, its games don't show in your library or on Home. Nothing is deleted.",
+    "enableFailed": "The change couldn't be saved. Try again.",
+    "extensions": "Extensions",
+    "noExtensions": "Its emulators don't say which extensions they play.",
+    "emulator": "Emulator",
+    "defaultEmulator": "Default emulator",
+    "defaultEmulatorHint": "Games of this platform you haven't played yet, and those you add later, play with the emulator you pick. Games you've already played keep theirs.",
+    "defaultEmulatorFailed": "The emulator couldn't be saved. Try again.",
+    "back": "Back",
+    "notFound": "This platform is no longer installed."
   },
   "emulators": {
     "version": "Version {{version}}",
@@ -100,7 +115,9 @@
     "browse": "Choose the folder",
     "platform": "Platform",
     "selectPlatform": "Select a platform",
-    "onePerPlatform": "Each platform can have one folder. Platforms that already have one aren't listed.",
+    "onePerPlatform": "Each platform can have only one folder.",
+    "extensions": "Accepted extensions",
+    "noExtensions": "Its emulators don't say which extensions they play.",
     "cancel": "Cancel",
     "scan": "Scan",
     "problems": {
@@ -108,7 +125,7 @@
       "notFound": "There's no folder at this path.",
       "notAFolder": "This path is a file. Choose a folder.",
       "notReadable": "Ilnamiki isn't allowed to read this folder.",
-      "unknownPlatform": "No installed core plays this platform anymore. Choose another one.",
+      "unknownPlatform": "None of your emulators plays this platform anymore. Choose another one.",
       "alreadyAdded": "This folder is already added.",
       "platformHasFolder": "This platform already has a folder.",
       "unknownFolder": "This folder is no longer in Ilnamiki.",

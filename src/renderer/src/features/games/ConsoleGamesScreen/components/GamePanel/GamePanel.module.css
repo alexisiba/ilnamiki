@@ -1,4 +1,31 @@
+/*
+ * The whole right column, its height included, with the card centered over the screenshot
+ * and inset from its edges, so the screenshot shows a little around it.
+ */
+.column {
+  position: relative;
+  display: grid;
+  align-items: center;
+  align-self: stretch;
+  min-height: 0;
+  padding: var(--space-lg);
+}
+
+/* Behind the card, fading into the app background on every edge, as the home hero does. */
+.screenshot {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mask-image:
+    linear-gradient(to right, transparent, black 20%, black 80%, transparent),
+    linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+  mask-composite: intersect;
+}
+
 .panel {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
@@ -6,6 +33,38 @@
   background: var(--color-surface-high);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
+}
+
+/* Drawn as the buttons are, square around its icon; it lights up under the pointer. */
+.more {
+  display: grid;
+  place-items: center;
+  padding: var(--space-sm);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  color: var(--color-text);
+  transition:
+    background-color var(--duration-focus) var(--ease-focus),
+    border-color var(--duration-focus) var(--ease-focus);
+}
+
+.more:hover {
+  background: var(--color-surface-highest);
+  border-color: var(--color-primary);
+}
+
+/* The three dots, then the button that opens the options. */
+.moreContent {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.moreIcon {
+  display: block;
+  width: var(--icon-size-md);
+  height: var(--icon-size-md);
+  stroke-width: var(--icon-stroke);
 }
 
 .description {
@@ -27,7 +86,9 @@
   color: var(--color-error);
 }
 
-/* A grid cell stretches the button across the panel. */
+/* Play now across the panel, the options button at its own width beside it. */
 .play {
   display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-sm);
 }

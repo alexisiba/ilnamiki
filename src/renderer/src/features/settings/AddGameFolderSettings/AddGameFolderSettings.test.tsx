@@ -25,13 +25,33 @@ const PLATFORMS: InstalledPlatform[] = [
     id: 'nintendo_64',
     name: 'Nintendo 64',
     manufacturer: 'Nintendo',
-    cores: [{ id: 'mupen64plus_next', name: 'Mupen64Plus-Next', emulatorId: 'a1', extensions: [] }]
+    emulators: [
+      {
+        emulatorId: 'a1',
+        emulatorName: 'RetroArch',
+        optionId: 'mupen64plus_next',
+        optionName: 'Mupen64Plus-Next',
+        extensions: []
+      }
+    ],
+    isEnabled: true,
+    defaultEmulator: null
   },
   {
     id: 'playstation',
     name: 'PlayStation',
     manufacturer: 'Sony',
-    cores: [{ id: 'swanstation', name: 'SwanStation', emulatorId: 'a1', extensions: [] }]
+    emulators: [
+      {
+        emulatorId: 'a1',
+        emulatorName: 'RetroArch',
+        optionId: 'swanstation',
+        optionName: 'SwanStation',
+        extensions: ['cue', 'chd', 'pbp']
+      }
+    ],
+    isEnabled: true,
+    defaultEmulator: null
   }
 ]
 
@@ -103,10 +123,10 @@ const platformList = (): HTMLElement | null =>
 
 /** Fills the form in for PlayStation's folder and scans it. */
 async function scanPs1Folder(user: ReturnType<typeof userEvent.setup>): Promise<void> {
-  await user.click(pathField())
-  await user.keyboard(PS1_PATH)
   await user.click(platformSelect())
   await user.click(screen.getByRole('button', { name: 'PlayStation' }))
+  await user.click(pathField())
+  await user.keyboard(PS1_PATH)
   await user.click(scanButton())
 }
 
@@ -121,10 +141,13 @@ describe('AddGameFolderSettings', () => {
       ).toBeInTheDocument()
     })
 
-    it('focuses the folder path first', async () => {
+    it('focuses the platform first, before the folder path', async () => {
       await renderAddGameFolder()
 
-      expect(pathField()).toHaveFocus()
+      expect(platformSelect()).toHaveFocus()
+      expect(
+        platformSelect().compareDocumentPosition(pathField()) & Node.DOCUMENT_POSITION_FOLLOWING
+      ).toBeTruthy()
     })
 
     it('fills the path with the folder chosen in the folder picker', async () => {
@@ -141,9 +164,37 @@ describe('AddGameFolderSettings', () => {
 
       expect(platformSelect()).toHaveAccessibleName('Platform Select a platform')
       expect(platformSelect()).toHaveAccessibleDescription(
-        "Each platform can have one folder. Platforms that already have one aren't listed."
+        'Each platform can have only one folder.'
       )
       expect(platformSelect()).toHaveAttribute('aria-expanded', 'false')
+      expect(screen.queryByRole('region', { name: 'Accepted extensions' })).not.toBeInTheDocument()
+    })
+
+    it('shows the extensions the chosen platform’s games are found by', async () => {
+      await renderAddGameFolder()
+      const user = userEvent.setup()
+
+      await user.click(platformSelect())
+      await user.click(screen.getByRole('button', { name: 'PlayStation' }))
+
+      const extensions = screen.getByRole('region', { name: 'Accepted extensions' })
+      expect(
+        within(extensions)
+          .getAllByRole('listitem')
+          .map((item) => item.textContent)
+      ).toEqual(['cue', 'chd', 'pbp'])
+    })
+
+    it('says so when the chosen platform’s emulators name no extensions', async () => {
+      await renderAddGameFolder()
+      const user = userEvent.setup()
+
+      await user.click(platformSelect())
+      await user.click(screen.getByRole('button', { name: 'Nintendo 64' }))
+
+      expect(screen.getByRole('region', { name: 'Accepted extensions' })).toHaveTextContent(
+        "Its emulators don't say which extensions they play."
+      )
     })
 
     it('opens the list of installed platforms on the first one', async () => {
@@ -212,25 +263,27 @@ describe('AddGameFolderSettings', () => {
       expect(platformSelect()).toHaveFocus()
     })
 
-    it('keeps Scan unavailable until the path and platform are filled in', async () => {
+    it('keeps Scan unavailable until the platform and path are filled in', async () => {
       await renderAddGameFolder()
       const user = userEvent.setup()
       expect(scanButton()).toHaveAttribute('aria-disabled', 'true')
 
-      await user.keyboard('/home/player/Games/N64')
-      expect(scanButton()).toHaveAttribute('aria-disabled', 'true')
-
       await user.click(platformSelect())
       await user.click(screen.getByRole('button', { name: 'Nintendo 64' }))
+      expect(scanButton()).toHaveAttribute('aria-disabled', 'true')
+
+      await user.click(pathField())
+      await user.keyboard('/home/player/Games/N64')
       expect(scanButton()).toHaveAttribute('aria-disabled', 'false')
     })
 
     it('asks for the full path instead of scanning one that isn’t absolute', async () => {
       await renderAddGameFolder()
       const user = userEvent.setup()
-      await user.keyboard('Games/N64')
       await user.click(platformSelect())
       await user.click(screen.getByRole('button', { name: 'Nintendo 64' }))
+      await user.click(pathField())
+      await user.keyboard('Games/N64')
 
       await user.click(scanButton())
 
@@ -332,6 +385,7 @@ describe('AddGameFolderSettings', () => {
       expect(await screen.findByRole('alert')).toHaveTextContent("There's no folder at this path.")
       expect(pathField()).toHaveValue(PS1_PATH)
       expect(pathField()).toHaveAccessibleDescription("There's no folder at this path.")
+      expect(pathField()).toHaveFocus()
     })
 
     it('returns to the form when the scan fails to reach main', async () => {

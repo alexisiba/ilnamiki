@@ -15,6 +15,7 @@ import {
   mockPlatforms
 } from '@renderer/test/api'
 import { getPlayedSounds, isMusicPlaying } from '@renderer/test/audio'
+import { setRect } from '@renderer/test/layout'
 
 import { ConsoleGamesScreen } from './ConsoleGamesScreen'
 
@@ -22,7 +23,17 @@ const PLAYSTATION: InstalledPlatform = {
   id: 'playstation',
   name: 'Sony - PlayStation',
   manufacturer: 'Sony',
-  cores: [{ id: 'swanstation', name: 'SwanStation', emulatorId: 'a1', extensions: [] }]
+  emulators: [
+    {
+      emulatorId: 'a1',
+      emulatorName: 'RetroArch',
+      optionId: 'swanstation',
+      optionName: 'SwanStation',
+      extensions: []
+    }
+  ],
+  isEnabled: true,
+  defaultEmulator: null
 }
 
 const PS1_FOLDER: GameFolder = {
@@ -93,9 +104,22 @@ describe('ConsoleGamesScreen', () => {
     await playNow()
 
     // Decorative (the title names each game), so they have no role to query by.
-    const images = [...document.querySelectorAll('img')]
-    expect(images).toHaveLength(GAMES.length)
-    expect(images.every((image) => image.src.includes('no-image'))).toBe(true)
+    const covers = [...document.querySelectorAll('img')].filter((image) =>
+      image.src.includes('no-image')
+    )
+    expect(covers).toHaveLength(GAMES.length)
+  })
+
+  it('shows a generic screenshot of the selected game, as none has metadata yet', async () => {
+    renderGamesOf('playstation')
+    await playNow()
+
+    const screenshots = [...document.querySelectorAll('img')].filter((image) =>
+      image.src.includes('no-bg-image')
+    )
+    expect(screenshots).toHaveLength(1)
+    // Decorative, as the covers are: the selected game's title names it.
+    expect(screenshots[0]).toHaveAttribute('alt', '')
   })
 
   it('selects the first game, saying it has no description and no facts yet', async () => {
@@ -155,6 +179,59 @@ describe('ConsoleGamesScreen', () => {
 
     expect(selectedGame()).toHaveAccessibleName('Crash Bandicoot (USA)')
     expect(await playNow()).toHaveFocus()
+  })
+
+  describe('options', () => {
+    const optionsOf = (title: string): Promise<HTMLElement> =>
+      screen.findByRole('dialog', { name: title })
+
+    it('opens the selected game’s options with its options button', async () => {
+      renderGamesOf('playstation')
+      await playNow()
+
+      await userEvent.setup().click(screen.getByRole('button', { name: 'Game options' }))
+
+      expect(await optionsOf('Ape Escape (USA)')).toBeInTheDocument()
+      expect(window.api.games.getPlayer).toHaveBeenCalledWith('g1')
+    })
+
+    it('opens them with the secondary action, keeping focus on Play now behind', async () => {
+      renderGamesOf('playstation')
+      const user = userEvent.setup()
+      await playNow()
+
+      await user.keyboard('x')
+      expect(await optionsOf('Ape Escape (USA)')).toBeInTheDocument()
+
+      await user.keyboard('{Escape}')
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+      expect(await playNow()).toHaveFocus()
+    })
+
+    it('leaves the options button beside Play now out of reach of directions', async () => {
+      renderGamesOf('playstation')
+      const play = await playNow()
+      const options = screen.getByRole('button', { name: 'Game options' })
+      setRect(play, { left: 0, top: 0, width: 400, height: 60 })
+      setRect(options, { left: 416, top: 0, width: 60, height: 60 })
+
+      await userEvent.setup().keyboard('{ArrowRight}')
+
+      expect(play).toHaveFocus()
+      expect(selectedGame()).toHaveAccessibleName('Crash Bandicoot (USA)')
+    })
+
+    it('keeps the selected game while they are open', async () => {
+      renderGamesOf('playstation')
+      const user = userEvent.setup()
+      await playNow()
+      await user.keyboard('x')
+      await optionsOf('Ape Escape (USA)')
+
+      await user.keyboard('{ArrowRight}')
+
+      expect(selectedGame()).toHaveAccessibleName('Ape Escape (USA)')
+    })
   })
 
   describe('playing', () => {

@@ -1,9 +1,16 @@
-import type { InstalledPlatform, LastPlayedGame } from '@shared/api'
+import type {
+  InstalledPlatform,
+  LastPlayedGame,
+  RecentlyAddedGame,
+  RecentlyPlayedGame
+} from '@shared/api'
 
-import consolesArtwork from '@renderer/assets/images/consoles/consoles.webp'
-import { findCatalogPlatform } from '@renderer/utils/platformCatalog/platformCatalog'
+import noScreenshot from '@renderer/assets/images/games/no-bg-image.webp'
+import noImage from '@renderer/assets/images/games/no-image.webp'
+import { getPlatformName } from '@renderer/utils/platformName'
 
 import type { ContinueGame } from './components/ContinueHero'
+import type { ShelfGame } from './components/GameShelf'
 
 const MINUTE_MS = 60 * 1000
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -14,20 +21,53 @@ const startOfDay = (date: Date): number =>
 
 /**
  * The last played game as the hero shows it. Until games have metadata, it has no description
- * and shows its console's render (or Home's consoles artwork when the console has none); the
- * console is named as the app's catalog names it, or as its cores do.
+ * and shows a generic screenshot; the console is named as the app's catalog names it, or as
+ * its emulators do.
  */
 export function toContinueGame(game: LastPlayedGame, platforms: InstalledPlatform[]): ContinueGame {
-  const known = findCatalogPlatform(game.platformId)
-  const installed = platforms.find((platform) => platform.id === game.platformId)
-
   return {
+    id: game.id,
     title: game.title,
-    platform: known?.name ?? installed?.name ?? game.platformId,
+    platform: getPlatformName(game.platformId, platforms),
     description: null,
-    imageUrl: known?.imageUrl ?? consolesArtwork,
+    imageUrl: noScreenshot,
     lastPlayedAt: new Date(game.lastPlayedAt),
     playtimeMinutes: Math.round(game.playtimeMs / MINUTE_MS)
+  }
+}
+
+/**
+ * A recently added game as its shelf shows it: until games have artwork, with the generic
+ * game image, and its console named as in the hero.
+ */
+export function toRecentlyAddedShelfGame(
+  game: RecentlyAddedGame,
+  platforms: InstalledPlatform[]
+): ShelfGame {
+  return {
+    id: game.id,
+    title: game.title,
+    platform: getPlatformName(game.platformId, platforms),
+    imageUrl: noImage
+  }
+}
+
+/**
+ * A game played before the last one as its shelf shows it: as a recently added game, with
+ * when it was last played below its title.
+ */
+export function toRecentlyPlayedShelfGame(
+  game: RecentlyPlayedGame,
+  platforms: InstalledPlatform[],
+  now: Date,
+  locale: string
+): ShelfGame {
+  return {
+    id: game.id,
+    title: game.title,
+    platform: getPlatformName(game.platformId, platforms),
+    imageUrl: noImage,
+    caption: formatLastPlayed(new Date(game.lastPlayedAt), now, locale)
   }
 }
 

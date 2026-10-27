@@ -43,6 +43,37 @@
     "networkEthernetNoInternet": "Ethernet connected, no internet",
     "networkNone": "No network connection"
   },
+  "play": {
+    "playing": "Playing",
+    "problems": {
+      "unknownGame": "This game is no longer in your library.",
+      "missingFile": "The game's file isn't there anymore. Check its folder in Settings.",
+      "noEmulator": "None of your emulators plays this console. Set up an emulator in Settings.",
+      "noGames": "No game of your library can be played now. Check your game folders in Settings.",
+      "alreadyPlaying": "Another game is being played. Close it first.",
+      "notStarted": "The emulator couldn't be started. Check it in Settings.",
+      "failed": "The game couldn't be started. Try again."
+    }
+  },
+  "gameOptions": {
+    "open": "Game options",
+    "title": "Options",
+    "close": "Close",
+    "emulator": "Emulator",
+    "playsWith": "Plays with {{emulator}} · {{reason}}",
+    "reasons": {
+      "game": "chosen for this game",
+      "lastSession": "last played with it",
+      "platformDefault": "the console's default",
+      "firstInstalled": "the console's first emulator"
+    },
+    "automatic": "Automatic",
+    "automaticHint": "The emulator it was last played with, or the console's default",
+    "noEmulators": "None of your emulators plays this console.",
+    "notFound": "This game is no longer in your library.",
+    "failed": "The options couldn't be loaded. Try again later.",
+    "saveFailed": "The emulator couldn't be saved. Try again."
+  },
   "playStats": {
     "lastPlayed": "Last played {{time}}",
     "playtime": "Total playtime: {{duration}}"
@@ -73,6 +104,7 @@
     "back": "Back",
     "close": "Close",
     "search": "Search",
+    "options": "Options",
     "switchTab": "Switch tab"
   }
 }

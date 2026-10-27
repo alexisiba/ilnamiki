@@ -1,7 +1,8 @@
-import { screen } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
+import { mockPlatformPhotos } from '@renderer/test/api'
 import { getPlayedSounds } from '@renderer/test/audio'
 import { setRect } from '@renderer/test/layout'
 import { renderWithNavigation } from '@renderer/test/renderWithNavigation'
@@ -15,7 +16,6 @@ const CONSOLES: GameConsole[] = [
     name: 'PlayStation',
     manufacturer: 'Sony',
     releaseYear: 1994,
-    imageUrl: 'ps1.png',
     gameCount: 24
   },
   {
@@ -23,12 +23,14 @@ const CONSOLES: GameConsole[] = [
     name: 'GameCube',
     manufacturer: 'Nintendo',
     releaseYear: 2001,
-    imageUrl: 'gc.png',
     gameCount: 1
   }
 ]
 
 const consoleButton = (name: string): HTMLElement => screen.getByRole('button', { name })
+
+/** The console's picture, decorative and so without a role to find it by. */
+const imageOf = (name: string): HTMLImageElement | null => consoleButton(name).querySelector('img')
 
 /** Renders the carousel with the consoles laid out side by side, the first one centered. */
 function renderCarousel(onOpenConsole = vi.fn()): void {
@@ -73,7 +75,6 @@ describe('ConsoleCarousel', () => {
       name: 'Quake III',
       manufacturer: 'id Software',
       releaseYear: null,
-      imageUrl: null,
       gameCount: 2
     }
     renderWithNavigation(
@@ -86,13 +87,51 @@ describe('ConsoleCarousel', () => {
     expect(consoleButton('Quake III')).toHaveAccessibleDescription('id Software 2 games installed')
   })
 
-  it('shows a console without a render as an unavailable image, still named by the console', () => {
-    renderWithNavigation(
-      <ConsoleCarousel consoles={[{ ...CONSOLES[0], imageUrl: null }]} onOpenConsole={vi.fn()} />
-    )
+  it('shows the photo of each console main downloaded, and a generic one for the others', async () => {
+    mockPlatformPhotos({ ps1: 'data:image/png;base64,cHMx' })
+    renderCarousel()
 
-    expect(consoleButton('PlayStation')).toBeInTheDocument()
-    expect(screen.queryByRole('img')).not.toBeInTheDocument()
+    await waitFor(() =>
+      expect(imageOf('PlayStation')).toHaveAttribute('src', 'data:image/png;base64,cHMx')
+    )
+    expect(window.api.platforms.getPhoto).toHaveBeenCalledWith('ps1')
+    await waitFor(() =>
+      expect(imageOf('GameCube')).toHaveAttribute(
+        'src',
+        expect.stringContaining('no-console-image')
+      )
+    )
+  })
+
+  it('shows a generic console when main fails to give its photo', async () => {
+    mockPlatformPhotos(new Error('offline'))
+    renderCarousel()
+
+    await waitFor(() =>
+      expect(imageOf('PlayStation')).toHaveAttribute(
+        'src',
+        expect.stringContaining('no-console-image')
+      )
+    )
+  })
+
+  it('shows the generic console only once main answers it has no photo', async () => {
+    let answer: (photo: string | null) => void = () => undefined
+    vi.mocked(window.api.platforms.getPhoto).mockReturnValue(
+      new Promise((resolve) => {
+        answer = resolve
+      })
+    )
+    renderWithNavigation(<ConsoleCarousel consoles={[CONSOLES[0]]} onOpenConsole={vi.fn()} />)
+
+    expect(imageOf('PlayStation')).toBeNull()
+    answer(null)
+    await waitFor(() =>
+      expect(imageOf('PlayStation')).toHaveAttribute(
+        'src',
+        expect.stringContaining('no-console-image')
+      )
+    )
   })
 
   it('selects the next console on right', async () => {

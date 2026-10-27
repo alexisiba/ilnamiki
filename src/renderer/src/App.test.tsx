@@ -6,9 +6,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   mockEmulators,
   mockFolderGames,
+  mockGameDetails,
   mockGameFolders,
   mockLastPlayedGame,
-  mockPlatforms
+  mockPlatforms,
+  mockRecentlyPlayedGames
 } from '@renderer/test/api'
 import { getPlayedSounds, isMusicPlaying } from '@renderer/test/audio'
 import { connectGamepad } from '@renderer/test/gamepad'
@@ -16,7 +18,8 @@ import { connectGamepad } from '@renderer/test/gamepad'
 import { APP_ROUTES } from './App.routes'
 
 // One emulator, RetroArch, and one console in the library: the NES, with a folder of two games,
-// one of them played, so Home shows its sample shelves, whose cards these tests move between.
+// both played, Contra last, so Home shows Metroid in the games played before, whose card these
+// tests move to.
 beforeEach(() => {
   mockLastPlayedGame({
     id: 'g1',
@@ -25,6 +28,9 @@ beforeEach(() => {
     lastPlayedAt: 1_800_000_000_000,
     playtimeMs: 30 * 60 * 1000
   })
+  mockRecentlyPlayedGames([
+    { id: 'g2', title: 'Metroid (USA)', platformId: 'nes', lastPlayedAt: 1_700_000_000_000 }
+  ])
   mockEmulators([
     {
       id: 'a1',
@@ -45,7 +51,17 @@ beforeEach(() => {
       id: 'nes',
       name: 'Nintendo Entertainment System',
       manufacturer: 'Nintendo',
-      cores: [{ id: 'mesen', name: 'Mesen', emulatorId: 'a1', extensions: ['nes'] }]
+      emulators: [
+        {
+          emulatorId: 'a1',
+          emulatorName: 'RetroArch',
+          optionId: 'mesen',
+          optionName: 'Mesen',
+          extensions: ['nes']
+        }
+      ],
+      isEnabled: true,
+      defaultEmulator: null
     }
   ])
   mockGameFolders([
@@ -161,36 +177,47 @@ describe('App', () => {
   it('restores the focused game when coming back to home', async () => {
     renderApp()
     const user = userEvent.setup()
-    const card = await screen.findByRole('button', { name: 'Donkey Kong 64' })
+    const card = await screen.findByRole('button', { name: 'Metroid (USA)' })
 
     await user.pointer({ target: card, coords: { x: 100, y: 500 } })
     await user.keyboard('ee')
     await user.keyboard('e')
 
-    expect(screen.getByRole('button', { name: 'Donkey Kong 64' })).toHaveFocus()
+    expect(await screen.findByRole('button', { name: 'Metroid (USA)' })).toHaveFocus()
   })
 
   it('opens a game’s details from its card, still inside the home section', async () => {
+    mockGameDetails({
+      id: 'g2',
+      title: 'Metroid (USA)',
+      platformId: 'nes',
+      addedAt: 1,
+      lastPlayedAt: 1_700_000_000_000,
+      playtimeMs: 10 * 60 * 1000
+    })
     renderApp()
 
-    await userEvent.setup().click(await screen.findByRole('button', { name: 'Donkey Kong 64' }))
+    await userEvent.setup().click(await screen.findByRole('button', { name: 'Metroid (USA)' }))
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Donkey Kong 64' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Play' })).toHaveFocus()
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Metroid (USA)' })
+    ).toBeInTheDocument()
+    expect(window.api.games.getDetails).toHaveBeenCalledWith('g2')
+    expect(screen.getByRole('button', { name: 'Play now' })).toHaveFocus()
     expect(currentSection()).toHaveTextContent('Home')
   })
 
   it('goes back from a game’s details to home, with focus on its card', async () => {
     renderApp()
     const user = userEvent.setup()
-    const card = await screen.findByRole('button', { name: 'Donkey Kong 64' })
+    const card = await screen.findByRole('button', { name: 'Metroid (USA)' })
 
     await user.pointer({ target: card, coords: { x: 100, y: 500 } })
     await user.keyboard('{Enter}')
     await user.keyboard('{Escape}')
 
-    expect(screen.queryByRole('button', { name: 'Play' })).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Donkey Kong 64' })).toHaveFocus()
+    expect(screen.queryByRole('button', { name: 'Play now' })).not.toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Metroid (USA)' })).toHaveFocus()
     expect(getPlayedSounds()).toEqual(['select', 'back'])
   })
 
@@ -258,7 +285,7 @@ describe('App', () => {
     await user.keyboard('{Enter}')
     await user.click(await screen.findByRole('button', { name: 'Metroid (USA)' }))
     await user.keyboard('q')
-    await user.click(screen.getByRole('button', { name: 'Donkey Kong 64' }))
+    await user.click(await screen.findByRole('button', { name: 'Metroid (USA)' }))
     await user.keyboard('e{Escape}')
 
     expect(router.state.location.pathname).toBe('/library')

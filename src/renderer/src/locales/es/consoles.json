@@ -5,7 +5,7 @@
   },
   "empty": {
     "title": "Aún no hay consolas con juegos",
-    "description": "Agrega una carpeta de juegos en Ajustes, para una plataforma con un núcleo instalado, y su consola aparecerá aquí.",
+    "description": "Agrega una carpeta de juegos en Ajustes, para una plataforma que juegue alguno de tus emuladores, y su consola aparecerá aquí.",
     "openSettings": "Abrir Ajustes"
   }
 }

@@ -1,0 +1,241 @@
+/* The name, the switch, the extensions and the emulators at the top; Back at the bottom. */
+.content {
+  display: grid;
+  grid-template-rows: auto auto auto auto 1fr;
+  align-content: start;
+  gap: var(--space-lg);
+  min-height: 0;
+}
+
+/* Room for the centered message that the platform is gone. */
+.missing {
+  display: flex;
+  min-height: 0;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.title {
+  font-size: var(--headline-sm-size);
+  font-weight: var(--headline-sm-weight);
+  line-height: var(--headline-sm-line-height);
+  letter-spacing: var(--headline-sm-tracking);
+  color: var(--color-text-focus);
+}
+
+.maker {
+  font-family: var(--font-label);
+  font-size: var(--label-md-size);
+  font-weight: var(--label-md-weight);
+  line-height: var(--label-md-line-height);
+  letter-spacing: var(--label-md-tracking);
+  font-variant-ligatures: none;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.enabled {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+/* The whole row is the switch: its label and what it means, and the toggle on the right. */
+.switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface-high);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-align: start;
+  transition:
+    border-color var(--duration-focus) var(--ease-focus),
+    box-shadow var(--duration-focus) var(--ease-focus);
+}
+
+/* This style is the focus indicator. */
+.switch:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-focus);
+}
+
+.switchText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.switchLabel {
+  font-size: var(--body-lg-size);
+  line-height: var(--body-lg-line-height);
+  color: var(--color-text);
+}
+
+.switch:focus .switchLabel {
+  color: var(--color-text-focus);
+}
+
+.switchHint {
+  font-size: var(--body-md-size);
+  line-height: var(--body-md-line-height);
+  color: var(--color-text-muted);
+}
+
+/* Off: a dim track with the knob on the left. On: a cyan track with the knob on the right. */
+.toggle {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  width: var(--switch-width);
+  height: var(--switch-height);
+  padding: var(--switch-padding);
+  background: var(--color-surface-highest);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  transition:
+    background-color var(--duration-focus) var(--ease-focus),
+    border-color var(--duration-focus) var(--ease-focus);
+}
+
+.knob {
+  width: var(--switch-knob-size);
+  height: var(--switch-knob-size);
+  background: var(--color-text-muted);
+  border-radius: var(--radius-full);
+  transition:
+    transform var(--duration-focus) var(--ease-focus),
+    background-color var(--duration-focus) var(--ease-focus);
+}
+
+.switch[aria-checked='true'] .toggle {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.switch[aria-checked='true'] .knob {
+  background: var(--color-on-accent);
+  /* Across the track: its inner width minus the knob. */
+  transform: translateX(
+    calc(var(--switch-width) - 2 * var(--switch-padding) - 2px - var(--switch-knob-size))
+  );
+}
+
+.problem {
+  font-size: var(--body-md-size);
+  line-height: var(--body-md-line-height);
+  color: var(--color-error);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+/* Styled like the forms' field labels. */
+.label {
+  font-family: var(--font-label);
+  font-size: var(--label-md-size);
+  font-weight: var(--label-md-weight);
+  line-height: var(--label-md-line-height);
+  letter-spacing: var(--label-md-tracking);
+  font-variant-ligatures: none;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* Information, not controls: flat tags with no focus or hover state. */
+.emulator {
+  font-size: var(--body-lg-size);
+  line-height: var(--body-lg-line-height);
+  color: var(--color-text);
+}
+
+.emulatorOptions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+/* A row per emulator: the radio mark on the left, its name beside it. */
+.emulatorOption {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface-high);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-align: start;
+  transition:
+    border-color var(--duration-focus) var(--ease-focus),
+    box-shadow var(--duration-focus) var(--ease-focus);
+}
+
+/* This style is the focus indicator. */
+.emulatorOption:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-focus);
+}
+
+.emulatorName {
+  font-size: var(--body-lg-size);
+  line-height: var(--body-lg-line-height);
+  color: var(--color-text);
+}
+
+.emulatorOption:focus .emulatorName {
+  color: var(--color-text-focus);
+}
+
+/* An empty ring; picked, a filled dot inside, so it doesn't rely on color alone. */
+.radio {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: var(--status-dot-size);
+  height: var(--status-dot-size);
+  border: 2px solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  box-sizing: content-box;
+  padding: 3px;
+}
+
+.radioMark {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-full);
+}
+
+.emulatorOption[aria-checked='true'] .radio {
+  border-color: var(--color-primary);
+}
+
+.emulatorOption[aria-checked='true'] .radioMark {
+  background: var(--color-primary);
+}
+
+.message {
+  font-size: var(--body-md-size);
+  line-height: var(--body-md-line-height);
+  color: var(--color-text-muted);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  align-self: end;
+  gap: var(--space-sm);
+}

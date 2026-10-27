@@ -6,8 +6,8 @@ import { useOpenSettings } from '@renderer/core/navigation'
 import { SetupPanel } from '../SetupPanel'
 
 /**
- * Shown on Home while the user's emulators play no platform yet (e.g. RetroArch without
- * cores): that the emulator needs setting up for the consoles to play, and the action,
+ * Shown on Home while the user's emulators play no platform yet (e.g. RetroArch before it is
+ * set up): that the emulator needs setting up for the consoles to play, and the action,
  * focused, that opens the emulators in Settings.
  */
 export function PlatformSetup(): React.JSX.Element {
