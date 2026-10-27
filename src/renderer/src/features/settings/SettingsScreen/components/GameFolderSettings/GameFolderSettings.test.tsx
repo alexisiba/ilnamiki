@@ -7,6 +7,8 @@ import type { GameFolder, InstalledPlatform } from '@shared/api'
 import { getGameFoldersState } from '@renderer/core/ipc/gameFolders'
 import { getPlatformsState } from '@renderer/core/ipc/platforms'
 import { mockGameFolders, mockPlatforms } from '@renderer/test/api'
+import { setRect } from '@renderer/test/layout'
+import { renderWithNavigation } from '@renderer/test/renderWithNavigation'
 
 import { GameFolderSettings } from './GameFolderSettings'
 import type { GameFolderSettingsProps } from './GameFolderSettings.types'
@@ -192,5 +194,59 @@ describe('GameFolderSettings', () => {
 
     expect(addFolder()).toBeInTheDocument()
     expect(emptyTitle()).not.toBeInTheDocument()
+  })
+
+  describe('moving through a list that scrolls', () => {
+    const folderItem = (name: string): HTMLElement => screen.getByRole('button', { name })
+
+    /**
+     * Renders the folders in a list that scrolls: the second folder is partly below the list's
+     * edge, farther down than Add folder just below the list, at its right.
+     */
+    async function renderScrolledFolders(): Promise<void> {
+      mockGameFolders(FOLDERS)
+      mockPlatforms([NINTENDO_64])
+      renderWithNavigation(
+        <GameFolderSettings onSetUpEmulator={vi.fn()} onAdd={vi.fn()} onOpen={vi.fn()} />
+      )
+      await vi.waitFor(() => expect(addFolder()).toBeInTheDocument())
+      const list = screen.getByRole('list')
+      Object.defineProperty(list, 'scrollHeight', { value: 300 })
+      Object.defineProperty(list, 'clientHeight', { value: 150 })
+      setRect(list, { left: 0, top: 0, width: 800, height: 150 })
+      setRect(folderItem('Nintendo 64'), { left: 0, top: 0, width: 800, height: 140 })
+      setRect(folderItem('playstation_2'), { left: 0, top: 156, width: 800, height: 140 })
+      setRect(addFolder()!, { left: 600, top: 150, width: 200, height: 50 })
+    }
+
+    it('goes down to the next folder, though it is out of view and Add folder is closer', async () => {
+      await renderScrolledFolders()
+      expect(folderItem('Nintendo 64')).toHaveFocus()
+
+      await userEvent.setup().keyboard('{ArrowDown}')
+
+      expect(folderItem('playstation_2')).toHaveFocus()
+    })
+
+    it('goes down to Add folder only from the last folder', async () => {
+      await renderScrolledFolders()
+      const user = userEvent.setup()
+      await user.keyboard('{ArrowDown}')
+      // The list scrolled the last folder into view, right above Add folder.
+      setRect(folderItem('Nintendo 64'), { left: 0, top: -140, width: 800, height: 140 })
+      setRect(folderItem('playstation_2'), { left: 0, top: 4, width: 800, height: 140 })
+
+      await user.keyboard('{ArrowDown}')
+
+      expect(addFolder()).toHaveFocus()
+    })
+
+    it('goes right to Add folder from any folder', async () => {
+      await renderScrolledFolders()
+
+      await userEvent.setup().keyboard('{ArrowRight}')
+
+      expect(addFolder()).toHaveFocus()
+    })
   })
 })

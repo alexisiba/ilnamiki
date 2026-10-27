@@ -14,6 +14,18 @@ function findBlockScroller(element: HTMLElement, boundary: HTMLElement): HTMLEle
   return undefined
 }
 
+/**
+ * The closest ancestor of `element`, up to `boundary`, that scrolls vertically when
+ * `vertical`, else horizontally: the list it moves through in that direction.
+ */
+export function findScrollerAlong(
+  element: HTMLElement,
+  boundary: HTMLElement,
+  vertical: boolean
+): HTMLElement | undefined {
+  return vertical ? findBlockScroller(element, boundary) : findInlineScroller(element, boundary)
+}
+
 /** Scrolls `scroller` vertically just enough to show `element`, inside its scroll padding. */
 function scrollBlockIntoView(
   element: HTMLElement,

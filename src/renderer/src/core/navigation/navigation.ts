@@ -1,6 +1,6 @@
 import type { Direction } from '@renderer/core/input'
 
-import { scrollFocusIntoView } from './scroll'
+import { findScrollerAlong, scrollFocusIntoView } from './scroll'
 import { findNextInDirection, groupIntoRows, isInBeam, type SpatialCandidate } from './spatial'
 
 export interface FocusItem {
@@ -153,6 +153,28 @@ export function createNavigation(): Navigation {
   }
 
   /**
+   * The item of `candidates` next to `current` in `direction`, preferring those in the same
+   * list that scrolls that way: one scrolled out of view is still next in the list, closer than
+   * anything past the list's edge (e.g. an action below it). Only past the list's last item in
+   * that direction do the others count.
+   */
+  const findNextSpatially = (
+    current: FocusItem,
+    candidates: FocusItem[],
+    group: FocusGroup | undefined,
+    direction: Direction
+  ): FocusItem | undefined => {
+    const from = rectOf(current)
+    const vertical = direction === 'up' || direction === 'down'
+    const list = findScrollerAlong(current.element, group?.element ?? document.body, vertical)
+    const inList = list ? candidates.filter((item) => list.contains(item.element)) : []
+    return (
+      findNextInDirection(from, toCandidates(inList), direction) ??
+      findNextInDirection(from, toCandidates(candidates), direction)
+    )
+  }
+
+  /**
    * In a group that moves by rows: up and down go to the row above or below, to the item last
    * focused in it, else its first; left and right stay in the row. `undefined` when no item
    * of the group lies that way, so focus may leave the group.
@@ -225,7 +247,7 @@ export function createNavigation(): Navigation {
       let target =
         groupId !== undefined && group?.movement === 'rows'
           ? findByRows(current, groupId, direction)
-          : findNextInDirection(from, toCandidates(inGroup), direction)
+          : findNextSpatially(current, inGroup, group, direction)
 
       if (!target && !group?.contained) {
         // Leaving the group: prefer what is straight ahead. Vertically, fall back to anything
