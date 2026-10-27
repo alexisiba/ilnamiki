@@ -28,17 +28,15 @@ describe('gameExtensionsOf', () => {
     expect(extensions.has('cue')).toBe(true)
   })
 
-  it('takes archives as games, though the cores don’t declare them', () => {
+  it('takes only what the cores declare, without archives they don’t', () => {
     expect([...gameExtensionsOf('nintendo_64', ['n64', 'z64', 'bin'])]).toEqual([
       'n64',
       'z64',
-      'bin',
-      'zip',
-      '7z'
+      'bin'
     ])
   })
 
-  it('lists an archive once when a core also declares it', () => {
+  it('takes archives as games when a core declares them', () => {
     expect([...gameExtensionsOf('hbmame', ['zip', 'chd', '7z', 'cmd'])]).toEqual([
       'zip',
       'chd',

@@ -116,6 +116,7 @@
     "platform": "Plataforma",
     "selectPlatform": "Selecciona una plataforma",
     "onePerPlatform": "Cada plataforma puede tener una carpeta. Las que ya tienen una no aparecen en la lista.",
+    "coreFormatsOnly": "Solo se encuentran los juegos en los formatos que admiten los núcleos de la plataforma, como se indica en Plataformas instaladas. Los archivos ZIP y 7z se omiten salvo que un núcleo los admita, aunque el emulador pueda abrirlos.",
     "cancel": "Cancelar",
     "scan": "Escanear",
     "problems": {

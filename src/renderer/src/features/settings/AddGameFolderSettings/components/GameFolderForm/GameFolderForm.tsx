@@ -15,8 +15,9 @@ import styles from './GameFolderForm.module.css'
 
 /**
  * The folder to find games in, typed or chosen with the system's folder picker (which only
- * accepts folders), and the platform its games belong to, one folder per platform. Scan is
- * unavailable until both are filled in; why a folder can't be scanned shows below its path.
+ * accepts folders), and the platform its games belong to, one folder per platform; only games
+ * in the formats its cores support are found. Scan is unavailable until both are filled in;
+ * why a folder can't be scanned shows below its path.
  */
 export function GameFolderForm({
   platforms,
@@ -34,6 +35,7 @@ export function GameFolderForm({
   const platformLabelId = useId()
   const platformControlId = useId()
   const platformNoteId = useId()
+  const formatsNoteId = useId()
   const complete = path.trim() !== '' && platformId !== undefined
 
   const changePath = (nextPath: string): void => {
@@ -88,13 +90,16 @@ export function GameFolderForm({
         <PlatformSelect
           labelId={platformLabelId}
           controlId={platformControlId}
-          descriptionId={platformNoteId}
+          descriptionId={`${platformNoteId} ${formatsNoteId}`}
           platforms={platforms}
           value={platformId}
           onChange={changePlatform}
         />
         <p id={platformNoteId} className={styles.note}>
           {t('addGameFolder.onePerPlatform')}
+        </p>
+        <p id={formatsNoteId} className={styles.note}>
+          {t('addGameFolder.coreFormatsOnly')}
         </p>
       </FormField>
     </SettingsForm>

@@ -140,12 +140,15 @@ describe('AddGameFolderSettings', () => {
       expect(pathField()).toHaveValue('/home/player/Games/N64')
     })
 
-    it('asks for a platform until one is chosen, saying each platform has one folder', async () => {
+    it('asks for a platform until one is chosen, saying each platform has one folder and which games are found', async () => {
       await renderAddGameFolder()
 
       expect(platformSelect()).toHaveAccessibleName('Platform Select a platform')
       expect(platformSelect()).toHaveAccessibleDescription(
-        "Each platform can have one folder. Platforms that already have one aren't listed."
+        "Each platform can have one folder. Platforms that already have one aren't listed. " +
+          "Only games in the formats the platform's cores support are found, as listed in " +
+          'Installed platforms. ZIP and 7z files are skipped unless a core supports them, even ' +
+          'if the emulator can open them.'
       )
       expect(platformSelect()).toHaveAttribute('aria-expanded', 'false')
     })
