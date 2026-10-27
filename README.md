@@ -76,11 +76,11 @@ This opens the app in development mode, reloading as the code changes.
 
 ### Other commands
 
-| Command | What it does |
-|---|---|
-| `pnpm test` | Runs the tests |
-| `pnpm lint` | Checks the code with ESLint |
-| `pnpm typecheck` | Checks the types |
+| Command            | What it does                           |
+| ------------------ | -------------------------------------- |
+| `pnpm test`        | Runs the tests                         |
+| `pnpm lint`        | Checks the code with ESLint            |
+| `pnpm typecheck`   | Checks the types                       |
 | `pnpm build:linux` | Builds the Linux packages into `dist/` |
 
 ## Contributing
@@ -91,6 +91,23 @@ it. Criticism, ideas and suggestions are just as welcome as code: open an
 propose a change.
 
 This README will grow as the project does.
+
+## Credits
+
+The photos of the consoles are by [Evan Amos](https://commons.wikimedia.org/wiki/User:Evan-Amos),
+who shares his photos of video game hardware on
+[Wikimedia Commons](https://commons.wikimedia.org/) for anyone to use. Thank you, Evan.
+
+They aren't part of this repository: Ilnamiki downloads each one from Wikimedia Commons, resized
+by Wikimedia and otherwise unchanged, the first time its console shows. Most are in the public
+domain or dedicated to it under [CC0](https://creativecommons.org/publicdomain/zero/1.0/); some
+are licensed under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). The file and license of each
+one are listed in
+[`platforms.photos.ts`](src/main/features/platforms/platforms.photos.ts), and each file's page
+on Wikimedia Commons (`https://commons.wikimedia.org/wiki/File:<file>`) has its full details.
+
+Console names and the consoles in the photos are trademarks of their owners. Ilnamiki isn't
+affiliated with or endorsed by any of them.
 
 ## License
 
