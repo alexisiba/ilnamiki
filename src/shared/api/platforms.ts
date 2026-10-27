@@ -58,10 +58,17 @@ export interface PlatformsApi {
    * Rejects when `core` doesn't play the platform.
    */
   setDefaultCore(platformId: string, core: CoreRef | null): Promise<void>
+  /**
+   * A photo of the console of the platform `platformId`, as a `data:` URL of a PNG with a
+   * transparent background. It is downloaded the first time and kept, so it shows offline
+   * afterward. Null when the app has no photo for the platform or it can't be downloaded now.
+   */
+  getPhoto(platformId: string): Promise<string | null>
 }
 
 export const PLATFORMS_CHANNELS = {
   list: 'platforms:list',
   setEnabled: 'platforms:set-enabled',
-  setDefaultCore: 'platforms:set-default-core'
+  setDefaultCore: 'platforms:set-default-core',
+  getPhoto: 'platforms:get-photo'
 } as const

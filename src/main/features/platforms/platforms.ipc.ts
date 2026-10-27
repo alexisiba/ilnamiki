@@ -28,4 +28,10 @@ export function registerPlatformsIpc(): void {
     }
     return platformsService.setDefaultCore(platformId, core)
   })
+
+  ipcMain.handle(PLATFORMS_CHANNELS.getPhoto, (_event, id: unknown) => {
+    const platformId = parsePlatformId(id)
+    if (platformId === null) throw new Error('platforms.getPhoto needs a platform id')
+    return platformsService.getPhoto(platformId)
+  })
 }

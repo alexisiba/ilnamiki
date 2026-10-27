@@ -59,6 +59,27 @@ export async function setPlatformDefaultCore(
   })
 }
 
+/** Photos of consoles already got from main this session, by platform id. */
+const photos = new Map<string, string>()
+
+/** The photo of the console of `platformId` if main already gave it this session. */
+export function findPlatformPhoto(platformId: string): string | undefined {
+  return photos.get(platformId)
+}
+
+/**
+ * The photo of the console of `platformId` as a URL, asking main only the first time it has
+ * one; null when main has none for it now, so it is asked again next time. Rejects when main
+ * fails.
+ */
+export async function getPlatformPhoto(platformId: string): Promise<string | null> {
+  const known = photos.get(platformId)
+  if (known) return known
+  const photo = await window.api.platforms.getPhoto(platformId)
+  if (photo) photos.set(platformId, photo)
+  return photo
+}
+
 /**
  * Calls `listener` whenever the installed platforms change. The first subscriber after none
  * reads them again, so a screen that opens shows them fresh (e.g. after installing a core in
@@ -80,4 +101,5 @@ export function getPlatformsState(): PlatformsState {
 export function resetPlatforms(): void {
   state = INITIAL_STATE
   listeners.clear()
+  photos.clear()
 }

@@ -2,10 +2,12 @@ import { describe, expect, it, vi } from 'vitest'
 
 import type { Emulator, InstalledPlatform } from '@shared/api'
 
-import { mockAddEmulator, mockPlatforms } from '@renderer/test/api'
+import { mockAddEmulator, mockPlatformPhotos, mockPlatforms } from '@renderer/test/api'
 
 import { addEmulator, removeEmulator } from './emulators'
 import {
+  findPlatformPhoto,
+  getPlatformPhoto,
   getPlatformsState,
   refreshPlatforms,
   setPlatformDefaultCore,
@@ -146,5 +148,25 @@ describe('platforms store', () => {
     await addEmulator({ executablePath: RETROARCH.executablePath, name: 'RetroArch' })
 
     expect(window.api.platforms.list).not.toHaveBeenCalled()
+  })
+})
+
+describe('getPlatformPhoto', () => {
+  it('asks main for a console’s photo once, then gives the one it got', async () => {
+    mockPlatformPhotos({ nintendo_64: 'data:image/png;base64,bjY0' })
+
+    expect(await getPlatformPhoto('nintendo_64')).toBe('data:image/png;base64,bjY0')
+    expect(await getPlatformPhoto('nintendo_64')).toBe('data:image/png;base64,bjY0')
+    expect(findPlatformPhoto('nintendo_64')).toBe('data:image/png;base64,bjY0')
+    expect(window.api.platforms.getPhoto).toHaveBeenCalledTimes(1)
+  })
+
+  it('asks again for a photo main had none of, as it may download it later', async () => {
+    mockPlatformPhotos({})
+
+    expect(await getPlatformPhoto('nintendo_64')).toBeNull()
+    expect(await getPlatformPhoto('nintendo_64')).toBeNull()
+    expect(findPlatformPhoto('nintendo_64')).toBeUndefined()
+    expect(window.api.platforms.getPhoto).toHaveBeenCalledTimes(2)
   })
 })

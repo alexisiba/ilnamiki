@@ -11,8 +11,6 @@ export interface GameConsole {
   manufacturer: string | null
   /** Year it was first released; null when not known. */
   releaseYear: number | null
-  /** Render of the console hardware; null when the app has none. */
-  imageUrl: string | null
   /** Number of the user's games installed for it. */
   gameCount: number
 }

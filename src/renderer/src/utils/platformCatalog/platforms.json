@@ -5,12 +5,7 @@
   "apple_ii": { "name": "Apple II", "manufacturer": "Apple", "releaseYear": 1977 },
   "arcadia": { "name": "Arcadia 2001", "manufacturer": "Emerson", "releaseYear": 1982 },
   "arduboy": { "name": "Arduboy", "manufacturer": "Arduboy", "releaseYear": 2016 },
-  "atari_2600": {
-    "name": "Atari 2600",
-    "manufacturer": "Atari",
-    "releaseYear": 1977,
-    "image": "atari"
-  },
+  "atari_2600": { "name": "Atari 2600", "manufacturer": "Atari", "releaseYear": 1977 },
   "atari_5200": { "name": "Atari 5200", "manufacturer": "Atari", "releaseYear": 1982 },
   "atari_7800": { "name": "Atari 7800", "manufacturer": "Atari", "releaseYear": 1986 },
   "atari_jaguar": { "name": "Atari Jaguar", "manufacturer": "Atari", "releaseYear": 1993 },
@@ -36,30 +31,14 @@
   "ep128": { "name": "Enterprise 128", "manufacturer": "Enterprise", "releaseYear": 1985 },
   "epochcv": { "name": "Cassette Vision", "manufacturer": "Epoch", "releaseYear": 1981 },
   "fb_alpha": { "name": "Arcade (FinalBurn)", "manufacturer": null, "releaseYear": null },
-  "game_boy": {
-    "name": "Game Boy",
-    "manufacturer": "Nintendo",
-    "releaseYear": 1989,
-    "image": "gb"
-  },
+  "game_boy": { "name": "Game Boy", "manufacturer": "Nintendo", "releaseYear": 1989 },
   "game_boy_advance": {
     "name": "Game Boy Advance",
     "manufacturer": "Nintendo",
-    "releaseYear": 2001,
-    "image": "gba"
+    "releaseYear": 2001
   },
-  "gamecube": {
-    "name": "GameCube",
-    "manufacturer": "Nintendo",
-    "releaseYear": 2001,
-    "image": "gc"
-  },
-  "hbmame": {
-    "name": "Arcade (HBMAME)",
-    "manufacturer": null,
-    "releaseYear": null,
-    "image": "hbmame"
-  },
+  "gamecube": { "name": "GameCube", "manufacturer": "Nintendo", "releaseYear": 2001 },
+  "hbmame": { "name": "Arcade (HBMAME)", "manufacturer": null, "releaseYear": null },
   "intellivision": { "name": "Intellivision", "manufacturer": "Mattel", "releaseYear": 1979 },
   "mac68k": { "name": "Macintosh (68k)", "manufacturer": "Apple", "releaseYear": 1984 },
   "mame": { "name": "Arcade (MAME)", "manufacturer": null, "releaseYear": null },
@@ -71,13 +50,8 @@
   "neo_geo_cd": { "name": "Neo Geo CD", "manufacturer": "SNK", "releaseYear": 1994 },
   "neo_geo_pocket": { "name": "Neo Geo Pocket", "manufacturer": "SNK", "releaseYear": 1998 },
   "neogeo": { "name": "Neo Geo", "manufacturer": "SNK", "releaseYear": 1990 },
-  "nes": { "name": "NES", "manufacturer": "Nintendo", "releaseYear": 1983, "image": "nes" },
-  "nintendo_64": {
-    "name": "Nintendo 64",
-    "manufacturer": "Nintendo",
-    "releaseYear": 1996,
-    "image": "n64"
-  },
+  "nes": { "name": "NES", "manufacturer": "Nintendo", "releaseYear": 1983 },
+  "nintendo_64": { "name": "Nintendo 64", "manufacturer": "Nintendo", "releaseYear": 1996 },
   "nuon": { "name": "Nuon", "manufacturer": "VM Labs", "releaseYear": 2000 },
   "odyssey2": { "name": "Odyssey²", "manufacturer": "Magnavox", "releaseYear": 1978 },
   "p2000t": { "name": "P2000T", "manufacturer": "Philips", "releaseYear": 1980 },
@@ -88,19 +62,9 @@
   "pcxt": { "name": "IBM PC XT", "manufacturer": "IBM", "releaseYear": 1983 },
   "pico8": { "name": "PICO-8", "manufacturer": "Lexaloffle", "releaseYear": 2015 },
   "playdia": { "name": "Playdia", "manufacturer": "Bandai", "releaseYear": 1994 },
-  "playstation": {
-    "name": "PlayStation",
-    "manufacturer": "Sony",
-    "releaseYear": 1994,
-    "image": "ps1"
-  },
+  "playstation": { "name": "PlayStation", "manufacturer": "Sony", "releaseYear": 1994 },
   "playstation2": { "name": "PlayStation 2", "manufacturer": "Sony", "releaseYear": 2000 },
-  "playstation_portable": {
-    "name": "PSP",
-    "manufacturer": "Sony",
-    "releaseYear": 2004,
-    "image": "psp"
-  },
+  "playstation_portable": { "name": "PSP", "manufacturer": "Sony", "releaseYear": 2004 },
   "pocketstation": { "name": "PocketStation", "manufacturer": "Sony", "releaseYear": 1999 },
   "pokemon_mini": { "name": "Pokémon Mini", "manufacturer": "Nintendo", "releaseYear": 2001 },
   "sam_coupe": {
@@ -125,7 +89,7 @@
   "virtual_boy": { "name": "Virtual Boy", "manufacturer": "Nintendo", "releaseYear": 1995 },
   "wiiu": { "name": "Wii U", "manufacturer": "Nintendo", "releaseYear": 2012 },
   "wonderswan": { "name": "WonderSwan", "manufacturer": "Bandai", "releaseYear": 1999 },
-  "xbox": { "name": "Xbox", "manufacturer": "Microsoft", "releaseYear": 2001, "image": "xbox" },
+  "xbox": { "name": "Xbox", "manufacturer": "Microsoft", "releaseYear": 2001 },
   "zx81": { "name": "ZX81", "manufacturer": "Sinclair", "releaseYear": 1981 },
   "zx_spectrum": { "name": "ZX Spectrum", "manufacturer": "Sinclair", "releaseYear": 1982 }
 }

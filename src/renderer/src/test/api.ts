@@ -99,7 +99,8 @@ export function mockApi(): void {
     platforms: {
       list: vi.fn(async (): Promise<InstalledPlatform[]> => []),
       setEnabled: vi.fn(async (): Promise<void> => undefined),
-      setDefaultCore: vi.fn(async (): Promise<void> => undefined)
+      setDefaultCore: vi.fn(async (): Promise<void> => undefined),
+      getPhoto: vi.fn(async (): Promise<string | null> => null)
     }
   }
 }
@@ -330,6 +331,17 @@ export function mockPlatforms(platforms: InstalledPlatform[] | Error): void {
   vi.mocked(window.api.platforms.list).mockImplementation(async () => {
     if (platforms instanceof Error) throw platforms
     return platforms
+  })
+}
+
+/**
+ * Makes `window.api.platforms.getPhoto` resolve with the URL in `photos` for each platform id
+ * (null for the others), or reject with an error.
+ */
+export function mockPlatformPhotos(photos: Record<string, string> | Error): void {
+  vi.mocked(window.api.platforms.getPhoto).mockImplementation(async (platformId) => {
+    if (photos instanceof Error) throw photos
+    return photos[platformId] ?? null
   })
 }
 

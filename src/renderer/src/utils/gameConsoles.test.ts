@@ -52,7 +52,7 @@ describe('toGameConsoles', () => {
     expect(toGameConsoles([], [folder('playstation', 24)])).toEqual([])
   })
 
-  it('names a known platform as the catalog does, with its year and render', () => {
+  it('names a known platform as the catalog does, with its year', () => {
     const multiSystem = platform('nes', 'Nintendo Entertainment System / Game Boy / …', 'Various')
 
     expect(toGameConsoles([multiSystem], [folder('nes', 56)])).toEqual([
@@ -61,7 +61,6 @@ describe('toGameConsoles', () => {
         name: 'NES',
         manufacturer: 'Nintendo',
         releaseYear: 1983,
-        imageUrl: expect.stringContaining('nes'),
         gameCount: 56
       }
     ])
@@ -76,7 +75,6 @@ describe('toGameConsoles', () => {
         name: 'Quake III',
         manufacturer: 'id Software',
         releaseYear: null,
-        imageUrl: null,
         gameCount: 1
       }
     ])
