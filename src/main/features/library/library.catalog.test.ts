@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { gameExtensionsOf } from './library.catalog'
 
-/** SwanStation's extensions, as its core info file declares them. */
+/** SwanStation's extensions, as RetroArch declares them. */
 const SWANSTATION_EXTENSIONS = [
   'exe',
   'psexe',
@@ -28,7 +28,7 @@ describe('gameExtensionsOf', () => {
     expect(extensions.has('cue')).toBe(true)
   })
 
-  it('takes only what the cores declare, without archives they don’t', () => {
+  it('takes only what the emulators declare, without archives they don’t', () => {
     expect([...gameExtensionsOf('nintendo_64', ['n64', 'z64', 'bin'])]).toEqual([
       'n64',
       'z64',
@@ -36,7 +36,7 @@ describe('gameExtensionsOf', () => {
     ])
   })
 
-  it('takes archives as games when a core declares them', () => {
+  it('takes archives as games when an emulator declares them', () => {
     expect([...gameExtensionsOf('hbmame', ['zip', 'chd', '7z', 'cmd'])]).toEqual([
       'zip',
       'chd',

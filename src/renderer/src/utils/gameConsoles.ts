@@ -2,7 +2,7 @@ import type { GameFolder, InstalledPlatform } from '@shared/api'
 
 import type { GameConsole } from '@renderer/types/console'
 
-import { findCatalogPlatform } from './platformCatalog/platformCatalog'
+import { findCatalogPlatform } from '@shared/platformCatalog'
 
 const byName = (a: GameConsole, b: GameConsole): number =>
   a.name.localeCompare(b.name, 'en', { sensitivity: 'base' })
@@ -10,7 +10,7 @@ const byName = (a: GameConsole, b: GameConsole): number =>
 /**
  * The consoles of the library, by name: the installed platforms that are on and whose folder
  * has games. The app's catalog names them and gives their year; a platform it doesn't know
- * keeps what its cores say.
+ * keeps what its emulators say.
  */
 export function toGameConsoles(
   platforms: InstalledPlatform[],

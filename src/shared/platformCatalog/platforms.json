@@ -62,7 +62,12 @@
   "pcxt": { "name": "IBM PC XT", "manufacturer": "IBM", "releaseYear": 1983 },
   "pico8": { "name": "PICO-8", "manufacturer": "Lexaloffle", "releaseYear": 2015 },
   "playdia": { "name": "Playdia", "manufacturer": "Bandai", "releaseYear": 1994 },
-  "playstation": { "name": "PlayStation", "manufacturer": "Sony", "releaseYear": 1994 },
+  "playstation": {
+    "name": "PlayStation",
+    "manufacturer": "Sony",
+    "releaseYear": 1994,
+    "ignoredExtensions": ["exe", "psexe", "psf"]
+  },
   "playstation2": { "name": "PlayStation 2", "manufacturer": "Sony", "releaseYear": 2000 },
   "playstation_portable": { "name": "PSP", "manufacturer": "Sony", "releaseYear": 2004 },
   "pocketstation": { "name": "PocketStation", "manufacturer": "Sony", "releaseYear": 1999 },
@@ -82,6 +87,12 @@
   },
   "super_nes": { "name": "Super Nintendo", "manufacturer": "Nintendo", "releaseYear": 1990 },
   "supervision": { "name": "Supervision", "manufacturer": "Watara", "releaseYear": 1992 },
+  "switch": {
+    "name": "Nintendo Switch",
+    "manufacturer": "Nintendo",
+    "releaseYear": 2017,
+    "ignoredExtensions": ["nro", "nso"]
+  },
   "tamagotchi": { "name": "Tamagotchi", "manufacturer": "Bandai", "releaseYear": 1996 },
   "ti_83": { "name": "TI-83", "manufacturer": "Texas Instruments", "releaseYear": 1996 },
   "tic80": { "name": "TIC-80", "manufacturer": "Nesbox", "releaseYear": 2017 },
