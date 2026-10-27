@@ -4,7 +4,8 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { openDatabase } from '../database'
 import { createPlatformSettingsRepository } from './platformSettings.repository'
 
-const BSNES = { emulatorId: 'e1', coreId: 'bsnes' }
+const BSNES = { emulatorId: 'e1', optionId: 'bsnes' }
+const STANDALONE = { emulatorId: 'e2', optionId: null }
 
 let db: DatabaseSync
 
@@ -13,7 +14,8 @@ beforeEach(() => {
   db = openDatabase(':memory:')
   db.prepare(
     `INSERT INTO emulators (id, kind, name, executable_path, created_at, updated_at)
-      VALUES ('e1', 'retroarch', 'RetroArch', '/home/player/RetroArch.AppImage', 1, 1)`
+      VALUES ('e1', 'retroarch', 'RetroArch', '/home/player/RetroArch.AppImage', 1, 1),
+        ('e2', 'eden', 'Eden', '/home/player/eden.AppImage', 1, 1)`
   ).run()
 })
 
@@ -33,8 +35,8 @@ describe('platform settings repository', () => {
     repository.setEnabled('playstation', true, 3)
 
     expect(repository.list()).toEqual([
-      { platformId: 'nes', isEnabled: false, defaultCore: null },
-      { platformId: 'playstation', isEnabled: true, defaultCore: null }
+      { platformId: 'nes', isEnabled: false, defaultEmulator: null },
+      { platformId: 'playstation', isEnabled: true, defaultEmulator: null }
     ])
   })
 
@@ -48,35 +50,42 @@ describe('platform settings repository', () => {
     ).toEqual([{ platform_id: 'nes', is_enabled: 1, updated_at: 5 }])
   })
 
-  it('keeps a platform’s default core, on, without changing whether it is on later', () => {
+  it('keeps a platform’s default emulator, on, without changing whether it is on later', () => {
     const repository = createPlatformSettingsRepository(db)
-    repository.setDefaultCore('super_nes', BSNES, 1)
+    repository.setDefaultEmulator('super_nes', BSNES, 1)
     expect(repository.list()).toEqual([
-      { platformId: 'super_nes', isEnabled: true, defaultCore: BSNES }
+      { platformId: 'super_nes', isEnabled: true, defaultEmulator: BSNES }
     ])
 
     repository.setEnabled('super_nes', false, 2)
-    repository.setDefaultCore('super_nes', BSNES, 3)
+    repository.setDefaultEmulator('super_nes', BSNES, 3)
     expect(repository.list()).toEqual([
-      { platformId: 'super_nes', isEnabled: false, defaultCore: BSNES }
+      { platformId: 'super_nes', isEnabled: false, defaultEmulator: BSNES }
     ])
   })
 
-  it('forgets a platform’s default core with null, or when its emulator is deleted', () => {
+  it('keeps a default emulator without options', () => {
     const repository = createPlatformSettingsRepository(db)
-    repository.setDefaultCore('super_nes', BSNES, 1)
-    repository.setDefaultCore('super_nes', null, 2)
-    expect(repository.list()[0].defaultCore).toBeNull()
+    repository.setDefaultEmulator('switch', STANDALONE, 1)
 
-    repository.setDefaultCore('super_nes', BSNES, 3)
-    db.prepare("DELETE FROM emulators WHERE id = 'e1'").run()
-    expect(repository.list()[0].defaultCore).toBeNull()
+    expect(repository.list()[0].defaultEmulator).toEqual(STANDALONE)
   })
 
-  it('refuses an empty platform id or core, a value that isn’t on or off, or an unknown emulator', () => {
+  it('forgets a platform’s default emulator with null, or when the emulator is deleted', () => {
+    const repository = createPlatformSettingsRepository(db)
+    repository.setDefaultEmulator('super_nes', BSNES, 1)
+    repository.setDefaultEmulator('super_nes', null, 2)
+    expect(repository.list()[0].defaultEmulator).toBeNull()
+
+    repository.setDefaultEmulator('super_nes', BSNES, 3)
+    db.prepare("DELETE FROM emulators WHERE id = 'e1'").run()
+    expect(repository.list()[0].defaultEmulator).toBeNull()
+  })
+
+  it('refuses an empty platform id or option, a value that isn’t on or off, or an unknown emulator', () => {
     const insert = db.prepare(
       `INSERT INTO platform_settings
-          (platform_id, is_enabled, default_emulator_id, default_core, updated_at)
+          (platform_id, is_enabled, default_emulator_id, default_emulator_option, updated_at)
         VALUES (?, ?, ?, ?, 1)`
     )
 

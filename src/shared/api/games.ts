@@ -1,4 +1,4 @@
-import type { CoreRef, InstalledCore } from './platforms'
+import type { EmulatorChoice, PlatformEmulator } from './platforms'
 
 /** Why a game couldn't be started. */
 export type LaunchGameProblem =
@@ -6,8 +6,8 @@ export type LaunchGameProblem =
   | 'unknown-game'
   /** The game's file isn't there anymore (moved, deleted or on a drive that is out). */
   | 'missing-file'
-  /** No installed core plays the game's platform, or its emulator is gone. */
-  | 'no-core'
+  /** None of the user's emulators plays the game's platform anymore. */
+  | 'no-emulator'
   /** Another game is being played: one plays at a time. */
   | 'already-playing'
   /** The emulator couldn't be started (e.g. its application can't run). */
@@ -17,7 +17,7 @@ export type LaunchGameResult = { ok: true } | { ok: false; problem: LaunchGamePr
 
 /** Why no game was started at random. */
 export type LaunchRandomGameProblem =
-  /** No game of the library can be played: none has an installed core and its file there. */
+  /** No game of the library can be played: none has an emulator and its file there. */
   | 'no-games'
   /** Another game is being played: one plays at a time. */
   | 'already-playing'
@@ -62,24 +62,24 @@ export interface GameDetails {
 }
 
 /**
- * Why a game plays with the core it does, in the order they are tried:
+ * Why a game plays with the emulator it does, in the order they are tried:
  * - `game`: the user chose it for this game.
  * - `last-session`: the game was last played with it, so its progress is found: save states
- *   only load in the core that made them, and RetroArch may keep saves apart by core.
+ *   only load in the emulator that made them, and RetroArch may keep saves apart by option.
  * - `platform-default`: the user chose it for the game's platform.
- * - `first-installed`: nothing was chosen; the platform's first core, by name.
- * A core that isn't installed anymore is passed over for the next.
+ * - `first-installed`: nothing was chosen; the platform's first emulator, by name.
+ * An emulator that doesn't play the platform anymore is passed over for the next.
  */
-export type GameCoreReason = 'game' | 'last-session' | 'platform-default' | 'first-installed'
+export type GameEmulatorReason = 'game' | 'last-session' | 'platform-default' | 'first-installed'
 
-/** Which cores can play a game, and which one playing it uses. */
+/** Which emulators can play a game, and which one playing it uses. */
 export interface GamePlayer {
-  /** The installed cores that play its platform, by name; empty when none does. */
-  cores: InstalledCore[]
-  /** The core the user chose for this game, one of `cores`; null while they chose none. */
-  chosenCore: CoreRef | null
-  /** The core playing it uses now, and why; null when no installed core plays it. */
-  playsWith: { core: CoreRef; reason: GameCoreReason } | null
+  /** The emulators that play its platform, by name; empty when none does. */
+  emulators: PlatformEmulator[]
+  /** The emulator the user chose for this game, one of `emulators`; null while they chose none. */
+  chosenEmulator: EmulatorChoice | null
+  /** The emulator playing it uses now, and why; null when none plays it. */
+  playsWith: { emulator: EmulatorChoice; reason: GameEmulatorReason } | null
 }
 
 /** A game of the library that was played, as a row of games played before shows it. */
@@ -129,25 +129,26 @@ export interface GamesApi {
    */
   getDetails(gameId: string): Promise<GameDetails | null>
   /**
-   * Which cores can play the game `gameId` and which one `launch` would use, or null when it
-   * isn't in the library.
+   * Which emulators can play the game `gameId` and which one `launch` would use, or null when
+   * it isn't in the library.
    */
   getPlayer(gameId: string): Promise<GamePlayer | null>
   /**
-   * Keeps `core`, one of the installed cores of the game's platform, as the one it plays with,
+   * Keeps `emulator`, one of the emulators of the game's platform, as the one it plays with,
    * over every other reason; null forgets the choice. Rejects when the game isn't in the
-   * library or `core` doesn't play its platform.
+   * library or `emulator` doesn't play its platform.
    */
-  setCore(gameId: string, core: CoreRef | null): Promise<void>
+  setEmulator(gameId: string, emulator: EmulatorChoice | null): Promise<void>
   /**
-   * Starts the game in full screen with the core `getPlayer` says it plays with, or says why
-   * it can't. Resolves once the emulator has started; `onGameEnded` says when it closes.
+   * Starts the game in full screen with the emulator `getPlayer` says it plays with, or says
+   * why it can't. Resolves once the emulator has started; `onGameEnded` says when it closes.
    */
   launch(gameId: string): Promise<LaunchGameResult>
   /**
-   * Starts a game of the library picked at random, among those of every folder that an
-   * installed core plays, whose platform is on and whose file is still there, with the emulator and core `launch`
-   * would use; or says why none started. Resolves once the emulator has started; `onGameEnded` says when it closes.
+   * Starts a game of the library picked at random, among those of every folder that one of
+   * the user's emulators plays, whose platform is on and whose file is still there, with the
+   * emulator `launch` would use; or says why none started. Resolves once the emulator has
+   * started; `onGameEnded` says when it closes.
    */
   launchRandom(): Promise<LaunchRandomGameResult>
   /** Calls `listener` when the game being played ends. Returns the unsubscribe function. */
@@ -160,7 +161,7 @@ export const GAMES_CHANNELS = {
   listRecentlyAdded: 'games:list-recently-added',
   getDetails: 'games:get-details',
   getPlayer: 'games:get-player',
-  setCore: 'games:set-core',
+  setEmulator: 'games:set-emulator',
   launch: 'games:launch',
   launchRandom: 'games:launch-random',
   gameEnded: 'games:game-ended'

@@ -1,7 +1,7 @@
 import type { DatabaseSync } from 'node:sqlite'
 
 import type {
-  CoreRef,
+  EmulatorChoice,
   GameDetails,
   LastPlayedGame,
   RecentlyAddedGame,
@@ -14,17 +14,16 @@ export interface PlayableGameRecord {
   platformId: string
   /** Absolute path of the file the emulator opens. */
   filePath: string
-  /** The core the user chose for it; null while they chose none or its emulator is gone. */
-  chosenCore: CoreRef | null
+  /** The emulator the user chose for it; null while they chose none or it is gone. */
+  chosenEmulator: EmulatorChoice | null
 }
 
 /** A time a game was played, from when its emulator started until it closed. */
 export interface PlaySessionRecord {
   id: string
   gameId: string
-  emulatorId: string
-  /** Core it was played with, e.g. "mupen64plus_next"; null for emulators without cores. */
-  core: string | null
+  /** The emulator, and its option, it was played with. */
+  emulator: EmulatorChoice
   /** Epoch ms. */
   startedAt: number
   /** Epoch ms. */
@@ -33,25 +32,18 @@ export interface PlaySessionRecord {
   createdAt: number
 }
 
-/** The emulator, and its core, a game was played with. */
-export interface GamePlayerRecord {
-  emulatorId: string
-  /** e.g. "mupen64plus_next"; null for emulators without cores. */
-  core: string | null
-}
-
 export interface GamesRepository {
   /** The game `id` while it is in a folder; removed games can't be played. */
   findPlayable(id: string): PlayableGameRecord | undefined
   /** Every game in a folder, of every platform; removed games can't be played. */
   listPlayable(): PlayableGameRecord[]
-  /** Keeps the core the game `id` plays with, or forgets it with null. */
-  setChosenCore(id: string, core: CoreRef | null): void
+  /** Keeps the emulator the game `id` plays with, or forgets it with null. */
+  setChosenEmulator(id: string, emulator: EmulatorChoice | null): void
   /**
-   * The emulator and core the game `gameId` was last played with, or undefined when it was
-   * never played with an emulator the user still has.
+   * The emulator, and its option, the game `gameId` was last played with, or undefined when
+   * it was never played with an emulator the user still has.
    */
-  findLastPlayer(gameId: string): GamePlayerRecord | undefined
+  findLastPlayer(gameId: string): EmulatorChoice | undefined
   /**
    * The game in a folder played most recently, or null when none was played; games of a
    * platform turned off are left out.
@@ -101,20 +93,18 @@ interface PlayableRow {
   platform_id: string
   file_path: string
   emulator_id: string | null
-  core: string | null
+  emulator_option: string | null
 }
 
-const PLAYABLE_COLUMNS = 'id, platform_id, file_path, emulator_id, core'
+const PLAYABLE_COLUMNS = 'id, platform_id, file_path, emulator_id, emulator_option'
 
 const toPlayable = (row: PlayableRow): PlayableGameRecord => ({
   id: row.id,
   platformId: row.platform_id,
   filePath: row.file_path,
-  // Its emulator deleted, the core is forgotten with it.
-  chosenCore:
-    row.emulator_id !== null && row.core !== null
-      ? { emulatorId: row.emulator_id, coreId: row.core }
-      : null
+  // Its emulator deleted, the option is forgotten with it.
+  chosenEmulator:
+    row.emulator_id !== null ? { emulatorId: row.emulator_id, optionId: row.emulator_option } : null
 })
 
 /** The platforms the user turned off, whose games are left out of Home. */
@@ -151,10 +141,10 @@ export function createGamesRepository(db: DatabaseSync): GamesRepository {
       return rows.map(toPlayable)
     },
 
-    setChosenCore(id, core) {
-      db.prepare('UPDATE games SET emulator_id = ?, core = ? WHERE id = ?').run(
-        core?.emulatorId ?? null,
-        core?.coreId ?? null,
+    setChosenEmulator(id, emulator) {
+      db.prepare('UPDATE games SET emulator_id = ?, emulator_option = ? WHERE id = ?').run(
+        emulator?.emulatorId ?? null,
+        emulator?.optionId ?? null,
         id
       )
     },
@@ -162,13 +152,13 @@ export function createGamesRepository(db: DatabaseSync): GamesRepository {
     findLastPlayer(gameId) {
       const row = db
         .prepare(
-          `SELECT emulator_id, core FROM play_sessions
+          `SELECT emulator_id, emulator_option FROM play_sessions
             WHERE game_id = ? AND emulator_id IS NOT NULL
             ORDER BY ended_at DESC, created_at DESC
             LIMIT 1`
         )
-        .get(gameId) as { emulator_id: string; core: string | null } | undefined
-      return row && { emulatorId: row.emulator_id, core: row.core }
+        .get(gameId) as { emulator_id: string; emulator_option: string | null } | undefined
+      return row && { emulatorId: row.emulator_id, optionId: row.emulator_option }
     },
 
     findLastPlayed() {
@@ -238,13 +228,13 @@ export function createGamesRepository(db: DatabaseSync): GamesRepository {
     addPlaySession(session) {
       db.prepare(
         `INSERT INTO play_sessions
-            (id, game_id, emulator_id, core, started_at, ended_at, created_at)
+            (id, game_id, emulator_id, emulator_option, started_at, ended_at, created_at)
           VALUES (?, ?, ?, ?, ?, ?, ?)`
       ).run(
         session.id,
         session.gameId,
-        session.emulatorId,
-        session.core,
+        session.emulator.emulatorId,
+        session.emulator.optionId,
         session.startedAt,
         session.endedAt,
         session.createdAt

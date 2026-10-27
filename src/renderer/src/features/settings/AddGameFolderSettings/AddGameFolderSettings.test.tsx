@@ -25,24 +25,33 @@ const PLATFORMS: InstalledPlatform[] = [
     id: 'nintendo_64',
     name: 'Nintendo 64',
     manufacturer: 'Nintendo',
-    cores: [{ id: 'mupen64plus_next', name: 'Mupen64Plus-Next', emulatorId: 'a1', extensions: [] }],
+    emulators: [
+      {
+        emulatorId: 'a1',
+        emulatorName: 'RetroArch',
+        optionId: 'mupen64plus_next',
+        optionName: 'Mupen64Plus-Next',
+        extensions: []
+      }
+    ],
     isEnabled: true,
-    defaultCore: null
+    defaultEmulator: null
   },
   {
     id: 'playstation',
     name: 'PlayStation',
     manufacturer: 'Sony',
-    cores: [
+    emulators: [
       {
-        id: 'swanstation',
-        name: 'SwanStation',
         emulatorId: 'a1',
+        emulatorName: 'RetroArch',
+        optionId: 'swanstation',
+        optionName: 'SwanStation',
         extensions: ['cue', 'chd', 'pbp']
       }
     ],
     isEnabled: true,
-    defaultCore: null
+    defaultEmulator: null
   }
 ]
 
@@ -176,7 +185,7 @@ describe('AddGameFolderSettings', () => {
       ).toEqual(['cue', 'chd', 'pbp'])
     })
 
-    it('says so when the chosen platform’s cores name no extensions', async () => {
+    it('says so when the chosen platform’s emulators name no extensions', async () => {
       await renderAddGameFolder()
       const user = userEvent.setup()
 
@@ -184,7 +193,7 @@ describe('AddGameFolderSettings', () => {
       await user.click(screen.getByRole('button', { name: 'Nintendo 64' }))
 
       expect(screen.getByRole('region', { name: 'Accepted extensions' })).toHaveTextContent(
-        "Its cores don't say which extensions they play."
+        "Its emulators don't say which extensions they play."
       )
     })
 

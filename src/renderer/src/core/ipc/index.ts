@@ -16,7 +16,7 @@ export {
   launchRandomGame,
   listRecentlyAddedGames,
   listRecentlyPlayedGames,
-  setGameCore,
+  setGameEmulator,
   subscribeToGameEnded
 } from './games'
 export {
@@ -38,7 +38,7 @@ export {
 export { getNetworkStatus } from './network'
 export {
   refreshPlatforms,
-  setPlatformDefaultCore,
+  setPlatformDefaultEmulator,
   setPlatformEnabled,
   type PlatformsState
 } from './platforms'

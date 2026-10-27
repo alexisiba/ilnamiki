@@ -6,7 +6,7 @@ export const platformsApi: PlatformsApi = {
   list: () => ipcRenderer.invoke(PLATFORMS_CHANNELS.list),
   setEnabled: (platformId, enabled) =>
     ipcRenderer.invoke(PLATFORMS_CHANNELS.setEnabled, platformId, enabled),
-  setDefaultCore: (platformId, core) =>
-    ipcRenderer.invoke(PLATFORMS_CHANNELS.setDefaultCore, platformId, core),
+  setDefaultEmulator: (platformId, emulator) =>
+    ipcRenderer.invoke(PLATFORMS_CHANNELS.setDefaultEmulator, platformId, emulator),
   getPhoto: (platformId) => ipcRenderer.invoke(PLATFORMS_CHANNELS.getPhoto, platformId)
 }

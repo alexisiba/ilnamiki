@@ -43,7 +43,7 @@ export type ScanFolderProblem =
   | 'not-a-folder'
   /** The folder isn't allowed to be read. */
   | 'not-readable'
-  /** No installed core plays the platform (e.g. it was uninstalled). */
+  /** None of the user's emulators plays the platform (e.g. it was uninstalled). */
   | 'unknown-platform'
   /** The folder was already added. */
   | 'already-added'

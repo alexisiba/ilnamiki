@@ -19,21 +19,58 @@ const SUPER_NES: InstalledPlatform = {
   id: 'super_nes',
   name: 'Super Nintendo',
   manufacturer: 'Nintendo',
-  cores: [
-    { id: 'bsnes', name: 'bsnes', emulatorId: 'a1', extensions: ['sfc', 'bs'] },
-    { id: 'snes9x', name: 'Snes9x', emulatorId: 'a1', extensions: ['smc', 'sfc'] }
+  emulators: [
+    {
+      emulatorId: 'a1',
+      emulatorName: 'RetroArch',
+      optionId: 'bsnes',
+      optionName: 'bsnes',
+      extensions: ['sfc', 'bs']
+    },
+    {
+      emulatorId: 'a1',
+      emulatorName: 'RetroArch',
+      optionId: 'snes9x',
+      optionName: 'Snes9x',
+      extensions: ['smc', 'sfc']
+    }
   ],
   isEnabled: true,
-  defaultCore: null
+  defaultEmulator: null
 }
 
 const PLAYSTATION: InstalledPlatform = {
   id: 'playstation',
   name: 'PlayStation',
   manufacturer: null,
-  cores: [{ id: 'swanstation', name: 'SwanStation', emulatorId: 'a1', extensions: [] }],
+  emulators: [
+    {
+      emulatorId: 'a1',
+      emulatorName: 'RetroArch',
+      optionId: 'swanstation',
+      optionName: 'SwanStation',
+      extensions: []
+    }
+  ],
   isEnabled: false,
-  defaultCore: null
+  defaultEmulator: null
+}
+
+const SWITCH: InstalledPlatform = {
+  id: 'switch',
+  name: 'Nintendo Switch',
+  manufacturer: 'Nintendo',
+  emulators: [
+    {
+      emulatorId: 'b2',
+      emulatorName: 'Eden',
+      optionId: null,
+      optionName: null,
+      extensions: ['nsp', 'xci']
+    }
+  ],
+  isEnabled: true,
+  defaultEmulator: null
 }
 
 function renderDetails(platformId: string = SUPER_NES.id): void {
@@ -67,7 +104,7 @@ describe('PlatformDetailsSettings', () => {
     expect(screen.getByText('Nintendo')).toBeInTheDocument()
   })
 
-  it('lists the extensions its cores play, once each', async () => {
+  it('lists the extensions its emulators play, once each', async () => {
     mockPlatforms([SUPER_NES])
     renderDetails()
     await screen.findByRole('heading', { level: 2 })
@@ -76,88 +113,96 @@ describe('PlatformDetailsSettings', () => {
     expect(extensions.map((item) => item.textContent)).toEqual(['sfc', 'bs', 'smc'])
   })
 
-  it('says so when its cores don’t declare their extensions', async () => {
+  it('says so when its emulators don’t declare their extensions', async () => {
     mockPlatforms([PLAYSTATION])
     renderDetails(PLAYSTATION.id)
     await screen.findByRole('heading', { level: 2 })
 
     expect(
-      within(section('Extensions')).getByText("Its cores don't say which extensions they play.")
+      within(section('Extensions')).getByText("Its emulators don't say which extensions they play.")
     ).toBeInTheDocument()
     expect(within(section('Extensions')).queryByRole('list')).not.toBeInTheDocument()
   })
 
-  it('names its only core, with nothing to pick', async () => {
+  it('names its only emulator with its option, with nothing to pick', async () => {
     mockPlatforms([PLAYSTATION])
     renderDetails(PLAYSTATION.id)
     await screen.findByRole('heading', { level: 2 })
 
-    expect(within(section('Core')).getByText('SwanStation')).toBeInTheDocument()
+    expect(within(section('Emulator')).getByText('RetroArch · SwanStation')).toBeInTheDocument()
     expect(screen.queryByRole('radiogroup')).not.toBeInTheDocument()
   })
 
-  it('offers its cores to pick the default from, saying which games it applies to', async () => {
+  it('names its only emulator alone when it has no options', async () => {
+    mockPlatforms([SWITCH])
+    renderDetails(SWITCH.id)
+    await screen.findByRole('heading', { level: 2 })
+
+    expect(within(section('Emulator')).getByText('Eden')).toBeInTheDocument()
+  })
+
+  it('offers its emulators to pick the default from, saying which games it applies to', async () => {
     mockPlatforms([SUPER_NES])
     renderDetails()
 
-    const cores = await screen.findByRole('radiogroup', { name: 'Default core' })
+    const emulators = await screen.findByRole('radiogroup', { name: 'Default emulator' })
     expect(
-      within(cores)
+      within(emulators)
         .getAllByRole('radio')
-        .map((core) => core.textContent)
-    ).toEqual(['bsnes', 'Snes9x'])
-    expect(cores).toHaveAccessibleDescription(
-      "Games of this platform you haven't played yet, and those you add later, play with the core you pick. Games you've already played keep theirs."
+        .map((emulator) => emulator.textContent)
+    ).toEqual(['RetroArch · bsnes', 'RetroArch · Snes9x'])
+    expect(emulators).toHaveAccessibleDescription(
+      "Games of this platform you haven't played yet, and those you add later, play with the emulator you pick. Games you've already played keep theirs."
     )
   })
 
-  it('marks the first core while none was picked', async () => {
+  it('marks the first emulator while none was picked', async () => {
     mockPlatforms([SUPER_NES])
     renderDetails()
 
-    expect(await screen.findByRole('radio', { name: 'bsnes' })).toBeChecked()
-    expect(screen.getByRole('radio', { name: 'Snes9x' })).not.toBeChecked()
+    expect(await screen.findByRole('radio', { name: 'RetroArch · bsnes' })).toBeChecked()
+    expect(screen.getByRole('radio', { name: 'RetroArch · Snes9x' })).not.toBeChecked()
   })
 
-  it('marks the core picked as the default', async () => {
-    mockPlatforms([{ ...SUPER_NES, defaultCore: { emulatorId: 'a1', coreId: 'snes9x' } }])
+  it('marks the emulator picked as the default', async () => {
+    mockPlatforms([{ ...SUPER_NES, defaultEmulator: { emulatorId: 'a1', optionId: 'snes9x' } }])
     renderDetails()
 
-    expect(await screen.findByRole('radio', { name: 'Snes9x' })).toBeChecked()
-    expect(screen.getByRole('radio', { name: 'bsnes' })).not.toBeChecked()
+    expect(await screen.findByRole('radio', { name: 'RetroArch · Snes9x' })).toBeChecked()
+    expect(screen.getByRole('radio', { name: 'RetroArch · bsnes' })).not.toBeChecked()
   })
 
-  it('keeps the core picked as the default in main, marking it', async () => {
+  it('keeps the emulator picked as the default in main, marking it', async () => {
     mockPlatforms([SUPER_NES])
     renderDetails()
-    const snes9x = await screen.findByRole('radio', { name: 'Snes9x' })
+    const snes9x = await screen.findByRole('radio', { name: 'RetroArch · Snes9x' })
 
     await userEvent.setup().click(snes9x)
 
-    expect(window.api.platforms.setDefaultCore).toHaveBeenCalledWith('super_nes', {
+    expect(window.api.platforms.setDefaultEmulator).toHaveBeenCalledWith('super_nes', {
       emulatorId: 'a1',
-      coreId: 'snes9x'
+      optionId: 'snes9x'
     })
     expect(snes9x).toBeChecked()
-    expect(screen.getByRole('radio', { name: 'bsnes' })).not.toBeChecked()
+    expect(screen.getByRole('radio', { name: 'RetroArch · bsnes' })).not.toBeChecked()
   })
 
-  it('keeps the mark where it was when the core can’t be kept, saying so', async () => {
+  it('keeps the mark where it was when the emulator can’t be kept, saying so', async () => {
     mockPlatforms([SUPER_NES])
-    vi.mocked(window.api.platforms.setDefaultCore).mockRejectedValue(new Error('No database'))
+    vi.mocked(window.api.platforms.setDefaultEmulator).mockRejectedValue(new Error('No database'))
     renderDetails()
 
-    await userEvent.setup().click(await screen.findByRole('radio', { name: 'Snes9x' }))
+    await userEvent.setup().click(await screen.findByRole('radio', { name: 'RetroArch · Snes9x' }))
 
-    const message = "The core couldn't be saved. Try again."
+    const message = "The emulator couldn't be saved. Try again."
     expect(await screen.findByRole('alert')).toHaveTextContent(message)
-    expect(screen.getByRole('radio', { name: 'bsnes' })).toBeChecked()
+    expect(screen.getByRole('radio', { name: 'RetroArch · bsnes' })).toBeChecked()
     expect(screen.getByRole('radiogroup')).toHaveAccessibleDescription(
       expect.stringContaining(message)
     )
   })
 
-  it('leaves the maker out when no core says it', async () => {
+  it('leaves the maker out when no emulator says it', async () => {
     mockPlatforms([PLAYSTATION])
     renderDetails(PLAYSTATION.id)
 

@@ -8,18 +8,19 @@ const platform = (id: string, emulatorIds: string[]): InstalledPlatform => ({
   id,
   name: id,
   manufacturer: null,
-  cores: emulatorIds.map((emulatorId, index) => ({
-    id: `${id}-core-${index}`,
-    name: `Core ${index}`,
+  emulators: emulatorIds.map((emulatorId, index) => ({
     emulatorId,
+    emulatorName: emulatorId,
+    optionId: `${id}-option-${index}`,
+    optionName: `Option ${index}`,
     extensions: []
   })),
   isEnabled: true,
-  defaultCore: null
+  defaultEmulator: null
 })
 
 describe('countLinkedPlatforms', () => {
-  it('counts the platforms the emulator plays, once each however many cores it has', () => {
+  it('counts the platforms the emulator plays, once each however many options it has', () => {
     const platforms = [
       platform('nes', ['a1', 'a1']),
       platform('snes', ['a1', 'b2']),

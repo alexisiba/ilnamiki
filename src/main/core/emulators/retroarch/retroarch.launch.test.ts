@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { retroArchLaunchArgs, retroArchOverridesText } from './games.retroarch'
+import { retroArchLaunchArgs, retroArchOverridesText } from './retroarch.launch'
 
 describe('retroArchOverridesText', () => {
   it('quits with Start + Select and on closing the game, without saving the configuration', () => {

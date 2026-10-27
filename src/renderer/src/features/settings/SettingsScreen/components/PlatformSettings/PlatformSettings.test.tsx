@@ -15,24 +15,33 @@ const PLATFORMS: InstalledPlatform[] = [
     id: 'nintendo_64',
     name: 'Nintendo 64',
     manufacturer: 'Nintendo',
-    cores: [
+    emulators: [
       {
-        id: 'mupen64plus_next',
-        name: 'Mupen64Plus-Next',
         emulatorId: 'a1',
+        emulatorName: 'RetroArch',
+        optionId: 'mupen64plus_next',
+        optionName: 'Mupen64Plus-Next',
         extensions: ['n64', 'v64', 'z64']
       }
     ],
     isEnabled: true,
-    defaultCore: null
+    defaultEmulator: null
   },
   {
     id: 'playstation',
     name: 'PlayStation',
     manufacturer: 'Sony',
-    cores: [{ id: 'swanstation', name: 'SwanStation', emulatorId: 'a1', extensions: [] }],
+    emulators: [
+      {
+        emulatorId: 'b2',
+        emulatorName: 'DuckStation',
+        optionId: null,
+        optionName: null,
+        extensions: []
+      }
+    ],
     isEnabled: false,
-    defaultCore: null
+    defaultEmulator: null
   }
 ]
 
@@ -40,12 +49,24 @@ const SUPER_NES: InstalledPlatform = {
   id: 'super_nes',
   name: 'Super Nintendo',
   manufacturer: 'Nintendo',
-  cores: [
-    { id: 'bsnes', name: 'bsnes', emulatorId: 'a1', extensions: ['sfc', 'bs'] },
-    { id: 'snes9x', name: 'Snes9x', emulatorId: 'a1', extensions: ['smc', 'sfc'] }
+  emulators: [
+    {
+      emulatorId: 'a1',
+      emulatorName: 'RetroArch',
+      optionId: 'bsnes',
+      optionName: 'bsnes',
+      extensions: ['sfc', 'bs']
+    },
+    {
+      emulatorId: 'a1',
+      emulatorName: 'RetroArch',
+      optionId: 'snes9x',
+      optionName: 'Snes9x',
+      extensions: ['smc', 'sfc']
+    }
   ],
   isEnabled: true,
-  defaultCore: null
+  defaultEmulator: null
 }
 
 const platformItem = (name: string): HTMLElement => screen.getByRole('button', { name })
@@ -107,31 +128,31 @@ describe('PlatformSettings', () => {
     expect(screen.queryByRole('heading')).not.toBeInTheDocument()
   })
 
-  it('shows each platform as a button, named by the platform and described by its core and extensions', async () => {
+  it('shows each platform as a button, named by the platform and described by its emulator and extensions', async () => {
     mockPlatforms(PLATFORMS)
     await renderPlatforms()
 
     expect(screen.getAllByRole('button')).toHaveLength(2)
     expect(screen.queryByRole('switch')).not.toBeInTheDocument()
     expect(platformItem('Nintendo 64')).toHaveAccessibleDescription(
-      'Core: Mupen64Plus-Next Extensions: n64 · v64 · z64 On'
+      'Emulator: RetroArch · Mupen64Plus-Next Extensions: n64 · v64 · z64 On'
     )
   })
 
-  it('lists every core of a platform, and the extensions they play once each', async () => {
+  it('lists every emulator of a platform, and the extensions they play once each', async () => {
     mockPlatforms([SUPER_NES])
     await renderPlatforms()
 
     expect(platformItem('Super Nintendo')).toHaveAccessibleDescription(
-      'Cores: bsnes · Snes9x Extensions: sfc · bs · smc On'
+      'Emulators: RetroArch · bsnes, RetroArch · Snes9x Extensions: sfc · bs · smc On'
     )
   })
 
-  it('leaves the extensions out when the cores don’t declare them', async () => {
+  it('names an emulator without options alone, and leaves the extensions out when it doesn’t declare them', async () => {
     mockPlatforms(PLATFORMS)
     await renderPlatforms()
 
-    expect(platformItem('PlayStation')).toHaveAccessibleDescription('Core: SwanStation Off')
+    expect(platformItem('PlayStation')).toHaveAccessibleDescription('Emulator: DuckStation Off')
     expect(screen.getAllByText(/^Extensions:/)).toHaveLength(1)
   })
 

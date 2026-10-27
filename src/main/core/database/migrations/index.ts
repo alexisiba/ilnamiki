@@ -11,7 +11,7 @@ export const MIGRATIONS: Migration[] = [
     up: `
       CREATE TABLE emulators (
         id TEXT PRIMARY KEY,
-        kind TEXT NOT NULL CHECK (kind IN ('retroarch', 'unknown')),
+        kind TEXT NOT NULL CHECK (kind IN ('retroarch', 'eden', 'unknown')),
         name TEXT NOT NULL CHECK (length(name) > 0),
         executable_path TEXT NOT NULL UNIQUE,
         version TEXT,
@@ -58,7 +58,7 @@ export const MIGRATIONS: Migration[] = [
         id TEXT PRIMARY KEY,
         game_id TEXT NOT NULL REFERENCES games (id) ON DELETE RESTRICT,
         emulator_id TEXT REFERENCES emulators (id) ON DELETE SET NULL,
-        core TEXT CHECK (length(core) > 0),
+        emulator_option TEXT CHECK (length(emulator_option) > 0),
         started_at INTEGER NOT NULL,
         ended_at INTEGER NOT NULL,
         created_at INTEGER NOT NULL,
@@ -82,17 +82,17 @@ export const MIGRATIONS: Migration[] = [
   },
   {
     version: 5,
-    name: 'Add the cores chosen for platforms and games',
+    name: 'Add the emulators chosen for platforms and games',
     up: `
       ALTER TABLE platform_settings
         ADD COLUMN default_emulator_id TEXT REFERENCES emulators (id) ON DELETE SET NULL;
       ALTER TABLE platform_settings
-        ADD COLUMN default_core TEXT CHECK (length(default_core) > 0);
+        ADD COLUMN default_emulator_option TEXT CHECK (length(default_emulator_option) > 0);
 
       ALTER TABLE games
         ADD COLUMN emulator_id TEXT REFERENCES emulators (id) ON DELETE SET NULL;
       ALTER TABLE games
-        ADD COLUMN core TEXT CHECK (length(core) > 0);
+        ADD COLUMN emulator_option TEXT CHECK (length(emulator_option) > 0);
     `
   }
 ]

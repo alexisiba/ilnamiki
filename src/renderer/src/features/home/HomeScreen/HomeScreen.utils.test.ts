@@ -21,9 +21,9 @@ const platform = (id: string, name: string): InstalledPlatform => ({
   id,
   name,
   manufacturer: null,
-  cores: [],
+  emulators: [],
   isEnabled: true,
-  defaultCore: null
+  defaultEmulator: null
 })
 
 describe('toContinueGame', () => {
@@ -44,7 +44,7 @@ describe('toContinueGame', () => {
     expect(toContinueGame(CRASH, []).playtimeMinutes).toBe(2 * 60 + 16)
   })
 
-  it('names a console the catalog doesn’t know as its cores do', () => {
+  it('names a console the catalog doesn’t know as its emulators do', () => {
     const game = toContinueGame({ ...CRASH, platformId: 'quake_3' }, [
       platform('quake_3', 'Quake III')
     ])

@@ -3,7 +3,7 @@ import type { ScanFolderRequest } from '@shared/api'
 import type { InstalledPlatform } from '@renderer/types/installedPlatform'
 
 export interface GameFolderFormProps {
-  /** The platforms a folder's games can belong to: those with an installed core and no folder. */
+  /** The platforms a folder's games can belong to: those an emulator plays, without a folder. */
   platforms: InstalledPlatform[]
   /** The path the form starts with, e.g. the one scanned before going back to the form. */
   initialPath: string

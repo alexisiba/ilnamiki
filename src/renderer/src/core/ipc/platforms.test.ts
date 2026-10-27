@@ -10,7 +10,7 @@ import {
   getPlatformPhoto,
   getPlatformsState,
   refreshPlatforms,
-  setPlatformDefaultCore,
+  setPlatformDefaultEmulator,
   setPlatformEnabled,
   subscribeToPlatforms
 } from './platforms'
@@ -19,9 +19,17 @@ const NINTENDO_64: InstalledPlatform = {
   id: 'nintendo_64',
   name: 'Nintendo 64',
   manufacturer: 'Nintendo',
-  cores: [{ id: 'mupen64plus_next', name: 'Mupen64Plus-Next', emulatorId: 'a1', extensions: [] }],
+  emulators: [
+    {
+      emulatorId: 'a1',
+      emulatorName: 'RetroArch',
+      optionId: 'mupen64plus_next',
+      optionName: 'Mupen64Plus-Next',
+      extensions: []
+    }
+  ],
   isEnabled: true,
-  defaultCore: null
+  defaultEmulator: null
 }
 
 const RETROARCH: Emulator = {
@@ -48,25 +56,25 @@ describe('platforms store', () => {
     expect(listener).toHaveBeenCalled()
   })
 
-  it('keeps a platform’s default core in main and shows it, without reading them again', async () => {
+  it('keeps a platform’s default emulator in main and shows it, without reading them again', async () => {
     mockPlatforms([NINTENDO_64])
     await refreshPlatforms()
-    const core = { emulatorId: 'a1', coreId: 'mupen64plus_next' }
+    const emulator = { emulatorId: 'a1', optionId: 'mupen64plus_next' }
 
-    await setPlatformDefaultCore('nintendo_64', core)
+    await setPlatformDefaultEmulator('nintendo_64', emulator)
 
-    expect(window.api.platforms.setDefaultCore).toHaveBeenCalledWith('nintendo_64', core)
-    expect(getPlatformsState().platforms).toEqual([{ ...NINTENDO_64, defaultCore: core }])
+    expect(window.api.platforms.setDefaultEmulator).toHaveBeenCalledWith('nintendo_64', emulator)
+    expect(getPlatformsState().platforms).toEqual([{ ...NINTENDO_64, defaultEmulator: emulator }])
     expect(window.api.platforms.list).toHaveBeenCalledOnce()
   })
 
-  it('changes no default core when main can’t keep it', async () => {
+  it('changes no default emulator when main can’t keep it', async () => {
     mockPlatforms([NINTENDO_64])
     await refreshPlatforms()
-    vi.mocked(window.api.platforms.setDefaultCore).mockRejectedValue(new Error('No database'))
+    vi.mocked(window.api.platforms.setDefaultEmulator).mockRejectedValue(new Error('No database'))
 
     await expect(
-      setPlatformDefaultCore('nintendo_64', { emulatorId: 'a1', coreId: 'mupen64plus_next' })
+      setPlatformDefaultEmulator('nintendo_64', { emulatorId: 'a1', optionId: 'mupen64plus_next' })
     ).rejects.toThrow('No database')
 
     expect(getPlatformsState().platforms).toEqual([NINTENDO_64])

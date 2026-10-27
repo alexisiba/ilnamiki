@@ -6,7 +6,7 @@ export type PlayProblem = LaunchGameProblem | LaunchRandomGameProblem | 'failed'
 const MESSAGE_KEYS: Record<PlayProblem, string> = {
   'unknown-game': 'play.problems.unknownGame',
   'missing-file': 'play.problems.missingFile',
-  'no-core': 'play.problems.noCore',
+  'no-emulator': 'play.problems.noEmulator',
   'no-games': 'play.problems.noGames',
   'already-playing': 'play.problems.alreadyPlaying',
   'not-started': 'play.problems.notStarted',

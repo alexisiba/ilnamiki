@@ -2,26 +2,26 @@ import { useFocusable } from '@renderer/core/navigation'
 
 import styles from '../GameOptions.module.css'
 
-export interface CoreRadioProps {
+export interface EmulatorRadioProps {
   /** Unique within the panel. */
   focusId: string
   label: string
-  /** Shown below the label, e.g. which core "Automatic" plays with. */
+  /** Shown below the label, e.g. which emulator "Automatic" plays with. */
   hint?: string
   checked: boolean
   autoFocus: boolean
   onSelect: () => void
 }
 
-/** One choice of core: a row with a radio mark, filled while it is the one chosen. */
-export function CoreRadio({
+/** One choice of emulator: a row with a radio mark, filled while it is the one chosen. */
+export function EmulatorRadio({
   focusId,
   label,
   hint,
   checked,
   autoFocus,
   onSelect
-}: CoreRadioProps): React.JSX.Element {
+}: EmulatorRadioProps): React.JSX.Element {
   const { ref } = useFocusable<HTMLButtonElement>({ id: focusId, autoFocus })
 
   return (

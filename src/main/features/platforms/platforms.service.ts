@@ -2,10 +2,10 @@ import { app } from 'electron'
 import { mkdir, readFile, rename, writeFile } from 'fs/promises'
 import { join } from 'path'
 
-import type { CoreRef } from '@shared/api'
+import type { EmulatorChoice } from '@shared/api'
 
 import { getDatabase } from '../../core/database'
-import { isAmongCores, listInstalledPlatforms } from '../../core/installedPlatforms'
+import { isAmongEmulators, listInstalledPlatforms } from '../../core/installedPlatforms'
 import { createPlatformSettingsRepository } from '../../core/platformSettings'
 import {
   parseThumbnailUrl,
@@ -58,17 +58,21 @@ async function downloadPhoto(commonsFile: string, path: string): Promise<Buffer>
 /** What the user sets for the installed platforms, and the photos of their consoles. */
 export const platformsService = {
   /**
-   * Keeps `core` as the one the games of the platform `platformId` play with, or forgets it
-   * with null. Throws when `core` isn't one of the platform's installed cores.
+   * Keeps `emulator` as the one the games of the platform `platformId` play with, or forgets
+   * it with null. Throws when `emulator` isn't one of the platform's emulators.
    */
-  async setDefaultCore(platformId: string, core: CoreRef | null): Promise<void> {
-    if (core) {
+  async setDefaultEmulator(platformId: string, emulator: EmulatorChoice | null): Promise<void> {
+    if (emulator) {
       const platform = (await listInstalledPlatforms()).find(({ id }) => id === platformId)
-      if (!platform || !isAmongCores(core, platform.cores)) {
-        throw new Error(`The core ${core.coreId} doesn't play ${platformId}`)
+      if (!platform || !isAmongEmulators(emulator, platform.emulators)) {
+        throw new Error(`The emulator ${emulator.emulatorId} doesn't play ${platformId}`)
       }
     }
-    createPlatformSettingsRepository(getDatabase()).setDefaultCore(platformId, core, Date.now())
+    createPlatformSettingsRepository(getDatabase()).setDefaultEmulator(
+      platformId,
+      emulator,
+      Date.now()
+    )
   },
 
   /**

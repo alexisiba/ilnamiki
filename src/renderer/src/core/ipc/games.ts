@@ -1,5 +1,5 @@
 import type {
-  CoreRef,
+  EmulatorChoice,
   GameDetails,
   GameEnded,
   GamePlayer,
@@ -15,16 +15,16 @@ export function listRecentlyPlayedGames(): Promise<RecentlyPlayedGame[]> {
 }
 
 /**
- * Which cores can play the game `gameId` and which one playing it uses, or null when it isn't
- * in the library.
+ * Which emulators can play the game `gameId` and which one playing it uses, or null when it
+ * isn't in the library.
  */
 export function getGamePlayer(gameId: string): Promise<GamePlayer | null> {
   return window.api.games.getPlayer(gameId)
 }
 
-/** Keeps `core` as the one the game `gameId` plays with, or forgets the choice with null. */
-export function setGameCore(gameId: string, core: CoreRef | null): Promise<void> {
-  return window.api.games.setCore(gameId, core)
+/** Keeps `emulator` as the one the game `gameId` plays with, or forgets the choice with null. */
+export function setGameEmulator(gameId: string, emulator: EmulatorChoice | null): Promise<void> {
+  return window.api.games.setEmulator(gameId, emulator)
 }
 
 /** What the library knows about the game `gameId`, or null when it isn't in the library. */
@@ -38,7 +38,7 @@ export function listRecentlyAddedGames(): Promise<RecentlyAddedGame[]> {
 }
 
 /**
- * Starts a game in full screen with the emulator and core it was last played with (or its
+ * Starts a game in full screen with the emulator it was last played with (or its
  * platform's), or says why it can't. Resolves once the emulator has started;
  * `subscribeToGameEnded` says when it closes.
  */

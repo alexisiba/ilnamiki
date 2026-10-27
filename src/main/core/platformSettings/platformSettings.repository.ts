@@ -1,13 +1,13 @@
 import type { DatabaseSync } from 'node:sqlite'
 
-import type { CoreRef } from '@shared/api'
+import type { EmulatorChoice } from '@shared/api'
 
 /** What the user set for a platform. */
 export interface PlatformSettingsRecord {
   platformId: string
   isEnabled: boolean
-  /** The core its games play with; null while the user chose none or its emulator is gone. */
-  defaultCore: CoreRef | null
+  /** The emulator its games play with; null while the user chose none or it is gone. */
+  defaultEmulator: EmulatorChoice | null
 }
 
 export interface PlatformSettingsRepository {
@@ -15,15 +15,15 @@ export interface PlatformSettingsRepository {
   list(): PlatformSettingsRecord[]
   /** Keeps whether the platform `platformId` is on, as of `now` (epoch ms). */
   setEnabled(platformId: string, enabled: boolean, now: number): void
-  /** Keeps the core the platform's games play with, or forgets it with null, as of `now`. */
-  setDefaultCore(platformId: string, core: CoreRef | null, now: number): void
+  /** Keeps the emulator the platform's games play with, or forgets it with null, as of `now`. */
+  setDefaultEmulator(platformId: string, emulator: EmulatorChoice | null, now: number): void
 }
 
 interface PlatformSettingsRow {
   platform_id: string
   is_enabled: number
   default_emulator_id: string | null
-  default_core: string | null
+  default_emulator_option: string | null
 }
 
 /** The SQL of what the user set for each platform, over `db`. */
@@ -32,16 +32,17 @@ export function createPlatformSettingsRepository(db: DatabaseSync): PlatformSett
     list() {
       const rows = db
         .prepare(
-          'SELECT platform_id, is_enabled, default_emulator_id, default_core FROM platform_settings'
+          `SELECT platform_id, is_enabled, default_emulator_id, default_emulator_option
+            FROM platform_settings`
         )
         .all() as unknown as PlatformSettingsRow[]
       return rows.map((row) => ({
         platformId: row.platform_id,
         isEnabled: row.is_enabled === 1,
-        // Its emulator deleted, the core is forgotten with it.
-        defaultCore:
-          row.default_emulator_id !== null && row.default_core !== null
-            ? { emulatorId: row.default_emulator_id, coreId: row.default_core }
+        // Its emulator deleted, the option is forgotten with it.
+        defaultEmulator:
+          row.default_emulator_id !== null
+            ? { emulatorId: row.default_emulator_id, optionId: row.default_emulator_option }
             : null
       }))
     },
@@ -55,16 +56,16 @@ export function createPlatformSettingsRepository(db: DatabaseSync): PlatformSett
     },
 
     // A platform without a row is on, so a new row keeps it on.
-    setDefaultCore(platformId, core, now) {
+    setDefaultEmulator(platformId, emulator, now) {
       db.prepare(
         `INSERT INTO platform_settings
-            (platform_id, is_enabled, default_emulator_id, default_core, updated_at)
+            (platform_id, is_enabled, default_emulator_id, default_emulator_option, updated_at)
           VALUES (?, 1, ?, ?, ?)
           ON CONFLICT (platform_id) DO UPDATE SET
             default_emulator_id = excluded.default_emulator_id,
-            default_core = excluded.default_core,
+            default_emulator_option = excluded.default_emulator_option,
             updated_at = excluded.updated_at`
-      ).run(platformId, core?.emulatorId ?? null, core?.coreId ?? null, now)
+      ).run(platformId, emulator?.emulatorId ?? null, emulator?.optionId ?? null, now)
     }
   }
 }

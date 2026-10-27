@@ -3,7 +3,7 @@ import { BrowserWindow, ipcMain, type IpcMainInvokeEvent } from 'electron'
 import { GAMES_CHANNELS, type GameEnded } from '@shared/api'
 
 import { bringBack } from '../../core/emulatorProcess'
-import { parseCoreRef } from '../../core/installedPlatforms'
+import { parseEmulatorChoice } from '../../core/installedPlatforms'
 import { gamesService } from './games.service'
 import { parseGameId } from './games.validation'
 
@@ -37,13 +37,13 @@ export function registerGamesIpc(): void {
     return gameId === null ? null : gamesService.getPlayer(gameId)
   })
 
-  ipcMain.handle(GAMES_CHANNELS.setCore, (_event, id: unknown, value: unknown) => {
+  ipcMain.handle(GAMES_CHANNELS.setEmulator, (_event, id: unknown, value: unknown) => {
     const gameId = parseGameId(id)
-    const core = value === null ? null : parseCoreRef(value)
-    if (gameId === null || (value !== null && core === null)) {
-      throw new Error('games.setCore needs a game id and a core, or null')
+    const emulator = value === null ? null : parseEmulatorChoice(value)
+    if (gameId === null || (value !== null && emulator === null)) {
+      throw new Error('games.setEmulator needs a game id and an emulator, or null')
     }
-    return gamesService.setCore(gameId, core)
+    return gamesService.setEmulator(gameId, emulator)
   })
 
   ipcMain.handle(GAMES_CHANNELS.launch, (event, value: unknown) => {

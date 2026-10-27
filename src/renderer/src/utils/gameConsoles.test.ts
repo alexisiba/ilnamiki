@@ -8,9 +8,11 @@ const platform = (id: string, name: string, manufacturer: string | null): Instal
   id,
   name,
   manufacturer,
-  cores: [{ id: `${id}-core`, name: 'Core', emulatorId: 'a1', extensions: [] }],
+  emulators: [
+    { emulatorId: 'a1', emulatorName: 'Emulator', optionId: null, optionName: null, extensions: [] }
+  ],
   isEnabled: true,
-  defaultCore: null
+  defaultEmulator: null
 })
 
 const folder = (platformId: string, gameCount: number): GameFolder => ({
@@ -48,7 +50,7 @@ describe('toGameConsoles', () => {
     expect(consoles.map(({ id }) => id)).toEqual(['playstation'])
   })
 
-  it('leaves out folders of platforms no installed core plays', () => {
+  it('leaves out folders of platforms no emulator plays', () => {
     expect(toGameConsoles([], [folder('playstation', 24)])).toEqual([])
   })
 
@@ -66,7 +68,7 @@ describe('toGameConsoles', () => {
     ])
   })
 
-  it('keeps what the cores say about a platform the catalog doesn’t know', () => {
+  it('keeps what the emulators say about a platform the catalog doesn’t know', () => {
     expect(
       toGameConsoles([platform('quake_3', 'Quake III', 'id Software')], [folder('quake_3', 1)])
     ).toEqual([

@@ -48,7 +48,7 @@
     "problems": {
       "unknownGame": "Este juego ya no está en tu biblioteca.",
       "missingFile": "El archivo del juego ya no está. Revisa su carpeta en Ajustes.",
-      "noCore": "Ningún núcleo instalado juega esta consola. Configura un emulador en Ajustes.",
+      "noEmulator": "Ninguno de tus emuladores juega esta consola. Configura un emulador en Ajustes.",
       "noGames": "Ningún juego de tu biblioteca se puede jugar ahora. Revisa tus carpetas de juegos en Ajustes.",
       "alreadyPlaying": "Se está jugando otro juego. Ciérralo primero.",
       "notStarted": "No se pudo iniciar el emulador. Revísalo en Ajustes.",
@@ -59,20 +59,20 @@
     "open": "Opciones del juego",
     "title": "Opciones",
     "close": "Cerrar",
-    "core": "Núcleo",
-    "playsWith": "Se juega con {{core}} · {{reason}}",
+    "emulator": "Emulador",
+    "playsWith": "Se juega con {{emulator}} · {{reason}}",
     "reasons": {
       "game": "elegido para este juego",
       "lastSession": "con el que jugaste la última vez",
       "platformDefault": "el predeterminado de la consola",
-      "firstInstalled": "el primer núcleo de la consola"
+      "firstInstalled": "el primer emulador de la consola"
     },
     "automatic": "Automático",
-    "automaticHint": "El núcleo con el que jugaste la última vez, o el predeterminado de la consola",
-    "noCores": "Ningún núcleo instalado juega esta consola.",
+    "automaticHint": "El emulador con el que jugaste la última vez, o el predeterminado de la consola",
+    "noEmulators": "Ninguno de tus emuladores juega esta consola.",
     "notFound": "Este juego ya no está en tu biblioteca.",
     "failed": "No se pudieron cargar las opciones. Inténtalo más tarde.",
-    "saveFailed": "No se pudo guardar el núcleo. Inténtalo de nuevo."
+    "saveFailed": "No se pudo guardar el emulador. Inténtalo de nuevo."
   },
   "playStats": {
     "lastPlayed": "Última sesión {{time}}",

@@ -1,41 +1,51 @@
-import type { InstalledCore, InstalledPlatform } from '@shared/api'
+import type { InstalledPlatform, PlatformEmulator } from '@shared/api'
 
 import type { PlatformSettingsRecord } from '../platformSettings'
-import { isAmongCores } from './installedPlatforms.cores'
-import type { EmulatorCores } from './installedPlatforms.types'
+import { isAmongEmulators } from './installedPlatforms.choices'
+import type { EmulatorOptions } from './installedPlatforms.types'
 
-const byName = (a: { name: string }, b: { name: string }): number =>
-  a.name.localeCompare(b.name, 'en', { sensitivity: 'base' })
+const compareNames = (a: string, b: string): number =>
+  a.localeCompare(b, 'en', { sensitivity: 'base' })
+
+/** By emulator name, then by option name; an emulator without options has none. */
+const byEmulatorName = (a: PlatformEmulator, b: PlatformEmulator): number =>
+  compareNames(a.emulatorName, b.emulatorName) ||
+  compareNames(a.optionName ?? '', b.optionName ?? '')
 
 /**
- * The platforms the emulators' cores play, each with its cores, both by name. A platform takes
- * its name from the first core found for it, and its manufacturer from the first that says.
- * What the user set for it in `settings` applies: it is on unless turned off, and its default
- * core is the one chosen while that core is still among its cores.
+ * The platforms the emulators' options play, by name, each with the emulators that play it,
+ * by `byEmulatorName`. A platform takes its name from the first option found for it, and its
+ * manufacturer from the first that says. What the user set for it in `settings` applies: it is
+ * on unless turned off, and its default emulator is the one chosen while it still plays it.
  */
 export function groupByPlatform(
-  emulators: EmulatorCores[],
+  emulators: EmulatorOptions[],
   settings: PlatformSettingsRecord[] = []
 ): InstalledPlatform[] {
   const platforms = new Map<string, InstalledPlatform>()
-  for (const { emulatorId, cores } of emulators) {
-    for (const detected of cores) {
-      const { id, name, platformId, extensions } = detected
-      const core: InstalledCore = { id, name, emulatorId, extensions }
-      const platform = platforms.get(platformId)
+  for (const { emulatorId, emulatorName, options } of emulators) {
+    for (const option of options) {
+      const emulator: PlatformEmulator = {
+        emulatorId,
+        emulatorName,
+        optionId: option.id,
+        optionName: option.name,
+        extensions: option.extensions
+      }
+      const platform = platforms.get(option.platform.id)
       if (!platform) {
-        platforms.set(platformId, {
-          id: platformId,
-          name: detected.platformName,
-          manufacturer: detected.platformManufacturer,
-          cores: [core],
+        platforms.set(option.platform.id, {
+          id: option.platform.id,
+          name: option.platform.name,
+          manufacturer: option.platform.manufacturer,
+          emulators: [emulator],
           isEnabled: true,
-          defaultCore: null
+          defaultEmulator: null
         })
         continue
       }
-      platform.cores.push(core)
-      platform.manufacturer ??= detected.platformManufacturer
+      platform.emulators.push(emulator)
+      platform.manufacturer ??= option.platform.manufacturer
     }
   }
 
@@ -43,12 +53,12 @@ export function groupByPlatform(
     const platform = platforms.get(setting.platformId)
     if (!platform) continue
     platform.isEnabled = setting.isEnabled
-    if (setting.defaultCore && isAmongCores(setting.defaultCore, platform.cores)) {
-      platform.defaultCore = setting.defaultCore
+    if (setting.defaultEmulator && isAmongEmulators(setting.defaultEmulator, platform.emulators)) {
+      platform.defaultEmulator = setting.defaultEmulator
     }
   }
 
-  const sorted = [...platforms.values()].sort(byName)
-  for (const platform of sorted) platform.cores.sort(byName)
+  const sorted = [...platforms.values()].sort((a, b) => compareNames(a.name, b.name))
+  for (const platform of sorted) platform.emulators.sort(byEmulatorName)
   return sorted
 }

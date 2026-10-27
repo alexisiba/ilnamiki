@@ -1,15 +1,30 @@
 import { readFileSync } from 'fs'
 import { describe, expect, it } from 'vitest'
 
-import { parseCoreFolders, parseCoreInfo, parseRetroArchSettings } from './retroarch.parsers'
+import {
+  parseCoreFolders,
+  parseCoreInfo,
+  parseRetroArchSettings,
+  parseRetroArchVersion
+} from './retroarch.parsers'
 
 /**
- * Real files captured from a RetroArch AppImage: core info files and an excerpt of its
- * configuration around the core folders.
+ * Real files captured from a RetroArch AppImage: core info files, an excerpt of its
+ * configuration around the core folders and what `--version` prints.
  */
 function fixture(name: string): string {
   return readFileSync(new URL(`./fixtures/${name}`, import.meta.url), 'utf8')
 }
+
+describe('parseRetroArchVersion', () => {
+  it('reads the version RetroArch prints, after the AppImage’s own lines', () => {
+    expect(parseRetroArchVersion(fixture('retroarch-version.txt'))).toBe('1.22.2')
+  })
+
+  it('says nothing when there is no version line', () => {
+    expect(parseRetroArchVersion('RetroArch - Frontend for libretro\n')).toBeNull()
+  })
+})
 
 describe('parseRetroArchSettings', () => {
   it('reads quoted and unquoted values, skipping comments and empty lines', () => {

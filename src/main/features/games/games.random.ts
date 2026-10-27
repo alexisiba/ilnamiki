@@ -1,6 +1,6 @@
 /**
  * The games among `games` that can be played: those of a platform in `playablePlatformIds`,
- * the platforms an installed core plays.
+ * the platforms the user's emulators play.
  */
 export function onPlayablePlatforms<Game extends { platformId: string }>(
   games: Game[],

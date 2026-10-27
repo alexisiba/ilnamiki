@@ -81,12 +81,12 @@ describe('ContinueHero', () => {
   })
 
   it('says why the game couldn’t start, describing Continue playing', async () => {
-    mockLaunchGame({ ok: false, problem: 'no-core' })
+    mockLaunchGame({ ok: false, problem: 'no-emulator' })
     renderWithNavigation(<ContinueHero game={GAME} />)
 
     await userEvent.setup().click(screen.getByRole('button', { name: 'Continue playing' }))
 
-    const message = 'No installed core plays this console. Set up an emulator in Settings.'
+    const message = 'None of your emulators plays this console. Set up an emulator in Settings.'
     expect(await screen.findByRole('alert')).toHaveTextContent(message)
     expect(screen.getByRole('button', { name: 'Continue playing' })).toHaveAccessibleDescription(
       message

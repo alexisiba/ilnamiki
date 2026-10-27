@@ -1,0 +1,1 @@
+export { retroArchModule } from './retroarch'

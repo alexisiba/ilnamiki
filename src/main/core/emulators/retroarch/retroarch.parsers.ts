@@ -1,7 +1,12 @@
-import type { DetectedCore } from './installedPlatforms.types'
+import type { RetroArchCore } from './retroarch.types'
 
 /** RetroArch's value for a setting left to its default, e.g. `libretro_directory = "default"`. */
 const DEFAULT_VALUE = 'default'
+
+/** Reads "Version: 1.22.2 (Git b40db22) Sep 25 2026", as `--version` prints it, as "1.22.2". */
+export function parseRetroArchVersion(output: string): string | null {
+  return /^Version:\s*(\S+)/m.exec(output)?.[1] ?? null
+}
 
 /**
  * The settings of a RetroArch file of `key = "value"` lines, as its configuration and its core
@@ -48,7 +53,7 @@ export function parseCoreFolders(
  * The core `id` as its info file describes it, or null when the file doesn't say which
  * platform it plays. Its name falls back to the id when it declares none.
  */
-export function parseCoreInfo(id: string, infoText: string): DetectedCore | null {
+export function parseCoreInfo(id: string, infoText: string): RetroArchCore | null {
   const settings = parseRetroArchSettings(infoText)
   const platformId = settings.get('systemid')
   const platformName = settings.get('systemname')

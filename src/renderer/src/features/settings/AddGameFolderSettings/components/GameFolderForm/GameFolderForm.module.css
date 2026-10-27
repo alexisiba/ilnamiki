@@ -17,7 +17,7 @@
   color: var(--color-text-muted);
 }
 
-/* Why some platforms aren't in the select, and that a platform's cores name no extensions. */
+/* Why some platforms aren't in the select, and that a platform's emulators name no extensions. */
 .note {
   font-size: var(--body-md-size);
   line-height: var(--body-md-line-height);

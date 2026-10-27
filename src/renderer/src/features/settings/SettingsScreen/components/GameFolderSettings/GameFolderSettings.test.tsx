@@ -17,9 +17,17 @@ const NINTENDO_64: InstalledPlatform = {
   id: 'nintendo_64',
   name: 'Nintendo 64',
   manufacturer: 'Nintendo',
-  cores: [{ id: 'mupen64plus_next', name: 'Mupen64Plus-Next', emulatorId: 'a1', extensions: [] }],
+  emulators: [
+    {
+      emulatorId: 'a1',
+      emulatorName: 'RetroArch',
+      optionId: 'mupen64plus_next',
+      optionName: 'Mupen64Plus-Next',
+      extensions: []
+    }
+  ],
   isEnabled: true,
-  defaultCore: null
+  defaultEmulator: null
 }
 
 const FOLDERS: GameFolder[] = [
@@ -70,7 +78,7 @@ describe('GameFolderSettings', () => {
     expect(within(first).getByRole('button')).toHaveAccessibleDescription('17 games')
   })
 
-  it('names a folder by its platform’s id when no installed core plays it anymore', async () => {
+  it('names a folder by its platform’s id when no emulator plays it anymore', async () => {
     mockGameFolders(FOLDERS)
     mockPlatforms([NINTENDO_64])
     await renderGameFolders()
@@ -142,12 +150,12 @@ describe('GameFolderSettings', () => {
     ).toBeInTheDocument()
   })
 
-  describe('without folders or installed cores', () => {
-    it('says there are no folders and that a core is needed first', async () => {
+  describe('without folders or platforms', () => {
+    it('says there are no folders and that an emulator needs setting up first', async () => {
       await renderGameFolders()
 
       expect(emptyTitle()).toBeInTheDocument()
-      expect(screen.getByText(/don't have any cores installed yet/)).toBeInTheDocument()
+      expect(screen.getByText(/none of your emulators can play a console yet/)).toBeInTheDocument()
       expect(screen.queryByRole('list')).not.toBeInTheDocument()
     })
 
@@ -168,7 +176,7 @@ describe('GameFolderSettings', () => {
     })
   })
 
-  describe('without folders but with installed cores', () => {
+  describe('without folders but with platforms', () => {
     it('says there are no folders and how to add the first one', async () => {
       mockPlatforms([NINTENDO_64])
       await renderGameFolders()
@@ -188,7 +196,7 @@ describe('GameFolderSettings', () => {
     })
   })
 
-  it('keeps Add folder with the list even when no core is installed', async () => {
+  it('keeps Add folder with the list even when no emulator plays a platform', async () => {
     mockGameFolders(FOLDERS)
     await renderGameFolders()
 

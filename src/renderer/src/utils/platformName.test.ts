@@ -8,9 +8,9 @@ const platform = (id: string, name: string): InstalledPlatform => ({
   id,
   name,
   manufacturer: null,
-  cores: [],
+  emulators: [],
   isEnabled: true,
-  defaultCore: null
+  defaultEmulator: null
 })
 
 describe('getPlatformName', () => {
@@ -20,7 +20,7 @@ describe('getPlatformName', () => {
     )
   })
 
-  it('names a console the catalog doesn’t know as its cores do', () => {
+  it('names a console the catalog doesn’t know as its emulators do', () => {
     expect(getPlatformName('quake_3', [platform('quake_3', 'Quake III')])).toBe('Quake III')
   })
 

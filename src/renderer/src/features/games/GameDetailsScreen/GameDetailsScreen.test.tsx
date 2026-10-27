@@ -18,9 +18,17 @@ const PLAYSTATION: InstalledPlatform = {
   id: 'playstation',
   name: 'Sony - PlayStation',
   manufacturer: 'Sony',
-  cores: [{ id: 'swanstation', name: 'SwanStation', emulatorId: 'a1', extensions: [] }],
+  emulators: [
+    {
+      emulatorId: 'a1',
+      emulatorName: 'RetroArch',
+      optionId: 'swanstation',
+      optionName: 'SwanStation',
+      extensions: []
+    }
+  ],
   isEnabled: true,
-  defaultCore: null
+  defaultEmulator: null
 }
 
 const CRASH: GameDetails = {

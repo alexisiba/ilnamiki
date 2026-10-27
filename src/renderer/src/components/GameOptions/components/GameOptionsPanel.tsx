@@ -9,7 +9,7 @@ import { FocusGroup, NavigationProvider } from '@renderer/core/navigation'
 import { useGamePlayer } from '../GameOptions.hooks'
 import type { GameOptionsProps } from '../GameOptions.types'
 import styles from '../GameOptions.module.css'
-import { GameCoreOptions } from './GameCoreOptions'
+import { GameEmulatorOptions } from './GameEmulatorOptions'
 
 /**
  * The panel itself, inside its input scope: the game's title and what can be set for it, and
@@ -21,7 +21,7 @@ export function GameOptionsPanel({ gameId, title, onClose }: GameOptionsProps): 
   const ref = useRef<HTMLDialogElement>(null)
   const titleId = useId()
   const { status, player, choose } = useGamePlayer(gameId)
-  const hasChoice = player !== null && player.cores.length > 1
+  const hasChoice = player !== null && player.emulators.length > 1
 
   // Opening a modal dialog focuses its first button. A layout effect opens it before the
   // buttons register (in passive effects), so the one marked to take focus takes it after.
@@ -65,7 +65,7 @@ export function GameOptionsPanel({ gameId, title, onClose }: GameOptionsProps): 
               {title}
             </h2>
           </div>
-          {status === 'ready' && player && <GameCoreOptions player={player} choose={choose} />}
+          {status === 'ready' && player && <GameEmulatorOptions player={player} choose={choose} />}
           {status === 'ready' && !player && (
             <p className={styles.message}>{t('gameOptions.notFound')}</p>
           )}

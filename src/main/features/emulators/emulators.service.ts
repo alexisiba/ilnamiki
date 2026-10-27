@@ -9,14 +9,17 @@ import type {
   ChangeEmulatorPathRequest,
   ChangeEmulatorPathResult,
   Emulator,
-  EmulatorKind,
   InspectEmulatorResult,
   OpenEmulatorResult
 } from '@shared/api'
 
 import { getDatabase } from '../../core/database'
 import { freeEmulatorTurn, startEmulator, takeEmulatorTurn } from '../../core/emulatorProcess'
-import { createEmulatorsRepository, type EmulatorRecord } from '../../core/emulators'
+import {
+  createEmulatorsRepository,
+  type EmulatorRecord,
+  prepareOpenStart
+} from '../../core/emulators'
 import { selectForPlatform } from '../../core/platform'
 import type { EmulatorIcon } from './emulators.types'
 import { linuxEmulatorDetector } from './providers/linux'
@@ -32,15 +35,6 @@ const ICON_EXTENSIONS: Record<string, string> = {
 const MIME_TYPES: Record<string, string> = {
   '.png': 'image/png',
   '.svg': 'image/svg+xml'
-}
-
-/**
- * The arguments that open each kind of emulator in full screen on its own menu. Nothing else
- * is changed, so what the user sets up there is saved as the emulator always saves it.
- */
-const OPEN_ARGS: Record<EmulatorKind, string[]> = {
-  retroarch: ['--fullscreen'],
-  unknown: []
 }
 
 const toDataUrl = ({ data, mimeType }: EmulatorIcon): string =>
@@ -182,7 +176,7 @@ export const emulatorsService = {
       const emulator = createEmulatorsRepository(getDatabase()).findById(id)
       if (!emulator) return { ok: false, problem: 'unknown-emulator' }
 
-      started = await startEmulator(emulator.executablePath, OPEN_ARGS[emulator.kind], onClosed)
+      started = await startEmulator(await prepareOpenStart(emulator), onClosed)
       return started ? { ok: true } : { ok: false, problem: 'not-started' }
     } finally {
       // Until it closes, an emulator that started keeps the others waiting.

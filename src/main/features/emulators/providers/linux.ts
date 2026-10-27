@@ -7,7 +7,7 @@ import { promisify } from 'util'
 
 import type { EmulatorProblem } from '@shared/api'
 
-import { findKnownEmulator, type KnownEmulator } from '../emulators.catalog'
+import { findModuleByDesktopId, installationOf } from '../../../core/emulators'
 import type { DetectEmulatorResult, EmulatorDetector, EmulatorIcon } from '../emulators.types'
 import {
   APPIMAGE_HEADER_LENGTH,
@@ -18,7 +18,7 @@ import {
   resolveLinkInside
 } from './linux.parsers'
 
-/** Longest an AppImage may take to extract a file or print its version. */
+/** Longest an AppImage may take to extract a file. */
 const APPIMAGE_TIMEOUT_MS = 15_000
 
 /** Symbolic links followed inside an AppImage before giving up (they can chain). */
@@ -118,22 +118,10 @@ async function readIcon(
   return null
 }
 
-/** The version a known emulator prints, or null when it can't be read. */
-async function readVersion(appImage: string, emulator: KnownEmulator): Promise<string | null> {
-  try {
-    const { stdout, stderr } = await execFileAsync(appImage, emulator.versionArgs, {
-      timeout: APPIMAGE_TIMEOUT_MS
-    })
-    return emulator.parseVersion(`${stdout}\n${stderr}`)
-  } catch {
-    return null
-  }
-}
-
 /**
  * Detects an emulator packaged as an AppImage. Its desktop entry and icon are extracted into
- * a temporary folder, which is always deleted afterwards; only a recognized emulator is run,
- * to print its version.
+ * a temporary folder, which is always deleted afterwards; only a recognized emulator's module
+ * reads its version, running it when its AppImage doesn't declare it.
  */
 async function detectAppImage(path: string): Promise<DetectEmulatorResult> {
   const problem = await checkAppImage(path)
@@ -146,7 +134,7 @@ async function detectAppImage(path: string): Promise<DetectEmulatorResult> {
     const desktopFile = (await extractedRootFiles(folder)).find((name) => name.endsWith('.desktop'))
     const desktopPath = desktopFile ? await extractFile(path, folder, desktopFile) : null
     const entry = desktopPath ? parseDesktopEntry(await readFile(desktopPath, 'utf8')) : null
-    const known = desktopFile ? findKnownEmulator(desktopIdOf(desktopFile)) : undefined
+    const known = desktopFile ? findModuleByDesktopId(desktopIdOf(desktopFile)) : undefined
     // AppImages name their icon; an icon given as a path would point outside the image.
     const icon =
       entry?.icon && !entry.icon.includes('/') ? await readIcon(path, folder, entry.icon) : null
@@ -156,7 +144,9 @@ async function detectAppImage(path: string): Promise<DetectEmulatorResult> {
       detected: {
         kind: known?.kind ?? 'unknown',
         name: entry?.name ?? null,
-        version: known ? await readVersion(path, known) : null,
+        version: known
+          ? await known.readVersion(installationOf(path), entry?.version ?? null)
+          : null,
         icon,
         fileModifiedAt: Math.round(mtimeMs)
       }

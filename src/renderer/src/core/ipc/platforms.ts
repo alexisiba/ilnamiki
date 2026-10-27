@@ -1,4 +1,4 @@
-import type { CoreRef, InstalledPlatform } from '@shared/api'
+import type { EmulatorChoice, InstalledPlatform } from '@shared/api'
 
 /** The installed platforms shown across the app, as last read from main. */
 export interface PlatformsState {
@@ -42,19 +42,19 @@ export async function setPlatformEnabled(platformId: string, enabled: boolean): 
 }
 
 /**
- * Keeps `core` in main as the one the games of the platform `platformId` play with (null
- * goes back to its first core), then shows it so to every subscriber, without reading the
+ * Keeps `emulator` in main as the one the games of the platform `platformId` play with (null
+ * goes back to its first emulator), then shows it so to every subscriber, without reading the
  * platforms again. Rejects when main can't keep it, changing nothing.
  */
-export async function setPlatformDefaultCore(
+export async function setPlatformDefaultEmulator(
   platformId: string,
-  core: CoreRef | null
+  emulator: EmulatorChoice | null
 ): Promise<void> {
-  await window.api.platforms.setDefaultCore(platformId, core)
+  await window.api.platforms.setDefaultEmulator(platformId, emulator)
   setState({
     ...state,
     platforms: state.platforms.map((platform) =>
-      platform.id === platformId ? { ...platform, defaultCore: core } : platform
+      platform.id === platformId ? { ...platform, defaultEmulator: emulator } : platform
     )
   })
 }
@@ -82,8 +82,8 @@ export async function getPlatformPhoto(platformId: string): Promise<string | nul
 
 /**
  * Calls `listener` whenever the installed platforms change. The first subscriber after none
- * reads them again, so a screen that opens shows them fresh (e.g. after installing a core in
- * the emulator). Returns the unsubscribe function.
+ * reads them again, so a screen that opens shows them fresh (e.g. after setting up an
+ * emulator). Returns the unsubscribe function.
  */
 export function subscribeToPlatforms(listener: () => void): () => void {
   listeners.add(listener)

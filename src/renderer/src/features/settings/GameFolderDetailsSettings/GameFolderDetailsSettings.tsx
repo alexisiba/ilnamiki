@@ -65,7 +65,7 @@ export function GameFolderDetailsSettings(): React.JSX.Element | null {
     )
   }
 
-  // A platform whose core was uninstalled keeps its folder, named by its id.
+  // A platform no emulator plays anymore keeps its folder, named by its id.
   const platformName =
     platforms.find(({ id }) => id === folder.platformId)?.name ?? folder.platformId
 

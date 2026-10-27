@@ -15,8 +15,7 @@ const session = (
 ): PlaySessionRecord => ({
   id,
   gameId,
-  emulatorId: 'e1',
-  core: 'mednafen_psx_hw',
+  emulator: { emulatorId: 'e1', optionId: 'mednafen_psx_hw' },
   startedAt: endedAt - minutes * MINUTE_MS,
   endedAt,
   createdAt: endedAt
@@ -54,33 +53,45 @@ describe('games repository', () => {
       id: 'g1',
       platformId: 'playstation',
       filePath: '/home/player/Games/PS1/Crash.cue',
-      chosenCore: null
+      chosenEmulator: null
     })
   })
 
-  it('keeps the core chosen for a game, and forgets it with null', () => {
+  it('keeps the emulator chosen for a game, and forgets it with null', () => {
     const repository = createGamesRepository(db)
-    const swanStation = { emulatorId: 'e1', coreId: 'swanstation' }
+    const swanStation = { emulatorId: 'e1', optionId: 'swanstation' }
 
-    repository.setChosenCore('g1', swanStation)
-    expect(repository.findPlayable('g1')?.chosenCore).toEqual(swanStation)
-    expect(repository.findPlayable('g3')?.chosenCore).toBeNull()
+    repository.setChosenEmulator('g1', swanStation)
+    expect(repository.findPlayable('g1')?.chosenEmulator).toEqual(swanStation)
+    expect(repository.findPlayable('g3')?.chosenEmulator).toBeNull()
 
-    repository.setChosenCore('g1', null)
-    expect(repository.findPlayable('g1')?.chosenCore).toBeNull()
+    repository.setChosenEmulator('g1', null)
+    expect(repository.findPlayable('g1')?.chosenEmulator).toBeNull()
   })
 
-  it('forgets the core chosen for a game when its emulator is deleted', () => {
+  it('keeps an emulator without options chosen for a game', () => {
     const repository = createGamesRepository(db)
-    repository.setChosenCore('g1', { emulatorId: 'e1', coreId: 'swanstation' })
+    repository.setChosenEmulator('g1', { emulatorId: 'e1', optionId: null })
+
+    expect(repository.findPlayable('g1')?.chosenEmulator).toEqual({
+      emulatorId: 'e1',
+      optionId: null
+    })
+  })
+
+  it('forgets the emulator chosen for a game when it is deleted', () => {
+    const repository = createGamesRepository(db)
+    repository.setChosenEmulator('g1', { emulatorId: 'e1', optionId: 'swanstation' })
 
     db.prepare("DELETE FROM emulators WHERE id = 'e1'").run()
 
-    expect(repository.findPlayable('g1')?.chosenCore).toBeNull()
+    expect(repository.findPlayable('g1')?.chosenEmulator).toBeNull()
   })
 
-  it('refuses a game’s core of an unknown emulator, or an empty one', () => {
-    const update = db.prepare("UPDATE games SET emulator_id = ?, core = ? WHERE id = 'g1'")
+  it('refuses a game’s emulator that is unknown, or an empty option', () => {
+    const update = db.prepare(
+      "UPDATE games SET emulator_id = ?, emulator_option = ? WHERE id = 'g1'"
+    )
 
     expect(() => update.run('missing', 'swanstation')).toThrow(/FOREIGN KEY/)
     expect(() => update.run('e1', '')).toThrow(/CHECK/)
@@ -92,13 +103,13 @@ describe('games repository', () => {
         id: 'g1',
         platformId: 'playstation',
         filePath: '/home/player/Games/PS1/Crash.cue',
-        chosenCore: null
+        chosenEmulator: null
       },
       {
         id: 'g3',
         platformId: 'playstation',
         filePath: '/home/player/Games/PS1/Spyro.cue',
-        chosenCore: null
+        chosenEmulator: null
       }
     ])
   })
@@ -110,7 +121,7 @@ describe('games repository', () => {
     expect(repository.findPlayable('missing')).toBeUndefined()
   })
 
-  it('finds the emulator and core a game was last played with', () => {
+  it('finds the emulator and option a game was last played with', () => {
     db.prepare(
       `INSERT INTO emulators (id, kind, name, executable_path, created_at, updated_at)
         VALUES ('e2', 'retroarch', 'RetroArch Nightly', '/home/player/Nightly.AppImage', 1, 1)`
@@ -119,12 +130,11 @@ describe('games repository', () => {
     repository.addPlaySession(session('s1', 'g1', 1_000 * MINUTE_MS, 30))
     repository.addPlaySession({
       ...session('s2', 'g1', 3_000 * MINUTE_MS, 30),
-      emulatorId: 'e2',
-      core: 'swanstation'
+      emulator: { emulatorId: 'e2', optionId: 'swanstation' }
     })
     repository.addPlaySession(session('s3', 'g3', 4_000 * MINUTE_MS, 30))
 
-    expect(repository.findLastPlayer('g1')).toEqual({ emulatorId: 'e2', core: 'swanstation' })
+    expect(repository.findLastPlayer('g1')).toEqual({ emulatorId: 'e2', optionId: 'swanstation' })
   })
 
   it('finds no last player for a game never played, or whose emulator was deleted', () => {
@@ -288,13 +298,17 @@ describe('games repository', () => {
     expect(repository.findLastPlayed()?.id).toBe('g1')
   })
 
-  it('keeps a session without a core, for emulators that have none', () => {
+  it('keeps a session without an option, for emulators that have none', () => {
     const repository = createGamesRepository(db)
-    repository.addPlaySession({ ...session('s1', 'g1', 1_000 * MINUTE_MS, 30), core: null })
-
-    expect(db.prepare("SELECT core FROM play_sessions WHERE id = 's1'").get()).toEqual({
-      core: null
+    repository.addPlaySession({
+      ...session('s1', 'g1', 1_000 * MINUTE_MS, 30),
+      emulator: { emulatorId: 'e1', optionId: null }
     })
+
+    expect(db.prepare("SELECT emulator_option FROM play_sessions WHERE id = 's1'").get()).toEqual({
+      emulator_option: null
+    })
+    expect(repository.findLastPlayer('g1')).toEqual({ emulatorId: 'e1', optionId: null })
   })
 
   it('refuses a session of an unknown game, or that ends before it starts', () => {
@@ -314,9 +328,9 @@ describe('games repository', () => {
 
     db.prepare("DELETE FROM emulators WHERE id = 'e1'").run()
 
-    expect(db.prepare("SELECT emulator_id, core FROM play_sessions WHERE id = 's1'").get()).toEqual(
-      { emulator_id: null, core: 'mednafen_psx_hw' }
-    )
+    expect(
+      db.prepare("SELECT emulator_id, emulator_option FROM play_sessions WHERE id = 's1'").get()
+    ).toEqual({ emulator_id: null, emulator_option: 'mednafen_psx_hw' })
     expect(repository.findLastPlayed()?.playtimeMs).toBe(30 * MINUTE_MS)
   })
 

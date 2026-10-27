@@ -1,4 +1,4 @@
-/* The name, the switch, the extensions and the cores at the top; Back at the bottom. */
+/* The name, the switch, the extensions and the emulators at the top; Back at the bottom. */
 .content {
   display: grid;
   grid-template-rows: auto auto auto auto 1fr;
@@ -155,20 +155,20 @@
 }
 
 /* Information, not controls: flat tags with no focus or hover state. */
-.core {
+.emulator {
   font-size: var(--body-lg-size);
   line-height: var(--body-lg-line-height);
   color: var(--color-text);
 }
 
-.coreOptions {
+.emulatorOptions {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
 }
 
-/* A row per core: the radio mark on the left, its name beside it. */
-.coreOption {
+/* A row per emulator: the radio mark on the left, its name beside it. */
+.emulatorOption {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
@@ -184,19 +184,19 @@
 }
 
 /* This style is the focus indicator. */
-.coreOption:focus {
+.emulatorOption:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: var(--shadow-focus);
 }
 
-.coreName {
+.emulatorName {
   font-size: var(--body-lg-size);
   line-height: var(--body-lg-line-height);
   color: var(--color-text);
 }
 
-.coreOption:focus .coreName {
+.emulatorOption:focus .emulatorName {
   color: var(--color-text-focus);
 }
 
@@ -219,11 +219,11 @@
   border-radius: var(--radius-full);
 }
 
-.coreOption[aria-checked='true'] .radio {
+.emulatorOption[aria-checked='true'] .radio {
   border-color: var(--color-primary);
 }
 
-.coreOption[aria-checked='true'] .radioMark {
+.emulatorOption[aria-checked='true'] .radioMark {
   background: var(--color-primary);
 }
 

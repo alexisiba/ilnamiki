@@ -14,7 +14,7 @@ import styles from './GameFolderSettings.module.css'
 /**
  * The folders Ilnamiki finds games in, each with its platform and how many games it has and
  * opening its details, and the action to add one. With no folders, it says how to get the first one: by setting up an
- * emulator while no core is installed, else with Add folder. Until the folders and platforms
+ * emulator while no emulator plays a platform, else with Add folder. Until the folders and platforms
  * are read it shows nothing, so neither view flashes; when the folders can't be read, it says
  * so. It has no heading of its own: the selected category already names it.
  */
@@ -28,10 +28,10 @@ export function GameFolderSettings({
   const platforms = usePlatforms()
   const known = status !== 'loading' && platforms.status !== 'loading'
   const hasInstalledPlatforms = platforms.platforms.length > 0
-  // Only the empty view without cores leaves it out: it offers to set up an emulator instead.
+  // Only the empty view without platforms leaves it out: it offers to set up an emulator instead.
   const canAddFolder = folders.length > 0 || (known && hasInstalledPlatforms)
 
-  // A platform whose core was uninstalled keeps its folder, named by its id.
+  // A platform no emulator plays anymore keeps its folder, named by its id.
   const platformNameOf = (platformId: string): string =>
     platforms.platforms.find(({ id }) => id === platformId)?.name ?? platformId
 
@@ -62,7 +62,7 @@ export function GameFolderSettings({
         <SettingsEmptyState
           icon={Folder}
           title={t('gameFolders.empty.title')}
-          description={t('gameFolders.empty.noCores')}
+          description={t('gameFolders.empty.noEmulators')}
           action={
             <Button focusId="set-up-emulator" onPress={onSetUpEmulator}>
               {t('gameFolders.empty.setUpEmulator')}

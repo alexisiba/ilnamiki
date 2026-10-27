@@ -5,7 +5,7 @@
   },
   "empty": {
     "title": "No consoles with games yet",
-    "description": "Add a folder of games in Settings, for a platform with an installed core, and its console will show here.",
+    "description": "Add a folder of games in Settings, for a platform one of your emulators plays, and its console will show here.",
     "openSettings": "Open Settings"
   }
 }

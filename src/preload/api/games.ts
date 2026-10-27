@@ -8,7 +8,8 @@ export const gamesApi: GamesApi = {
   listRecentlyAdded: () => ipcRenderer.invoke(GAMES_CHANNELS.listRecentlyAdded),
   getDetails: (gameId) => ipcRenderer.invoke(GAMES_CHANNELS.getDetails, gameId),
   getPlayer: (gameId) => ipcRenderer.invoke(GAMES_CHANNELS.getPlayer, gameId),
-  setCore: (gameId, core) => ipcRenderer.invoke(GAMES_CHANNELS.setCore, gameId, core),
+  setEmulator: (gameId, emulator) =>
+    ipcRenderer.invoke(GAMES_CHANNELS.setEmulator, gameId, emulator),
   launch: (gameId) => ipcRenderer.invoke(GAMES_CHANNELS.launch, gameId),
   launchRandom: () => ipcRenderer.invoke(GAMES_CHANNELS.launchRandom),
   onGameEnded: (listener) => {

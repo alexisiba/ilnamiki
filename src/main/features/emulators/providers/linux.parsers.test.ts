@@ -9,7 +9,7 @@ import {
   resolveLinkInside
 } from './linux.parsers'
 
-/** Real files captured from RetroArch's AppImage. */
+/** Real files captured from RetroArch's and Eden's AppImages. */
 function fixture(name: string): string {
   return readFileSync(new URL(`./fixtures/${name}`, import.meta.url), 'utf8')
 }
@@ -40,10 +40,19 @@ describe('isAppImageHeader', () => {
 })
 
 describe('parseDesktopEntry', () => {
-  it('reads the untranslated name and the icon of RetroArch’s entry', () => {
+  it('reads the untranslated name and the icon of RetroArch’s entry, which declares no version', () => {
     expect(parseDesktopEntry(fixture('retroarch-desktop-entry.desktop'))).toEqual({
       name: 'RetroArch',
-      icon: 'com.libretro.RetroArch'
+      icon: 'com.libretro.RetroArch',
+      version: null
+    })
+  })
+
+  it('reads the version an AppImage declares in its entry', () => {
+    expect(parseDesktopEntry(fixture('eden-desktop-entry.desktop'))).toEqual({
+      name: 'Eden',
+      icon: 'dev.eden_emu.eden',
+      version: 'v0.2.1'
     })
   })
 
@@ -57,7 +66,7 @@ describe('parseDesktopEntry', () => {
       'Name=Fullscreen'
     ].join('\n')
 
-    expect(parseDesktopEntry(text)).toEqual({ name: null, icon: 'emulator' })
+    expect(parseDesktopEntry(text)).toEqual({ name: null, icon: 'emulator', version: null })
   })
 })
 

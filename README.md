@@ -37,8 +37,8 @@ the way a console does it.
 Ilnamiki is in early development. It runs on **Linux** and plays games through
 [RetroArch](https://www.retroarch.com/). What works today:
 
-- A guided first run: add an emulator, see the platforms its cores play and add a folder of
-  games for each one.
+- A guided first run: add an emulator, see the platforms it plays and add a folder of games
+  for each one.
 - A library of consoles and their games, played in full screen with RetroArch.
 - Play sessions, so Home offers to continue the last game played.
 - Gamepad, keyboard and mouse input, with sounds and music behind the menus.

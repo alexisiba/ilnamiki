@@ -80,7 +80,7 @@
   color: var(--color-text-focus);
 }
 
-/* The core and the extensions, one line each. */
+/* The emulators and the extensions, one line each. */
 .detail {
   font-family: var(--font-label);
   font-size: var(--label-md-size);

@@ -22,7 +22,7 @@ const startOfDay = (date: Date): number =>
 /**
  * The last played game as the hero shows it. Until games have metadata, it has no description
  * and shows a generic screenshot; the console is named as the app's catalog names it, or as
- * its cores do.
+ * its emulators do.
  */
 export function toContinueGame(game: LastPlayedGame, platforms: InstalledPlatform[]): ContinueGame {
   return {

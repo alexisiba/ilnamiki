@@ -57,8 +57,8 @@ export function mockApi(): void {
       listRecentlyPlayed: vi.fn(async (): Promise<RecentlyPlayedGame[]> => []),
       getDetails: vi.fn(async (): Promise<GameDetails | null> => null),
       getPlayer: vi.fn(async (): Promise<GamePlayer | null> => null),
-      setCore: vi.fn(async (): Promise<void> => undefined),
-      launch: vi.fn(async (): Promise<LaunchGameResult> => ({ ok: false, problem: 'no-core' })),
+      setEmulator: vi.fn(async (): Promise<void> => undefined),
+      launch: vi.fn(async (): Promise<LaunchGameResult> => ({ ok: false, problem: 'no-emulator' })),
       launchRandom: vi.fn(async (): Promise<LaunchRandomGameResult> => ({
         ok: false,
         problem: 'no-games'
@@ -99,7 +99,7 @@ export function mockApi(): void {
     platforms: {
       list: vi.fn(async (): Promise<InstalledPlatform[]> => []),
       setEnabled: vi.fn(async (): Promise<void> => undefined),
-      setDefaultCore: vi.fn(async (): Promise<void> => undefined),
+      setDefaultEmulator: vi.fn(async (): Promise<void> => undefined),
       getPhoto: vi.fn(async (): Promise<string | null> => null)
     }
   }

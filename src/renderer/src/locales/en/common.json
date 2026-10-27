@@ -48,7 +48,7 @@
     "problems": {
       "unknownGame": "This game is no longer in your library.",
       "missingFile": "The game's file isn't there anymore. Check its folder in Settings.",
-      "noCore": "No installed core plays this console. Set up an emulator in Settings.",
+      "noEmulator": "None of your emulators plays this console. Set up an emulator in Settings.",
       "noGames": "No game of your library can be played now. Check your game folders in Settings.",
       "alreadyPlaying": "Another game is being played. Close it first.",
       "notStarted": "The emulator couldn't be started. Check it in Settings.",
@@ -59,20 +59,20 @@
     "open": "Game options",
     "title": "Options",
     "close": "Close",
-    "core": "Core",
-    "playsWith": "Plays with {{core}} · {{reason}}",
+    "emulator": "Emulator",
+    "playsWith": "Plays with {{emulator}} · {{reason}}",
     "reasons": {
       "game": "chosen for this game",
       "lastSession": "last played with it",
       "platformDefault": "the console's default",
-      "firstInstalled": "the console's first core"
+      "firstInstalled": "the console's first emulator"
     },
     "automatic": "Automatic",
-    "automaticHint": "The core it was last played with, or the console's default",
-    "noCores": "No installed core plays this console.",
+    "automaticHint": "The emulator it was last played with, or the console's default",
+    "noEmulators": "None of your emulators plays this console.",
     "notFound": "This game is no longer in your library.",
     "failed": "The options couldn't be loaded. Try again later.",
-    "saveFailed": "The core couldn't be saved. Try again."
+    "saveFailed": "The emulator couldn't be saved. Try again."
   },
   "playStats": {
     "lastPlayed": "Last played {{time}}",

@@ -2,30 +2,41 @@ import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
-import type { GamePlayer, InstalledCore } from '@shared/api'
+import type { GamePlayer, PlatformEmulator } from '@shared/api'
 
 import { mockGamePlayer } from '@renderer/test/api'
 
 import { GameOptions } from './GameOptions'
 
-const BEETLE: InstalledCore = {
-  id: 'mednafen_psx_hw',
-  name: 'Beetle PSX HW',
+const BEETLE: PlatformEmulator = {
   emulatorId: 'a1',
+  emulatorName: 'RetroArch',
+  optionId: 'mednafen_psx_hw',
+  optionName: 'Beetle PSX HW',
   extensions: []
 }
-const SWANSTATION: InstalledCore = {
-  id: 'swanstation',
-  name: 'SwanStation',
+const SWANSTATION: PlatformEmulator = {
   emulatorId: 'a1',
+  emulatorName: 'RetroArch',
+  optionId: 'swanstation',
+  optionName: 'SwanStation',
+  extensions: []
+}
+const DUCKSTATION: PlatformEmulator = {
+  emulatorId: 'b2',
+  emulatorName: 'DuckStation',
+  optionId: null,
+  optionName: null,
   extensions: []
 }
 
 const PLAYER: GamePlayer = {
-  cores: [BEETLE, SWANSTATION],
-  chosenCore: null,
-  playsWith: { core: { emulatorId: 'a1', coreId: 'swanstation' }, reason: 'last-session' }
+  emulators: [BEETLE, SWANSTATION],
+  chosenEmulator: null,
+  playsWith: { emulator: { emulatorId: 'a1', optionId: 'swanstation' }, reason: 'last-session' }
 }
+
+const CHOSEN_BEETLE = { emulatorId: 'a1', optionId: 'mednafen_psx_hw' }
 
 function renderOptions(onClose = vi.fn()): void {
   render(<GameOptions gameId="g1" title="Crash Bandicoot (USA)" onClose={onClose} />)
@@ -35,7 +46,7 @@ const panel = (): Promise<HTMLElement> =>
   screen.findByRole('dialog', { name: 'Crash Bandicoot (USA)' })
 
 describe('GameOptions', () => {
-  it('opens a panel named by the game, reading its cores', async () => {
+  it('opens a panel named by the game, reading its emulators', async () => {
     mockGamePlayer(PLAYER)
     renderOptions()
 
@@ -44,104 +55,119 @@ describe('GameOptions', () => {
     expect(window.api.games.getPlayer).toHaveBeenCalledWith('g1')
   })
 
-  it('says which core the game plays with, and why', async () => {
+  it('says which emulator the game plays with, and why', async () => {
     mockGamePlayer(PLAYER)
     renderOptions()
 
     expect(
-      await screen.findByText('Plays with SwanStation · last played with it')
+      await screen.findByText('Plays with RetroArch · SwanStation · last played with it')
     ).toBeInTheDocument()
   })
 
-  it('offers Automatic and each core, Automatic marked and focused while none was chosen', async () => {
+  it('offers Automatic and each emulator, Automatic marked and focused while none was chosen', async () => {
     mockGamePlayer(PLAYER)
     renderOptions()
 
-    const cores = await screen.findByRole('radiogroup', { name: 'Core' })
-    const choices = within(cores).getAllByRole('radio')
+    const emulators = await screen.findByRole('radiogroup', { name: 'Emulator' })
+    const choices = within(emulators).getAllByRole('radio')
     expect(choices.map((choice) => choice.textContent)).toEqual([
-      "AutomaticThe core it was last played with, or the console's default",
-      'Beetle PSX HW',
-      'SwanStation'
+      "AutomaticThe emulator it was last played with, or the console's default",
+      'RetroArch · Beetle PSX HW',
+      'RetroArch · SwanStation'
     ])
     expect(choices[0]).toBeChecked()
     await waitFor(() => expect(choices[0]).toHaveFocus())
   })
 
-  it('marks and focuses the core chosen for the game', async () => {
+  it('marks and focuses the emulator chosen for the game', async () => {
     mockGamePlayer({
       ...PLAYER,
-      chosenCore: { emulatorId: 'a1', coreId: 'mednafen_psx_hw' },
-      playsWith: { core: { emulatorId: 'a1', coreId: 'mednafen_psx_hw' }, reason: 'game' }
+      chosenEmulator: CHOSEN_BEETLE,
+      playsWith: { emulator: CHOSEN_BEETLE, reason: 'game' }
     })
     renderOptions()
 
-    const beetle = await screen.findByRole('radio', { name: 'Beetle PSX HW' })
+    const beetle = await screen.findByRole('radio', { name: 'RetroArch · Beetle PSX HW' })
     expect(beetle).toBeChecked()
     await waitFor(() => expect(beetle).toHaveFocus())
-    expect(screen.getByText('Plays with Beetle PSX HW · chosen for this game')).toBeInTheDocument()
+    expect(
+      screen.getByText('Plays with RetroArch · Beetle PSX HW · chosen for this game')
+    ).toBeInTheDocument()
   })
 
-  it('keeps the core chosen for the game, then shows what it plays with', async () => {
+  it('keeps the emulator chosen for the game, then shows what it plays with', async () => {
     mockGamePlayer(PLAYER)
     renderOptions()
-    const beetle = await screen.findByRole('radio', { name: 'Beetle PSX HW' })
+    const beetle = await screen.findByRole('radio', { name: 'RetroArch · Beetle PSX HW' })
     mockGamePlayer({
       ...PLAYER,
-      chosenCore: { emulatorId: 'a1', coreId: 'mednafen_psx_hw' },
-      playsWith: { core: { emulatorId: 'a1', coreId: 'mednafen_psx_hw' }, reason: 'game' }
+      chosenEmulator: CHOSEN_BEETLE,
+      playsWith: { emulator: CHOSEN_BEETLE, reason: 'game' }
     })
 
     await userEvent.setup().click(beetle)
 
-    expect(window.api.games.setCore).toHaveBeenCalledWith('g1', {
-      emulatorId: 'a1',
-      coreId: 'mednafen_psx_hw'
-    })
+    expect(window.api.games.setEmulator).toHaveBeenCalledWith('g1', CHOSEN_BEETLE)
     expect(
-      await screen.findByText('Plays with Beetle PSX HW · chosen for this game')
+      await screen.findByText('Plays with RetroArch · Beetle PSX HW · chosen for this game')
     ).toBeInTheDocument()
     expect(beetle).toBeChecked()
   })
 
-  it('forgets the game’s core with Automatic', async () => {
-    mockGamePlayer({ ...PLAYER, chosenCore: { emulatorId: 'a1', coreId: 'mednafen_psx_hw' } })
+  it('offers and keeps an emulator without options, named alone', async () => {
+    mockGamePlayer({ ...PLAYER, emulators: [BEETLE, SWANSTATION, DUCKSTATION] })
+    renderOptions()
+
+    await userEvent.setup().click(await screen.findByRole('radio', { name: 'DuckStation' }))
+
+    expect(window.api.games.setEmulator).toHaveBeenCalledWith('g1', {
+      emulatorId: 'b2',
+      optionId: null
+    })
+  })
+
+  it('forgets the game’s emulator with Automatic', async () => {
+    mockGamePlayer({ ...PLAYER, chosenEmulator: CHOSEN_BEETLE })
     renderOptions()
 
     await userEvent.setup().click(await screen.findByRole('radio', { name: /^Automatic/ }))
 
-    expect(window.api.games.setCore).toHaveBeenCalledWith('g1', null)
+    expect(window.api.games.setEmulator).toHaveBeenCalledWith('g1', null)
   })
 
-  it('keeps the mark where it was when the core can’t be kept, saying so', async () => {
+  it('keeps the mark where it was when the emulator can’t be kept, saying so', async () => {
     mockGamePlayer(PLAYER)
-    vi.mocked(window.api.games.setCore).mockRejectedValue(new Error('No database'))
+    vi.mocked(window.api.games.setEmulator).mockRejectedValue(new Error('No database'))
     renderOptions()
 
-    await userEvent.setup().click(await screen.findByRole('radio', { name: 'Beetle PSX HW' }))
+    await userEvent
+      .setup()
+      .click(await screen.findByRole('radio', { name: 'RetroArch · Beetle PSX HW' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      "The core couldn't be saved. Try again."
+      "The emulator couldn't be saved. Try again."
     )
     expect(screen.getByRole('radio', { name: /^Automatic/ })).toBeChecked()
   })
 
-  it('names the only core, with nothing to choose, focusing Close', async () => {
-    mockGamePlayer({ ...PLAYER, cores: [SWANSTATION] })
+  it('names the only emulator, with nothing to choose, focusing Close', async () => {
+    mockGamePlayer({ ...PLAYER, emulators: [SWANSTATION] })
     renderOptions()
 
     expect(
-      await screen.findByText('Plays with SwanStation · last played with it')
+      await screen.findByText('Plays with RetroArch · SwanStation · last played with it')
     ).toBeInTheDocument()
     expect(screen.queryByRole('radiogroup')).not.toBeInTheDocument()
     await waitFor(() => expect(screen.getByRole('button', { name: 'Close' })).toHaveFocus())
   })
 
-  it('says so when no installed core plays the game', async () => {
-    mockGamePlayer({ cores: [], chosenCore: null, playsWith: null })
+  it('says so when none of the user’s emulators plays the game', async () => {
+    mockGamePlayer({ emulators: [], chosenEmulator: null, playsWith: null })
     renderOptions()
 
-    expect(await screen.findByText('No installed core plays this console.')).toBeInTheDocument()
+    expect(
+      await screen.findByText('None of your emulators plays this console.')
+    ).toBeInTheDocument()
   })
 
   it('says so when the game isn’t in the library', async () => {

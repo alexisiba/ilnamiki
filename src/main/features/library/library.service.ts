@@ -81,8 +81,8 @@ function moveFolder(repository: LibraryRepository, folder: FolderRecord, path: s
 }
 
 /**
- * Finds the games in the folder at `path` with the extensions of its platform's installed
- * cores, calling `onProgress` with the fraction done. Starting a scan cancels the one running.
+ * Finds the games in the folder at `path` with the extensions of its platform's emulators,
+ * calling `onProgress` with the fraction done. Starting a scan cancels the one running.
  * The scan is kept as the latest, of the folder `folderId` when it scans one again.
  */
 async function scan(
@@ -106,11 +106,11 @@ async function scan(
   })
   if (!result.ok) return result
 
-  const coreExtensions = platform.cores.flatMap((core) => core.extensions)
+  const emulatorExtensions = platform.emulators.flatMap((emulator) => emulator.extensions)
   const games = findGames({
     files: result.files,
     indexTexts: result.indexTexts,
-    extensions: gameExtensionsOf(platformId, coreExtensions)
+    extensions: gameExtensionsOf(platformId, emulatorExtensions)
   })
 
   const folderScan: FolderScan = {

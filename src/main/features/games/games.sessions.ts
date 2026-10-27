@@ -1,6 +1,6 @@
 /**
  * Shortest time a game must be open to count as played: shorter, the emulator most likely
- * closed on its own (e.g. the core couldn't open the game) or the user left right away.
+ * closed on its own (e.g. it couldn't open the game) or the user left right away.
  */
 export const MIN_PLAY_SESSION_MS = 10_000
 

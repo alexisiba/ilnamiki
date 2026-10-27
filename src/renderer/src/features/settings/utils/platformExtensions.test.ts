@@ -1,29 +1,41 @@
 import { describe, expect, it } from 'vitest'
 
-import type { InstalledPlatform } from '@renderer/types/installedPlatform'
+import type { InstalledPlatform, PlatformEmulator } from '@renderer/types/installedPlatform'
 
 import { getPlatformExtensions } from './platformExtensions'
+
+const retroArch = (
+  optionId: string,
+  optionName: string,
+  extensions: string[]
+): PlatformEmulator => ({
+  emulatorId: 'a1',
+  emulatorName: 'RetroArch',
+  optionId,
+  optionName,
+  extensions
+})
 
 const SUPER_NES: InstalledPlatform = {
   id: 'super_nes',
   name: 'Super Nintendo',
   manufacturer: 'Nintendo',
-  cores: [
-    { id: 'bsnes', name: 'bsnes', emulatorId: 'a1', extensions: ['sfc', 'bs'] },
-    { id: 'snes9x', name: 'Snes9x', emulatorId: 'a1', extensions: ['smc', 'sfc'] }
+  emulators: [
+    retroArch('bsnes', 'bsnes', ['sfc', 'bs']),
+    retroArch('snes9x', 'Snes9x', ['smc', 'sfc'])
   ],
   isEnabled: true,
-  defaultCore: null
+  defaultEmulator: null
 }
 
 describe('getPlatformExtensions', () => {
-  it('lists the extensions of every core once each, in the order they declare them', () => {
+  it('lists the extensions of every emulator once each, in the order they declare them', () => {
     expect(getPlatformExtensions(SUPER_NES)).toEqual(['sfc', 'bs', 'smc'])
   })
 
-  it('is empty when no core declares any', () => {
-    const cores = SUPER_NES.cores.map((core) => ({ ...core, extensions: [] }))
+  it('is empty when no emulator declares any', () => {
+    const emulators = SUPER_NES.emulators.map((emulator) => ({ ...emulator, extensions: [] }))
 
-    expect(getPlatformExtensions({ ...SUPER_NES, cores })).toEqual([])
+    expect(getPlatformExtensions({ ...SUPER_NES, emulators })).toEqual([])
   })
 })

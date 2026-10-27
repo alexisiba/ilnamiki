@@ -1,2 +1,2 @@
-export { isAmongCores, parseCoreRef } from './installedPlatforms.cores'
-export { findCorePlayer, listInstalledPlatforms, type PlatformPlayer } from './installedPlatforms'
+export { isAmongEmulators, parseEmulatorChoice } from './installedPlatforms.choices'
+export { type GameStart, listInstalledPlatforms, prepareGame } from './installedPlatforms'
