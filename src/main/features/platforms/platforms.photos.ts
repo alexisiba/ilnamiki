@@ -8,9 +8,9 @@ export interface PlatformPhoto {
 }
 
 /**
- * The photo of each platform's console, by platform id. All are PNGs by Evan Amos, taken from
- * the same angle on a transparent background, home consoles with their controller, so they
- * look alike side by side. A platform id groups related consoles (e.g. `game_boy` also plays
+ * The photo of each platform's console, by platform id. All are PNGs of photos by Evan Amos,
+ * taken from the same angle on a transparent background (one cut out by another user), home
+ * consoles with their controller, so they look alike side by side. A platform id groups related consoles (e.g. `game_boy` also plays
  * Game Boy Color), so its photo is of the console it is named after. Platforms without a photo
  * by him are left out.
  */
@@ -160,6 +160,12 @@ export const PLATFORM_PHOTOS: Record<string, PlatformPhoto> = {
     commonsFile: 'SNES-Mod1-Console-Set.png',
     author: 'Evan-Amos',
     license: 'CC BY-SA 3.0'
+  },
+  // His photo cut out onto a transparent background by another Commons user.
+  switch: {
+    commonsFile: 'Nintendo-Switch-wJoyCons-BlRd-Standing-FL.png',
+    author: 'Evan-Amos, modified by Gunnar.offel',
+    license: 'Public domain'
   },
   vectrex: { commonsFile: 'Vectrex-Console-Set.png', author: 'Evan-Amos', license: 'CC BY-SA 3.0' },
   virtual_boy: {
