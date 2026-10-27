@@ -7,6 +7,7 @@ import { Button } from '@renderer/components/Button'
 import { usePlatforms } from '@renderer/core/ipc'
 import { FocusGroup, useGoBack } from '@renderer/core/navigation'
 
+import { ExtensionBadges } from '../components/ExtensionBadges'
 import { SettingsEmptyState } from '../components/SettingsEmptyState'
 import { getPlatformExtensions } from '../utils/platformExtensions'
 import { PlatformCores } from './components/PlatformCores'
@@ -62,13 +63,7 @@ export function PlatformDetailsSettings(): React.JSX.Element | null {
           {t('platformDetails.extensions')}
         </h3>
         {extensions.length > 0 ? (
-          <ul className={styles.extensions}>
-            {extensions.map((extension) => (
-              <li key={extension} className={styles.extension}>
-                {extension}
-              </li>
-            ))}
-          </ul>
+          <ExtensionBadges extensions={extensions} />
         ) : (
           <p className={styles.message}>{t('platformDetails.noExtensions')}</p>
         )}

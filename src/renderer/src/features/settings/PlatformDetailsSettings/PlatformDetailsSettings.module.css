@@ -155,29 +155,6 @@
 }
 
 /* Information, not controls: flat tags with no focus or hover state. */
-.extensions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-xs);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.extension {
-  padding: var(--space-xs) var(--space-sm);
-  background: var(--color-surface-high);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-full);
-  font-family: var(--font-label);
-  font-size: var(--label-md-size);
-  font-weight: var(--label-md-weight);
-  line-height: var(--label-md-line-height);
-  letter-spacing: var(--label-md-tracking);
-  font-variant-ligatures: none;
-  color: var(--color-text);
-}
-
 .core {
   font-size: var(--body-lg-size);
   line-height: var(--body-lg-line-height);

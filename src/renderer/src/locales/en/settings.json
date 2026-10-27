@@ -115,8 +115,9 @@
     "browse": "Choose the folder",
     "platform": "Platform",
     "selectPlatform": "Select a platform",
-    "onePerPlatform": "Each platform can have one folder. Platforms that already have one aren't listed.",
-    "coreFormatsOnly": "Only games in the formats the platform's cores support are found, as listed in Installed platforms. ZIP and 7z files are skipped unless a core supports them, even if the emulator can open them.",
+    "onePerPlatform": "Each platform can have only one folder.",
+    "extensions": "Accepted extensions",
+    "noExtensions": "Its cores don't say which extensions they play.",
     "cancel": "Cancel",
     "scan": "Scan",
     "problems": {

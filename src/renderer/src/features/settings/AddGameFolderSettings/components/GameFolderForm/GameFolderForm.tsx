@@ -4,19 +4,21 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@renderer/components/Button'
 import { pickGameFolder } from '@renderer/core/ipc'
 
+import { ExtensionBadges } from '../../../components/ExtensionBadges'
 import { FormField } from '../../../components/FormField'
 import { PathField } from '../../../components/PathField'
 import { SettingsForm } from '../../../components/SettingsForm'
 import { scanProblemMessageKey } from '../../../utils/gameFolderProblems'
 import { isAbsolutePath } from '../../../utils/paths'
+import { getPlatformExtensions } from '../../../utils/platformExtensions'
 import { PlatformSelect } from '../PlatformSelect'
 import type { GameFolderFormProps } from './GameFolderForm.types'
 import styles from './GameFolderForm.module.css'
 
 /**
- * The folder to find games in, typed or chosen with the system's folder picker (which only
- * accepts folders), and the platform its games belong to, one folder per platform; only games
- * in the formats its cores support are found. Scan is unavailable until both are filled in;
+ * The platform whose games to add, one folder per platform, with the extensions its games are
+ * found by once chosen, then the folder to find them in, typed or chosen with the system's
+ * folder picker (which only accepts folders). Scan is unavailable until both are filled in;
  * why a folder can't be scanned shows below its path.
  */
 export function GameFolderForm({
@@ -35,8 +37,10 @@ export function GameFolderForm({
   const platformLabelId = useId()
   const platformControlId = useId()
   const platformNoteId = useId()
-  const formatsNoteId = useId()
+  const extensionsId = useId()
   const complete = path.trim() !== '' && platformId !== undefined
+  const selected = platforms.find((platform) => platform.id === platformId)
+  const extensions = selected ? getPlatformExtensions(selected) : []
 
   const changePath = (nextPath: string): void => {
     setPath(nextPath)
@@ -73,15 +77,6 @@ export function GameFolderForm({
         </>
       }
     >
-      <PathField
-        label={t('addGameFolder.path')}
-        browseLabel={t('addGameFolder.browse')}
-        value={path}
-        onChange={changePath}
-        pick={pickGameFolder}
-        error={problem}
-        autoFocus
-      />
       <FormField
         label={t('addGameFolder.platform')}
         controlId={platformControlId}
@@ -90,18 +85,38 @@ export function GameFolderForm({
         <PlatformSelect
           labelId={platformLabelId}
           controlId={platformControlId}
-          descriptionId={`${platformNoteId} ${formatsNoteId}`}
+          descriptionId={platformNoteId}
           platforms={platforms}
           value={platformId}
           onChange={changePlatform}
+          autoFocus={problemMessage === undefined}
         />
         <p id={platformNoteId} className={styles.note}>
           {t('addGameFolder.onePerPlatform')}
         </p>
-        <p id={formatsNoteId} className={styles.note}>
-          {t('addGameFolder.coreFormatsOnly')}
-        </p>
       </FormField>
+      {selected && (
+        <section className={styles.extensions} aria-labelledby={extensionsId}>
+          <h3 id={extensionsId} className={styles.extensionsLabel}>
+            {t('addGameFolder.extensions')}
+          </h3>
+          {extensions.length > 0 ? (
+            <ExtensionBadges extensions={extensions} />
+          ) : (
+            <p className={styles.note}>{t('addGameFolder.noExtensions')}</p>
+          )}
+        </section>
+      )}
+      {/* Focused instead when the form returns saying why its folder can't be scanned. */}
+      <PathField
+        label={t('addGameFolder.path')}
+        browseLabel={t('addGameFolder.browse')}
+        value={path}
+        onChange={changePath}
+        pick={pickGameFolder}
+        error={problem}
+        autoFocus={problemMessage !== undefined}
+      />
     </SettingsForm>
   )
 }
