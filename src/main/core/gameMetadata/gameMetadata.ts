@@ -60,6 +60,21 @@ async function describeInWorker(
   }
 }
 
+/** Who is told which games' metadata was just written. */
+const describedListeners = new Set<(gameIds: string[]) => void>()
+
+/**
+ * Calls `listener` with the games whose metadata was just written, each time a batch is
+ * written while games are being described; never while nothing is. Returns the unsubscribe
+ * function.
+ */
+export function onGamesDescribed(listener: (gameIds: string[]) => void): () => void {
+  describedListeners.add(listener)
+  return () => {
+    describedListeners.delete(listener)
+  }
+}
+
 const queue = createMetadataQueue({
   listGames: (folderIds) =>
     createGameMetadataRepository(getDatabase()).listGamesToDescribe(folderIds),
@@ -68,6 +83,12 @@ const queue = createMetadataQueue({
   save(updates, now) {
     const db = getDatabase()
     transaction(db, () => createGameMetadataRepository(db).save(updates, now))
+    const gameIds = [
+      ...new Set(
+        updates.map((update) => (update.type === 'details' ? update.game.gameId : update.gameId))
+      )
+    ]
+    for (const listener of [...describedListeners]) listener(gameIds)
   },
   now: Date.now
 })

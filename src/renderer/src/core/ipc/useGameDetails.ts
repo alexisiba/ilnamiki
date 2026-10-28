@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 import type { GameDetails } from '@shared/api'
 
-import { getGameDetails, subscribeToGameEnded } from './games'
+import { getGameDetails, subscribeToGameEnded, subscribeToMetadataChanged } from './games'
 
 export interface GameDetailsState {
   /** `loading` until main first answers, `failed` when it can't. */
@@ -15,7 +15,8 @@ const LOADING: GameDetailsState = { status: 'loading', game: null }
 
 /**
  * What the library knows about the game `gameId`, read from main on mount and when it
- * changes, and again when the game ends, its play history having changed.
+ * changes, and again when the game ends, its play history having changed, or when its
+ * metadata is found.
  */
 export function useGameDetails(gameId: string): GameDetailsState {
   // Kept with the game it belongs to, so another game's details never show.
@@ -35,12 +36,16 @@ export function useGameDetails(gameId: string): GameDetailsState {
     }
 
     load()
-    const unsubscribe = subscribeToGameEnded((ended) => {
+    const unsubscribeFromGameEnded = subscribeToGameEnded((ended) => {
       if (ended.gameId === gameId) load()
+    })
+    const unsubscribeFromMetadata = subscribeToMetadataChanged((changed) => {
+      if (changed.gameIds.includes(gameId)) load()
     })
     return () => {
       active = false
-      unsubscribe()
+      unsubscribeFromGameEnded()
+      unsubscribeFromMetadata()
     }
   }, [gameId])
 

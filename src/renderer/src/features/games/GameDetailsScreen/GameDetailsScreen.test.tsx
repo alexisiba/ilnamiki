@@ -8,6 +8,7 @@ import type { GameDetails, InstalledPlatform } from '@shared/api'
 import { GAME_DETAILS_PATH, NavigationProvider } from '@renderer/core/navigation'
 import {
   emitGameEnded,
+  emitMetadataChanged,
   mockGameDetails,
   mockLaunchGame,
   mockPlatforms,
@@ -150,6 +151,21 @@ describe('GameDetailsScreen', () => {
     const images = [...document.querySelectorAll('img')]
     expect(images).toHaveLength(1)
     expect(images[0].src).toContain('no-bg-image')
+  })
+
+  it('shows the game’s metadata as soon as it is found, not when another game’s is', async () => {
+    mockGameDetails(CRASH)
+    renderDetailsOf('g1')
+    await screen.findByText('No metadata')
+
+    act(() => emitMetadataChanged('g2'))
+    expect(window.api.games.getDetails).toHaveBeenCalledOnce()
+
+    mockGameDetails({ ...CRASH, title: 'Crash Bandicoot', releaseYear: 1996 })
+    act(() => emitMetadataChanged('g1'))
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Crash Bandicoot' })).toBeVisible()
+    expect(screen.getByText('1996')).toBeInTheDocument()
   })
 
   it('shows the game’s screenshot behind it once it has one', async () => {

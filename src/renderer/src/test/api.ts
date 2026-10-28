@@ -80,7 +80,8 @@ export function mockApi(): void {
         ok: false,
         problem: 'no-games'
       })),
-      onGameEnded: vi.fn((): (() => void) => () => undefined)
+      onGameEnded: vi.fn((): (() => void) => () => undefined),
+      onMetadataChanged: vi.fn((): (() => void) => () => undefined)
     },
     library: {
       pickFolder: vi.fn(async (): Promise<string | null> => null),
@@ -291,6 +292,16 @@ export function mockLaunchRandomGame(result: LaunchRandomGameResult | Error | 'p
 export function emitGameEnded(gameId: string): void {
   for (const [listener] of vi.mocked(window.api.games.onGameEnded).mock.calls) {
     listener({ gameId })
+  }
+}
+
+/**
+ * Sends that metadata of `gameIds` was found to every listener of
+ * `window.api.games.onMetadataChanged`.
+ */
+export function emitMetadataChanged(...gameIds: string[]): void {
+  for (const [listener] of vi.mocked(window.api.games.onMetadataChanged).mock.calls) {
+    listener({ gameIds })
   }
 }
 

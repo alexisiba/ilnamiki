@@ -13,6 +13,7 @@ import type {
 import { NavigationProvider, SECTION_PATHS } from '@renderer/core/navigation'
 import {
   emitGameEnded,
+  emitMetadataChanged,
   mockEmulators,
   mockGameFolders,
   mockLastPlayedGame,
@@ -222,6 +223,24 @@ describe('HomeScreen', () => {
       within(await recentlyAddedShelf()).getByRole('button', { name: 'Super Mario 64 (USA)' })
     ).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Continue playing' })).toHaveFocus()
+  })
+
+  it('shows the games added last as their metadata is found, without leaving Home', async () => {
+    mockEmulators([RETROARCH])
+    mockPlatforms([NINTENDO_64])
+    mockGameFolders([N64_FOLDER])
+    mockRecentlyAddedGames(RECENTLY_ADDED)
+    renderHome()
+    await within(await recentlyAddedShelf()).findByRole('button', {
+      name: 'Super Mario 64 (USA)'
+    })
+
+    mockRecentlyAddedGames([{ ...RECENTLY_ADDED[0], title: 'Super Mario 64' }, RECENTLY_ADDED[1]])
+    act(() => emitMetadataChanged('g2'))
+
+    expect(
+      await within(await recentlyAddedShelf()).findByRole('button', { name: 'Super Mario 64' })
+    ).toBeInTheDocument()
   })
 
   it('leaves the games added last out when they can’t be read', async () => {

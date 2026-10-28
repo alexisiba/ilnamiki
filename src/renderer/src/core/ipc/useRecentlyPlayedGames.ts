@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 import type { RecentlyPlayedGame } from '@shared/api'
 
-import { listRecentlyPlayedGames, subscribeToGameEnded } from './games'
+import { listRecentlyPlayedGames, subscribeToGameEnded, subscribeToMetadataChanged } from './games'
 
 export interface RecentlyPlayedGamesState {
   /** `loading` until main first answers, `failed` when it can't. */
@@ -15,7 +15,8 @@ const LOADING: RecentlyPlayedGamesState = { status: 'loading', games: [] }
 
 /**
  * The games played before the last played one, read from main on mount and again whenever a
- * game ends, the session it was just played in being recorded by then.
+ * game ends, the session it was just played in being recorded by then, and whenever games'
+ * metadata is found.
  */
 export function useRecentlyPlayedGames(): RecentlyPlayedGamesState {
   const [state, setState] = useState(LOADING)
@@ -34,10 +35,12 @@ export function useRecentlyPlayedGames(): RecentlyPlayedGamesState {
     }
 
     load()
-    const unsubscribe = subscribeToGameEnded(load)
+    const unsubscribeFromGameEnded = subscribeToGameEnded(load)
+    const unsubscribeFromMetadata = subscribeToMetadataChanged(load)
     return () => {
       active = false
-      unsubscribe()
+      unsubscribeFromGameEnded()
+      unsubscribeFromMetadata()
     }
   }, [])
 

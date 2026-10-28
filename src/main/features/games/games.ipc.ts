@@ -1,8 +1,9 @@
 import { BrowserWindow, ipcMain, type IpcMainInvokeEvent } from 'electron'
 
-import { GAMES_CHANNELS, type GameEnded } from '@shared/api'
+import { GAMES_CHANNELS, type GameEnded, type MetadataChanged } from '@shared/api'
 
 import { bringBack } from '../../core/emulatorProcess'
+import { onGamesDescribed } from '../../core/gameMetadata'
 import { parseEmulatorChoice } from '../../core/installedPlatforms'
 import { gamesService } from './games.service'
 import { parseGameId } from './games.validation'
@@ -55,4 +56,14 @@ export function registerGamesIpc(): void {
   })
 
   ipcMain.handle(GAMES_CHANNELS.launchRandom, (event) => gamesService.launchRandom(endIn(event)))
+
+  // Every window shows the library, so each is told when its games' metadata is found.
+  onGamesDescribed((gameIds) => {
+    const changed: MetadataChanged = { gameIds }
+    for (const window of BrowserWindow.getAllWindows()) {
+      if (!window.webContents.isDestroyed()) {
+        window.webContents.send(GAMES_CHANNELS.metadataChanged, changed)
+      }
+    }
+  })
 }

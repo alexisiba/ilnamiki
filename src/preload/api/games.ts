@@ -1,6 +1,6 @@
 import { ipcRenderer, type IpcRendererEvent } from 'electron'
 
-import { GAMES_CHANNELS, type GameEnded, type GamesApi } from '@shared/api'
+import { GAMES_CHANNELS, type GameEnded, type GamesApi, type MetadataChanged } from '@shared/api'
 
 export const gamesApi: GamesApi = {
   getLastPlayed: () => ipcRenderer.invoke(GAMES_CHANNELS.getLastPlayed),
@@ -17,6 +17,13 @@ export const gamesApi: GamesApi = {
     ipcRenderer.on(GAMES_CHANNELS.gameEnded, handle)
     return () => {
       ipcRenderer.removeListener(GAMES_CHANNELS.gameEnded, handle)
+    }
+  },
+  onMetadataChanged: (listener) => {
+    const handle = (_event: IpcRendererEvent, changed: MetadataChanged): void => listener(changed)
+    ipcRenderer.on(GAMES_CHANNELS.metadataChanged, handle)
+    return () => {
+      ipcRenderer.removeListener(GAMES_CHANNELS.metadataChanged, handle)
     }
   }
 }

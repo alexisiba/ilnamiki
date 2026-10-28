@@ -2,7 +2,12 @@ import { describe, expect, it, vi } from 'vitest'
 
 import type { LastPlayedGame } from '@shared/api'
 
-import { emitGameEnded, mockLastPlayedGame, NO_ARTWORK } from '@renderer/test/api'
+import {
+  emitGameEnded,
+  emitMetadataChanged,
+  mockLastPlayedGame,
+  NO_ARTWORK
+} from '@renderer/test/api'
 
 import {
   getLastPlayedGameState,
@@ -61,14 +66,32 @@ describe('last played game store', () => {
     await vi.waitFor(() => expect(getLastPlayedGameState().game).toEqual(CRASH))
   })
 
-  it('stops following the games that end once no one is subscribed', () => {
-    const stopFollowing = vi.fn()
-    vi.mocked(window.api.games.onGameEnded).mockReturnValue(stopFollowing)
+  it('reads it again when its metadata is found, not another game’s', async () => {
+    mockLastPlayedGame(CRASH)
+    subscribeToLastPlayedGame(vi.fn())
+    await vi.waitFor(() => expect(getLastPlayedGameState().game).toEqual(CRASH))
+
+    emitMetadataChanged('other')
+    expect(window.api.games.getLastPlayed).toHaveBeenCalledOnce()
+
+    const described = { ...CRASH, title: 'Crash Bandicoot (described)' }
+    mockLastPlayedGame(described)
+    emitMetadataChanged('other', CRASH.id)
+
+    await vi.waitFor(() => expect(getLastPlayedGameState().game).toEqual(described))
+  })
+
+  it('stops following the games that end and their metadata once no one is subscribed', () => {
+    const stopFollowingEnds = vi.fn()
+    const stopFollowingMetadata = vi.fn()
+    vi.mocked(window.api.games.onGameEnded).mockReturnValue(stopFollowingEnds)
+    vi.mocked(window.api.games.onMetadataChanged).mockReturnValue(stopFollowingMetadata)
     const unsubscribe = subscribeToLastPlayedGame(vi.fn())
 
     unsubscribe()
 
-    expect(stopFollowing).toHaveBeenCalledOnce()
+    expect(stopFollowingEnds).toHaveBeenCalledOnce()
+    expect(stopFollowingMetadata).toHaveBeenCalledOnce()
   })
 
   it('keeps the game read when a later read fails', async () => {

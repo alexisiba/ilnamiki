@@ -12,7 +12,7 @@ const INITIAL_STATE: LastPlayedGameState = { status: 'loading', game: null }
 
 let state = INITIAL_STATE
 const listeners = new Set<() => void>()
-let unsubscribeFromGameEnded: (() => void) | null = null
+let unsubscribeFromMain: (() => void) | null = null
 
 function setState(next: LastPlayedGameState): void {
   state = next
@@ -31,21 +31,29 @@ export async function refreshLastPlayedGame(): Promise<void> {
 /**
  * Calls `listener` whenever the last played game changes. The first subscriber after none
  * reads it again, and while any is subscribed it is read again each time a game ends, the
- * session it was just played in being recorded by then. Returns the unsubscribe function.
+ * session it was just played in being recorded by then, and when its metadata is found.
+ * Returns the unsubscribe function.
  */
 export function subscribeToLastPlayedGame(listener: () => void): () => void {
   listeners.add(listener)
   if (listeners.size === 1) {
     void refreshLastPlayedGame()
-    unsubscribeFromGameEnded = window.api.games.onGameEnded(() => {
+    const unsubscribeFromGameEnded = window.api.games.onGameEnded(() => {
       void refreshLastPlayedGame()
     })
+    const unsubscribeFromMetadata = window.api.games.onMetadataChanged((changed) => {
+      if (state.game && changed.gameIds.includes(state.game.id)) void refreshLastPlayedGame()
+    })
+    unsubscribeFromMain = () => {
+      unsubscribeFromGameEnded()
+      unsubscribeFromMetadata()
+    }
   }
   return () => {
     listeners.delete(listener)
     if (listeners.size === 0) {
-      unsubscribeFromGameEnded?.()
-      unsubscribeFromGameEnded = null
+      unsubscribeFromMain?.()
+      unsubscribeFromMain = null
     }
   }
 }
@@ -58,6 +66,6 @@ export function getLastPlayedGameState(): LastPlayedGameState {
 export function resetLastPlayedGame(): void {
   state = INITIAL_STATE
   listeners.clear()
-  unsubscribeFromGameEnded?.()
-  unsubscribeFromGameEnded = null
+  unsubscribeFromMain?.()
+  unsubscribeFromMain = null
 }

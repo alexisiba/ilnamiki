@@ -34,6 +34,14 @@ export interface GameEnded {
 }
 
 /**
+ * Games whose metadata was just found in the background (title, artwork, details), so what
+ * shows them can be read again.
+ */
+export interface MetadataChanged {
+  gameIds: string[]
+}
+
+/**
  * A game's images, as URLs an `<img>` shows; null for each kind it has none of (not found yet,
  * or no source has it), where the UI shows a generic image instead.
  */
@@ -183,6 +191,12 @@ export interface GamesApi {
   launchRandom(): Promise<LaunchRandomGameResult>
   /** Calls `listener` when the game being played ends. Returns the unsubscribe function. */
   onGameEnded(listener: (ended: GameEnded) => void): () => void
+  /**
+   * Calls `listener` each time metadata of some games is found in the background, a few games
+   * at a time while it is being found; never while nothing is. Returns the unsubscribe
+   * function.
+   */
+  onMetadataChanged(listener: (changed: MetadataChanged) => void): () => void
 }
 
 export const GAMES_CHANNELS = {
@@ -194,5 +208,6 @@ export const GAMES_CHANNELS = {
   setEmulator: 'games:set-emulator',
   launch: 'games:launch',
   launchRandom: 'games:launch-random',
-  gameEnded: 'games:game-ended'
+  gameEnded: 'games:game-ended',
+  metadataChanged: 'games:metadata-changed'
 } as const

@@ -5,6 +5,7 @@ import type {
   GamePlayer,
   LaunchGameResult,
   LaunchRandomGameResult,
+  MetadataChanged,
   RecentlyAddedGame,
   RecentlyPlayedGame
 } from '@shared/api'
@@ -57,4 +58,14 @@ export function launchRandomGame(): Promise<LaunchRandomGameResult> {
 /** Calls `listener` when the game being played ends. Returns the unsubscribe function. */
 export function subscribeToGameEnded(listener: (ended: GameEnded) => void): () => void {
   return window.api.games.onGameEnded(listener)
+}
+
+/**
+ * Calls `listener` each time metadata of some games is found in the background (titles,
+ * artwork, details); never while nothing is being found. Returns the unsubscribe function.
+ */
+export function subscribeToMetadataChanged(
+  listener: (changed: MetadataChanged) => void
+): () => void {
+  return window.api.games.onMetadataChanged(listener)
 }

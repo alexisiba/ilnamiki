@@ -247,6 +247,12 @@ One table per kind, each marking what was asked:
 - A game's three artwork kinds download at the same time; games go one after another.
 - It is **invisible for now**: no progress UI. Errors are logged, never shown. A later UI will
   show that metadata is downloading.
+- **Screens follow it by an event, never by polling.** Each time a batch is written, main
+  sends `games.onMetadataChanged` with the batch's game ids (`onGamesDescribed` in the module,
+  sent to every window by the games feature); while nothing is being described, nothing is
+  sent and nothing runs. The renderer's `core/ipc` hooks of games read again when it comes:
+  lists always, a single game's (details, the last played game) only when its id is in it.
+  Subscriptions last while the screen using them is shown.
 - Starting a game never waits for metadata.
 
 ## 9. Network
