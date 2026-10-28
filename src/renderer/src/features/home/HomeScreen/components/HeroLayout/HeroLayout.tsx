@@ -10,6 +10,7 @@ import styles from './HeroLayout.module.css'
 export function HeroLayout({
   id,
   imageUrl,
+  isPixelArt = false,
   badge,
   eyebrowIcon: EyebrowIcon,
   eyebrowIconStyle = 'filled',
@@ -22,7 +23,11 @@ export function HeroLayout({
 }: HeroLayoutProps): React.JSX.Element {
   return (
     <FocusGroup id={id} as="section" className={styles.hero}>
-      <img className={styles.artwork} src={imageUrl} alt="" />
+      <img
+        className={isPixelArt ? `${styles.artwork} ${styles.pixelArt}` : styles.artwork}
+        src={imageUrl}
+        alt=""
+      />
       <div className={styles.content}>
         {badge}
         <p className={styles.eyebrow}>

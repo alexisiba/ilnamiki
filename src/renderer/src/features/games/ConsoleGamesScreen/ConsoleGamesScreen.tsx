@@ -7,6 +7,7 @@ import { playUiSound } from '@renderer/core/audio'
 import { useInputAction } from '@renderer/core/input'
 import { useFolderGames, useGameFolders, usePlatforms } from '@renderer/core/ipc'
 import { useRememberedState } from '@renderer/core/navigation'
+import { backdropOf } from '@renderer/utils/gameArtwork'
 import { toGameConsoles } from '@renderer/utils/gameConsoles'
 
 import { GamePanel } from './components/GamePanel'
@@ -82,7 +83,11 @@ export function ConsoleGamesScreen(): React.JSX.Element | null {
             statusId={statusId}
             onSelect={setSelectedIndex}
           />
-          <GamePanel game={game} describedBy={statusId} />
+          <GamePanel
+            game={game}
+            backdrop={backdropOf(folderGames[selectedIndex].artwork)}
+            describedBy={statusId}
+          />
         </div>
       )}
     </div>

@@ -18,6 +18,11 @@
   mask-composite: intersect;
 }
 
+/* A capture at a console's resolution keeps its pixels sharp as it is stretched. */
+.pixelArt {
+  image-rendering: pixelated;
+}
+
 .content {
   position: relative;
   display: flex;

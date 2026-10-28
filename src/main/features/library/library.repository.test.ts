@@ -23,6 +23,14 @@ const N64_FOLDER: FolderRecord = {
 const CRASH = { id: 'g1', filePath: '/home/player/Games/PS1/Crash.cue', title: 'Crash' }
 const TEKKEN = { id: 'g2', filePath: '/home/player/Games/PS1/Tekken 3.chd', title: 'Tekken 3' }
 
+const NO_ARTWORK = { cover: null, titleScreen: null, screenshot: null }
+
+/** `game` as a folder lists it, without artwork. */
+const listed = <T extends object>(game: T): T & { artwork: typeof NO_ARTWORK } => ({
+  ...game,
+  artwork: NO_ARTWORK
+})
+
 let db: DatabaseSync
 
 beforeEach(() => {
@@ -112,7 +120,7 @@ describe('library repository', () => {
     repository.saveGames(N64_FOLDER.id, 'nintendo_64', [{ ...CRASH, id: 'g4' }], 1)
     repository.removeGames(['g2'], 2)
 
-    expect(repository.listGames(PS1_FOLDER.id)).toEqual([ape, CRASH])
+    expect(repository.listGames(PS1_FOLDER.id)).toEqual([listed(ape), listed(CRASH)])
     expect(repository.listGames('missing')).toEqual([])
   })
 
@@ -126,9 +134,26 @@ describe('library repository', () => {
     ).run()
 
     expect(repository.listGames(PS1_FOLDER.id)).toEqual([
-      { ...TEKKEN, title: 'A Tekken Game' },
-      CRASH
+      listed({ ...TEKKEN, title: 'A Tekken Game' }),
+      listed(CRASH)
     ])
+  })
+
+  it('lists a game with the images it has, as URLs the renderer loads', () => {
+    const repository = createLibraryRepository(db)
+    repository.insertFolder(PS1_FOLDER)
+    const game = { ...CRASH, id: '0618ed66-3a1c-4fce-b74a-abfc2a082200' }
+    repository.saveGames(PS1_FOLDER.id, 'playstation', [game], 1)
+    db.prepare(
+      `INSERT INTO game_images (game_id, kind, path, looked_at)
+        VALUES (?, 'cover', '/data/artwork/cover.png', 7), (?, 'screenshot', NULL, 7)`
+    ).run(game.id, game.id)
+
+    expect(repository.listGames(PS1_FOLDER.id)[0].artwork).toEqual({
+      cover: `ilnamiki-artwork://game/${game.id}/cover?v=7`,
+      titleScreen: null,
+      screenshot: null
+    })
   })
 
   it('marks games removed out of their folder, keeping them', () => {
@@ -167,7 +192,7 @@ describe('library repository', () => {
 
     expect(repository.findFolderByPath('/media/player/PS1')).toMatchObject({ id: 'f1' })
     expect(repository.listGames(PS1_FOLDER.id)).toEqual([
-      { ...CRASH, filePath: '/media/player/PS1/Crash.cue' }
+      listed({ ...CRASH, filePath: '/media/player/PS1/Crash.cue' })
     ])
   })
 
@@ -178,7 +203,7 @@ describe('library repository', () => {
 
     repository.setGameFilePath(CRASH.id, TEKKEN.filePath)
 
-    expect(repository.listGames(PS1_FOLDER.id)).toEqual([CRASH, TEKKEN])
+    expect(repository.listGames(PS1_FOLDER.id)).toEqual([listed(CRASH), listed(TEKKEN)])
   })
 
   it('refuses to delete a folder until its games are marked removed', () => {

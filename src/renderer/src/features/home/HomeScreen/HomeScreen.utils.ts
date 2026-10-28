@@ -5,8 +5,7 @@ import type {
   RecentlyPlayedGame
 } from '@shared/api'
 
-import noScreenshot from '@renderer/assets/images/games/no-bg-image.webp'
-import noImage from '@renderer/assets/images/games/no-image.webp'
+import { backdropOf, coverOf } from '@renderer/utils/gameArtwork'
 import { getPlatformName } from '@renderer/utils/platformName'
 
 import type { ContinueGame } from './components/ContinueHero'
@@ -20,25 +19,27 @@ const startOfDay = (date: Date): number =>
   new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime()
 
 /**
- * The last played game as the hero shows it. Until games have metadata, it has no description
- * and shows a generic screenshot; the console is named as the app's catalog names it, or as
- * its emulators do.
+ * The last played game as the hero shows it: behind it its screenshot (or a generic image
+ * while it has none), without a description until games have one; the console is named as the
+ * app's catalog names it, or as its emulators do.
  */
 export function toContinueGame(game: LastPlayedGame, platforms: InstalledPlatform[]): ContinueGame {
+  const backdrop = backdropOf(game.artwork)
   return {
     id: game.id,
     title: game.title,
     platform: getPlatformName(game.platformId, platforms),
     description: null,
-    imageUrl: noScreenshot,
+    imageUrl: backdrop.url,
+    isPixelArt: backdrop.isPixelArt,
     lastPlayedAt: new Date(game.lastPlayedAt),
     playtimeMinutes: Math.round(game.playtimeMs / MINUTE_MS)
   }
 }
 
 /**
- * A recently added game as its shelf shows it: until games have artwork, with the generic
- * game image, and its console named as in the hero.
+ * A recently added game as its shelf shows it: with its cover (or a generic image while it has
+ * none), and its console named as in the hero.
  */
 export function toRecentlyAddedShelfGame(
   game: RecentlyAddedGame,
@@ -48,7 +49,7 @@ export function toRecentlyAddedShelfGame(
     id: game.id,
     title: game.title,
     platform: getPlatformName(game.platformId, platforms),
-    imageUrl: noImage
+    imageUrl: coverOf(game.artwork)
   }
 }
 
@@ -66,7 +67,7 @@ export function toRecentlyPlayedShelfGame(
     id: game.id,
     title: game.title,
     platform: getPlatformName(game.platformId, platforms),
-    imageUrl: noImage,
+    imageUrl: coverOf(game.artwork),
     caption: formatLastPlayed(new Date(game.lastPlayedAt), now, locale)
   }
 }

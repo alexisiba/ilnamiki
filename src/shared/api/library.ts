@@ -1,3 +1,5 @@
+import type { GameArtwork } from './games'
+
 /** Why a game found in a folder can't be played. */
 export type ScannedGameProblem =
   /** Files the game's index (e.g. its .cue) points to aren't there, as the index writes them. */
@@ -98,13 +100,17 @@ export type UpdateFolderProblem =
 export type UpdateFolderResult =
   { ok: true; folder: GameFolder } | { ok: false; problem: UpdateFolderProblem }
 
-/** A game saved from a folder. Its data comes from the files and is never translated. */
+/**
+ * A game saved from a folder. Its data comes from the files and its metadata, and is never
+ * translated.
+ */
 export interface FolderGame {
   id: string
-  /** Title shown in the app, e.g. "Crash Bandicoot (USA)". */
+  /** Title shown in the app: its metadata's (e.g. "Crash Bandicoot"), else its file's name. */
   title: string
   /** Absolute path of the file the emulator opens. */
   filePath: string
+  artwork: GameArtwork
 }
 
 /** How far the running scan is. */

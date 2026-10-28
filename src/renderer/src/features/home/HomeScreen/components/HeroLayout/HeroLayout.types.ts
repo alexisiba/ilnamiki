@@ -6,6 +6,11 @@ export interface HeroLayoutProps {
   id: string
   /** Decorative artwork on the right, fading into the background. */
   imageUrl: string
+  /**
+   * Whether the artwork is a capture at a console's own resolution, drawn with sharp pixels
+   * rather than blurred as it is stretched; false by default.
+   */
+  isPixelArt?: boolean
   /** Shown above the eyebrow (e.g. the game's platform); optional. */
   badge?: ReactNode
   /** What the hero offers (e.g. "Resume session"), with its icon, above the title. */

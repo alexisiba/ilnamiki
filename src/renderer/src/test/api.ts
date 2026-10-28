@@ -10,6 +10,7 @@ import type {
   ChangeEmulatorPathResult,
   ControllerStatus,
   Emulator,
+  GameArtwork,
   InspectEmulatorResult,
   InstalledPlatform,
   LastPlayedGame,
@@ -22,6 +23,22 @@ import type {
   ScanFolderResult,
   UpdateFolderResult
 } from '@shared/api'
+
+/** The artwork of a game without any image yet, for test data. */
+export const NO_ARTWORK: GameArtwork = { cover: null, titleScreen: null, screenshot: null }
+
+/** What a game's details say while its metadata knows nothing, for test data. */
+export const NO_GAME_FACTS: Pick<
+  GameDetails,
+  'artwork' | 'releaseYear' | 'genre' | 'developer' | 'publisher' | 'players'
+> = {
+  artwork: NO_ARTWORK,
+  releaseYear: null,
+  genre: null,
+  developer: null,
+  publisher: null,
+  players: null
+}
 
 /**
  * Installs a fresh `window.api` (jsdom has no preload), where every request answers that

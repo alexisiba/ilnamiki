@@ -26,6 +26,7 @@ export function ContinueHero({ game }: ContinueHeroProps): React.JSX.Element {
     <HeroLayout
       id="home-hero"
       imageUrl={game.imageUrl}
+      isPixelArt={game.isPixelArt}
       badge={<PlatformPill platform={game.platform} />}
       eyebrowIcon={Play}
       eyebrow={t('hero.resume')}

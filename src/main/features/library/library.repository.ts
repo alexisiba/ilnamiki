@@ -1,6 +1,14 @@
 import type { DatabaseSync } from 'node:sqlite'
 
-import { JOIN_GAME_METADATA, SHOWN_TITLE } from '../../core/gameMetadata'
+import type { GameArtwork } from '@shared/api'
+
+import {
+  ARTWORK_COLUMNS,
+  type ArtworkColumns,
+  JOIN_GAME_METADATA,
+  SHOWN_TITLE,
+  toGameArtwork
+} from '../../core/gameMetadata'
 
 /** A game folder as it is stored. */
 export interface FolderRecord {
@@ -30,6 +38,13 @@ export interface GameRecord {
   id: string
   filePath: string
   /** The title shown: its metadata's when it has one, else its file's name. */
+  title: string
+  artwork: GameArtwork
+}
+
+interface GameRow extends ArtworkColumns {
+  id: string
+  file_path: string
   title: string
 }
 
@@ -117,14 +132,19 @@ export function createLibraryRepository(db: DatabaseSync): LibraryRepository {
     listGames(folderId) {
       const rows = db
         .prepare(
-          `SELECT games.id, games.file_path, ${SHOWN_TITLE} AS title
+          `SELECT games.id, games.file_path, ${SHOWN_TITLE} AS title, ${ARTWORK_COLUMNS}
             FROM games
             ${JOIN_GAME_METADATA}
             WHERE games.folder_id = ?
             ORDER BY title COLLATE NOCASE, games.file_path`
         )
-        .all(folderId) as unknown as { id: string; file_path: string; title: string }[]
-      return rows.map((row) => ({ id: row.id, filePath: row.file_path, title: row.title }))
+        .all(folderId) as unknown as GameRow[]
+      return rows.map((row) => ({
+        id: row.id,
+        filePath: row.file_path,
+        title: row.title,
+        artwork: toGameArtwork(row.id, row)
+      }))
     },
 
     removeGames(ids, now) {

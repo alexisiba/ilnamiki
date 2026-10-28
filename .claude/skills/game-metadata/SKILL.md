@@ -46,6 +46,8 @@ src/main/core/gameMetadata/
   gameMetadata.repository.ts     ← game_metadata, and the SQL of the title shown
   gameMetadataQueue.ts           ← one run at a time, written in batches (dependencies passed in)
   artwork.ts                     ← downloads an image and writes its file (fetch and files passed in)
+  artworkUrls.ts                 ← the images' URLs: made, read back, and the SQL to list them
+  artworkProtocol.ts             ← serves those URLs from the artwork files (Electron)
   <provider>/                    ← one folder per provider, e.g. libretroDatabase/
     <provider>.ts                ← implements Identifier and/or ContentProvider
     <provider>.parsers.ts        ← pure functions over what it reads
@@ -204,6 +206,24 @@ One table per kind, each marking what was asked:
   all; the database keeps the path. A file is replaced when its kind is downloaded again.
 - Rows are written only once every provider of that stage or kind answered; a game still
   waiting for a provider that couldn't answer has no row there.
+
+### Showing it (main-renderer-api)
+
+- The contract's games carry `artwork: GameArtwork` (`cover`, `titleScreen`, `screenshot`),
+  each a URL or null, and `GameDetails` the details' fields, null while unknown. Repositories
+  read them with `ARTWORK_COLUMNS` and `toGameArtwork` from the module's index.
+- **Images are URLs, never paths or data URLs**:
+  `ilnamiki-artwork://game/<gameId>/<kind>?v=<looked_at>`, served by main
+  (`artworkProtocol.ts`, `protocol.handle`) from the file the database keeps for that game and
+  kind, only inside the artwork folder. The renderer can name a game and a kind, never a file.
+  `v` changes when an image is downloaded again, so no old copy stays cached. The scheme is in
+  the renderer's CSP (`img-src`).
+- In the renderer (`utils/gameArtwork.ts`): cards show the cover (`coverOf`); what shows behind
+  a game is its screenshot, else its title screen, else the generic image (`backdropOf`).
+  Screenshots and title screens are at the console's resolution and drawn with
+  `image-rendering: pixelated`; covers and generic images are drawn smoothly.
+- Metadata (genre, developer) is shown as the source has it, never translated; only the app's
+  own words around it are (e.g. "2 players").
 
 ## 8. Background work
 

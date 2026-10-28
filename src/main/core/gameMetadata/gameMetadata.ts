@@ -9,6 +9,9 @@ import { createGameMetadataRepository } from './gameMetadata.repository'
 import type { MetadataWorkerInput, MetadataWorkerMessage } from './gameMetadata.worker.types'
 import { createMetadataQueue } from './gameMetadataQueue'
 
+/** Where games' artwork is kept: one folder per game, in the app's data folder. */
+export const artworkFolder = (): string => join(app.getPath('userData'), 'artwork')
+
 /** What the providers look in: the libretro databases every emulator of the user keeps. */
 async function findSources(): Promise<ProviderSources> {
   const emulators = createEmulatorsRepository(getDatabase()).list()
@@ -40,7 +43,7 @@ async function describeInWorker(
   const input: MetadataWorkerInput = {
     games,
     sources,
-    artworkFolder: join(app.getPath('userData'), 'artwork'),
+    artworkFolder: artworkFolder(),
     userAgent: `Ilnamiki/${app.getVersion()}`
   }
   const worker = createWorker({ workerData: input })

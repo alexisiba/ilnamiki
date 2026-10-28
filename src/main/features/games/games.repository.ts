@@ -8,7 +8,13 @@ import type {
   RecentlyPlayedGame
 } from '@shared/api'
 
-import { JOIN_GAME_METADATA, SHOWN_TITLE } from '../../core/gameMetadata'
+import {
+  ARTWORK_COLUMNS,
+  type ArtworkColumns,
+  JOIN_GAME_METADATA,
+  SHOWN_TITLE,
+  toGameArtwork
+} from '../../core/gameMetadata'
 
 /** A game in a folder, with what it takes to play it. */
 export interface PlayableGameRecord {
@@ -66,7 +72,7 @@ export interface GamesRepository {
   addPlaySession(session: PlaySessionRecord): void
 }
 
-interface LastPlayedRow {
+interface LastPlayedRow extends ArtworkColumns {
   id: string
   title: string
   platform_id: string
@@ -74,16 +80,21 @@ interface LastPlayedRow {
   playtime_ms: number
 }
 
-interface DetailsRow {
+interface DetailsRow extends ArtworkColumns {
   id: string
   title: string
   platform_id: string
   added_at: number
   last_played_at: number | null
   playtime_ms: number
+  release_year: number | null
+  genre: string | null
+  developer: string | null
+  publisher: string | null
+  players: number | null
 }
 
-interface RecentlyAddedRow {
+interface RecentlyAddedRow extends ArtworkColumns {
   id: string
   title: string
   platform_id: string
@@ -118,6 +129,7 @@ const DISABLED_PLATFORMS = 'SELECT platform_id FROM platform_settings WHERE is_e
  * before it read it in the same order, so neither shows a game the other does.
  */
 const PLAYED_GAMES = `SELECT games.id, ${SHOWN_TITLE} AS title, games.platform_id,
+    ${ARTWORK_COLUMNS},
     MAX(play_sessions.ended_at) AS last_played_at,
     SUM(play_sessions.ended_at - play_sessions.started_at) AS playtime_ms
   FROM play_sessions
@@ -171,6 +183,7 @@ export function createGamesRepository(db: DatabaseSync): GamesRepository {
         id: row.id,
         title: row.title,
         platformId: row.platform_id,
+        artwork: toGameArtwork(row.id, row),
         lastPlayedAt: row.last_played_at,
         playtimeMs: row.playtime_ms
       }
@@ -184,6 +197,7 @@ export function createGamesRepository(db: DatabaseSync): GamesRepository {
         id: row.id,
         title: row.title,
         platformId: row.platform_id,
+        artwork: toGameArtwork(row.id, row),
         lastPlayedAt: row.last_played_at
       }))
     },
@@ -191,7 +205,8 @@ export function createGamesRepository(db: DatabaseSync): GamesRepository {
     listRecentlyAdded(limit) {
       const rows = db
         .prepare(
-          `SELECT games.id, ${SHOWN_TITLE} AS title, games.platform_id, games.added_at
+          `SELECT games.id, ${SHOWN_TITLE} AS title, games.platform_id, games.added_at,
+              ${ARTWORK_COLUMNS}
             FROM games
             ${JOIN_GAME_METADATA}
             WHERE games.folder_id IS NOT NULL
@@ -204,6 +219,7 @@ export function createGamesRepository(db: DatabaseSync): GamesRepository {
         id: row.id,
         title: row.title,
         platformId: row.platform_id,
+        artwork: toGameArtwork(row.id, row),
         addedAt: row.added_at
       }))
     },
@@ -212,6 +228,9 @@ export function createGamesRepository(db: DatabaseSync): GamesRepository {
       const row = db
         .prepare(
           `SELECT games.id, ${SHOWN_TITLE} AS title, games.platform_id, games.added_at,
+              game_metadata.release_year, game_metadata.genre, game_metadata.developer,
+              game_metadata.publisher, game_metadata.players,
+              ${ARTWORK_COLUMNS},
               MAX(play_sessions.ended_at) AS last_played_at,
               COALESCE(SUM(play_sessions.ended_at - play_sessions.started_at), 0) AS playtime_ms
             FROM games
@@ -226,6 +245,12 @@ export function createGamesRepository(db: DatabaseSync): GamesRepository {
         id: row.id,
         title: row.title,
         platformId: row.platform_id,
+        artwork: toGameArtwork(row.id, row),
+        releaseYear: row.release_year,
+        genre: row.genre,
+        developer: row.developer,
+        publisher: row.publisher,
+        players: row.players,
         addedAt: row.added_at,
         lastPlayedAt: row.last_played_at,
         playtimeMs: row.playtime_ms

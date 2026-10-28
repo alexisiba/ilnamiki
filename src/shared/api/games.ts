@@ -33,6 +33,19 @@ export interface GameEnded {
   gameId: string
 }
 
+/**
+ * A game's images, as URLs an `<img>` shows; null for each kind it has none of (not found yet,
+ * or no source has it), where the UI shows a generic image instead.
+ */
+export interface GameArtwork {
+  /** Its box's front. */
+  cover: string | null
+  /** Its title screen. */
+  titleScreen: string | null
+  /** A moment of play, at the console's own resolution. */
+  screenshot: string | null
+}
+
 /** The game of the library played most recently, with its play history. */
 export interface LastPlayedGame {
   id: string
@@ -40,19 +53,34 @@ export interface LastPlayedGame {
   title: string
   /** Platform it belongs to, e.g. "nintendo_64". */
   platformId: string
+  artwork: GameArtwork
   /** When it was last played: when its latest session ended, in epoch ms. */
   lastPlayedAt: number
   /** Total time played over all its sessions, in ms. */
   playtimeMs: number
 }
 
-/** What the library knows about one of its games. */
+/**
+ * What the library knows about one of its games. What comes from its metadata (year, genre…)
+ * is null while unknown, and is shown as it is, never translated.
+ */
 export interface GameDetails {
   id: string
   /** Title shown in the app, never empty. */
   title: string
   /** Platform it belongs to, e.g. "nintendo_64". */
   platformId: string
+  artwork: GameArtwork
+  /** Year it came out. */
+  releaseYear: number | null
+  /** e.g. "Platform". */
+  genre: string | null
+  /** Who made it. */
+  developer: string | null
+  /** Who published it. */
+  publisher: string | null
+  /** Most players at once, 1 or more. */
+  players: number | null
   /** When it was first found in its folder, in epoch ms. */
   addedAt: number
   /** When its latest session ended, in epoch ms; null when it was never played. */
@@ -89,6 +117,7 @@ export interface RecentlyPlayedGame {
   title: string
   /** Platform it belongs to, e.g. "nintendo_64". */
   platformId: string
+  artwork: GameArtwork
   /** When it was last played: when its latest session ended, in epoch ms. */
   lastPlayedAt: number
 }
@@ -100,6 +129,7 @@ export interface RecentlyAddedGame {
   title: string
   /** Platform it belongs to, e.g. "nintendo_64". */
   platformId: string
+  artwork: GameArtwork
   /** When it was first found in its folder, in epoch ms. */
   addedAt: number
 }

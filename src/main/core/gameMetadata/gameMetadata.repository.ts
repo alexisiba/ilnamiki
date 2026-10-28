@@ -33,6 +33,8 @@ export interface GameMetadataRepository {
    * details found again forget its artwork, which is found again for its new identity.
    */
   save(updates: MetadataUpdate[], now: number): void
+  /** The file of the game `gameId`'s image of `kind`; null when it has none. */
+  findImagePath(gameId: string, kind: ArtworkKind): string | null
 }
 
 interface GameToDescribeRow {
@@ -150,6 +152,13 @@ export function createGameMetadataRepository(db: DatabaseSync): GameMetadataRepo
         if (update.type === 'details') saveDetails(update.game, now)
         else saveArtwork(update.gameId, update.artwork, now)
       }
+    },
+
+    findImagePath(gameId, kind) {
+      const row = db
+        .prepare('SELECT path FROM game_images WHERE game_id = ? AND kind = ?')
+        .get(gameId, STORED_KINDS[kind]) as { path: string | null } | undefined
+      return row?.path ?? null
     }
   }
 }

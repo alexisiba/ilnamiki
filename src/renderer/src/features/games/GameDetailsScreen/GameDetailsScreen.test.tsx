@@ -6,7 +6,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { GameDetails, InstalledPlatform } from '@shared/api'
 
 import { GAME_DETAILS_PATH, NavigationProvider } from '@renderer/core/navigation'
-import { emitGameEnded, mockGameDetails, mockLaunchGame, mockPlatforms } from '@renderer/test/api'
+import {
+  emitGameEnded,
+  mockGameDetails,
+  mockLaunchGame,
+  mockPlatforms,
+  NO_GAME_FACTS
+} from '@renderer/test/api'
 import { setRect } from '@renderer/test/layout'
 
 import { GameDetailsScreen } from './GameDetailsScreen'
@@ -35,6 +41,7 @@ const CRASH: GameDetails = {
   id: 'g1',
   title: 'Crash Bandicoot (USA)',
   platformId: 'playstation',
+  ...NO_GAME_FACTS,
   addedAt: 1,
   lastPlayedAt: null,
   playtimeMs: 0
@@ -95,6 +102,21 @@ describe('GameDetailsScreen', () => {
     expect(screen.getByText('No description')).toBeInTheDocument()
   })
 
+  it('lists what the game’s metadata knows, in one line', async () => {
+    mockGameDetails({
+      ...CRASH,
+      releaseYear: 1996,
+      genre: 'Platform',
+      developer: 'Naughty Dog',
+      publisher: 'Sony',
+      players: 1
+    })
+    renderDetailsOf('g1')
+
+    expect(await screen.findByText('1996 · Platform · Naughty Dog · 1 player')).toBeInTheDocument()
+    expect(screen.queryByText('No metadata')).not.toBeInTheDocument()
+  })
+
   it('says so while the game was never played', async () => {
     mockGameDetails(CRASH)
     renderDetailsOf('g1')
@@ -128,6 +150,15 @@ describe('GameDetailsScreen', () => {
     const images = [...document.querySelectorAll('img')]
     expect(images).toHaveLength(1)
     expect(images[0].src).toContain('no-bg-image')
+  })
+
+  it('shows the game’s screenshot behind it once it has one', async () => {
+    const screenshot = 'ilnamiki-artwork://game/g1/screenshot?v=1'
+    mockGameDetails({ ...CRASH, artwork: { ...CRASH.artwork, screenshot } })
+    renderDetailsOf('g1')
+
+    await play()
+    expect(document.querySelector('img')?.getAttribute('src')).toBe(screenshot)
   })
 
   it('starts the game with Play now, which reads Playing until it ends', async () => {

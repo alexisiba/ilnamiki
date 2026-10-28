@@ -20,7 +20,8 @@ import {
   mockPickedFolder,
   mockPlatforms,
   mockRescanFolder,
-  mockUpdateGameFolder
+  mockUpdateGameFolder,
+  NO_ARTWORK
 } from '@renderer/test/api'
 import { setRect } from '@renderer/test/layout'
 
@@ -55,8 +56,18 @@ const PS1_FOLDER: GameFolder = {
 }
 
 const GAMES: FolderGame[] = [
-  { id: 'g1', title: 'Crash Bandicoot (USA)', filePath: `${PS1_PATH}/Crash/Crash.cue` },
-  { id: 'g2', title: 'Tekken 3 (USA)', filePath: `${PS1_PATH}/Tekken 3 (USA).chd` }
+  {
+    id: 'g1',
+    title: 'Crash Bandicoot (USA)',
+    filePath: `${PS1_PATH}/Crash/Crash.cue`,
+    artwork: NO_ARTWORK
+  },
+  {
+    id: 'g2',
+    title: 'Tekken 3 (USA)',
+    filePath: `${PS1_PATH}/Tekken 3 (USA).chd`,
+    artwork: NO_ARTWORK
+  }
 ]
 
 const RESCAN: FolderScan = {
@@ -367,7 +378,12 @@ describe('GameFolderDetailsSettings', () => {
       const updated = { ...PS1_FOLDER, gameCount: 2 }
       mockUpdateGameFolder({ ok: true, folder: updated })
       mockFolderGames([
-        { id: 'g3', title: 'Ape Escape (USA)', filePath: `${PS1_PATH}/Ape Escape (USA).chd` },
+        {
+          id: 'g3',
+          title: 'Ape Escape (USA)',
+          filePath: `${PS1_PATH}/Ape Escape (USA).chd`,
+          artwork: NO_ARTWORK
+        },
         GAMES[0]
       ])
 

@@ -3,13 +3,21 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { closeDatabase, initDatabase } from './core/database'
-import { describeLibrary, stopDescribingGames } from './core/gameMetadata'
+import {
+  describeLibrary,
+  registerArtworkScheme,
+  serveArtwork,
+  stopDescribingGames
+} from './core/gameMetadata'
 import { registerControllersIpc } from './features/controllers'
 import { registerEmulatorsIpc } from './features/emulators'
 import { registerGamesIpc } from './features/games'
 import { registerLibraryIpc } from './features/library'
 import { registerNetworkIpc } from './features/network'
 import { registerPlatformsIpc } from './features/platforms'
+
+// Before the app is ready, as Electron requires to give the scheme its privileges.
+registerArtworkScheme()
 
 function createWindow(): void {
   // Create the browser window.
@@ -71,6 +79,7 @@ app.whenReady().then(() => {
   registerLibraryIpc()
   registerNetworkIpc()
   registerPlatformsIpc()
+  serveArtwork()
 
   createWindow()
 

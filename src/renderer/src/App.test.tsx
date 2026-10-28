@@ -10,7 +10,9 @@ import {
   mockGameFolders,
   mockLastPlayedGame,
   mockPlatforms,
-  mockRecentlyPlayedGames
+  mockRecentlyPlayedGames,
+  NO_ARTWORK,
+  NO_GAME_FACTS
 } from '@renderer/test/api'
 import { getPlayedSounds, isMusicPlaying } from '@renderer/test/audio'
 import { connectGamepad } from '@renderer/test/gamepad'
@@ -25,11 +27,18 @@ beforeEach(() => {
     id: 'g1',
     title: 'Contra (USA)',
     platformId: 'nes',
+    artwork: NO_ARTWORK,
     lastPlayedAt: 1_800_000_000_000,
     playtimeMs: 30 * 60 * 1000
   })
   mockRecentlyPlayedGames([
-    { id: 'g2', title: 'Metroid (USA)', platformId: 'nes', lastPlayedAt: 1_700_000_000_000 }
+    {
+      id: 'g2',
+      title: 'Metroid (USA)',
+      platformId: 'nes',
+      artwork: NO_ARTWORK,
+      lastPlayedAt: 1_700_000_000_000
+    }
   ])
   mockEmulators([
     {
@@ -43,8 +52,18 @@ beforeEach(() => {
     }
   ])
   mockFolderGames([
-    { id: 'g1', title: 'Contra (USA)', filePath: '/home/player/Games/NES/Contra (USA).nes' },
-    { id: 'g2', title: 'Metroid (USA)', filePath: '/home/player/Games/NES/Metroid (USA).nes' }
+    {
+      id: 'g1',
+      title: 'Contra (USA)',
+      filePath: '/home/player/Games/NES/Contra (USA).nes',
+      artwork: NO_ARTWORK
+    },
+    {
+      id: 'g2',
+      title: 'Metroid (USA)',
+      filePath: '/home/player/Games/NES/Metroid (USA).nes',
+      artwork: NO_ARTWORK
+    }
   ])
   mockPlatforms([
     {
@@ -191,6 +210,7 @@ describe('App', () => {
       id: 'g2',
       title: 'Metroid (USA)',
       platformId: 'nes',
+      ...NO_GAME_FACTS,
       addedAt: 1,
       lastPlayedAt: 1_700_000_000_000,
       playtimeMs: 10 * 60 * 1000

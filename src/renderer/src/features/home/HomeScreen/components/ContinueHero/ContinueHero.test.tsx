@@ -18,6 +18,7 @@ const GAME: ContinueGame = {
   platform: 'Nintendo 64',
   description: DESCRIPTION,
   imageUrl: 'artwork.webp',
+  isPixelArt: false,
   lastPlayedAt: new Date('2026-10-20T18:00:00Z'),
   playtimeMinutes: 32 * 60 + 15
 }

@@ -3,7 +3,6 @@ import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 
-import noScreenshot from '@renderer/assets/images/games/no-bg-image.webp'
 import { Button } from '@renderer/components/Button'
 import { GameOptions } from '@renderer/components/GameOptions'
 import { PlatformPill } from '@renderer/components/PlatformPill'
@@ -12,18 +11,20 @@ import { useScreenActions } from '@renderer/core/input'
 import { useGameDetails, usePlatforms } from '@renderer/core/ipc'
 import { FocusGroup } from '@renderer/core/navigation'
 import { usePlayGame } from '@renderer/core/play'
+import { backdropOf } from '@renderer/utils/gameArtwork'
 import { getPlatformName } from '@renderer/utils/platformName'
 import { playProblemMessageKey } from '@renderer/utils/playProblems'
 
 import styles from './GameDetailsScreen.module.css'
+import { gameFacts } from './GameDetailsScreen.utils'
 
 const MINUTE_MS = 60 * 1000
 
 /**
  * A game of the library, opened from its card, with Play now focused: its title and console,
- * and when it was last played and for how long, saying so while it has no metadata, no
- * description or was never played (a generic screenshot shows behind it until games have
- * metadata). Play now starts the game and reads Playing, unavailable, until its emulator
+ * the facts its metadata knows (year, genre, developer, players), and when it was last played
+ * and for how long, saying so while it has no metadata, no description or was never played.
+ * Its screenshot shows behind it (a generic image while it has none). Play now starts the game and reads Playing, unavailable, until its emulator
  * closes; when the game can't start, why shows below it. Options, beside it, opens the game's
  * options, as the secondary action does. Until the game is read nothing shows, so no message
  * flashes.
@@ -62,13 +63,22 @@ export function GameDetailsScreen(): React.JSX.Element | null {
     )
   }
 
+  const backdrop = backdropOf(game.artwork)
+  const facts = gameFacts(game, (count) => t('details.players', { count }))
+
   return (
     <FocusGroup id="game-details" as="section" className={styles.screen}>
-      <img className={styles.artwork} src={noScreenshot} alt="" />
+      <img
+        className={backdrop.isPixelArt ? `${styles.artwork} ${styles.pixelArt}` : styles.artwork}
+        src={backdrop.url}
+        alt=""
+      />
       <div className={styles.content}>
         <PlatformPill platform={getPlatformName(game.platformId, platforms.platforms)} />
         <h1 className={styles.title}>{game.title}</h1>
-        <p className={styles.facts}>{t('details.noMetadata')}</p>
+        <p className={styles.facts}>
+          {facts.length > 0 ? facts.join(' · ') : t('details.noMetadata')}
+        </p>
         <p className={styles.description}>{t('details.noDescription')}</p>
         <div className={styles.stats}>
           {game.lastPlayedAt === null ? (

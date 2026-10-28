@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 
 import type { InstalledPlatform, LastPlayedGame } from '@shared/api'
 
+import { NO_ARTWORK } from '@renderer/test/api'
+
 import {
   formatLastPlayed,
   toContinueGame,
@@ -9,10 +11,14 @@ import {
   toRecentlyPlayedShelfGame
 } from './HomeScreen.utils'
 
+const COVER = 'ilnamiki-artwork://game/g1/cover?v=1'
+const SCREENSHOT = 'ilnamiki-artwork://game/g1/screenshot?v=1'
+
 const CRASH: LastPlayedGame = {
   id: 'g1',
   title: 'Crash Bandicoot',
   platformId: 'playstation',
+  artwork: NO_ARTWORK,
   lastPlayedAt: 1_800_000_000_000,
   playtimeMs: (2 * 60 + 15) * 60 * 1000 + 40 * 1000
 }
@@ -38,6 +44,16 @@ describe('toContinueGame', () => {
       lastPlayedAt: new Date(1_800_000_000_000)
     })
     expect(game.imageUrl).toEqual(expect.stringContaining('no-bg-image'))
+    expect(game.isPixelArt).toBe(false)
+  })
+
+  it('shows the game’s screenshot, with sharp pixels, once it has one', () => {
+    const game = toContinueGame(
+      { ...CRASH, artwork: { ...NO_ARTWORK, screenshot: SCREENSHOT } },
+      []
+    )
+
+    expect(game).toMatchObject({ imageUrl: SCREENSHOT, isPixelArt: true })
   })
 
   it('rounds the playtime to minutes', () => {
@@ -58,14 +74,28 @@ describe('toContinueGame', () => {
 })
 
 describe('toRecentlyAddedShelfGame', () => {
+  const ADDED = {
+    id: 'g1',
+    title: 'Crash Bandicoot',
+    platformId: 'playstation',
+    artwork: NO_ARTWORK,
+    addedAt: 1
+  }
+
   it('names the console as the catalog does and shows the generic game image', () => {
-    const game = toRecentlyAddedShelfGame(
-      { id: 'g1', title: 'Crash Bandicoot', platformId: 'playstation', addedAt: 1 },
-      [platform('playstation', 'Sony - PlayStation')]
-    )
+    const game = toRecentlyAddedShelfGame(ADDED, [platform('playstation', 'Sony - PlayStation')])
 
     expect(game).toMatchObject({ id: 'g1', title: 'Crash Bandicoot', platform: 'PlayStation' })
     expect(game.imageUrl).toEqual(expect.stringContaining('no-image'))
+  })
+
+  it('shows the game’s cover once it has one', () => {
+    const game = toRecentlyAddedShelfGame(
+      { ...ADDED, artwork: { ...NO_ARTWORK, cover: COVER } },
+      []
+    )
+
+    expect(game.imageUrl).toBe(COVER)
   })
 })
 
@@ -73,7 +103,13 @@ describe('toRecentlyPlayedShelfGame', () => {
   it('shows the generic game image and when the game was last played', () => {
     const lastPlayedAt = new Date(2026, 9, 21, 9, 0).getTime()
     const game = toRecentlyPlayedShelfGame(
-      { id: 'g1', title: 'Crash Bandicoot', platformId: 'playstation', lastPlayedAt },
+      {
+        id: 'g1',
+        title: 'Crash Bandicoot',
+        platformId: 'playstation',
+        artwork: NO_ARTWORK,
+        lastPlayedAt
+      },
       [platform('playstation', 'Sony - PlayStation')],
       new Date(2026, 9, 22, 18, 0),
       'en'

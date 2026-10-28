@@ -1,6 +1,8 @@
 {
   "details": {
     "noMetadata": "No metadata",
+    "players_one": "{{count}} player",
+    "players_other": "{{count}} players",
     "noDescription": "No description",
     "neverPlayed": "Not played yet",
     "play": "Play now",

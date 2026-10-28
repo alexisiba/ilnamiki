@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 import type { LastPlayedGame } from '@shared/api'
 
-import { emitGameEnded, mockLastPlayedGame } from '@renderer/test/api'
+import { emitGameEnded, mockLastPlayedGame, NO_ARTWORK } from '@renderer/test/api'
 
 import {
   getLastPlayedGameState,
@@ -14,6 +14,7 @@ const CRASH: LastPlayedGame = {
   id: 'g1',
   title: 'Crash Bandicoot',
   platformId: 'playstation',
+  artwork: NO_ARTWORK,
   lastPlayedAt: 1_800_000_000_000,
   playtimeMs: 45 * 60 * 1000
 }

@@ -1,6 +1,8 @@
 {
   "details": {
     "noMetadata": "Sin metadatos",
+    "players_one": "{{count}} jugador",
+    "players_other": "{{count}} jugadores",
     "noDescription": "Sin descripción",
     "neverPlayed": "Aún no se ha jugado",
     "play": "Jugar ahora",

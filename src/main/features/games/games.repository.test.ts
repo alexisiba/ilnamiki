@@ -6,6 +6,8 @@ import { createGamesRepository, type PlaySessionRecord } from './games.repositor
 
 const MINUTE_MS = 60 * 1000
 
+const NO_ARTWORK = { cover: null, titleScreen: null, screenshot: null }
+
 /** A session of `game` with RetroArch's Beetle PSX, `minutes` long, ending at `endedAt`. */
 const session = (
   id: string,
@@ -156,11 +158,11 @@ describe('games repository', () => {
     insert.run('g6', '/home/player/Games/PS1/Medievil.cue', 'MediEvil', 3)
 
     expect(createGamesRepository(db).listRecentlyAdded(10)).toEqual([
-      { id: 'g5', title: 'Ape Escape', platformId: 'playstation', addedAt: 5 },
-      { id: 'g4', title: 'tekken', platformId: 'playstation', addedAt: 5 },
-      { id: 'g6', title: 'MediEvil', platformId: 'playstation', addedAt: 3 },
-      { id: 'g1', title: 'Game', platformId: 'playstation', addedAt: 1 },
-      { id: 'g3', title: 'Game', platformId: 'playstation', addedAt: 1 }
+      { id: 'g5', title: 'Ape Escape', platformId: 'playstation', artwork: NO_ARTWORK, addedAt: 5 },
+      { id: 'g4', title: 'tekken', platformId: 'playstation', artwork: NO_ARTWORK, addedAt: 5 },
+      { id: 'g6', title: 'MediEvil', platformId: 'playstation', artwork: NO_ARTWORK, addedAt: 3 },
+      { id: 'g1', title: 'Game', platformId: 'playstation', artwork: NO_ARTWORK, addedAt: 1 },
+      { id: 'g3', title: 'Game', platformId: 'playstation', artwork: NO_ARTWORK, addedAt: 1 }
     ])
   })
 
@@ -199,9 +201,43 @@ describe('games repository', () => {
       id: 'g1',
       title: 'Game',
       platformId: 'playstation',
+      artwork: NO_ARTWORK,
+      releaseYear: null,
+      genre: null,
+      developer: null,
+      publisher: null,
+      players: null,
       addedAt: 1,
       lastPlayedAt: 3_000 * MINUTE_MS,
       playtimeMs: 75 * MINUTE_MS
+    })
+  })
+
+  it('finds a game’s details with what its metadata says and the images it has', () => {
+    db.prepare(
+      `INSERT INTO game_metadata (game_id, title, release_year, genre, developer, publisher,
+          players, file_size, file_modified_at, looked_at)
+        VALUES ('g1', 'Crash Bandicoot', 1996, 'Platform', 'Naughty Dog', 'Sony', 1, 1, 1, 1)`
+    ).run()
+    db.prepare(
+      `INSERT INTO game_images (game_id, kind, path, looked_at)
+        VALUES ('g1', 'cover', '/data/artwork/g1/cover.png', 7),
+          ('g1', 'title_screen', NULL, 7),
+          ('g1', 'screenshot', '/data/artwork/g1/screenshot.png', 7)`
+    ).run()
+
+    expect(createGamesRepository(db).findDetails('g1')).toMatchObject({
+      title: 'Crash Bandicoot',
+      releaseYear: 1996,
+      genre: 'Platform',
+      developer: 'Naughty Dog',
+      publisher: 'Sony',
+      players: 1,
+      artwork: {
+        cover: 'ilnamiki-artwork://game/g1/cover?v=7',
+        titleScreen: null,
+        screenshot: 'ilnamiki-artwork://game/g1/screenshot?v=7'
+      }
     })
   })
 
@@ -259,8 +295,20 @@ describe('games repository', () => {
 
     expect(repository.findLastPlayed()?.id).toBe('g1')
     expect(repository.listRecentlyPlayed(10)).toEqual([
-      { id: 'g4', title: 'Tekken', platformId: 'playstation', lastPlayedAt: 3_000 * MINUTE_MS },
-      { id: 'g3', title: 'Game', platformId: 'playstation', lastPlayedAt: 2_000 * MINUTE_MS }
+      {
+        id: 'g4',
+        title: 'Tekken',
+        platformId: 'playstation',
+        artwork: NO_ARTWORK,
+        lastPlayedAt: 3_000 * MINUTE_MS
+      },
+      {
+        id: 'g3',
+        title: 'Game',
+        platformId: 'playstation',
+        artwork: NO_ARTWORK,
+        lastPlayedAt: 2_000 * MINUTE_MS
+      }
     ])
     expect(repository.listRecentlyPlayed(1).map(({ id }) => id)).toEqual(['g4'])
   })
@@ -303,6 +351,7 @@ describe('games repository', () => {
       id: 'g1',
       title: 'Game',
       platformId: 'playstation',
+      artwork: NO_ARTWORK,
       lastPlayedAt: 3_000 * MINUTE_MS,
       playtimeMs: 75 * MINUTE_MS
     })

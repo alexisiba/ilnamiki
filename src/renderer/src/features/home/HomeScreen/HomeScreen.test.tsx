@@ -18,7 +18,8 @@ import {
   mockLastPlayedGame,
   mockPlatforms,
   mockRecentlyAddedGames,
-  mockRecentlyPlayedGames
+  mockRecentlyPlayedGames,
+  NO_ARTWORK
 } from '@renderer/test/api'
 
 import { HomeScreen } from './HomeScreen'
@@ -80,13 +81,20 @@ const OCARINA: LastPlayedGame = {
   id: 'g1',
   title: 'The Legend of Zelda - Ocarina of Time (USA)',
   platformId: 'nintendo_64',
+  artwork: NO_ARTWORK,
   lastPlayedAt: 1_800_000_000_000,
   playtimeMs: 90 * 60 * 1000
 }
 
 const RECENTLY_ADDED: RecentlyAddedGame[] = [
-  { id: 'g2', title: 'Super Mario 64 (USA)', platformId: 'nintendo_64', addedAt: 2 },
-  { id: 'g1', title: OCARINA.title, platformId: 'nintendo_64', addedAt: 1 }
+  {
+    id: 'g2',
+    title: 'Super Mario 64 (USA)',
+    platformId: 'nintendo_64',
+    artwork: NO_ARTWORK,
+    addedAt: 2
+  },
+  { id: 'g1', title: OCARINA.title, platformId: 'nintendo_64', artwork: NO_ARTWORK, addedAt: 1 }
 ]
 
 /** The section under the "Recently added" heading. */
@@ -238,6 +246,7 @@ describe('HomeScreen', () => {
         id: 'g2',
         title: 'Super Mario 64 (USA)',
         platformId: 'nintendo_64',
+        artwork: NO_ARTWORK,
         lastPlayedAt: new Date(2020, 0, 15).getTime()
       }
     ])
@@ -272,7 +281,13 @@ describe('HomeScreen', () => {
     await screen.findByRole('heading', { level: 1, name: OCARINA.title })
 
     mockRecentlyPlayedGames([
-      { id: 'g2', title: 'Super Mario 64 (USA)', platformId: 'nintendo_64', lastPlayedAt: 1 }
+      {
+        id: 'g2',
+        title: 'Super Mario 64 (USA)',
+        platformId: 'nintendo_64',
+        artwork: NO_ARTWORK,
+        lastPlayedAt: 1
+      }
     ])
     act(() => emitGameEnded('g2'))
 

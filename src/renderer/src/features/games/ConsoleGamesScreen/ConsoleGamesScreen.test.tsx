@@ -12,7 +12,8 @@ import {
   mockFolderGames,
   mockGameFolders,
   mockLaunchGame,
-  mockPlatforms
+  mockPlatforms,
+  NO_ARTWORK
 } from '@renderer/test/api'
 import { getPlayedSounds, isMusicPlaying } from '@renderer/test/audio'
 import { setRect } from '@renderer/test/layout'
@@ -46,9 +47,24 @@ const PS1_FOLDER: GameFolder = {
 }
 
 const GAMES: FolderGame[] = [
-  { id: 'g1', title: 'Ape Escape (USA)', filePath: '/home/player/Games/PS1/Ape Escape (USA).chd' },
-  { id: 'g2', title: 'Crash Bandicoot (USA)', filePath: '/home/player/Games/PS1/Crash.cue' },
-  { id: 'g3', title: 'Tekken 3 (USA)', filePath: '/home/player/Games/PS1/Tekken 3 (USA).chd' }
+  {
+    id: 'g1',
+    title: 'Ape Escape (USA)',
+    filePath: '/home/player/Games/PS1/Ape Escape (USA).chd',
+    artwork: NO_ARTWORK
+  },
+  {
+    id: 'g2',
+    title: 'Crash Bandicoot (USA)',
+    filePath: '/home/player/Games/PS1/Crash.cue',
+    artwork: NO_ARTWORK
+  },
+  {
+    id: 'g3',
+    title: 'Tekken 3 (USA)',
+    filePath: '/home/player/Games/PS1/Tekken 3 (USA).chd',
+    artwork: NO_ARTWORK
+  }
 ]
 
 beforeEach(() => {
