@@ -2,7 +2,12 @@ import { readdir, readFile, stat } from 'fs/promises'
 import { join } from 'path'
 
 import type { EmulatorInstallation } from '../../installation'
-import { parseCoreFolders, parseCoreInfo, type RetroArchCoreFolders } from '../retroarch.parsers'
+import {
+  parseCoreFolders,
+  parseCoreInfo,
+  parseDatabaseFolder,
+  type RetroArchCoreFolders
+} from '../retroarch.parsers'
 import type { RetroArchCore, RetroArchCoresReader } from '../retroarch.types'
 import {
   coreIdOf,
@@ -20,6 +25,17 @@ async function readText(path: string): Promise<string | null> {
   }
 }
 
+/** RetroArch's configuration in `installation`, or null when its folders can't be known. */
+async function readConfig(
+  installation: EmulatorInstallation
+): Promise<{ text: string; home: string; retroArchFolder: string } | null> {
+  const folders = await installation.folders()
+  if (!folders) return null
+  const retroArchFolder = join(folders.config, 'retroarch')
+  const text = (await readText(join(retroArchFolder, 'retroarch.cfg'))) ?? ''
+  return { text, home: folders.home, retroArchFolder }
+}
+
 /**
  * The folders of the cores and their info files that RetroArch's configuration sets, or null
  * when the installation's folders can't be known.
@@ -27,12 +43,19 @@ async function readText(path: string): Promise<string | null> {
 async function coreFoldersOf(
   installation: EmulatorInstallation
 ): Promise<RetroArchCoreFolders | null> {
-  const folders = await installation.folders()
-  if (!folders) return null
-  const retroArchFolder = join(folders.config, 'retroarch')
-  const configText = (await readText(join(retroArchFolder, 'retroarch.cfg'))) ?? ''
-  return parseCoreFolders(configText, (value) =>
-    resolveRetroArchFolder(value, folders.home, join(retroArchFolder, 'cores'))
+  const config = await readConfig(installation)
+  if (!config) return null
+  return parseCoreFolders(config.text, (value) =>
+    resolveRetroArchFolder(value, config.home, join(config.retroArchFolder, 'cores'))
+  )
+}
+
+/** The folder of the game databases that RetroArch's configuration sets. */
+async function findDatabaseFolder(installation: EmulatorInstallation): Promise<string | null> {
+  const config = await readConfig(installation)
+  if (!config) return null
+  return parseDatabaseFolder(config.text, (value) =>
+    resolveRetroArchFolder(value, config.home, join(config.retroArchFolder, 'database', 'rdb'))
   )
 }
 
@@ -79,5 +102,6 @@ async function findCoreLibrary(
 
 export const linuxCoresReader: RetroArchCoresReader = {
   readCores,
-  findCoreLibrary
+  findCoreLibrary,
+  findDatabaseFolder
 }

@@ -41,6 +41,21 @@ export interface LaunchPlan {
   env: Record<string, string>
 }
 
+/**
+ * A database of games an emulator keeps on this computer, for one platform. Reading it is the
+ * game metadata providers' job; the module only says where it is.
+ */
+export interface GameDatabase {
+  /** Platform whose games it lists, e.g. "nintendo_64". */
+  platformId: string
+  /** How the file is written, so the provider that reads that format finds it. */
+  format: 'libretro-rdb'
+  /** e.g. "Nintendo - Nintendo 64". */
+  name: string
+  /** Absolute path of the file. */
+  path: string
+}
+
 /** What Ilnamiki knows about one emulator. Every module implements it. */
 export interface EmulatorModule {
   kind: KnownEmulatorKind
@@ -63,4 +78,9 @@ export interface EmulatorModule {
   ): Promise<LaunchPlan | null>
   /** How to open it alone, in full screen, to be set up in its own menus. */
   prepareOpen(installation: EmulatorInstallation): Promise<LaunchPlan>
+  /**
+   * The game databases it keeps on this computer, per platform, that are there now; empty
+   * when it has none. Left out by emulators that keep none.
+   */
+  listGameDatabases?(installation: EmulatorInstallation): Promise<GameDatabase[]>
 }

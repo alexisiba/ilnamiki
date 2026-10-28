@@ -2,11 +2,14 @@ import { readFileSync } from 'fs'
 import { describe, expect, it } from 'vitest'
 
 import {
+  gameDatabasesOf,
   parseCoreFolders,
   parseCoreInfo,
+  parseDatabaseFolder,
   parseRetroArchSettings,
   parseRetroArchVersion
 } from './retroarch.parsers'
+import type { RetroArchCore } from './retroarch.types'
 
 /**
  * Real files captured from a RetroArch AppImage: core info files, an excerpt of its
@@ -58,6 +61,75 @@ describe('parseCoreFolders', () => {
   })
 })
 
+describe('parseDatabaseFolder', () => {
+  const resolve = (value: string | null): string => value ?? '<default>'
+
+  it('reads the folder of the game databases from RetroArch’s configuration', () => {
+    expect(parseDatabaseFolder(fixture('retroarch-config.cfg'), resolve)).toBe(
+      '~/.config/retroarch/database/rdb'
+    )
+  })
+
+  it('leaves the folder set to "default", empty or missing to its default', () => {
+    expect(parseDatabaseFolder('content_database_path = "default"\n', resolve)).toBe('<default>')
+    expect(parseDatabaseFolder('content_database_path = ""\n', resolve)).toBe('<default>')
+    expect(parseDatabaseFolder('', resolve)).toBe('<default>')
+  })
+})
+
+describe('gameDatabasesOf', () => {
+  const core = (id: string, platformId: string, databases: string[]): RetroArchCore => ({
+    id,
+    name: id,
+    platformId,
+    platformName: platformId,
+    platformManufacturer: null,
+    extensions: [],
+    databases
+  })
+
+  it('lists each database of each platform once, as a file of the database folder', () => {
+    const cores = [
+      core('gambatte', 'game_boy', ['Nintendo - Game Boy', 'Nintendo - Game Boy Color']),
+      core('sameboy', 'game_boy', ['Nintendo - Game Boy']),
+      core('mupen64plus_next', 'nintendo_64', ['Nintendo - Nintendo 64'])
+    ]
+
+    expect(gameDatabasesOf(cores, '/rdb')).toEqual([
+      {
+        platformId: 'game_boy',
+        format: 'libretro-rdb',
+        name: 'Nintendo - Game Boy',
+        path: '/rdb/Nintendo - Game Boy.rdb'
+      },
+      {
+        platformId: 'game_boy',
+        format: 'libretro-rdb',
+        name: 'Nintendo - Game Boy Color',
+        path: '/rdb/Nintendo - Game Boy Color.rdb'
+      },
+      {
+        platformId: 'nintendo_64',
+        format: 'libretro-rdb',
+        name: 'Nintendo - Nintendo 64',
+        path: '/rdb/Nintendo - Nintendo 64.rdb'
+      }
+    ])
+  })
+
+  it('keeps a database two platforms share once for each', () => {
+    const cores = [
+      core('genesis_plus_gx', 'mega_drive', ['Sega - Game Gear']),
+      core('gearsystem', 'game_gear', ['Sega - Game Gear'])
+    ]
+
+    expect(gameDatabasesOf(cores, '/rdb').map(({ platformId }) => platformId)).toEqual([
+      'mega_drive',
+      'game_gear'
+    ])
+  })
+})
+
 describe('parseCoreInfo', () => {
   it('reads the core’s name, the platform it plays and its extensions', () => {
     expect(parseCoreInfo('mupen64plus_next', fixture('mupen64plus_next_libretro.info'))).toEqual({
@@ -66,8 +138,21 @@ describe('parseCoreInfo', () => {
       platformId: 'nintendo_64',
       platformName: 'Nintendo 64',
       platformManufacturer: 'Nintendo',
-      extensions: ['n64', 'v64', 'z64', 'ndd', 'bin', 'u1']
+      extensions: ['n64', 'v64', 'z64', 'ndd', 'bin', 'u1'],
+      databases: ['Nintendo - Nintendo 64']
     })
+  })
+
+  it('reads every database of the platform, once each, and none when the core names none', () => {
+    const info =
+      'systemid = "game_boy"\nsystemname = "Game Boy"\n' +
+      'database = "Nintendo - Game Boy|Nintendo - Game Boy Color| |Nintendo - Game Boy"'
+
+    expect(parseCoreInfo('gambatte', info)?.databases).toEqual([
+      'Nintendo - Game Boy',
+      'Nintendo - Game Boy Color'
+    ])
+    expect(parseCoreInfo('mesen', 'systemid = "nes"\nsystemname = "NES"')?.databases).toEqual([])
   })
 
   it('leaves the manufacturer out when the core doesn’t say it', () => {

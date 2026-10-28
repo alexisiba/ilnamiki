@@ -37,15 +37,23 @@ renderer), `utils-placement` (pure parsers next to their provider).
 ```
 src/main/core/gameMetadata/
   gameMetadata.types.ts          ← Identifier, ContentProvider, GameIdentity, GameDetails…
-  gameMetadata.ts                ← the providers in order, per stage and per kind
+  gameMetadata.ts                ← the providers in order, per stage and per kind, for one run
+  gameMetadata.fallback.ts       ← the fallback rule (section 4), pure over any providers
   gameMetadata.repository.ts     ← game_metadata and game_images (main-database)
   gameMetadataQueue.ts           ← the background work
   artwork.ts                     ← downloads artwork and writes its files
   <provider>/                    ← one folder per provider, e.g. libretroDatabase/
     <provider>.ts                ← implements Identifier and/or ContentProvider
-    <provider>.parsers.ts        ← pure functions over what it reads (tested with fixtures)
-    fixtures/                    ← small real files cut from the source
+    <provider>.parsers.ts        ← pure functions over what it reads
+    <provider>.files.ts          ← how it reads files (a reader passed in, replaced in tests)
+    <provider>.<topic>.ts        ← other parts of a larger provider, e.g. .checksums, .index
+    <provider>.fixtures.ts       ← test helpers that build its source's data in memory
+    fixtures/                    ← a few records cut from real files, for the parser's tests
 ```
+
+- Providers keep what they read (whole databases) only while they live: `gameMetadata.ts`
+  makes them anew for each run over the library, so nothing large stays in memory between
+  runs.
 
 - It is a `core/` module because several features use it (saving a folder starts it; games,
   home and library read what it stored). Features use it only through its index.
@@ -128,14 +136,21 @@ Each stage and each content kind has its **own ordered list of providers** in
   itself. No RetroArch, or no databases downloaded in it, means no identity, never an error.
 - **Identification, in this order, and nothing else:**
   1. **CRC32 of the file**, after removing known copier headers (SNES: 512 bytes when the size
-     is 512 over a multiple of 1024; NES: the 16-byte iNES header). For a `.zip` that isn't
-     arcade, the CRC of the game inside, read from the zip's central directory without
-     extracting it. Files over the size limit (large disc images) skip this step.
-  2. **Exact file name**: the file's name equals a game's `rom_name` (arcade zips, e.g.
+     is 512 over a multiple of 1024; NES: the 16-byte iNES header); the CRC with and without
+     the header are both tried. Archives (`.zip`, `.7z`) and files over 512 MB (large disc
+     images) skip this step.
+  2. **Exact file name**: the file's name equals a game's `rom_name` (arcade sets, e.g.
      `kof2002.zip`) or its name without extension equals a game's `name` (No-Intro and Redump
      names).
+- **Archives are known by their name only.** The library only has archives whose platform's
+  emulator declares that extension, and those emulators play them as they are (arcade sets
+  of many chips), which the databases list by the archive's name. Nothing inside an archive
+  is read.
 - **Never guess.** No fuzzy or partial title matching: a similar name could be another game,
   region or hack. Unidentified is fine.
+- A game may have several records with the same name in a database (one per source the
+  database merged, e.g. a SNES Classic dump): they are the same game, so its details join what
+  each record says, the first winning.
 - `.rdb` files are msgpack records after a 16-byte header; read them with the provider's own
   reader (no dependency). Load each database once per run, not once per game.
 
@@ -198,7 +213,7 @@ One table per kind, each marking what was asked:
 1. Check the source's terms: free to use from an open-source app, without a key the user must
    get (or turned on by the user with their own account).
 2. Add its folder implementing `Identifier` and/or the `ContentProvider` methods it can give,
-   with parsers and fixtures, and its id to `MetadataProviderId`.
+   with parsers, an in-memory fixtures helper, and its id to `MetadataProviderId`.
 3. Place it in the order of each stage or kind it serves in `gameMetadata.ts`.
 4. If it gives a field or kind not stored yet, add it with a migration (`main-database`) and
    to the types.
@@ -208,8 +223,16 @@ One table per kind, each marking what was asked:
 
 ## 11. Testing
 
-- Test each provider's parsers with small fixtures cut from real files (a few records of a
-  real `.rdb`, a real zip's central directory), never whole databases.
+- **The parser of a format is tested with fixtures cut from real files** (`fixtures/`: a few
+  records of a real `.rdb`, a few hundred bytes), so it is checked against what the source
+  really writes, not against a helper written with the same understanding of the format. The
+  app never reads them: it gets its data from the user's emulators or the network.
+- **Everything else builds its data in memory**: cases a real file can't give (a game whose
+  CRC matches, a broken or missing database) are written in the test with the provider's
+  `<provider>.fixtures.ts` helpers (e.g. `encodeRdb(records)`) and read through an in-memory
+  reader (`memoryReader`) instead of the disk's. Tests never write files.
+- Check a new format's parser once against all the real files on a development machine,
+  outside the tests, and write in the parser's comments what it was checked with.
 - Test identification, title cleaning and the fallback rule as pure functions, the fallback
   with fake providers.
 - Tests never use the network (fetch is passed in), never read the user's folders and never
@@ -228,5 +251,7 @@ One table per kind, each marking what was asked:
 - [ ] The title shown is the details' title when there is one, else the file name.
 - [ ] Work starts when a folder is saved or the app starts, never after a scan alone.
 - [ ] Artwork is files in the app's data folder; the database stores their paths.
-- [ ] Tests use fixtures and never the network; `pnpm typecheck` and `pnpm test` pass.
+- [ ] Parsers are tested with fixtures cut from real files; other tests build their data in
+      memory; no test writes files or uses the network; `pnpm typecheck` and `pnpm test`
+      pass.
 - [ ] Section 5 lists every provider in use.

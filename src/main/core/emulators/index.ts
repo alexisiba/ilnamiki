@@ -2,6 +2,7 @@ export { EMULATOR_MODULES, findModule, findModuleByDesktopId } from './emulatorM
 export type {
   EmulatorModule,
   EmulatorOption,
+  GameDatabase,
   KnownEmulatorKind,
   LaunchPlan,
   LaunchRequest,

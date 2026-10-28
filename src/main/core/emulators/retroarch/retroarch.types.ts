@@ -14,6 +14,8 @@ export interface RetroArchCore {
   platformManufacturer: string | null
   /** Lowercase, without the dot. */
   extensions: string[]
+  /** Names of the game databases of its platform, e.g. "Nintendo - Nintendo 64"; may be empty. */
+  databases: string[]
 }
 
 /** How an operating system reads the cores installed in RetroArch. */
@@ -25,4 +27,9 @@ export interface RetroArchCoresReader {
    * loads to play; null when it isn't there.
    */
   findCoreLibrary(installation: EmulatorInstallation, coreId: string): Promise<string | null>
+  /**
+   * Absolute path of the folder of RetroArch's game databases (`.rdb` files) in
+   * `installation`, as its configuration sets it; null when it can't be known.
+   */
+  findDatabaseFolder(installation: EmulatorInstallation): Promise<string | null>
 }

@@ -1,3 +1,6 @@
+import { join } from 'path'
+
+import type { GameDatabase } from '../emulatorModules.types'
 import type { RetroArchCore } from './retroarch.types'
 
 /** RetroArch's value for a setting left to its default, e.g. `libretro_directory = "default"`. */
@@ -50,6 +53,25 @@ export function parseCoreFolders(
 }
 
 /**
+ * The folder of RetroArch's game databases from its configuration's text, turned into a path
+ * by `resolve`, which gets null for a folder left to its default.
+ */
+export function parseDatabaseFolder(
+  configText: string,
+  resolve: (value: string | null) => string
+): string {
+  const value = parseRetroArchSettings(configText).get('content_database_path')
+  return resolve(!value || value === DEFAULT_VALUE ? null : value)
+}
+
+/** The values of a setting that lists several, e.g. `database = "Sega - 32X|Sega - Saturn"`. */
+const listOf = (value: string | undefined): string[] =>
+  (value ?? '')
+    .split('|')
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0)
+
+/**
  * The core `id` as its info file describes it, or null when the file doesn't say which
  * platform it plays. Its name falls back to the id when it declares none.
  */
@@ -59,10 +81,9 @@ export function parseCoreInfo(id: string, infoText: string): RetroArchCore | nul
   const platformName = settings.get('systemname')
   if (!platformId || !platformName) return null
 
-  const extensions = (settings.get('supported_extensions') ?? '')
-    .split('|')
-    .map((extension) => extension.trim().toLowerCase())
-    .filter((extension) => extension.length > 0)
+  const extensions = listOf(settings.get('supported_extensions')).map((extension) =>
+    extension.toLowerCase()
+  )
 
   return {
     id,
@@ -70,6 +91,26 @@ export function parseCoreInfo(id: string, infoText: string): RetroArchCore | nul
     platformId,
     platformName,
     platformManufacturer: settings.get('manufacturer') || null,
-    extensions: [...new Set(extensions)]
+    extensions: [...new Set(extensions)],
+    databases: [...new Set(listOf(settings.get('database')))]
   }
+}
+
+/**
+ * The game databases RetroArch's `cores` name, as files `<name>.rdb` of the database folder
+ * `folder`: one per platform and name, whether or not the file is there.
+ */
+export function gameDatabasesOf(cores: RetroArchCore[], folder: string): GameDatabase[] {
+  const databases = new Map<string, GameDatabase>()
+  for (const { platformId, databases: names } of cores) {
+    for (const name of names) {
+      databases.set(`${platformId}\n${name}`, {
+        platformId,
+        format: 'libretro-rdb',
+        name,
+        path: join(folder, `${name}.rdb`)
+      })
+    }
+  }
+  return [...databases.values()]
 }

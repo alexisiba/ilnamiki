@@ -1,6 +1,6 @@
 import { execFile } from 'child_process'
 import { app } from 'electron'
-import { mkdir, writeFile } from 'fs/promises'
+import { mkdir, stat, writeFile } from 'fs/promises'
 import { join } from 'path'
 import { promisify } from 'util'
 
@@ -10,7 +10,7 @@ import type { EmulatorInstallation } from '../installation'
 import { linuxCoresReader } from './providers/linux'
 import { unsupportedCoresReader } from './providers/unsupported'
 import { retroArchLaunchArgs, retroArchOverridesText } from './retroarch.launch'
-import { parseRetroArchVersion } from './retroarch.parsers'
+import { gameDatabasesOf, parseRetroArchVersion } from './retroarch.parsers'
 
 /** Longest RetroArch may take to print its version. */
 const VERSION_TIMEOUT_MS = 15_000
@@ -40,6 +40,15 @@ async function writeOverrides(): Promise<string> {
   const path = join(folder, 'overrides.cfg')
   await writeFile(path, retroArchOverridesText(), 'utf8')
   return path
+}
+
+/** Whether there is a file at `path`. */
+async function isFile(path: string): Promise<boolean> {
+  try {
+    return (await stat(path)).isFile()
+  } catch {
+    return false
+  }
 }
 
 /**
@@ -76,5 +85,15 @@ export const retroArchModule: EmulatorModule = {
   },
 
   // Nothing else is changed, so what the user sets up there is saved as RetroArch saves it.
-  prepareOpen: async () => ({ args: ['--fullscreen'], env: {} })
+  prepareOpen: async () => ({ args: ['--fullscreen'], env: {} }),
+
+  // Each core's info file names the databases of its platform; RetroArch downloads them to
+  // its database folder, so only those the user has are listed.
+  async listGameDatabases(installation) {
+    const folder = await reader.findDatabaseFolder(installation)
+    if (folder === null) return []
+    const databases = gameDatabasesOf(await reader.readCores(installation), folder)
+    const present = await Promise.all(databases.map(({ path }) => isFile(path)))
+    return databases.filter((_, index) => present[index])
+  }
 }
