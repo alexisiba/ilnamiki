@@ -11,7 +11,8 @@ of the app only talks to modules through one interface. Adding an emulator means
 module, not adding `if (kind === …)` across the app.
 
 Related skills: `main-renderer-api` (contracts and per-platform providers), `main-database`
-(what is stored about emulators), `utils-placement` (pure parsers next to their module).
+(what is stored about emulators), `utils-placement` (pure parsers next to their module),
+`game-metadata` (reads the game databases a module points to).
 
 ## 1. Vocabulary
 
@@ -67,14 +68,15 @@ src/shared/platformCatalog/     ← platform ids and their details, shared by ev
 A module answers the same questions for its emulator (see `emulatorModules.types.ts` for the
 exact types):
 
-| Member          | Answers                                                                                                                  |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `kind`          | Which known emulator it is (`EmulatorKind`).                                                                             |
-| `desktopIds`    | The desktop entry ids that recognize its application.                                                                    |
-| `readVersion`   | Its version: declared by the package when it says, or printed by the emulator.                                           |
-| `listOptions`   | The options it has now, each with its platform and the extensions of its games. Read live, never stored.                 |
-| `prepareLaunch` | The arguments and environment that start a game with one of its options, or `null` when that option isn't there anymore. |
-| `prepareOpen`   | The arguments and environment that open it alone, in full screen, to be set up.                                          |
+| Member              | Answers                                                                                                                                     |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `kind`              | Which known emulator it is (`EmulatorKind`).                                                                                                |
+| `desktopIds`        | The desktop entry ids that recognize its application.                                                                                       |
+| `readVersion`       | Its version: declared by the package when it says, or printed by the emulator.                                                              |
+| `listOptions`       | The options it has now, each with its platform and the extensions of its games. Read live, never stored.                                    |
+| `prepareLaunch`     | The arguments and environment that start a game with one of its options, or `null` when that option isn't there anymore.                    |
+| `prepareOpen`       | The arguments and environment that open it alone, in full screen, to be set up.                                                             |
+| `listGameDatabases` | Optional. The game databases it keeps on this computer, per platform, for the `game-metadata` providers (only RetroArch: its `.rdb` files). |
 
 - **Options are per platform.** An emulator without options that plays two platforms returns
   two options, both with id `null`.
@@ -82,6 +84,8 @@ exact types):
 - Each option takes its platform's id, name and manufacturer from the shared platform catalog
   when the platform is there. RetroArch also reads them from its cores, for platforms the
   catalog doesn't list yet.
+- A module only says where its game databases are and which platform uses each; reading
+  them is the `game-metadata` providers' job, never the module's.
 - Launching never shows the emulator's own prompts the user can't answer with a gamepad
   (update checks, first-run dialogs): the module turns them off through its arguments or
   environment when the emulator allows it.
