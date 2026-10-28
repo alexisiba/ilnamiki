@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import type { DescribedGame, GameToDescribe } from './gameMetadata.describe'
+import type { GameToDescribe, MetadataUpdate } from './gameMetadata.describe'
 import { NO_DETAILS } from './gameMetadata.fallback'
 import { createMetadataQueue, type MetadataQueueDependencies } from './gameMetadataQueue'
 
@@ -8,14 +8,14 @@ const game = (id: string): GameToDescribe => ({
   id,
   platformId: 'game_boy',
   filePath: `/roms/gb/${id}.gb`,
-  lookedAtFile: null
+  lookedAtFile: null,
+  identity: null,
+  isArtworkAsked: false
 })
 
-const described = (id: string): DescribedGame => ({
-  gameId: id,
-  identity: null,
-  details: NO_DETAILS,
-  file: { size: 1, modifiedAt: 1 }
+const described = (id: string): MetadataUpdate => ({
+  type: 'details',
+  game: { gameId: id, identity: null, details: NO_DETAILS, file: { size: 1, modifiedAt: 1 } }
 })
 
 /** A queue over `games` per folder, whose worker describes every game it gets. */
@@ -74,7 +74,7 @@ describe('createMetadataQueue', () => {
   it('runs once at a time, joining what is asked for during a run into the next one', async () => {
     let finish = (): void => {}
     const describe = vi.fn(
-      (games: GameToDescribe[], _sources, onDescribed: (game: DescribedGame) => void) =>
+      (games: GameToDescribe[], _sources, onDescribed: (update: MetadataUpdate) => void) =>
         new Promise<void>((resolve) => {
           finish = () => {
             games.forEach((one) => onDescribed(described(one.id)))
@@ -114,7 +114,7 @@ describe('createMetadataQueue', () => {
       (
         games: GameToDescribe[],
         _sources,
-        onDescribed: (game: DescribedGame) => void,
+        onDescribed: (update: MetadataUpdate) => void,
         signal: AbortSignal
       ) =>
         new Promise<void>((resolve) => {

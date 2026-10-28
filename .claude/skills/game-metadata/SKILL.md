@@ -45,7 +45,7 @@ src/main/core/gameMetadata/
   gameMetadata.worker.types.ts   ← what main and the worker send each other
   gameMetadata.repository.ts     ← game_metadata, and the SQL of the title shown
   gameMetadataQueue.ts           ← one run at a time, written in batches (dependencies passed in)
-  artwork.ts                     ← downloads artwork and writes its files (artwork provider)
+  artwork.ts                     ← downloads an image and writes its file (fetch and files passed in)
   <provider>/                    ← one folder per provider, e.g. libretroDatabase/
     <provider>.ts                ← implements Identifier and/or ContentProvider
     <provider>.parsers.ts        ← pure functions over what it reads
@@ -169,7 +169,12 @@ Each stage and each content kind has its **own ordered list of providers** in
 
 - Builds URLs from the identity: the database name is the system folder, and the game's name
   is the file name with each of ``& * / : ` < > ? \ | "`` replaced by `_`.
-- A missing image (404) means that provider has no image of that kind.
+- It knows only games `libretro-database` identified: the images are named after its names.
+- It names all three images without asking the server; which exist is only known when they
+  are downloaded. A missing image (404) means it has no image of that kind, and that kind is
+  asked of the next artwork provider.
+- Its images are PNGs about 512 px wide and under 1 MB, fine for the TV as they are: nothing
+  is resized.
 
 ## 6. Titles
 
@@ -190,12 +195,13 @@ One table per kind, each marking what was asked:
 - `game_metadata`: one row per game whose providers were all asked: its identity and how it
   was found (`crc`, `file-name`, or `NULL` when unidentified), the details' fields (nullable),
   and the file's size and modification time when it was looked at.
-- `game_images` (comes with the artwork provider): one row per game and artwork kind once
-  asked: the file's path, or `NULL` when no provider had it.
+- `game_images`: one row per game and artwork kind once every artwork provider was asked: the
+  file's path, or `NULL` when no provider had it. A game's details found again (its file
+  changed) delete its rows, so its artwork is found again for its new identity.
 - `game_descriptions` (planned, when a description provider exists): one row per game and
   language.
-- **Artwork is files**, in `<userData>/artwork/<gameId>/<kind>.<ext>`; the database keeps the
-  path. Removing a game's metadata removes its files.
+- **Artwork is files**, in `<userData>/artwork/<gameId>/<kind>.<ext>`, written whole or not at
+  all; the database keeps the path. A file is replaced when its kind is downloaded again.
 - Rows are written only once every provider of that stage or kind answered; a game still
   waiting for a provider that couldn't answer has no row there.
 
@@ -214,18 +220,23 @@ One table per kind, each marking what was asked:
      does short writes, whatever the library's size.
 - Stopping (the app quitting) ends the worker; what was posted is still written, and the rest
   is done on the next start.
-- A kind that needs the network never holds back one that doesn't. Artwork downloads a few at
-  a time.
+- For each game the worker posts its details first, then looks for its artwork and posts it
+  apart: a kind that needs the network never holds back one that doesn't, so details are kept
+  offline too, and artwork is looked for on a later run. A game whose details are unchanged
+  still gets its artwork when it was never all asked (with the identity stored).
+- A game's three artwork kinds download at the same time; games go one after another.
 - It is **invisible for now**: no progress UI. Errors are logged, never shown. A later UI will
   show that metadata is downloading.
 - Starting a game never waits for metadata.
 
 ## 9. Network
 
-- Only providers that need it use the network, through the core's fetch (timeout, a few
-  requests at a time, `User-Agent: Ilnamiki/<version>`).
-- No connection means that work stops and is tried again on the next start; it is never an
-  error the user sees.
+- Only what needs it uses the network, through the core's downloader (`artwork.ts`): a 20 s
+  timeout, `User-Agent: Ilnamiki/<version>`, images up to 10 MB of type PNG, JPEG or WebP.
+- A 404 or 410 means the image isn't there; any other failure (no connection, the server
+  failing) throws `MetadataUnavailableError`: that game's artwork gets no rows and the rest of
+  the run skips artwork, since every game would wait for the same failure. It is tried again on
+  the next run, and it is never an error the user sees.
 - Artwork belongs to its owners: it is downloaded on the user's computer, never committed to
   the repository or shipped in a build.
 

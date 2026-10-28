@@ -1,7 +1,19 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { fillMissing, findDetails, identifyGame, NO_DETAILS } from './gameMetadata.fallback'
-import type { ContentProvider, GameDetails, GameIdentity, Identifier } from './gameMetadata.types'
+import {
+  fillMissing,
+  findArtwork,
+  findDetails,
+  identifyGame,
+  NO_DETAILS
+} from './gameMetadata.fallback'
+import type {
+  ArtworkUrl,
+  ContentProvider,
+  GameDetails,
+  GameIdentity,
+  Identifier
+} from './gameMetadata.types'
 
 const GAME = { platformId: 'game_boy', filePath: '/roms/gb/Tetris.gb' }
 
@@ -92,5 +104,67 @@ describe('findDetails', () => {
 
   it('leaves empty what no provider knows', async () => {
     expect(await findDetails([], IDENTITY)).toEqual(NO_DETAILS)
+  })
+})
+
+describe('findArtwork', () => {
+  const artworkProvider = (urls: ArtworkUrl[]): ContentProvider => ({
+    id: 'libretro-thumbnails',
+    artwork: vi.fn(async () => urls)
+  })
+
+  /** Downloads every URL but those of `missing`, keeping each as "<url>.file". */
+  const downloadAllBut =
+    (...missing: string[]) =>
+    async (_kind: string, url: string): Promise<string | null> =>
+      missing.includes(url) ? null : `${url}.file`
+
+  it('finds each kind’s image at the first provider that names it', async () => {
+    const first = artworkProvider([
+      { kind: 'cover', url: 'first/cover' },
+      { kind: 'screenshot', url: 'first/screenshot' }
+    ])
+    const second = artworkProvider([
+      { kind: 'cover', url: 'second/cover' },
+      { kind: 'title-screen', url: 'second/title' }
+    ])
+
+    expect(await findArtwork([first, second], IDENTITY, downloadAllBut())).toEqual([
+      { kind: 'cover', path: 'first/cover.file' },
+      { kind: 'title-screen', path: 'second/title.file' },
+      { kind: 'screenshot', path: 'first/screenshot.file' }
+    ])
+  })
+
+  it('asks the next provider for a kind whose image turned out to be missing', async () => {
+    const first = artworkProvider([{ kind: 'cover', url: 'first/cover' }])
+    const second = artworkProvider([{ kind: 'cover', url: 'second/cover' }])
+
+    expect(
+      (await findArtwork([first, second], IDENTITY, downloadAllBut('first/cover')))[0]
+    ).toEqual({ kind: 'cover', path: 'second/cover.file' })
+  })
+
+  it('leaves empty the kinds no provider has, asking each provider once', async () => {
+    const only = artworkProvider([{ kind: 'cover', url: 'only/cover' }])
+    const withoutArtwork: ContentProvider = { id: 'libretro-database' }
+
+    expect(
+      await findArtwork([withoutArtwork, only], IDENTITY, downloadAllBut('only/cover'))
+    ).toEqual([
+      { kind: 'cover', path: null },
+      { kind: 'title-screen', path: null },
+      { kind: 'screenshot', path: null }
+    ])
+    expect(only.artwork).toHaveBeenCalledTimes(1)
+  })
+
+  it('fails when an image couldn’t be asked for, so the game is tried again', async () => {
+    const provider = artworkProvider([{ kind: 'cover', url: 'cover' }])
+    const offline = async (): Promise<string | null> => {
+      throw new Error('fetch failed')
+    }
+
+    await expect(findArtwork([provider], IDENTITY, offline)).rejects.toThrow('fetch failed')
   })
 })

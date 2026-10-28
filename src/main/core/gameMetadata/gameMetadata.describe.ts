@@ -1,4 +1,4 @@
-import { findDetails, identifyGame, NO_DETAILS } from './gameMetadata.fallback'
+import { type FoundArtwork, findDetails, identifyGame, NO_DETAILS } from './gameMetadata.fallback'
 import type { MetadataProviders } from './gameMetadata.providers'
 import type { GameDetails, GameIdentity } from './gameMetadata.types'
 
@@ -9,13 +9,17 @@ export interface FileState {
   modifiedAt: number
 }
 
-/** A game of the library to describe, with its file as it was when it was last looked at. */
+/** A game of the library to describe, with what was found about it last time. */
 export interface GameToDescribe {
   id: string
   platformId: string
   filePath: string
-  /** Null when its providers were never all asked. */
+  /** Its file when it was last looked at; null when its providers were never all asked. */
   lookedAtFile: FileState | null
+  /** The identity found last time; null when unidentified or never looked at. */
+  identity: GameIdentity | null
+  /** Whether every artwork kind was asked for its identity. */
+  isArtworkAsked: boolean
 }
 
 /** What every provider said about a game, once all were asked. */
@@ -27,6 +31,11 @@ export interface DescribedGame {
   /** Its file when it was looked at, to tell later whether it changed. */
   file: FileState
 }
+
+/** What a run found about one game, written as it comes. */
+export type MetadataUpdate =
+  | { type: 'details'; game: DescribedGame }
+  | { type: 'artwork'; gameId: string; artwork: FoundArtwork[] }
 
 const isSameFile = (a: FileState, b: FileState): boolean =>
   a.size === b.size && a.modifiedAt === b.modifiedAt
@@ -49,4 +58,17 @@ export async function describeGame(
   const identity = await identifyGame(providers.identifiers, game)
   const details = identity ? await findDetails(providers.details, identity) : NO_DETAILS
   return { gameId: game.id, identity, details, file }
+}
+
+/**
+ * The identity whose artwork `game` still needs: the new one when it was just `described`
+ * (its artwork is found again with it), else the one found before while its artwork was never
+ * all asked. Null when there is none to look for: an unidentified game has no artwork.
+ */
+export function artworkIdentityOf(
+  game: GameToDescribe,
+  described: DescribedGame | null
+): GameIdentity | null {
+  if (described) return described.identity
+  return game.isArtworkAsked ? null : game.identity
 }

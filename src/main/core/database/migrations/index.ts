@@ -122,5 +122,18 @@ export const MIGRATIONS: Migration[] = [
         )
       ) STRICT;
     `
+  },
+  {
+    version: 7,
+    name: 'Create the game images table',
+    up: `
+      CREATE TABLE game_images (
+        game_id TEXT NOT NULL REFERENCES games (id) ON DELETE CASCADE,
+        kind TEXT NOT NULL CHECK (kind IN ('cover', 'title_screen', 'screenshot')),
+        path TEXT CHECK (length(path) > 0),
+        looked_at INTEGER NOT NULL,
+        PRIMARY KEY (game_id, kind)
+      ) STRICT;
+    `
   }
 ]

@@ -2,8 +2,8 @@ import type { DatabaseSync } from 'node:sqlite'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { openDatabase } from '../database'
-import { NO_DETAILS } from './gameMetadata.fallback'
-import type { DescribedGame } from './gameMetadata.describe'
+import type { DescribedGame, MetadataUpdate } from './gameMetadata.describe'
+import { type FoundArtwork, NO_DETAILS } from './gameMetadata.fallback'
 import { createGameMetadataRepository } from './gameMetadata.repository'
 
 const TETRIS: DescribedGame = {
@@ -33,6 +33,19 @@ const UNKNOWN: DescribedGame = {
   file: { size: 4096, modifiedAt: 2000 }
 }
 
+const TETRIS_ARTWORK: FoundArtwork[] = [
+  { kind: 'cover', path: '/data/artwork/g1/cover.png' },
+  { kind: 'title-screen', path: null },
+  { kind: 'screenshot', path: '/data/artwork/g1/screenshot.png' }
+]
+
+const details = (game: DescribedGame): MetadataUpdate => ({ type: 'details', game })
+const artwork = (gameId: string, found: FoundArtwork[]): MetadataUpdate => ({
+  type: 'artwork',
+  gameId,
+  artwork: found
+})
+
 let db: DatabaseSync
 
 beforeEach(() => {
@@ -57,6 +70,12 @@ afterEach(() => {
   db.close()
 })
 
+const imageRows = (): unknown[] =>
+  db
+    .prepare('SELECT game_id, kind, path, looked_at FROM game_images ORDER BY game_id, kind')
+    .all()
+    .map((row) => ({ ...row }))
+
 describe('game metadata repository', () => {
   it('lists the games of every folder to describe, oldest first, leaving removed ones out', () => {
     expect(createGameMetadataRepository(db).listGamesToDescribe(null)).toEqual([
@@ -64,19 +83,25 @@ describe('game metadata repository', () => {
         id: 'g1',
         platformId: 'game_boy',
         filePath: '/home/player/Games/GB/tetris.gb',
-        lookedAtFile: null
+        lookedAtFile: null,
+        identity: null,
+        isArtworkAsked: false
       },
       {
         id: 'g2',
         platformId: 'game_boy',
         filePath: '/home/player/Games/GB/homebrew.gb',
-        lookedAtFile: null
+        lookedAtFile: null,
+        identity: null,
+        isArtworkAsked: false
       },
       {
         id: 'g3',
         platformId: 'nintendo_64',
         filePath: '/home/player/Games/N64/sm64.z64',
-        lookedAtFile: null
+        lookedAtFile: null,
+        identity: null,
+        isArtworkAsked: false
       }
     ])
   })
@@ -88,13 +113,13 @@ describe('game metadata repository', () => {
     expect(repository.listGamesToDescribe([])).toEqual([])
   })
 
-  it('keeps what was found, with the file as it was, for the next run to compare', () => {
+  it('keeps what was found, for the next run to compare and to look for artwork with', () => {
     const repository = createGameMetadataRepository(db)
-    repository.save([TETRIS, UNKNOWN], 50)
+    repository.save([details(TETRIS), details(UNKNOWN)], 50)
 
-    expect(repository.listGamesToDescribe(['f1']).map(({ lookedAtFile }) => lookedAtFile)).toEqual([
-      TETRIS.file,
-      UNKNOWN.file
+    expect(repository.listGamesToDescribe(['f1'])).toMatchObject([
+      { id: 'g1', lookedAtFile: TETRIS.file, identity: TETRIS.identity, isArtworkAsked: false },
+      { id: 'g2', lookedAtFile: UNKNOWN.file, identity: null, isArtworkAsked: false }
     ])
     expect(db.prepare("SELECT * FROM game_metadata WHERE game_id = 'g1'").get()).toEqual({
       game_id: 'g1',
@@ -116,7 +141,7 @@ describe('game metadata repository', () => {
   })
 
   it('keeps a game no provider knew, so it isn’t asked again', () => {
-    createGameMetadataRepository(db).save([UNKNOWN], 50)
+    createGameMetadataRepository(db).save([details(UNKNOWN)], 50)
 
     expect(db.prepare("SELECT * FROM game_metadata WHERE game_id = 'g2'").get()).toMatchObject({
       identity_provider: null,
@@ -128,18 +153,42 @@ describe('game metadata repository', () => {
 
   it('replaces what was found about a game when it is described again', () => {
     const repository = createGameMetadataRepository(db)
-    repository.save([TETRIS], 50)
-    repository.save([{ ...UNKNOWN, gameId: 'g1' }], 60)
+    repository.save([details(TETRIS)], 50)
+    repository.save([details({ ...UNKNOWN, gameId: 'g1' })], 60)
 
     expect(
       db.prepare("SELECT title, file_size, looked_at FROM game_metadata WHERE game_id = 'g1'").get()
     ).toEqual({ title: null, file_size: 4096, looked_at: 60 })
   })
 
+  it('keeps every artwork kind asked, with its file or none, and then has it all asked', () => {
+    const repository = createGameMetadataRepository(db)
+    repository.save([details(TETRIS), artwork('g1', TETRIS_ARTWORK)], 50)
+
+    expect(imageRows()).toEqual([
+      { game_id: 'g1', kind: 'cover', path: '/data/artwork/g1/cover.png', looked_at: 50 },
+      { game_id: 'g1', kind: 'screenshot', path: '/data/artwork/g1/screenshot.png', looked_at: 50 },
+      { game_id: 'g1', kind: 'title_screen', path: null, looked_at: 50 }
+    ])
+    expect(repository.listGamesToDescribe(['f1'])[0].isArtworkAsked).toBe(true)
+  })
+
+  it('forgets a game’s artwork when it is described again, to find it for its new identity', () => {
+    const repository = createGameMetadataRepository(db)
+    repository.save([details(TETRIS), artwork('g1', TETRIS_ARTWORK)], 50)
+    repository.save([details({ ...TETRIS, file: { size: 1, modifiedAt: 1 } })], 60)
+
+    expect(imageRows()).toEqual([])
+    expect(repository.listGamesToDescribe(['f1'])[0].isArtworkAsked).toBe(false)
+  })
+
   it('refuses metadata of an unknown game, a half identity or values that can’t be right', () => {
     const repository = createGameMetadataRepository(db)
 
-    expect(() => repository.save([{ ...TETRIS, gameId: 'missing' }], 50)).toThrow(/FOREIGN KEY/)
+    expect(() => repository.save([details({ ...TETRIS, gameId: 'missing' })], 50)).toThrow(
+      /FOREIGN KEY/
+    )
+    expect(() => repository.save([artwork('missing', TETRIS_ARTWORK)], 50)).toThrow(/FOREIGN KEY/)
     expect(() =>
       db
         .prepare(
@@ -150,10 +199,16 @@ describe('game metadata repository', () => {
         .run()
     ).toThrow(/CHECK/)
     expect(() =>
-      repository.save([{ ...TETRIS, details: { ...TETRIS.details, releaseMonth: 13 } }], 50)
+      repository.save(
+        [details({ ...TETRIS, details: { ...TETRIS.details, releaseMonth: 13 } })],
+        50
+      )
     ).toThrow(/CHECK/)
     expect(() =>
-      repository.save([{ ...TETRIS, details: { ...TETRIS.details, title: '' } }], 50)
+      repository.save([details({ ...TETRIS, details: { ...TETRIS.details, title: '' } })], 50)
     ).toThrow(/CHECK/)
+    expect(() => repository.save([artwork('g1', [{ kind: 'cover', path: '' }])], 50)).toThrow(
+      /CHECK/
+    )
   })
 })

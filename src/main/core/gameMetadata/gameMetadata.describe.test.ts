@@ -1,6 +1,12 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { describeGame, type FileState, type GameToDescribe } from './gameMetadata.describe'
+import {
+  artworkIdentityOf,
+  type DescribedGame,
+  describeGame,
+  type FileState,
+  type GameToDescribe
+} from './gameMetadata.describe'
 import { NO_DETAILS } from './gameMetadata.fallback'
 import type { MetadataProviders } from './gameMetadata.providers'
 import { type GameIdentity, MetadataUnavailableError } from './gameMetadata.types'
@@ -11,7 +17,9 @@ const GAME: GameToDescribe = {
   id: 'g1',
   platformId: 'game_boy',
   filePath: '/roms/gb/tetris.gb',
-  lookedAtFile: null
+  lookedAtFile: null,
+  identity: null,
+  isArtworkAsked: false
 }
 
 const IDENTITY: GameIdentity = {
@@ -30,7 +38,8 @@ function providers(identity: GameIdentity | null): MetadataProviders {
         id: 'libretro-database',
         details: vi.fn(async () => ({ ...NO_DETAILS, title: 'Tetris' }))
       }
-    ]
+    ],
+    artwork: []
   }
 }
 
@@ -88,11 +97,39 @@ describe('describeGame', () => {
           }
         }
       ],
-      details: []
+      details: [],
+      artwork: []
     }
 
     await expect(describeGame(GAME, unavailable, fileIs(FILE))).rejects.toThrow(
       MetadataUnavailableError
     )
+  })
+})
+
+describe('artworkIdentityOf', () => {
+  const described = (identity: GameIdentity | null): DescribedGame => ({
+    gameId: 'g1',
+    identity,
+    details: NO_DETAILS,
+    file: FILE
+  })
+
+  it('looks for the artwork of a game just described, with its new identity', () => {
+    const before = { ...GAME, identity: { ...IDENTITY, name: 'Old' }, isArtworkAsked: true }
+
+    expect(artworkIdentityOf(before, described(IDENTITY))).toEqual(IDENTITY)
+  })
+
+  it('looks for the artwork a game described before never had all asked', () => {
+    expect(artworkIdentityOf({ ...GAME, identity: IDENTITY }, null)).toEqual(IDENTITY)
+  })
+
+  it('looks for nothing once the artwork was all asked, or for an unidentified game', () => {
+    expect(
+      artworkIdentityOf({ ...GAME, identity: IDENTITY, isArtworkAsked: true }, null)
+    ).toBeNull()
+    expect(artworkIdentityOf(GAME, null)).toBeNull()
+    expect(artworkIdentityOf(GAME, described(null))).toBeNull()
   })
 })

@@ -1,7 +1,7 @@
-import type { DescribedGame, GameToDescribe } from './gameMetadata.describe'
+import type { GameToDescribe, MetadataUpdate } from './gameMetadata.describe'
 import type { ProviderSources } from './gameMetadata.providers'
 
-/** Described games kept before they are written together, in one transaction. */
+/** Updates kept before they are written together, in one transaction. */
 const BATCH_SIZE = 50
 
 /** What the queue needs, passed in so it runs without Electron, a worker or a database file. */
@@ -11,17 +11,17 @@ export interface MetadataQueueDependencies {
   /** What the providers will look in, read live before each run. */
   findSources(): Promise<ProviderSources>
   /**
-   * Describes `games` off main's thread, calling `onDescribed` for each one as soon as it is
-   * described; resolves when all are done or `signal` stops it.
+   * Describes `games` off main's thread, calling `onUpdate` with what it finds about each one
+   * as soon as it does; resolves when all are done or `signal` stops it.
    */
   describe(
     games: GameToDescribe[],
     sources: ProviderSources,
-    onDescribed: (game: DescribedGame) => void,
+    onUpdate: (update: MetadataUpdate) => void,
     signal: AbortSignal
   ): Promise<void>
-  /** Writes `games` together, as looked at `now`. */
-  save(games: DescribedGame[], now: number): void
+  /** Writes `updates` together, in order, as looked at `now`. */
+  save(updates: MetadataUpdate[], now: number): void
   now(): number
 }
 
@@ -54,7 +54,7 @@ export function createMetadataQueue(dependencies: MetadataQueueDependencies): Me
     if (games.length === 0) return
     const sources = await dependencies.findSources()
 
-    let batch: DescribedGame[] = []
+    let batch: MetadataUpdate[] = []
     const flush = (): void => {
       if (batch.length === 0) return
       dependencies.save(batch, dependencies.now())
@@ -64,14 +64,14 @@ export function createMetadataQueue(dependencies: MetadataQueueDependencies): Me
       await dependencies.describe(
         games,
         sources,
-        (game) => {
-          batch.push(game)
+        (update) => {
+          batch.push(update)
           if (batch.length >= BATCH_SIZE) flush()
         },
         signal
       )
     } finally {
-      // What was described before a stop is kept: it isn't described again.
+      // What was found before a stop is kept: it isn't looked for again.
       flush()
     }
   }

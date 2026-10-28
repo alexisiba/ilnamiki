@@ -19,7 +19,7 @@ structure: what each table is for, what each field means and how tables relate.
 | Journal | WAL (`ilnamiki.db-wal` and `ilnamiki.db-shm` exist while the app runs) |
 | Foreign keys | Enforced on every connection |
 | Schema version | Kept in `PRAGMA user_version`; the number of the last migration applied |
-| Current version | **6**: `emulators`, `library_folders`, `games`, `play_sessions`, `platform_settings`, `game_metadata` |
+| Current version | **7**: `emulators`, `library_folders`, `games`, `play_sessions`, `platform_settings`, `game_metadata`, `game_images` |
 
 ## What is stored and what isn't
 
@@ -55,6 +55,7 @@ erDiagram
     emulators |o--o{ games : "chosen for"
     emulators |o--o{ platform_settings : "default for"
     games ||--o| game_metadata : "described by"
+    games ||--o{ game_images : "shown with"
 
     emulators {
         TEXT id PK
@@ -117,6 +118,12 @@ erDiagram
         INTEGER players
         INTEGER file_size
         INTEGER file_modified_at
+        INTEGER looked_at
+    }
+    game_images {
+        TEXT game_id PK, FK
+        TEXT kind PK
+        TEXT path
         INTEGER looked_at
     }
 ```
@@ -247,6 +254,23 @@ is tried again on a later run.
 A `CHECK` keeps the identity whole: the four `identity_*` and `identified_by` fields are all
 set or all `NULL`. Texts are never empty.
 
+### `game_images`
+
+Migration 7. The artwork of a game: one row per kind once every artwork provider was asked
+for it, with the image's file. Images are files in `artwork/<game id>/<kind>.<ext>` of the
+app's data folder; only their path is stored. A game's rows are deleted when its details are
+found again (its file changed), so its artwork is found again for its new identity. A game
+with fewer than three rows still has artwork to look for; an unidentified game has none.
+
+| Field | Type | Null | Meaning |
+|---|---|---|---|
+| `game_id` | `TEXT` | no | → `games.id`. Deleted with its game (`CASCADE`), though games are never deleted today |
+| `kind` | `TEXT` | no | Which image: `cover`, `title_screen` or `screenshot` (`CHECK`) |
+| `path` | `TEXT` | yes | Absolute path of the image's file; `NULL` when no provider had one, never empty |
+| `looked_at` | `INTEGER` | no | When the providers were asked |
+
+Primary key: (`game_id`, `kind`).
+
 ### Which emulator a game plays with
 
 Computed when a game is shown or started, never stored, from these in order; an emulator (or
@@ -276,9 +300,8 @@ erDiagram
     }
 ```
 
-The artwork of games (`game_images`: one row per game and kind, with its file's path) comes
-with the artwork provider; descriptions (`game_descriptions`, per language) come once a
-provider for them is chosen. See the `game-metadata` skill.
+Descriptions of games (`game_descriptions`, per language) come once a provider for them is
+chosen. See the `game-metadata` skill.
 
 ### `settings` (planned)
 

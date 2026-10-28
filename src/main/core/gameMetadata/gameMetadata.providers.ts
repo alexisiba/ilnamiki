@@ -1,10 +1,12 @@
 import type { ContentProvider, Identifier } from './gameMetadata.types'
 import { createLibretroDatabase, type LibretroDatabaseFile } from './libretroDatabase'
+import { libretroThumbnails } from './libretroThumbnails'
 
 /** The providers of each stage and kind, in the order they are asked. */
 export interface MetadataProviders {
   identifiers: Identifier[]
   details: ContentProvider[]
+  artwork: ContentProvider[]
 }
 
 /** What the providers need to look in, found by main before a run. */
@@ -22,6 +24,7 @@ export function createMetadataProviders({ libretroDatabases }: ProviderSources):
   const libretroDatabase = createLibretroDatabase(async () => libretroDatabases)
   return {
     identifiers: [libretroDatabase],
-    details: [libretroDatabase]
+    details: [libretroDatabase],
+    artwork: [libretroThumbnails]
   }
 }

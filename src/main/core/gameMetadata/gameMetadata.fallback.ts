@@ -1,9 +1,12 @@
-import type {
-  ContentProvider,
-  GameDetails,
-  GameIdentity,
-  GameToIdentify,
-  Identifier
+import {
+  ARTWORK_KINDS,
+  type ArtworkKind,
+  type ArtworkUrl,
+  type ContentProvider,
+  type GameDetails,
+  type GameIdentity,
+  type GameToIdentify,
+  type Identifier
 } from './gameMetadata.types'
 
 /** Details nobody knows yet. */
@@ -56,4 +59,45 @@ export async function findDetails(
     if (found) details = fillMissing(details, found)
   }
   return details
+}
+
+/** One artwork kind of a game, once every provider that could have it was asked. */
+export interface FoundArtwork {
+  kind: ArtworkKind
+  /** The image's file; null when no provider had it. */
+  path: string | null
+}
+
+/**
+ * The artwork of the game `identity`, one image per kind: for each kind, `providers` are asked
+ * in order and `download` fetches the image the first names; when it turns out to be missing,
+ * the next provider is asked for that kind. What none has stays null.
+ */
+export async function findArtwork(
+  providers: ContentProvider[],
+  identity: GameIdentity,
+  download: (kind: ArtworkKind, url: string) => Promise<string | null>
+): Promise<FoundArtwork[]> {
+  // Each provider is asked once for all its images, only when a kind still needs it.
+  const named = new Map<ContentProvider, Promise<ArtworkUrl[]>>()
+  const urlsOf = (provider: ContentProvider): Promise<ArtworkUrl[]> => {
+    let urls = named.get(provider)
+    if (!urls) {
+      urls = provider.artwork?.(identity) ?? Promise.resolve([])
+      named.set(provider, urls)
+    }
+    return urls
+  }
+
+  // The kinds don't depend on each other, so their images download at the same time.
+  return Promise.all(
+    ARTWORK_KINDS.map(async (kind): Promise<FoundArtwork> => {
+      for (const provider of providers) {
+        const url = (await urlsOf(provider)).find((image) => image.kind === kind)?.url
+        const path = url ? await download(kind, url) : null
+        if (path) return { kind, path }
+      }
+      return { kind, path: null }
+    })
+  )
 }

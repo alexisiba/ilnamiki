@@ -1,6 +1,9 @@
+import { app } from 'electron'
+import { join } from 'path'
+
 import { getDatabase, transaction } from '../database'
 import { createEmulatorsRepository, findModule, installationOf } from '../emulators'
-import type { DescribedGame, GameToDescribe } from './gameMetadata.describe'
+import type { GameToDescribe, MetadataUpdate } from './gameMetadata.describe'
 import type { ProviderSources } from './gameMetadata.providers'
 import { createGameMetadataRepository } from './gameMetadata.repository'
 import type { MetadataWorkerInput, MetadataWorkerMessage } from './gameMetadata.worker.types'
@@ -28,18 +31,24 @@ async function findSources(): Promise<ProviderSources> {
 async function describeInWorker(
   games: GameToDescribe[],
   sources: ProviderSources,
-  onDescribed: (game: DescribedGame) => void,
+  onUpdate: (update: MetadataUpdate) => void,
   signal: AbortSignal
 ): Promise<void> {
   // Loaded here, not at the top: only Electron's build knows how to start a worker module.
   const { default: createWorker } = await import('./gameMetadata.worker?nodeWorker')
   if (signal.aborted) return
-  const worker = createWorker({ workerData: { games, sources } satisfies MetadataWorkerInput })
+  const input: MetadataWorkerInput = {
+    games,
+    sources,
+    artworkFolder: join(app.getPath('userData'), 'artwork'),
+    userAgent: `Ilnamiki/${app.getVersion()}`
+  }
+  const worker = createWorker({ workerData: input })
   const stop = (): void => void worker.terminate()
   signal.addEventListener('abort', stop)
   try {
     await new Promise<void>((resolve, reject) => {
-      worker.on('message', (game: MetadataWorkerMessage) => onDescribed(game))
+      worker.on('message', (update: MetadataWorkerMessage) => onUpdate(update))
       worker.on('error', reject)
       worker.on('exit', () => resolve())
     })
@@ -53,9 +62,9 @@ const queue = createMetadataQueue({
     createGameMetadataRepository(getDatabase()).listGamesToDescribe(folderIds),
   findSources,
   describe: describeInWorker,
-  save(games, now) {
+  save(updates, now) {
     const db = getDatabase()
-    transaction(db, () => createGameMetadataRepository(db).save(games, now))
+    transaction(db, () => createGameMetadataRepository(db).save(updates, now))
   },
   now: Date.now
 })

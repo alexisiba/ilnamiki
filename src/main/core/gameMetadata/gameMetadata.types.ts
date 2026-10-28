@@ -1,5 +1,5 @@
 /** A source of game metadata Ilnamiki knows. */
-export type MetadataProviderId = 'libretro-database'
+export type MetadataProviderId = 'libretro-database' | 'libretro-thumbnails'
 
 /** A game of the library to identify. */
 export interface GameToIdentify {
@@ -37,6 +37,18 @@ export interface GameDetails {
   players: number | null
 }
 
+/** The images of a game Ilnamiki shows, one of each at most. */
+export type ArtworkKind = 'cover' | 'title-screen' | 'screenshot'
+
+/** Every artwork kind, in the order they are looked for. */
+export const ARTWORK_KINDS: ArtworkKind[] = ['cover', 'title-screen', 'screenshot']
+
+/** Where a provider says an image of a game may be; it may turn out to be missing. */
+export interface ArtworkUrl {
+  kind: ArtworkKind
+  url: string
+}
+
 /**
  * Thrown by a provider that couldn't look (no database for the platform yet, no network), so
  * the game isn't taken as asked and is tried again on a later run.
@@ -63,4 +75,10 @@ export interface ContentProvider {
    * Throws only when it couldn't look.
    */
   details?(identity: GameIdentity): Promise<GameDetails | null>
+  /**
+   * Where its images of the game may be, at most one per kind; none when it doesn't know the
+   * game. An image it names may still be missing when downloaded: that kind is then asked of
+   * the next provider. Throws only when it couldn't look.
+   */
+  artwork?(identity: GameIdentity): Promise<ArtworkUrl[]>
 }
