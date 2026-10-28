@@ -19,7 +19,7 @@ structure: what each table is for, what each field means and how tables relate.
 | Journal | WAL (`ilnamiki.db-wal` and `ilnamiki.db-shm` exist while the app runs) |
 | Foreign keys | Enforced on every connection |
 | Schema version | Kept in `PRAGMA user_version`; the number of the last migration applied |
-| Current version | **5**: `emulators`, `library_folders`, `games`, `play_sessions`, `platform_settings` |
+| Current version | **6**: `emulators`, `library_folders`, `games`, `play_sessions`, `platform_settings`, `game_metadata` |
 
 ## What is stored and what isn't
 
@@ -54,6 +54,7 @@ erDiagram
     emulators |o--o{ play_sessions : "played with"
     emulators |o--o{ games : "chosen for"
     emulators |o--o{ platform_settings : "default for"
+    games ||--o| game_metadata : "described by"
 
     emulators {
         TEXT id PK
@@ -100,6 +101,23 @@ erDiagram
         INTEGER started_at
         INTEGER ended_at
         INTEGER created_at
+    }
+    game_metadata {
+        TEXT game_id PK, FK
+        TEXT identity_provider
+        TEXT identity_database
+        TEXT identity_name
+        TEXT identified_by
+        TEXT title
+        INTEGER release_year
+        INTEGER release_month
+        TEXT developer
+        TEXT publisher
+        TEXT genre
+        INTEGER players
+        INTEGER file_size
+        INTEGER file_modified_at
+        INTEGER looked_at
     }
 ```
 
@@ -149,7 +167,7 @@ if the same file is added again.
 | `folder_id` | `TEXT` | yes | → `library_folders.id`; `NULL` exactly when the game is removed. A folder can't be deleted while games are in it (`RESTRICT`): its games are marked removed first |
 | `platform_id` | `TEXT` | no | Platform it belongs to, as its folder's when it was found |
 | `file_path` | `TEXT` | no | Absolute path of the file the emulator opens (e.g. a `.cue` or `.m3u`, not its tracks) |
-| `title` | `TEXT` | no | Title shown in the app, never empty: the file's name without its extension, for now |
+| `title` | `TEXT` | no | The file's name without its extension, never empty. Shown in the app when the game's metadata has no title (`COALESCE(game_metadata.title, games.title)`) |
 | `added_at` | `INTEGER` | no | When it was first found |
 | `removed_at` | `INTEGER` | yes | When it was removed (e.g. with its folder); `NULL` while it is in a folder |
 | `emulator_id` | `TEXT` | yes | Migration 5. → `emulators.id`: the emulator the user chose for this game; `NULL` while they chose none. Deleting the emulator sets it back to `NULL` (`SET NULL`) |
@@ -200,6 +218,35 @@ Neither table checks the option against its emulator: an option's meaning is kno
 the emulator's module, and deleting an emulator clears only the emulator, so an option left
 alone is read as no choice.
 
+### `game_metadata`
+
+Migration 6. What the metadata providers found about a game (see the `game-metadata` skill): a
+cache of slow work, one row per game whose providers were all asked. A game is asked once: it
+is looked at again only when its file's size or modification time changes. A game without a
+row was never asked, or a provider couldn't look yet (e.g. no database for its platform), and
+is tried again on a later run.
+
+| Field | Type | Null | Meaning |
+|---|---|---|---|
+| `game_id` | `TEXT` | no | Primary key, → `games.id`. Deleted with its game (`CASCADE`), though games are never deleted today |
+| `identity_provider` | `TEXT` | yes | The provider that identified the game: `libretro-database`; `NULL` when none did |
+| `identity_database` | `TEXT` | yes | The database the game is in (e.g. `Nintendo - Game Boy`); `NULL` when unidentified |
+| `identity_name` | `TEXT` | yes | The game's name there (e.g. `Metal Gear Solid (USA)`); `NULL` when unidentified |
+| `identified_by` | `TEXT` | yes | How it was recognized: `crc` or `file-name`; `NULL` when unidentified |
+| `title` | `TEXT` | yes | Readable title (e.g. `The Legend of Zelda - Link's Awakening`), shown instead of `games.title`; `NULL` when no provider knew it |
+| `release_year` | `INTEGER` | yes | Year it came out; `NULL` when unknown |
+| `release_month` | `INTEGER` | yes | Month it came out, 1 to 12 (`CHECK`); `NULL` when unknown |
+| `developer` | `TEXT` | yes | Who made it; `NULL` when unknown |
+| `publisher` | `TEXT` | yes | Who published it; `NULL` when unknown |
+| `genre` | `TEXT` | yes | e.g. `Platform`; `NULL` when unknown |
+| `players` | `INTEGER` | yes | Most players at once; `NULL` when unknown |
+| `file_size` | `INTEGER` | no | Size of the game's file when it was looked at, in bytes |
+| `file_modified_at` | `INTEGER` | no | When the game's file was last modified, when it was looked at; with `file_size`, a different value means the file changed and the game is looked at again |
+| `looked_at` | `INTEGER` | no | When the providers were asked |
+
+A `CHECK` keeps the identity whole: the four `identity_*` and `identified_by` fields are all
+set or all `NULL`. Texts are never empty.
+
 ### Which emulator a game plays with
 
 Computed when a game is shown or started, never stored, from these in order; an emulator (or
@@ -229,8 +276,9 @@ erDiagram
     }
 ```
 
-Metadata of `games` (description, genre, year, players, artwork paths) will be added when the
-source of that metadata is decided.
+The artwork of games (`game_images`: one row per game and kind, with its file's path) comes
+with the artwork provider; descriptions (`game_descriptions`, per language) come once a
+provider for them is chosen. See the `game-metadata` skill.
 
 ### `settings` (planned)
 

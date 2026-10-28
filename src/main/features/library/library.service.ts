@@ -13,6 +13,7 @@ import type {
 } from '@shared/api'
 
 import { getDatabase, transaction } from '../../core/database'
+import { describeFolder } from '../../core/gameMetadata'
 import { listInstalledPlatforms } from '../../core/installedPlatforms'
 import { selectForPlatform } from '../../core/platform'
 import { gameExtensionsOf } from './library.catalog'
@@ -230,6 +231,8 @@ export const libraryService = {
       repository.saveGames(id, folderScan.platformId, playable, now)
     })
     latestScan = null
+    // Only now: a scan alone may never be saved.
+    describeFolder(id)
 
     const folder = repository.findFolderById(id)
     if (!folder) throw new Error('The folder just added is missing')
@@ -270,6 +273,7 @@ export const libraryService = {
       repository.touchFolder(folderId, now)
     })
     latestScan = null
+    describeFolder(folderId)
 
     const folder = repository.findFolderById(folderId)
     if (!folder) throw new Error('The folder just updated is missing')

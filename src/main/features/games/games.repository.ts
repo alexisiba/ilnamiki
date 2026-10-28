@@ -8,6 +8,8 @@ import type {
   RecentlyPlayedGame
 } from '@shared/api'
 
+import { JOIN_GAME_METADATA, SHOWN_TITLE } from '../../core/gameMetadata'
+
 /** A game in a folder, with what it takes to play it. */
 export interface PlayableGameRecord {
   id: string
@@ -115,11 +117,12 @@ const DISABLED_PLATFORMS = 'SELECT platform_id FROM platform_settings WHERE is_e
  * played and its total playtime, last played first. The last played game and the ones played
  * before it read it in the same order, so neither shows a game the other does.
  */
-const PLAYED_GAMES = `SELECT games.id, games.title, games.platform_id,
+const PLAYED_GAMES = `SELECT games.id, ${SHOWN_TITLE} AS title, games.platform_id,
     MAX(play_sessions.ended_at) AS last_played_at,
     SUM(play_sessions.ended_at - play_sessions.started_at) AS playtime_ms
   FROM play_sessions
   JOIN games ON games.id = play_sessions.game_id
+  ${JOIN_GAME_METADATA}
   WHERE games.folder_id IS NOT NULL AND games.platform_id NOT IN (${DISABLED_PLATFORMS})
   GROUP BY games.id
   ORDER BY last_played_at DESC, games.id`
@@ -188,9 +191,12 @@ export function createGamesRepository(db: DatabaseSync): GamesRepository {
     listRecentlyAdded(limit) {
       const rows = db
         .prepare(
-          `SELECT id, title, platform_id, added_at FROM games
-            WHERE folder_id IS NOT NULL AND platform_id NOT IN (${DISABLED_PLATFORMS})
-            ORDER BY added_at DESC, title COLLATE NOCASE, file_path
+          `SELECT games.id, ${SHOWN_TITLE} AS title, games.platform_id, games.added_at
+            FROM games
+            ${JOIN_GAME_METADATA}
+            WHERE games.folder_id IS NOT NULL
+              AND games.platform_id NOT IN (${DISABLED_PLATFORMS})
+            ORDER BY games.added_at DESC, title COLLATE NOCASE, games.file_path
             LIMIT ?`
         )
         .all(limit) as unknown as RecentlyAddedRow[]
@@ -205,10 +211,11 @@ export function createGamesRepository(db: DatabaseSync): GamesRepository {
     findDetails(id) {
       const row = db
         .prepare(
-          `SELECT games.id, games.title, games.platform_id, games.added_at,
+          `SELECT games.id, ${SHOWN_TITLE} AS title, games.platform_id, games.added_at,
               MAX(play_sessions.ended_at) AS last_played_at,
               COALESCE(SUM(play_sessions.ended_at - play_sessions.started_at), 0) AS playtime_ms
             FROM games
+            ${JOIN_GAME_METADATA}
             LEFT JOIN play_sessions ON play_sessions.game_id = games.id
             WHERE games.id = ? AND games.folder_id IS NOT NULL
             GROUP BY games.id`

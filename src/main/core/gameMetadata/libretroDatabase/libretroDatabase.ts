@@ -1,6 +1,10 @@
 import { basename } from 'path'
 
-import type { ContentProvider, Identifier } from '../gameMetadata.types'
+import {
+  type ContentProvider,
+  type Identifier,
+  MetadataUnavailableError
+} from '../gameMetadata.types'
 import { checksumsOf } from './libretroDatabase.checksums'
 import { diskReader, type FileReader } from './libretroDatabase.files'
 import { type DatabaseIndex, findGame, indexRecords } from './libretroDatabase.index'
@@ -16,16 +20,13 @@ export interface LibretroDatabaseFile {
   path: string
 }
 
-/** A database without games, for a file that can't be read. */
-const EMPTY_INDEX: DatabaseIndex = { byCrc: new Map(), byFileName: new Map(), details: new Map() }
-
-/** The games of the database at `path`; none when it can't be read or isn't a database. */
-async function loadIndex(path: string, reader: FileReader): Promise<DatabaseIndex> {
+/** The games of the database at `path`; null when it can't be read or isn't a database. */
+async function loadIndex(path: string, reader: FileReader): Promise<DatabaseIndex | null> {
   try {
     return indexRecords(parseRdb(await reader.read(path)))
   } catch (error) {
     console.error(`Couldn't read the libretro database ${path}`, error)
-    return EMPTY_INDEX
+    return null
   }
 }
 
@@ -41,7 +42,7 @@ export function createLibretroDatabase(
   reader: FileReader = diskReader
 ): Identifier & Required<Pick<ContentProvider, 'details'>> {
   let files: Promise<LibretroDatabaseFile[]> | null = null
-  const indexes = new Map<string, Promise<DatabaseIndex>>()
+  const indexes = new Map<string, Promise<DatabaseIndex | null>>()
 
   const filesOf = async (
     match: (file: LibretroDatabaseFile) => boolean
@@ -49,7 +50,7 @@ export function createLibretroDatabase(
     files ??= listDatabases()
     return (await files).filter(match)
   }
-  const indexOf = (path: string): Promise<DatabaseIndex> => {
+  const indexOf = (path: string): Promise<DatabaseIndex | null> => {
     let index = indexes.get(path)
     if (!index) {
       index = loadIndex(path, reader)
@@ -62,13 +63,18 @@ export function createLibretroDatabase(
     id: 'libretro-database',
 
     async identify({ platformId, filePath }) {
-      const databases = await Promise.all(
+      const loaded = await Promise.all(
         (await filesOf((file) => file.platformId === platformId)).map(async ({ name, path }) => ({
           name,
           index: await indexOf(path)
         }))
       )
-      if (databases.length === 0) return null
+      const databases = loaded.flatMap(({ name, index }) => (index ? [{ name, index }] : []))
+      // Without a database it could read there was nothing to look in, which isn't knowing the
+      // game: it is tried again once RetroArch has the platform's databases.
+      if (databases.length === 0) {
+        throw new MetadataUnavailableError(`No libretro database for ${platformId}`)
+      }
       const game = findGame(databases, await checksumsOf(filePath, reader), basename(filePath))
       return game && { providerId: 'libretro-database', ...game }
     },
@@ -76,7 +82,7 @@ export function createLibretroDatabase(
     async details({ database, name }) {
       const [file] = await filesOf((candidate) => candidate.name === database)
       if (!file) return null
-      return (await indexOf(file.path)).details.get(name) ?? null
+      return (await indexOf(file.path))?.details.get(name) ?? null
     }
   }
 }

@@ -1,6 +1,7 @@
 import { crc32 } from 'zlib'
 import { describe, expect, it, vi } from 'vitest'
 
+import { MetadataUnavailableError } from '../gameMetadata.types'
 import { createLibretroDatabase, type LibretroDatabaseFile } from './libretroDatabase'
 import { encodeRdb, memoryReader } from './libretroDatabase.fixtures'
 import { formatCrc } from './libretroDatabase.parsers'
@@ -89,19 +90,28 @@ describe('createLibretroDatabase', () => {
     ).toBeNull()
   })
 
-  it('identifies nothing without databases, or with one that can’t be read', async () => {
+  it('can’t look without a database it can read for the platform, so the game is asked again', async () => {
     const game = { platformId: 'game_boy', filePath: '/roms/gb/my tetris.gb' }
     vi.spyOn(console, 'error').mockImplementation(() => {})
+    const broken = { ...FILES, [GAME_BOY.path]: Buffer.from('broken') }
 
-    expect(await provider([]).database.identify(game)).toBeNull()
+    await expect(provider([]).database.identify(game)).rejects.toThrow(MetadataUnavailableError)
+    await expect(provider([ARCADE]).database.identify(game)).rejects.toThrow(
+      MetadataUnavailableError
+    )
+    await expect(provider([GAME_BOY], broken).database.identify(game)).rejects.toThrow(
+      MetadataUnavailableError
+    )
+    await expect(
+      provider([{ ...GAME_BOY, path: '/missing.rdb' }]).database.identify(game)
+    ).rejects.toThrow(MetadataUnavailableError)
+  })
+
+  it('identifies nothing when its databases don’t have the game', async () => {
+    const { database } = provider([GAME_BOY], { ...FILES, '/roms/gb/other.gb': Buffer.alloc(8) })
+
     expect(
-      await provider([GAME_BOY], {
-        ...FILES,
-        [GAME_BOY.path]: Buffer.from('broken')
-      }).database.identify(game)
-    ).toBeNull()
-    expect(
-      await provider([{ ...GAME_BOY, path: '/missing.rdb' }]).database.identify(game)
+      await database.identify({ platformId: 'game_boy', filePath: '/roms/gb/other.gb' })
     ).toBeNull()
   })
 

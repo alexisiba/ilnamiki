@@ -94,5 +94,33 @@ export const MIGRATIONS: Migration[] = [
       ALTER TABLE games
         ADD COLUMN emulator_option TEXT CHECK (length(emulator_option) > 0);
     `
+  },
+  {
+    version: 6,
+    name: 'Create the game metadata table',
+    up: `
+      CREATE TABLE game_metadata (
+        game_id TEXT PRIMARY KEY REFERENCES games (id) ON DELETE CASCADE,
+        identity_provider TEXT CHECK (identity_provider IN ('libretro-database')),
+        identity_database TEXT CHECK (length(identity_database) > 0),
+        identity_name TEXT CHECK (length(identity_name) > 0),
+        identified_by TEXT CHECK (identified_by IN ('crc', 'file-name')),
+        title TEXT CHECK (length(title) > 0),
+        release_year INTEGER CHECK (release_year > 0),
+        release_month INTEGER CHECK (release_month BETWEEN 1 AND 12),
+        developer TEXT CHECK (length(developer) > 0),
+        publisher TEXT CHECK (length(publisher) > 0),
+        genre TEXT CHECK (length(genre) > 0),
+        players INTEGER CHECK (players > 0),
+        file_size INTEGER NOT NULL CHECK (file_size >= 0),
+        file_modified_at INTEGER NOT NULL,
+        looked_at INTEGER NOT NULL,
+        CHECK (
+          (identity_provider IS NULL) = (identity_database IS NULL)
+          AND (identity_provider IS NULL) = (identity_name IS NULL)
+          AND (identity_provider IS NULL) = (identified_by IS NULL)
+        )
+      ) STRICT;
+    `
   }
 ]

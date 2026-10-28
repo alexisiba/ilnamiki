@@ -164,6 +164,24 @@ describe('games repository', () => {
     ])
   })
 
+  it('shows a game by its metadata’s title when it has one, else its file’s name', () => {
+    const repository = createGamesRepository(db)
+    db.prepare(
+      `INSERT INTO game_metadata (game_id, title, file_size, file_modified_at, looked_at)
+        VALUES ('g1', 'Crash Bandicoot', 1, 1, 1), ('g3', NULL, 1, 1, 1)`
+    ).run()
+    repository.addPlaySession(session('s1', 'g3', 1_000 * MINUTE_MS, 30))
+    repository.addPlaySession(session('s2', 'g1', 2_000 * MINUTE_MS, 30))
+
+    expect(repository.listRecentlyAdded(10).map(({ title }) => title)).toEqual([
+      'Crash Bandicoot',
+      'Game'
+    ])
+    expect(repository.findDetails('g1')?.title).toBe('Crash Bandicoot')
+    expect(repository.findLastPlayed()?.title).toBe('Crash Bandicoot')
+    expect(repository.listRecentlyPlayed(10).map(({ title }) => title)).toEqual(['Game'])
+  })
+
   it('lists at most as many recently added games as asked, leaving removed ones out', () => {
     const repository = createGamesRepository(db)
 

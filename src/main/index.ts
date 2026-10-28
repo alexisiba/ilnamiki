@@ -3,6 +3,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { closeDatabase, initDatabase } from './core/database'
+import { describeLibrary, stopDescribingGames } from './core/gameMetadata'
 import { registerControllersIpc } from './features/controllers'
 import { registerEmulatorsIpc } from './features/emulators'
 import { registerGamesIpc } from './features/games'
@@ -73,6 +74,9 @@ app.whenReady().then(() => {
 
   createWindow()
 
+  // Games added before, or whose files changed, in the background.
+  describeLibrary()
+
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
@@ -89,7 +93,10 @@ app.on('window-all-closed', () => {
   }
 })
 
-app.on('will-quit', closeDatabase)
+app.on('will-quit', () => {
+  stopDescribingGames()
+  closeDatabase()
+})
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.

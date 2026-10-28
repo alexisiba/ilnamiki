@@ -37,11 +37,15 @@ renderer), `utils-placement` (pure parsers next to their provider).
 ```
 src/main/core/gameMetadata/
   gameMetadata.types.ts          ← Identifier, ContentProvider, GameIdentity, GameDetails…
-  gameMetadata.ts                ← the providers in order, per stage and per kind, for one run
+  gameMetadata.ts                ← main's side: finds the sources, starts the worker, the queue
+  gameMetadata.providers.ts      ← the providers in order, per stage and per kind, for one run
   gameMetadata.fallback.ts       ← the fallback rule (section 4), pure over any providers
-  gameMetadata.repository.ts     ← game_metadata and game_images (main-database)
-  gameMetadataQueue.ts           ← the background work
-  artwork.ts                     ← downloads artwork and writes its files
+  gameMetadata.describe.ts       ← one game through both stages, unless its file is unchanged
+  gameMetadata.worker.ts         ← the worker: describes the games it gets, posts each one
+  gameMetadata.worker.types.ts   ← what main and the worker send each other
+  gameMetadata.repository.ts     ← game_metadata, and the SQL of the title shown
+  gameMetadataQueue.ts           ← one run at a time, written in batches (dependencies passed in)
+  artwork.ts                     ← downloads artwork and writes its files (artwork provider)
   <provider>/                    ← one folder per provider, e.g. libretroDatabase/
     <provider>.ts                ← implements Identifier and/or ContentProvider
     <provider>.parsers.ts        ← pure functions over what it reads
@@ -51,9 +55,12 @@ src/main/core/gameMetadata/
     fixtures/                    ← a few records cut from real files, for the parser's tests
 ```
 
-- Providers keep what they read (whole databases) only while they live: `gameMetadata.ts`
-  makes them anew for each run over the library, so nothing large stays in memory between
-  runs.
+- Providers keep what they read (whole databases) only while they live:
+  `gameMetadata.providers.ts` makes them anew in each run's worker, so nothing large stays in
+  memory between runs.
+- Everything the worker imports (providers, `describe`, `fallback`, types) must run without
+  Electron or the app's database: what it needs from them (e.g. where the databases are) main
+  finds before the run and hands it over as `ProviderSources`.
 
 - It is a `core/` module because several features use it (saving a folder starts it; games,
   home and library read what it stored). Features use it only through its index.
@@ -96,7 +103,7 @@ shape, so the core treats them all alike.
 ## 4. The fallback rule
 
 Each stage and each content kind has its **own ordered list of providers** in
-`gameMetadata.ts`. For each one:
+`gameMetadata.providers.ts`. For each one:
 
 1. Ask the first provider.
 2. **Each value comes from the first provider that has it** and is never overwritten or
@@ -112,7 +119,8 @@ Each stage and each content kind has its **own ordered list of providers** in
   missing, unless its file changes (size or modification time). A provider that couldn't
   answer (network down) doesn't count as asked: it is tried again later.
 - A game the provider doesn't know is an answer (`null` / empty), not an error. A provider
-  throws only when it couldn't look, so the core can try again later.
+  throws `MetadataUnavailableError` only when it couldn't look (nothing to look in yet for the
+  platform, no network), so the game gets no row and is tried again on a later run.
 
 ## 5. Providers and order
 
@@ -133,7 +141,10 @@ Each stage and each content kind has its **own ordered list of providers** in
   `EmulatorModule.listGameDatabases` (only RetroArch implements it): which database names
   each platform uses (its cores' `database` field) and the folder they are in
   (`content_database_path` in `retroarch.cfg`). The provider never reads RetroArch's folders
-  itself. No RetroArch, or no databases downloaded in it, means no identity, never an error.
+  itself. A platform without a database it can read (no RetroArch, its databases not
+  downloaded, a platform RetroArch doesn't play such as the Switch) means it couldn't look: it
+  throws `MetadataUnavailableError`, never shown to the user, and the game is tried again once
+  RetroArch has that database.
 - **Identification, in this order, and nothing else:**
   1. **CRC32 of the file**, after removing known copier headers (SNES: 512 bytes when the size
      is 512 over a multiple of 1024; NES: the 16-byte iNES header); the CRC with and without
@@ -157,7 +168,7 @@ Each stage and each content kind has its **own ordered list of providers** in
 ### libretro-thumbnails
 
 - Builds URLs from the identity: the database name is the system folder, and the game's name
-  is the file name with `&*/:\`<>?\\|"`replaced by`_`.
+  is the file name with each of ``& * / : ` < > ? \ | "`` replaced by `_`.
 - A missing image (404) means that provider has no image of that kind.
 
 ## 6. Titles
@@ -165,7 +176,8 @@ Each stage and each content kind has its **own ordered list of providers** in
 - `games.title` stays what the scan found (the file name without extension). The details'
   title is stored apart, so a different identification later never loses anything.
 - **The title shown is the details' title when there is one, else the file name.** Queries
-  choose it (`COALESCE`); the renderer never decides.
+  choose it with `SHOWN_TITLE` and `JOIN_GAME_METADATA` from the module's index; the renderer
+  never decides.
 - The libretro title is the database name made readable: tags in `()` and `[]` dropped, and a
   trailing article moved back (`Legend of Zelda, The - Link's Awakening` →
   `The Legend of Zelda - Link's Awakening`). A pure function, tested.
@@ -178,8 +190,8 @@ One table per kind, each marking what was asked:
 - `game_metadata`: one row per game whose providers were all asked: its identity and how it
   was found (`crc`, `file-name`, or `NULL` when unidentified), the details' fields (nullable),
   and the file's size and modification time when it was looked at.
-- `game_images`: one row per game and artwork kind once asked: the file's path, or `NULL`
-  when no provider had it.
+- `game_images` (comes with the artwork provider): one row per game and artwork kind once
+  asked: the file's path, or `NULL` when no provider had it.
 - `game_descriptions` (planned, when a description provider exists): one row per game and
   language.
 - **Artwork is files**, in `<userData>/artwork/<gameId>/<kind>.<ext>`; the database keeps the
@@ -192,9 +204,18 @@ One table per kind, each marking what was asked:
 - It starts **when a folder is saved** (`addFolder`, `updateFolder`), after the transaction,
   for the games saved: never after a scan alone, because the user may still not save it.
 - It also starts when the app starts, for games missing a row or whose file changed.
-- One queue, one game at a time: identify, then each content kind. A kind that needs the
-  network never holds back one that doesn't. Artwork downloads a few at a time. Files are read
-  asynchronously, so the main thread is never blocked for long.
+- **Main never does the heavy work.** One queue in main runs one run at a time; what is asked
+  for during a run (other folders) joins the next one. Each run:
+  1. Main lists the games to look at and finds the sources (`ProviderSources`), both short.
+  2. A `worker_threads` worker, started for the run (electron-vite's `?nodeWorker` import,
+     loaded only when a run starts) and gone when it ends, reads the databases, works out
+     checksums and describes the games one at a time, posting each as soon as it is done.
+  3. Main writes what the worker posts in batches (one transaction per 50 games), so it only
+     does short writes, whatever the library's size.
+- Stopping (the app quitting) ends the worker; what was posted is still written, and the rest
+  is done on the next start.
+- A kind that needs the network never holds back one that doesn't. Artwork downloads a few at
+  a time.
 - It is **invisible for now**: no progress UI. Errors are logged, never shown. A later UI will
   show that metadata is downloading.
 - Starting a game never waits for metadata.
@@ -214,7 +235,8 @@ One table per kind, each marking what was asked:
    get (or turned on by the user with their own account).
 2. Add its folder implementing `Identifier` and/or the `ContentProvider` methods it can give,
    with parsers, an in-memory fixtures helper, and its id to `MetadataProviderId`.
-3. Place it in the order of each stage or kind it serves in `gameMetadata.ts`.
+3. Place it in the order of each stage or kind it serves in `gameMetadata.providers.ts`; what
+   it needs from main (files, settings) goes in `ProviderSources`, found in `gameMetadata.ts`.
 4. If it gives a field or kind not stored yet, add it with a migration (`main-database`) and
    to the types.
 5. Update the table in section 5.

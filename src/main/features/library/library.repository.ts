@@ -1,5 +1,7 @@
 import type { DatabaseSync } from 'node:sqlite'
 
+import { JOIN_GAME_METADATA, SHOWN_TITLE } from '../../core/gameMetadata'
+
 /** A game folder as it is stored. */
 export interface FolderRecord {
   id: string
@@ -27,6 +29,7 @@ export interface GameToSave {
 export interface GameRecord {
   id: string
   filePath: string
+  /** The title shown: its metadata's when it has one, else its file's name. */
   title: string
 }
 
@@ -114,8 +117,11 @@ export function createLibraryRepository(db: DatabaseSync): LibraryRepository {
     listGames(folderId) {
       const rows = db
         .prepare(
-          `SELECT id, file_path, title FROM games WHERE folder_id = ?
-            ORDER BY title COLLATE NOCASE, file_path`
+          `SELECT games.id, games.file_path, ${SHOWN_TITLE} AS title
+            FROM games
+            ${JOIN_GAME_METADATA}
+            WHERE games.folder_id = ?
+            ORDER BY title COLLATE NOCASE, games.file_path`
         )
         .all(folderId) as unknown as { id: string; file_path: string; title: string }[]
       return rows.map((row) => ({ id: row.id, filePath: row.file_path, title: row.title }))

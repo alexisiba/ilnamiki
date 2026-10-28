@@ -116,6 +116,21 @@ describe('library repository', () => {
     expect(repository.listGames('missing')).toEqual([])
   })
 
+  it('lists a game by its metadata’s title when it has one, else its file’s name', () => {
+    const repository = createLibraryRepository(db)
+    repository.insertFolder(PS1_FOLDER)
+    repository.saveGames(PS1_FOLDER.id, 'playstation', [TEKKEN, CRASH], 1)
+    db.prepare(
+      `INSERT INTO game_metadata (game_id, title, file_size, file_modified_at, looked_at)
+        VALUES ('g2', 'A Tekken Game', 1, 1, 1), ('g1', NULL, 1, 1, 1)`
+    ).run()
+
+    expect(repository.listGames(PS1_FOLDER.id)).toEqual([
+      { ...TEKKEN, title: 'A Tekken Game' },
+      CRASH
+    ])
+  })
+
   it('marks games removed out of their folder, keeping them', () => {
     const repository = createLibraryRepository(db)
     repository.insertFolder(PS1_FOLDER)

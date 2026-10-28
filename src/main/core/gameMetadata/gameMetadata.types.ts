@@ -37,6 +37,14 @@ export interface GameDetails {
   players: number | null
 }
 
+/**
+ * Thrown by a provider that couldn't look (no database for the platform yet, no network), so
+ * the game isn't taken as asked and is tried again on a later run.
+ */
+export class MetadataUnavailableError extends Error {
+  override name = 'MetadataUnavailableError'
+}
+
 /** Stage 1: tells which game a file is. */
 export interface Identifier {
   id: MetadataProviderId

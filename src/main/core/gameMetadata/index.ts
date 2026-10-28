@@ -1,11 +1,2 @@
-export { createMetadataProviders, type MetadataProviders } from './gameMetadata'
-export { findDetails, identifyGame, NO_DETAILS } from './gameMetadata.fallback'
-export type {
-  ContentProvider,
-  GameDetails,
-  GameIdentity,
-  GameToIdentify,
-  IdentifiedBy,
-  Identifier,
-  MetadataProviderId
-} from './gameMetadata.types'
+export { describeFolder, describeLibrary, stopDescribingGames } from './gameMetadata'
+export { JOIN_GAME_METADATA, SHOWN_TITLE } from './gameMetadata.repository'

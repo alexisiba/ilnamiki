@@ -1,16 +1,13 @@
-import { getDatabase } from '../database'
+import { getDatabase, transaction } from '../database'
 import { createEmulatorsRepository, findModule, installationOf } from '../emulators'
-import type { ContentProvider, Identifier } from './gameMetadata.types'
-import { createLibretroDatabase, type LibretroDatabaseFile } from './libretroDatabase'
+import type { DescribedGame, GameToDescribe } from './gameMetadata.describe'
+import type { ProviderSources } from './gameMetadata.providers'
+import { createGameMetadataRepository } from './gameMetadata.repository'
+import type { MetadataWorkerInput, MetadataWorkerMessage } from './gameMetadata.worker.types'
+import { createMetadataQueue } from './gameMetadataQueue'
 
-/** The providers of each stage and kind, in the order they are asked. */
-export interface MetadataProviders {
-  identifiers: Identifier[]
-  details: ContentProvider[]
-}
-
-/** The libretro databases every emulator of the user keeps, read live. */
-async function listLibretroDatabases(): Promise<LibretroDatabaseFile[]> {
+/** What the providers look in: the libretro databases every emulator of the user keeps. */
+async function findSources(): Promise<ProviderSources> {
   const emulators = createEmulatorsRepository(getDatabase()).list()
   const databases = await Promise.all(
     emulators.map(async ({ kind, executablePath }) => {
@@ -19,20 +16,61 @@ async function listLibretroDatabases(): Promise<LibretroDatabaseFile[]> {
       return module.listGameDatabases(installationOf(executablePath))
     })
   )
-  return databases
-    .flat()
-    .filter(({ format }) => format === 'libretro-rdb')
-    .map(({ platformId, name, path }) => ({ platformId, name, path }))
+  return {
+    libretroDatabases: databases
+      .flat()
+      .filter(({ format }) => format === 'libretro-rdb')
+      .map(({ platformId, name, path }) => ({ platformId, name, path }))
+  }
 }
 
-/**
- * The providers for one run over the library. They keep what they read (whole databases)
- * while they live, so each run makes its own and drops them when done.
- */
-export function createMetadataProviders(): MetadataProviders {
-  const libretroDatabase = createLibretroDatabase(listLibretroDatabases)
-  return {
-    identifiers: [libretroDatabase],
-    details: [libretroDatabase]
+/** Describes `games` in the metadata worker, made for this run and gone when it ends. */
+async function describeInWorker(
+  games: GameToDescribe[],
+  sources: ProviderSources,
+  onDescribed: (game: DescribedGame) => void,
+  signal: AbortSignal
+): Promise<void> {
+  // Loaded here, not at the top: only Electron's build knows how to start a worker module.
+  const { default: createWorker } = await import('./gameMetadata.worker?nodeWorker')
+  if (signal.aborted) return
+  const worker = createWorker({ workerData: { games, sources } satisfies MetadataWorkerInput })
+  const stop = (): void => void worker.terminate()
+  signal.addEventListener('abort', stop)
+  try {
+    await new Promise<void>((resolve, reject) => {
+      worker.on('message', (game: MetadataWorkerMessage) => onDescribed(game))
+      worker.on('error', reject)
+      worker.on('exit', () => resolve())
+    })
+  } finally {
+    signal.removeEventListener('abort', stop)
   }
+}
+
+const queue = createMetadataQueue({
+  listGames: (folderIds) =>
+    createGameMetadataRepository(getDatabase()).listGamesToDescribe(folderIds),
+  findSources,
+  describe: describeInWorker,
+  save(games, now) {
+    const db = getDatabase()
+    transaction(db, () => createGameMetadataRepository(db).save(games, now))
+  },
+  now: Date.now
+})
+
+/** Describes, in the background, the library's games not described yet or whose file changed. */
+export function describeLibrary(): void {
+  queue.request()
+}
+
+/** Describes, in the background, the games of the folder `folderId` that need it. */
+export function describeFolder(folderId: string): void {
+  queue.request(folderId)
+}
+
+/** Stops describing games, e.g. as the app quits. */
+export function stopDescribingGames(): void {
+  queue.stop()
 }
