@@ -34,6 +34,7 @@ linux:
     - snap
     - deb
   executableName: ilnamiki
+  icon: build/icons
   maintainer: Alexis Bolaños <alexis.isidoro.ba@gmail.com>
   category: Game
   syncDesktopName: true
