@@ -138,6 +138,28 @@ describe('ConsoleGamesScreen', () => {
     expect(screenshots[0]).toHaveAttribute('alt', '')
   })
 
+  it('shows the selected game’s screenshot behind the screen, following the selection', async () => {
+    const screenshotOf = (id: string): string => `ilnamiki-artwork://game/${id}/screenshot?v=1`
+    mockFolderGames(
+      GAMES.map((game) => ({
+        ...game,
+        artwork: { ...NO_ARTWORK, screenshot: screenshotOf(game.id) }
+      }))
+    )
+    renderGamesOf('playstation')
+    await playNow()
+    const backdrop = (): HTMLImageElement[] =>
+      [...document.querySelectorAll('img')].filter((image) =>
+        image.getAttribute('src')?.includes('/screenshot')
+      )
+
+    expect(backdrop().map((image) => image.getAttribute('src'))).toEqual([screenshotOf('g1')])
+
+    await userEvent.setup().keyboard('{ArrowRight}')
+
+    expect(backdrop().map((image) => image.getAttribute('src'))).toEqual([screenshotOf('g2')])
+  })
+
   it('selects the first game, saying it has no description and no facts yet', async () => {
     renderGamesOf('playstation')
     await playNow()

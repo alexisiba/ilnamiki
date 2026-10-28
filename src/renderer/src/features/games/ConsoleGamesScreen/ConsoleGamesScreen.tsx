@@ -16,8 +16,10 @@ import styles from './ConsoleGamesScreen.module.css'
 
 /**
  * A console's games, opened from the library: a carousel of the games saved from its folder,
- * by title, and the selected one's details, with Play now focused. Until the console is known
- * nothing shows, and until its games are read only its heading does, so no message flashes.
+ * by title, and the selected one's details, with Play now focused, the selected game's
+ * screenshot (a generic image while it has none) behind the right half of the screen. Until
+ * the console is known nothing shows, and until its games are read only its heading does, so
+ * no message flashes.
  */
 export function ConsoleGamesScreen(): React.JSX.Element | null {
   const { t } = useTranslation('games')
@@ -36,6 +38,8 @@ export function ConsoleGamesScreen(): React.JSX.Element | null {
   const selectedIndex = Math.min(rememberedIndex, Math.max(games.length - 1, 0))
   const statusId = useId()
   const game = games[selectedIndex]
+  // The selected game's screenshot, behind the screen's right half; none while there is no game.
+  const backdrop = game ? backdropOf(folderGames[selectedIndex].artwork) : null
 
   const selectGame = (index: number): void => {
     // At either end there is no other game to switch to.
@@ -70,6 +74,15 @@ export function ConsoleGamesScreen(): React.JSX.Element | null {
 
   return (
     <div className={styles.screen}>
+      {backdrop && (
+        <img
+          className={
+            backdrop.isPixelArt ? `${styles.backdrop} ${styles.pixelArt}` : styles.backdrop
+          }
+          src={backdrop.url}
+          alt=""
+        />
+      )}
       <div className={styles.header}>
         <h1 className={styles.title}>{gameConsole.name}</h1>
         {facts.length > 0 && <p className={styles.facts}>{facts.join(' · ')}</p>}
@@ -83,11 +96,7 @@ export function ConsoleGamesScreen(): React.JSX.Element | null {
             statusId={statusId}
             onSelect={setSelectedIndex}
           />
-          <GamePanel
-            game={game}
-            backdrop={backdropOf(folderGames[selectedIndex].artwork)}
-            describedBy={statusId}
-          />
+          <GamePanel game={game} describedBy={statusId} />
         </div>
       )}
     </div>

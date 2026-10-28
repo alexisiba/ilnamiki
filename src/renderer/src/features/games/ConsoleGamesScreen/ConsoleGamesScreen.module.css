@@ -1,5 +1,8 @@
 /* Centered and capped in width, so the columns do not keep growing on ultrawide displays. */
 .screen {
+  position: relative;
+  /* Its own layer, so the screenshot stays behind its content and above the app background. */
+  isolation: isolate;
   display: grid;
   grid-template-rows: auto 1fr;
   gap: var(--space-lg);
@@ -33,11 +36,33 @@
 
 .columns {
   display: grid;
-  /* The carousel takes the room; the details panel stays narrow enough to read. */
-  grid-template-columns: 2fr 1fr;
+  /* Half each; the details panel caps its own width so it stays easy to read. */
+  grid-template-columns: 1fr 1fr;
   align-items: center;
   gap: var(--layout-gutter);
   min-height: 0;
+}
+
+/*
+ * Behind the right half of the screen, its full height, fading into the app background on
+ * every edge (most on the left, toward the carousel), as the home hero does.
+ */
+.backdrop {
+  position: absolute;
+  inset: 0 0 0 auto;
+  z-index: -1;
+  width: 50%;
+  height: 100%;
+  object-fit: cover;
+  mask-image:
+    linear-gradient(to right, transparent, black 35%, black 85%, transparent),
+    linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+  mask-composite: intersect;
+}
+
+/* A capture at a console's resolution keeps its pixels sharp as it is stretched. */
+.pixelArt {
+  image-rendering: pixelated;
 }
 
 .notFound {

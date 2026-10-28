@@ -127,6 +127,8 @@
   --layout-content-max-width: 2400px;
   --layout-hero-height: 600px;
   --layout-hero-content-width: 800px;
+  /* A selected game's panel beside its carousel: narrow, so its description reads easily. */
+  --layout-game-panel-width: 560px;
   /* Settings category column: narrow, fits each category name in one or two lines. */
   --layout-settings-nav-width: 320px;
   /* Lists that open over the screen to choose one option (e.g. a platform). */

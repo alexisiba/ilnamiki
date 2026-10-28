@@ -14,14 +14,13 @@ import type { GamePanelProps } from './GamePanel.types'
 import styles from './GamePanel.module.css'
 
 /**
- * The selected game's column: its screenshot behind it all (a generic image while it has
- * none), and over it a card with its description (saying there is none when it has none
+ * The selected game's column: a card with its description (saying there is none when it has none
  * yet), Play now, which holds focus, and beside it a button that opens the game's options, as
  * the secondary action does. Play now starts the game in its emulator and reads
  * Playing, unavailable, until the emulator closes; when the game can't start, why shows below
  * it.
  */
-export function GamePanel({ game, backdrop, describedBy }: GamePanelProps): React.JSX.Element {
+export function GamePanel({ game, describedBy }: GamePanelProps): React.JSX.Element {
   const { t } = useTranslation('games')
   const { playing, problem, play } = usePlayGame(game.id)
   const [optionsOpen, setOptionsOpen] = useState(false)
@@ -36,13 +35,6 @@ export function GamePanel({ game, backdrop, describedBy }: GamePanelProps): Reac
 
   return (
     <div className={styles.column}>
-      <img
-        className={
-          backdrop.isPixelArt ? `${styles.screenshot} ${styles.pixelArt}` : styles.screenshot
-        }
-        src={backdrop.url}
-        alt=""
-      />
       <div className={styles.panel}>
         {game.description ? (
           <p className={styles.description}>{game.description}</p>

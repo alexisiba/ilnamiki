@@ -1,6 +1,6 @@
 /*
- * The whole right column, its height included, with the card centered over the screenshot
- * and inset from its edges, so the screenshot shows a little around it.
+ * The whole right column, its height included, with the card centered and inset from its
+ * edges, so the screenshot behind the columns shows a little around it.
  */
 .column {
   position: relative;
@@ -11,31 +11,19 @@
   padding: var(--space-lg);
 }
 
-/* Behind the card, fading into the app background on every edge, as the home hero does. */
-.screenshot {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  mask-image:
-    linear-gradient(to right, transparent, black 20%, black 80%, transparent),
-    linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
-  mask-composite: intersect;
-}
-
-/* A capture at a console's resolution keeps its pixels sharp as it is stretched. */
-.pixelArt {
-  image-rendering: pixelated;
-}
-
+/* Narrower than its column, centered in it, so lines stay short and easy to read. */
 .panel {
   position: relative;
+  justify-self: center;
+  width: 100%;
+  max-width: var(--layout-game-panel-width);
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
   padding: var(--space-xl);
-  background: var(--color-surface-high);
+  /* Frosted glass, as the design's sub-surfaces are: the screenshot shows through, blurred. */
+  background: var(--color-surface-glass);
+  backdrop-filter: blur(var(--blur-glass));
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
 }
