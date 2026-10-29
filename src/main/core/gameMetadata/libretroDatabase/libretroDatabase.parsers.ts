@@ -180,3 +180,120 @@ export function readableTitle(name: string): string | null {
     .join(' - ')
   return title.length > 0 ? title : null
 }
+
+/**
+ * The file a cue sheet (`.cue`) names first, as written, e.g. "Crash Bandicoot.bin" for
+ * `FILE "Crash Bandicoot.bin" BINARY`: the disc's first track, where its data is. Null when it
+ * names none.
+ */
+export function cueFirstFile(cue: string): string | null {
+  const match = /^\s*FILE\s+(?:"([^"]+)"|(\S+))/im.exec(cue)
+  return match ? (match[1] ?? match[2]) : null
+}
+
+/** Bytes of data in a sector of an ISO 9660 file system. */
+export const ISO_SECTOR_SIZE = 2048
+
+/** How a disc image keeps its sectors: their size, and where their data starts in each. */
+export interface SectorLayout {
+  size: number
+  dataOffset: number
+}
+
+/** What a raw CD sector starts with: 00, ten FF, 00. */
+const RAW_SECTOR_SYNC = [0x00, ...Array<number>(10).fill(0xff), 0x00]
+
+/** Size of a raw CD sector, as `.bin` images keep them (MODE1/2352, MODE2/2352). */
+const RAW_SECTOR_SIZE = 2352
+
+/** Byte of a raw sector's header that tells its mode. */
+const RAW_SECTOR_MODE = 15
+
+/**
+ * How the disc image starting with `start` (its first 16 bytes or more) keeps its sectors: raw
+ * sectors of 2352 bytes when it starts with their sync, the data after the 16-byte header in
+ * mode 1 and after its 8-byte subheader too in mode 2 (PlayStation discs); else sectors of
+ * data only (`.iso`).
+ */
+export function sectorLayoutOf(start: Uint8Array): SectorLayout {
+  if (!RAW_SECTOR_SYNC.every((byte, index) => start[index] === byte)) {
+    return { size: ISO_SECTOR_SIZE, dataOffset: 0 }
+  }
+  return { size: RAW_SECTOR_SIZE, dataOffset: start[RAW_SECTOR_MODE] === 2 ? 24 : 16 }
+}
+
+/** Sector of an ISO 9660 file system where its primary volume descriptor is. */
+export const PRIMARY_VOLUME_DESCRIPTOR_SECTOR = 16
+
+/** Where an ISO 9660 file or directory is: its first sector and its size in bytes. */
+export interface IsoExtent {
+  sector: number
+  size: number
+}
+
+/** Where the directory record at `offset` of `data` says its file is. */
+const extentAt = (data: Uint8Array, offset: number): IsoExtent => {
+  const view = Buffer.from(data.buffer, data.byteOffset, data.byteLength)
+  return { sector: view.readUInt32LE(offset + 2), size: view.readUInt32LE(offset + 10) }
+}
+
+/**
+ * Where the root directory is, from an ISO 9660 primary volume descriptor (the data of sector
+ * 16). Null when `descriptor` isn't one.
+ */
+export function rootDirectoryOf(descriptor: Uint8Array): IsoExtent | null {
+  if (descriptor.length < 190) return null
+  const magic = Buffer.from(descriptor.subarray(1, 6)).toString('latin1')
+  if (descriptor[0] !== 1 || magic !== 'CD001') return null
+  // The root directory's record is at byte 156 of the descriptor.
+  return extentAt(descriptor, 156)
+}
+
+/**
+ * Where the file named `name` (any case, e.g. "SYSTEM.CNF") is in `directory`, the data of an
+ * ISO 9660 directory's sectors one after another. Records never cross a sector: a zero length
+ * means the rest of that sector is empty. Null when the directory doesn't have it.
+ */
+export function findInDirectory(directory: Uint8Array, name: string): IsoExtent | null {
+  const wanted = name.toUpperCase()
+  let offset = 0
+  while (offset < directory.length) {
+    const length = directory[offset]
+    if (length === 0) {
+      offset = (Math.floor(offset / ISO_SECTOR_SIZE) + 1) * ISO_SECTOR_SIZE
+      continue
+    }
+    if (offset + length > directory.length || length < 34) return null
+    const nameLength = directory[offset + 32]
+    const recordName = Buffer.from(directory.subarray(offset + 33, offset + 33 + nameLength))
+      .toString('latin1')
+      .toUpperCase()
+      .replace(/;\d+$/, '')
+    if (recordName === wanted) return extentAt(directory, offset)
+    offset += length
+  }
+  return null
+}
+
+/** A disc's serial as the databases write it: four letters, a dash and five digits. */
+const SERIAL_PATTERN = /^[A-Z]{4}-\d{5}$/
+
+/**
+ * The serial a PlayStation or PlayStation 2 disc says in its `SYSTEM.CNF`: the name of the
+ * program it boots (`BOOT2 = cdrom0:\SLUS_205.25;1` on PlayStation 2, `BOOT = cdrom:\SCUS_949.00;1`
+ * on PlayStation) as the databases write serials, e.g. "SLUS-20525". Null when it boots a
+ * program not named after a serial (e.g. "PSX.EXE"). Checked on 2026-10-28, with the disc reader,
+ * against four PlayStation discs (`.cue` and `.bin`, MODE2/2352) and a PlayStation 2 `.iso`.
+ */
+export function systemCnfSerial(systemCnf: string): string | null {
+  const boot =
+    /^\s*BOOT2\s*=\s*(.+)$/im.exec(systemCnf)?.[1] ?? /^\s*BOOT\s*=\s*(.+)$/im.exec(systemCnf)?.[1]
+  if (!boot) return null
+  const program = boot
+    .trim()
+    .replace(/;\d+$/, '')
+    .split(/[:\\/]/)
+    .pop()
+  const serial = program?.toUpperCase().replace('_', '-').replace('.', '')
+  return serial && SERIAL_PATTERN.test(serial) ? serial : null
+}

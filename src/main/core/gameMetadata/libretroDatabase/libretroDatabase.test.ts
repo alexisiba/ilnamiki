@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { MetadataUnavailableError } from '../gameMetadata.types'
 import { createLibretroDatabase, type LibretroDatabaseFile } from './libretroDatabase'
-import { encodeRdb, memoryReader } from './libretroDatabase.fixtures'
+import { encodeDisc, encodeRdb, memoryReader } from './libretroDatabase.fixtures'
 import { formatCrc } from './libretroDatabase.parsers'
 
 const TETRIS_ROM = Buffer.alloc(32768, 9)
@@ -18,6 +18,12 @@ const ARCADE: LibretroDatabaseFile = {
   platformId: 'fb_alpha',
   name: 'FBNeo - Arcade Games',
   path: '/retroarch/rdb/FBNeo - Arcade Games.rdb'
+}
+
+const PLAYSTATION: LibretroDatabaseFile = {
+  platformId: 'playstation',
+  name: 'Sony - PlayStation',
+  path: '/retroarch/rdb/Sony - PlayStation.rdb'
 }
 
 const FILES = {
@@ -41,6 +47,11 @@ const FILES = {
       publisher: 'Eolith / Playmore'
     }
   ]),
+  [PLAYSTATION.path]: encodeRdb([
+    { name: 'Crash Bandicoot (USA)', serial: Buffer.from('SCUS-94900'), crc: Buffer.alloc(4) }
+  ]),
+  '/roms/psx/Crash.cue': Buffer.from('FILE "Crash.bin" BINARY\n  TRACK 01 MODE2/2352\n'),
+  '/roms/psx/Crash.bin': encodeDisc({ 'SYSTEM.CNF': 'BOOT = cdrom:\\SCUS_949.00;1\n' }, 'mode2'),
   '/roms/gb/my tetris.gb': TETRIS_ROM,
   '/roms/arcade/kof2002.zip': Buffer.alloc(64, 1)
 }
@@ -80,6 +91,19 @@ describe('createLibretroDatabase', () => {
     expect(
       await database.identify({ platformId: 'fb_alpha', filePath: '/roms/arcade/kof2002.zip' })
     ).toMatchObject({ name: 'The King of Fighters 2002 (NGM-2650 ~ NGH-2650)' })
+  })
+
+  it('identifies a PlayStation disc by its serial when its CRC isn’t known', async () => {
+    const { database } = provider([PLAYSTATION])
+
+    expect(
+      await database.identify({ platformId: 'playstation', filePath: '/roms/psx/Crash.cue' })
+    ).toEqual({
+      providerId: 'libretro-database',
+      database: 'Sony - PlayStation',
+      name: 'Crash Bandicoot (USA)',
+      identifiedBy: 'serial'
+    })
   })
 
   it('doesn’t look in other platforms’ databases', async () => {

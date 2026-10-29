@@ -9,6 +9,8 @@ export interface FileReader {
   size(path: string): Promise<number>
   /** Its first `length` bytes, fewer when it is shorter. */
   readStart(path: string, length: number): Promise<Uint8Array>
+  /** `length` bytes from `offset`, fewer when the file ends before. */
+  readAt(path: string, offset: number, length: number): Promise<Uint8Array>
   /** Its content in chunks, read as they are asked for, so a large file never fills memory. */
   chunks(path: string): AsyncIterable<Uint8Array>
 }
@@ -19,11 +21,13 @@ export const diskReader: FileReader = {
 
   size: async (path) => (await stat(path)).size,
 
-  async readStart(path, length) {
+  readStart: (path, length) => diskReader.readAt(path, 0, length),
+
+  async readAt(path, offset, length) {
     const handle = await open(path, 'r')
     try {
       const buffer = Buffer.alloc(length)
-      const { bytesRead } = await handle.read(buffer, 0, length, 0)
+      const { bytesRead } = await handle.read(buffer, 0, length, offset)
       return buffer.subarray(0, bytesRead)
     } finally {
       await handle.close()

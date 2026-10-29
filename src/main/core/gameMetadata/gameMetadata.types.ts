@@ -9,8 +9,8 @@ export interface GameToIdentify {
   filePath: string
 }
 
-/** How a game was recognized: by its file's checksum, or by its file's exact name. */
-export type IdentifiedBy = 'crc' | 'file-name'
+/** How a game was recognized: by its file's checksum, its disc's serial, or its file's exact name. */
+export type IdentifiedBy = 'crc' | 'serial' | 'file-name'
 
 /** Which game a file is, in a provider's database. Content providers look games up by it. */
 export interface GameIdentity {

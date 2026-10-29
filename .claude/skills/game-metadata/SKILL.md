@@ -1,6 +1,6 @@
 ---
 name: game-metadata
-description: How Ilnamiki finds information and artwork about the user's games in the main process — one core module (src/main/core/gameMetadata) with providers in two stages, the same way emulators have modules — identifiers (a game's file → its identity) and content providers (an identity → details, artwork or a description, each an optional method). Covers the vocabulary, the providers in use (libretro-database from RetroArch's .rdb files, libretro-thumbnails) and their order per kind, the fallback rule (ask providers in order once, take each value from the first that has it, keep what was confirmed), how a game is identified (CRC or exact file name only, never a guess), which title is shown, what is stored and where artwork files go, the background work that starts when a folder is saved, network rules, how to add a provider, and testing. Use whenever adding or changing a metadata provider, identifying games, downloading or storing artwork, touching src/main/core/gameMetadata, the game_metadata or game_images tables, or EmulatorModule.listGameDatabases.
+description: How Ilnamiki finds information and artwork about the user's games in the main process — one core module (src/main/core/gameMetadata) with providers in two stages, the same way emulators have modules — identifiers (a game's file → its identity) and content providers (an identity → details, artwork or a description, each an optional method). Covers the vocabulary, the providers in use (libretro-database from RetroArch's .rdb files, libretro-thumbnails) and their order per kind, the fallback rule (ask providers in order once, take each value from the first that has it, keep what was confirmed), how a game is identified (CRC, then the disc's serial on platforms that have one, then exact file name; never a guess) and which platforms read a serial, which title is shown, what is stored and where artwork files go, the background work that starts when a folder is saved, network rules, how to add a provider, and testing. Use whenever adding or changing a metadata provider, identifying games, downloading or storing artwork, touching src/main/core/gameMetadata, the game_metadata or game_images tables, or EmulatorModule.listGameDatabases.
 ---
 
 # Game Metadata
@@ -52,7 +52,7 @@ src/main/core/gameMetadata/
     <provider>.ts                ← implements Identifier and/or ContentProvider
     <provider>.parsers.ts        ← pure functions over what it reads
     <provider>.files.ts          ← how it reads files (a reader passed in, replaced in tests)
-    <provider>.<topic>.ts        ← other parts of a larger provider, e.g. .checksums, .index
+    <provider>.<topic>.ts        ← other parts of a larger provider, e.g. .checksums, .serial, .index
     <provider>.fixtures.ts       ← test helpers that build its source's data in memory
     fixtures/                    ← a few records cut from real files, for the parser's tests
 ```
@@ -119,7 +119,9 @@ Each stage and each content kind has its **own ordered list of providers** in
 
 - **Asked once.** A game whose providers were all asked is not asked again, whatever is
   missing, unless its file changes (size or modification time). A provider that couldn't
-  answer (network down) doesn't count as asked: it is tried again later.
+  answer (network down) doesn't count as asked: it is tried again later. A new way to identify
+  games is the exception: the migration that comes with it deletes the rows of unidentified
+  games, so they are asked once more (migration 8 did so for the serial).
 - A game the provider doesn't know is an answer (`null` / empty), not an error. A provider
   throws `MetadataUnavailableError` only when it couldn't look (nothing to look in yet for the
   platform, no network), so the game gets no row and is tried again on a later run.
@@ -151,8 +153,15 @@ Each stage and each content kind has its **own ordered list of providers** in
   1. **CRC32 of the file**, after removing known copier headers (SNES: 512 bytes when the size
      is 512 over a multiple of 1024; NES: the 16-byte iNES header); the CRC with and without
      the header are both tried. Archives (`.zip`, `.7z`) and files over 512 MB (large disc
-     images) skip this step.
-  2. **Exact file name**: the file's name equals a game's `rom_name` (arcade sets, e.g.
+     images) skip this step. It stays first: it tells the exact dump, which a serial can't
+     (a translation or hack keeps its disc's serial).
+  2. **The disc's serial**, only on platforms whose discs say one (see "Identification per
+     platform" below): the serial the disc itself declares (e.g. `SCUS-94900`) equals a game's
+     `serial` in the database. It is an exact identifier written by the publisher on the disc,
+     not a guess: nothing is compared by similarity. A serial two different games of a
+     database have tells neither, so it is left out of the index. The serial is read for every
+     disc of those platforms (a few KB), and taken only when no CRC matched.
+  3. **Exact file name**: the file's name equals a game's `rom_name` (arcade sets, e.g.
      `kof2002.zip`) or its name without extension equals a game's `name` (No-Intro and Redump
      names).
 - **Archives are known by their name only.** The library only has archives whose platform's
@@ -165,7 +174,38 @@ Each stage and each content kind has its **own ordered list of providers** in
   database merged, e.g. a SNES Classic dump): they are the same game, so its details join what
   each record says, the first winning.
 - `.rdb` files are msgpack records after a 16-byte header; read them with the provider's own
-  reader (no dependency). Load each database once per run, not once per game.
+  reader (no dependency). Load each database once per run, not once per game. Serials are
+  written as bytes (the parser gives them as hex, the index decodes them back to text).
+
+#### Identification per platform
+
+About 40 of RetroArch's databases have a `serial` field, and each platform keeps its serial
+somewhere else on the disc. `libretroDatabase.serial.ts` maps each platform id to how its
+serial is read (`SERIAL_READERS`); a platform not in it is identified by CRC and name only.
+Add a row here, with its tests, when a platform gets its reader.
+
+| Platform                       | Method              | Where the serial is                                                             | Status  |
+| ------------------------------ | ------------------- | ------------------------------------------------------------------------------- | ------- |
+| PlayStation (`playstation`)    | CRC → serial → name | `SYSTEM.CNF` in the disc's root: `BOOT = cdrom:\SCUS_949.00;1` → `SCUS-94900`   | Done    |
+| PlayStation 2 (`playstation2`) | CRC → serial → name | `SYSTEM.CNF` in the disc's root: `BOOT2 = cdrom0:\SLUS_213.76;1` → `SLUS-21376` | Done    |
+| PSP                            | CRC → serial → name | `PSP_GAME/PARAM.SFO`, its `DISC_ID` (e.g. `ULUS10041`)                          | Planned |
+| Saturn                         | CRC → serial → name | The disc's first sector (IP.BIN header), product number field                   | Planned |
+| Dreamcast                      | CRC → serial → name | The disc's IP.BIN header (on the high-density area), product number field       | Planned |
+| GameCube / Wii                 | CRC → serial → name | The disc header's first 6 bytes (game id, e.g. `GALE01`)                        | Planned |
+| Every other platform           | CRC → name          | —                                                                               | —       |
+
+The positions of the planned platforms are a starting point to verify against real discs and
+the database's own serial format before writing their reader.
+
+- **Reading a disc (PlayStation, PlayStation 2):** a `.cue` is read for the first file it
+  names (its first track, where the data is); `.iso`, `.bin` and `.img` are read as they are.
+  The sector layout is told from the data, not from the cue sheet: raw sectors of 2352 bytes
+  when the image starts with the CD sync (data after 16 bytes in mode 1, 24 in mode 2), else
+  sectors of 2048. Then the ISO 9660 primary volume descriptor (sector 16), the root directory and
+  `SYSTEM.CNF` (any case); `BOOT2` wins over `BOOT`. The program's name becomes the serial
+  (upper case, `_` → `-`, without the dot) only when it has the database's shape (four
+  letters, a dash, five digits); `PSX.EXE` or anything else gives no serial. Compressed
+  images (`.chd`, `.pbp`) and `.m3u` playlists are not read yet.
 
 ### libretro-thumbnails
 
@@ -195,7 +235,7 @@ Metadata is a **cache of slow work**: it can be found again, but it takes time a
 One table per kind, each marking what was asked:
 
 - `game_metadata`: one row per game whose providers were all asked: its identity and how it
-  was found (`crc`, `file-name`, or `NULL` when unidentified), the details' fields (nullable),
+  was found (`crc`, `serial`, `file-name`, or `NULL` when unidentified), the details' fields (nullable),
   and the file's size and modification time when it was looked at.
 - `game_images`: one row per game and artwork kind once every artwork provider was asked: the
   file's path, or `NULL` when no provider had it. A game's details found again (its file
@@ -306,7 +346,8 @@ One table per kind, each marking what was asked:
 - [ ] Each value comes from the first provider that has it; later ones only fill what is
       missing; what nobody had stays empty.
 - [ ] A game is asked once, unless its file changes or a provider couldn't answer.
-- [ ] Games are identified only by CRC or exact file name; nothing is guessed.
+- [ ] Games are identified only by CRC, then the disc's serial (platforms in "Identification
+      per platform"), then exact file name; nothing is guessed.
 - [ ] The title shown is the details' title when there is one, else the file name.
 - [ ] Work starts when a folder is saved or the app starts, never after a scan alone.
 - [ ] Artwork is files in the app's data folder; the database stores their paths.

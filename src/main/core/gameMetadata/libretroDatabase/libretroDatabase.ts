@@ -9,6 +9,7 @@ import { checksumsOf } from './libretroDatabase.checksums'
 import { diskReader, type FileReader } from './libretroDatabase.files'
 import { type DatabaseIndex, findGame, indexRecords } from './libretroDatabase.index'
 import { parseRdb } from './libretroDatabase.parsers'
+import { serialOf } from './libretroDatabase.serial'
 
 /** A libretro database file (`.rdb`) on this computer, and the platform whose games it lists. */
 export interface LibretroDatabaseFile {
@@ -32,7 +33,7 @@ async function loadIndex(path: string, reader: FileReader): Promise<DatabaseInde
 
 /**
  * The libretro databases RetroArch keeps (`.rdb`), read offline: they tell which game a file
- * is, by its CRC or its exact name, and its details. `listDatabases` says which files there
+ * is, by its CRC, its disc's serial or its exact name, and its details. `listDatabases` says which files there
  * are; each is read once, when first needed, and kept while this provider lives, so one is
  * made for each run over the library rather than kept for the app's life. Files are read with
  * `reader`, the disk's unless another is given.
@@ -75,7 +76,13 @@ export function createLibretroDatabase(
       if (databases.length === 0) {
         throw new MetadataUnavailableError(`No libretro database for ${platformId}`)
       }
-      const game = findGame(databases, await checksumsOf(filePath, reader), basename(filePath))
+      // The serial is read for every disc, not only when no CRC matches: it is a few KB, and
+      // findGame still takes the CRC first.
+      const game = findGame(databases, {
+        crcs: await checksumsOf(filePath, reader),
+        serial: await serialOf(platformId, filePath, reader),
+        fileName: basename(filePath)
+      })
       return game && { providerId: 'libretro-database', ...game }
     },
 

@@ -2,7 +2,14 @@ import { readFileSync } from 'fs'
 import { describe, expect, it } from 'vitest'
 
 import { encodeRdb } from './libretroDatabase.fixtures'
-import { contentStartsOf, parseRdb, readableTitle } from './libretroDatabase.parsers'
+import {
+  contentStartsOf,
+  cueFirstFile,
+  parseRdb,
+  readableTitle,
+  sectorLayoutOf,
+  systemCnfSerial
+} from './libretroDatabase.parsers'
 
 /** Records cut from RetroArch 1.22.2's real database of the same name. */
 function fixture(name: string): Buffer {
@@ -102,5 +109,51 @@ describe('readableTitle', () => {
 
   it('says nothing when only tags are left', () => {
     expect(readableTitle('(USA) [!]')).toBeNull()
+  })
+})
+
+describe('cueFirstFile', () => {
+  it('gives the file a cue sheet names first, quoted or not', () => {
+    expect(
+      cueFirstFile(
+        'FILE "Metal Gear Solid (Disc 1) (v1.1).bin" BINARY\r\n  TRACK 01 MODE2/2352\r\n' +
+          'FILE "Track 02.bin" BINARY\r\n'
+      )
+    ).toBe('Metal Gear Solid (Disc 1) (v1.1).bin')
+    expect(cueFirstFile('REM by hand\nfile crash.bin binary\n')).toBe('crash.bin')
+  })
+
+  it('gives nothing when the sheet names no file', () => {
+    expect(cueFirstFile('TRACK 01 MODE2/2352\n')).toBeNull()
+  })
+})
+
+describe('sectorLayoutOf', () => {
+  it('tells raw sectors by their sync, and where their data starts in each mode', () => {
+    const sync = [0x00, ...Array<number>(10).fill(0xff), 0x00, 0, 2, 0]
+
+    expect(sectorLayoutOf(Uint8Array.from([...sync, 2]))).toEqual({ size: 2352, dataOffset: 24 })
+    expect(sectorLayoutOf(Uint8Array.from([...sync, 1]))).toEqual({ size: 2352, dataOffset: 16 })
+    expect(sectorLayoutOf(new Uint8Array(16))).toEqual({ size: 2048, dataOffset: 0 })
+  })
+})
+
+describe('systemCnfSerial', () => {
+  it('gives the serial of the program a PlayStation disc boots', () => {
+    expect(systemCnfSerial('BOOT = cdrom:\\SCUS_949.00;1\r\nTCB = 4\r\nEVENT = 10\r\n')).toBe(
+      'SCUS-94900'
+    )
+    expect(systemCnfSerial('BOOT=cdrom:SLUS_005.94;1')).toBe('SLUS-00594')
+  })
+
+  it('gives the serial of the program a PlayStation 2 disc boots', () => {
+    expect(systemCnfSerial('BOOT2 = cdrom0:\\SLUS_213.76;1\nVER = 1.00\nVMODE = NTSC\n')).toBe(
+      'SLUS-21376'
+    )
+  })
+
+  it('gives nothing when the program isn’t named after a serial', () => {
+    expect(systemCnfSerial('BOOT = cdrom:\\PSX.EXE;1')).toBeNull()
+    expect(systemCnfSerial('TCB = 4')).toBeNull()
   })
 })

@@ -135,5 +135,46 @@ export const MIGRATIONS: Migration[] = [
         PRIMARY KEY (game_id, kind)
       ) STRICT;
     `
+  },
+  {
+    version: 8,
+    name: 'Allow games identified by serial, and ask unidentified games again',
+    up: `
+      CREATE TABLE game_metadata_new (
+        game_id TEXT PRIMARY KEY REFERENCES games (id) ON DELETE CASCADE,
+        identity_provider TEXT CHECK (identity_provider IN ('libretro-database')),
+        identity_database TEXT CHECK (length(identity_database) > 0),
+        identity_name TEXT CHECK (length(identity_name) > 0),
+        identified_by TEXT CHECK (identified_by IN ('crc', 'serial', 'file-name')),
+        title TEXT CHECK (length(title) > 0),
+        release_year INTEGER CHECK (release_year > 0),
+        release_month INTEGER CHECK (release_month BETWEEN 1 AND 12),
+        developer TEXT CHECK (length(developer) > 0),
+        publisher TEXT CHECK (length(publisher) > 0),
+        genre TEXT CHECK (length(genre) > 0),
+        players INTEGER CHECK (players > 0),
+        file_size INTEGER NOT NULL CHECK (file_size >= 0),
+        file_modified_at INTEGER NOT NULL,
+        looked_at INTEGER NOT NULL,
+        CHECK (
+          (identity_provider IS NULL) = (identity_database IS NULL)
+          AND (identity_provider IS NULL) = (identity_name IS NULL)
+          AND (identity_provider IS NULL) = (identified_by IS NULL)
+        )
+      ) STRICT;
+
+      -- Games nobody identified are left out, so they are asked again, now by serial too.
+      INSERT INTO game_metadata_new (game_id, identity_provider, identity_database,
+          identity_name, identified_by, title, release_year, release_month, developer,
+          publisher, genre, players, file_size, file_modified_at, looked_at)
+        SELECT game_id, identity_provider, identity_database, identity_name, identified_by,
+            title, release_year, release_month, developer, publisher, genre, players,
+            file_size, file_modified_at, looked_at
+          FROM game_metadata
+          WHERE identified_by IS NOT NULL;
+
+      DROP TABLE game_metadata;
+      ALTER TABLE game_metadata_new RENAME TO game_metadata;
+    `
   }
 ]

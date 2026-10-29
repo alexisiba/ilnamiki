@@ -68,6 +68,7 @@ export function memoryReader(files: Record<string, Uint8Array>, chunkSize = 1024
     read: async (path) => contentOf(path),
     size: async (path) => contentOf(path).length,
     readStart: async (path, length) => contentOf(path).subarray(0, length),
+    readAt: async (path, offset, length) => contentOf(path).subarray(offset, offset + length),
     async *chunks(path) {
       const content = contentOf(path)
       for (let start = 0; start < content.length; start += chunkSize) {
@@ -75,4 +76,69 @@ export function memoryReader(files: Record<string, Uint8Array>, chunkSize = 1024
       }
     }
   }
+}
+
+/** Data bytes in a sector of an ISO 9660 file system. */
+const SECTOR_DATA_SIZE = 2048
+
+/** Sector of the fake disc's root directory, after its primary volume descriptor (16). */
+const ROOT_SECTOR = 18
+
+/** An ISO 9660 directory record for a file of `size` bytes at `sector`, named `name`. */
+function directoryRecord(name: Buffer, sector: number, size: number, isDirectory: boolean): Buffer {
+  const record = Buffer.alloc(33 + name.length + (name.length % 2 === 0 ? 1 : 0))
+  record[0] = record.length
+  record.writeUInt32LE(sector, 2)
+  record.writeUInt32BE(sector, 6)
+  record.writeUInt32LE(size, 10)
+  record.writeUInt32BE(size, 14)
+  record[25] = isDirectory ? 2 : 0
+  record[32] = name.length
+  name.copy(record, 33)
+  return record
+}
+
+/** A sector's 2048 bytes of data as a raw CD sector of 2352 bytes in `mode`. */
+function rawSector(data: Buffer, mode: 1 | 2): Buffer {
+  const sector = Buffer.alloc(2352)
+  sector[0] = 0x00
+  sector.fill(0xff, 1, 11)
+  sector[11] = 0x00
+  sector[15] = mode
+  data.copy(sector, mode === 2 ? 24 : 16)
+  return sector
+}
+
+/**
+ * A disc image with an ISO 9660 file system whose root directory has `files` (by name, e.g.
+ * "SYSTEM.CNF", each up to one sector of text), as `.iso` images keep sectors (`iso`, 2048
+ * bytes) or as `.bin` images do (`mode1`, `mode2`: raw sectors of 2352 bytes). Without a root
+ * directory when `files` is null: a disc of data that isn't a file system.
+ */
+export function encodeDisc(
+  files: Record<string, string> | null,
+  sectors: 'iso' | 'mode1' | 'mode2' = 'iso'
+): Buffer {
+  const data = Array.from({ length: ROOT_SECTOR + 1 }, () => Buffer.alloc(SECTOR_DATA_SIZE))
+  if (files) {
+    const descriptor = data[16]
+    descriptor[0] = 1
+    descriptor.write('CD001', 1, 'latin1')
+    descriptor[6] = 1
+    directoryRecord(Buffer.from([0]), ROOT_SECTOR, SECTOR_DATA_SIZE, true).copy(descriptor, 156)
+
+    const records = [
+      directoryRecord(Buffer.from([0]), ROOT_SECTOR, SECTOR_DATA_SIZE, true),
+      directoryRecord(Buffer.from([1]), ROOT_SECTOR, SECTOR_DATA_SIZE, true)
+    ]
+    for (const [name, content] of Object.entries(files)) {
+      const sector = data.length
+      const bytes = Buffer.from(content, 'latin1')
+      data.push(Buffer.concat([bytes, Buffer.alloc(SECTOR_DATA_SIZE - bytes.length)]))
+      records.push(directoryRecord(Buffer.from(`${name};1`, 'latin1'), sector, bytes.length, false))
+    }
+    Buffer.concat(records).copy(data[ROOT_SECTOR])
+  }
+  if (sectors === 'iso') return Buffer.concat(data)
+  return Buffer.concat(data.map((sector) => rawSector(sector, sectors === 'mode1' ? 1 : 2)))
 }

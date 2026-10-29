@@ -19,7 +19,7 @@ structure: what each table is for, what each field means and how tables relate.
 | Journal | WAL (`ilnamiki.db-wal` and `ilnamiki.db-shm` exist while the app runs) |
 | Foreign keys | Enforced on every connection |
 | Schema version | Kept in `PRAGMA user_version`; the number of the last migration applied |
-| Current version | **7**: `emulators`, `library_folders`, `games`, `play_sessions`, `platform_settings`, `game_metadata`, `game_images` |
+| Current version | **8**: `emulators`, `library_folders`, `games`, `play_sessions`, `platform_settings`, `game_metadata`, `game_images` |
 
 ## What is stored and what isn't
 
@@ -233,13 +233,16 @@ is looked at again only when its file's size or modification time changes. A gam
 row was never asked, or a provider couldn't look yet (e.g. no database for its platform), and
 is tried again on a later run.
 
+Migration 8 rebuilt the table to allow `serial` in `identified_by`, and left out the rows of
+games nobody had identified, so those were asked once more, now by their disc's serial too.
+
 | Field | Type | Null | Meaning |
 |---|---|---|---|
 | `game_id` | `TEXT` | no | Primary key, → `games.id`. Deleted with its game (`CASCADE`), though games are never deleted today |
 | `identity_provider` | `TEXT` | yes | The provider that identified the game: `libretro-database`; `NULL` when none did |
 | `identity_database` | `TEXT` | yes | The database the game is in (e.g. `Nintendo - Game Boy`); `NULL` when unidentified |
 | `identity_name` | `TEXT` | yes | The game's name there (e.g. `Metal Gear Solid (USA)`); `NULL` when unidentified |
-| `identified_by` | `TEXT` | yes | How it was recognized: `crc` or `file-name`; `NULL` when unidentified |
+| `identified_by` | `TEXT` | yes | How it was recognized: `crc`, `serial` (the disc's serial) or `file-name`; `NULL` when unidentified |
 | `title` | `TEXT` | yes | Readable title (e.g. `The Legend of Zelda - Link's Awakening`), shown instead of `games.title`; `NULL` when no provider knew it |
 | `release_year` | `INTEGER` | yes | Year it came out; `NULL` when unknown |
 | `release_month` | `INTEGER` | yes | Month it came out, 1 to 12 (`CHECK`); `NULL` when unknown |
